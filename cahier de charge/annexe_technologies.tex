@@ -1,0 +1,135 @@
+%==============================================================================
+%  ANNEXE - Pile technologique detaillee et comparatif justifie
+%  Implementations concretes du socle impose + alternatives evaluees
+%  A inserer via \input{annexe_technologies} dans cahier_des_charges.tex
+%  (utilise la charte "Miel & noir" : miel, mielfonce, encadre, colonne C,
+%   longtable, booktabs -- deja definis dans le preambule principal)
+%==============================================================================
+
+%==============================================================================
+\chapter{Annexe : Pile technologique et comparatif des alternatives}
+\label{chap:technologies}
+%==============================================================================
+Le socle technique de \textbf{Zümm} (MVC, Servlet, JSP, EJB, JDBC, i18n XML,
+OAuth Google, X.509 / SSL, service web XML) est \textbf{imposé} par le cahier des
+charges et par la grille d'évaluation. La liberté de choix porte donc sur les
+\textbf{implémentations concrètes} de ce socle : serveur d'applications, SGBD,
+bibliothèques front-end, style de service web. Cette annexe recense les
+technologies retenues couche par couche, puis justifie chaque choix face à ses
+alternatives.
+
+%------------------------------------------------------------------------------
+\section{Pile technologique retenue}
+%------------------------------------------------------------------------------
+Le tableau ci-dessous précise, pour chaque couche de l'architecture
+multi-niveaux (figure~\ref{fig:couches}), l'implémentation concrète retenue et
+sa version de référence. Toutes les briques sont \textbf{libres et gratuites},
+conformément à l'exigence d'autodéploiement sans abonnement.
+
+\begin{longtable}{>{\bfseries}p{3.1cm} p{4.9cm} p{5.4cm}}
+\toprule
+\textbf{Couche / besoin} & \textbf{Technologie retenue} & \textbf{Rôle dans Zümm} \\
+\midrule
+\endhead
+Plateforme        & Jakarta EE 10 sur JDK 17 LTS      & Socle « J2EE » actuel : Servlet, JSP, EJB, JAX-WS \\
+Serveur d'applis  & WildFly (conteneur Web + EJB)     & Exécute l'archive WAR/EAR, fournit les conteneurs \\
+Contrôle (MVC)    & Servlets Jakarta + JSP + JSTL     & Aiguillage des requêtes, couche de contrôle \\
+Métier            & EJB Session (stateless)           & Règles de gestion : ROI, seuils, quantité de miel \\
+Accès données     & JDBC + pool HikariCP              & Requêtes SQL, gestion des connexions \\
+SGBD              & PostgreSQL (+ PostGIS)            & Persistance relationnelle, géolocalisation des sites \\
+Présentation      & HTML5 + JavaScript + Bootstrap 5  & IHM responsive, parité web / mobile \\
+Graphiques        & Chart.js                          & Tableaux de bord production, alertes, synthèse \\
+Cartographie      & Leaflet + OpenStreetMap           & Carte des sites et rayons de butinage \\
+i18n              & Fichiers XML + \texttt{ResourceBundle} & Textes FR / EN / AR, support du RTL arabe \\
+Configuration     & \texttt{ConfigZumm.ini} via Singleton  & Seuils, unités et modules sans redéploiement \\
+Service web tiers & JAX-WS (SOAP / XML)               & \texttt{getZummHoneyActualQuantity(int)} \\
+Authentification  & OAuth 2.0 Google                  & Connexion déléguée sans gestion de mots de passe \\
+Sécurité échanges & TLS / SSL + certificats X.509     & Chiffrement et authentification inter-composants \\
+Hors-ligne        & PWA (Service Worker + IndexedDB)  & Saisie terrain sans réseau, synchronisation différée \\
+Build \& tests    & Maven, JUnit 5, Mockito, Arquillian & Compilation, tests unitaires et in-container \\
+\bottomrule
+\end{longtable}
+
+\begin{encadre}
+\textbf{Note :} le passage de l'appellation historique « J2EE » à
+\textbf{Jakarta EE 10} ne change ni les concepts ni les API notées (Servlet,
+JSP, EJB, JDBC) ; il ne fait qu'adopter la version maintenue de la plateforme.
+La trajectoire de modernisation vers Spring Boot est traitée séparément à
+l'annexe~\ref{chap:migration}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Comparatif justifié des alternatives}
+%------------------------------------------------------------------------------
+Pour chaque décision ouverte, les options crédibles ont été évaluées. Le tableau
+retient l'option, cite les alternatives écartées et donne la justification au
+regard des exigences du projet (autodéploiement, gratuité, ergonomie,
+géolocalisation, interopérabilité).
+
+\subsection{Serveur d'applications}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Conteneur \textbf{EJB + Servlet} complet et gratuit, démarrage rapide, documentation abondante. TomEE reste plus léger mais moins intégré ; Payara convient aussi (fork de GlassFish orienté production). \\
+\bottomrule
+\end{longtable}
+
+\subsection{Système de gestion de base de données}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+PostgreSQL & MySQL / MariaDB, H2, Oracle XE & \textbf{Géolocalisation} native (PostGIS) pour les sites et rayons de butinage, bon support des contraintes \texttt{CHECK} (règles cadres/hausses), séries temporelles de mesures. Gratuit et sans verrouillage propriétaire, contrairement à Oracle. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Style du service web tiers}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & Le cahier des charges impose un \textbf{service web XML} exposant \texttt{float getZummHoneyActualQuantity(int zummID)} ; SOAP en est la traduction littérale, avec contrat WSDL interrogeable depuis Excel. Un endpoint REST/JSON pourra compléter l'offre en modernisation (annexe~\ref{chap:migration}). \\
+\bottomrule
+\end{longtable}
+
+\subsection{Cartographie et rayons de butinage}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+Leaflet + OSM & Google Maps JS API, Mapbox & \textbf{Libre et sans clé payante} ni quota facturé, cohérent avec l'exigence d'autodéploiement. Tracé simple des cercles de butinage (1, 2, 3~km) à partir des coordonnées des sites. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Bibliothèque de graphiques}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+Chart.js & D3.js, ApexCharts, Highcharts & Courbe d'apprentissage faible et rendu direct des histogrammes et courbes des tableaux de bord (production, ROI). D3 est plus puissant mais surdimensionné ; Highcharts n'est pas libre pour un usage commercial. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Accès hors-ligne et mobile}
+\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+PWA (Service Worker + IndexedDB) & Application native (Android/iOS), Flutter, React~Native & \textbf{Parité web / mobile} avec une seule base de code, saisie terrain sans réseau puis synchronisation différée. Évite le développement et la distribution d'applications natives, hors périmètre académique. \\
+\bottomrule
+\end{longtable}
+
+\begin{encadre}
+\textbf{Cohérence avec la contrainte académique :} toutes les briques retenues
+sont libres, documentées et \emph{justifiables} « pourquoi / comment / où »
+(critère \emph{Technologies} de la grille d'évaluation, chapitre des délais).
+Aucune ne repose sur un générateur de code : elles sont mises en \oe uvre à la
+main par l'équipe, conformément à la contrainte de l'épreuve.
+\end{encadre}
