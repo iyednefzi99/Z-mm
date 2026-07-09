@@ -147,7 +147,7 @@ class Ruche {
   -id : int
   -modele : String
   -nbHausses : int
-  +getBeeHouseHoneyActualQuantity() : float
+  +getZummHoneyActualQuantity() : float
 }
 
 class Compartiment {

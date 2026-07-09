@@ -1,0 +1,159 @@
+@startuml diagramme_mld
+' Modele Logique de Donnees (MLD) - Zümm - notation crow's foot
+skinparam shadowing false
+skinparam linetype ortho
+hide circle
+skinparam class {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  HeaderBackgroundColor #D4A017
+}
+title Modele Logique de Donnees (MLD) - Zümm
+
+entity FERMIER {
+  * id : INT <<PK>>
+  --
+  nom : VARCHAR(80)
+  contact : VARCHAR(120)
+}
+
+entity FERME {
+  * id : INT <<PK>>
+  --
+  nom : VARCHAR(80)
+  * fermier_id : INT <<FK>>
+}
+
+entity SITE {
+  * id : INT <<PK>>
+  --
+  nom : VARCHAR(80)
+  latitude : DECIMAL(9,6)
+  longitude : DECIMAL(9,6)
+  altitude : DECIMAL(7,2)
+  date_mise_en_oeuvre : DATE
+  date_demenagement : DATE
+  date_cloture : DATE
+  * ferme_id : INT <<FK>>
+}
+
+entity RUCHE {
+  * id : INT <<PK>>
+  --
+  modele : VARCHAR(40)
+  nb_hausses : INT <<CHECK 0..5>>
+  etat : VARCHAR(20)
+  * site_id : INT <<FK>>
+  * ferme_id : INT <<FK>>
+  agent_responsable_id : INT <<FK>>
+}
+
+entity COMPARTIMENT {
+  * id : INT <<PK>>
+  --
+  type : VARCHAR(10) <<CORPS|HAUSSE>>
+  capacite_cadres : INT <<CHECK 1..10>>
+  * ruche_id : INT <<FK>>
+}
+
+entity CADRE {
+  * id : INT <<PK>>
+  --
+  slot : INT
+  type : VARCHAR(15)
+  poids : DECIMAL(6,2)
+  * compartiment_id : INT <<FK>>
+  == UNIQUE(compartiment_id, slot) ==
+}
+
+entity AGENT {
+  * id : INT <<PK>>
+  --
+  nom : VARCHAR(80)
+  role : VARCHAR(20)
+}
+
+entity PLANNING {
+  * id : INT <<PK>>
+  --
+  date_prevue : DATE
+  statut_approbation : VARCHAR(15)
+  * ruche_id : INT <<FK>>
+  * agent_id : INT <<FK>>
+  superviseur_id : INT <<FK>>
+}
+
+entity VISITE {
+  * id : INT <<PK>>
+  --
+  date : DATE
+  heure : TIME
+  duree : INT
+  raison : VARCHAR(30)
+  constatations : TEXT
+  actions_prevues : TEXT
+  actions_effectuees : TEXT
+  recommandations : TEXT
+  effectif_qualitatif : VARCHAR(15)
+  etat_sante : VARCHAR(20)
+  productivite : INT <<CHECK 1..3>>
+  * ruche_id : INT <<FK>>
+  * agent_id : INT <<FK>>
+  planning_id : INT <<FK>>
+}
+
+entity PHOTO {
+  * id : INT <<PK>>
+  --
+  url : VARCHAR(255)
+  * visite_id : INT <<FK>>
+}
+
+entity MESURE {
+  * id : INT <<PK>>
+  --
+  type_indicateur : VARCHAR(25)
+  valeur : DECIMAL(12,4)
+  unite : VARCHAR(15)
+  horodatage : TIMESTAMP
+  latitude : DECIMAL(9,6)
+  longitude : DECIMAL(9,6)
+  * ruche_id : INT <<FK>>
+}
+
+entity RECOLTE {
+  * id : INT <<PK>>
+  --
+  date : DATE
+  quantite_miel : DECIMAL(8,2)
+  lot_qr : VARCHAR(60)
+  * ruche_id : INT <<FK>>
+}
+
+entity SEUIL {
+  * id : INT <<PK>>
+  --
+  type : VARCHAR(30)
+  valeur : DECIMAL(12,4)
+  unite : VARCHAR(15)
+}
+
+FERMIER ||--o{ FERME : possede
+FERME ||--o{ SITE : comporte
+SITE ||--|{ RUCHE : heberge
+FERME ||--o{ RUCHE : possede
+AGENT ||--o{ RUCHE : responsable
+RUCHE ||--|{ COMPARTIMENT : composition
+COMPARTIMENT ||--|{ CADRE : contient
+RUCHE ||--o{ PLANNING : concerne
+AGENT ||--o{ PLANNING : etablit
+AGENT ||--o{ PLANNING : approuve
+PLANNING ||--o| VISITE : donne_lieu
+RUCHE ||--o{ VISITE : fait_objet
+AGENT ||--o{ VISITE : realise
+VISITE ||--o{ PHOTO : illustree_par
+RUCHE ||--o{ MESURE : mesuree
+RUCHE ||--o{ RECOLTE : produit
+
+@enduml

@@ -1,0 +1,170 @@
+%==============================================================================
+%  ANNEXE - Complements : donnees, IHM, securite et tests
+%  A inserer via \input{annexe_complements} dans cahier_des_charges.tex
+%  (charte "Miel & noir" : miel, mielfonce, encadre, colonne C, longtable,
+%   booktabs -- deja definis dans le preambule principal)
+%==============================================================================
+
+%==============================================================================
+\chapter{Annexe - Complements : donnees, IHM, securite et tests}
+\label{chap:complements}
+%==============================================================================
+Cette annexe regroupe des livrables complementaires renforcant le dossier :
+le modele logique de donnees, les maquettes de l'interface, la matrice des
+droits d'acces, le registre des risques, la conformite a la protection des
+donnees et la strategie de tests.
+
+%------------------------------------------------------------------------------
+\section{Modele logique de donnees (MLD)}
+%------------------------------------------------------------------------------
+Le MLD traduit le dictionnaire de donnees (chapitre~5) en tables relationnelles
+avec cles primaires, cles etrangeres et contraintes de gestion (\texttt{CHECK}
+sur le nombre de hausses, la capacite en cadres et la productivite ; unicite du
+couple compartiment/slot). Il distingue la relation d'\emph{emplacement}
+(un site heberge des ruches) de la relation de \emph{propriete} (une ferme
+possede des ruches), conformement a la regle autorisant un site a accueillir des
+ruches de plusieurs fermes.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\linewidth]{diagramme_mld}
+\caption{Modele logique de donnees relationnel du systeme Z\"umm.}
+\label{fig:mld}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Maquettes de l'interface (wireframes)}
+%------------------------------------------------------------------------------
+Les maquettes basse-fidelite suivantes fixent l'ergonomie des ecrans cles avant
+le developpement. Elles respectent la charte visuelle et la simplicite exigee.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{wireframe_calendrier}
+\caption{Maquette : calendrier / matrice agents x ruches avec pop-up de visite.}
+\label{fig:wf-calendrier}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{wireframe_tdb_production}
+\caption{Maquette : tableau de bord de production avec seuil parametrable.}
+\label{fig:wf-production}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{wireframe_rapport_visite}
+\caption{Maquette : formulaire de rapport de visite (avec mode hors-ligne et photos).}
+\label{fig:wf-rapport}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{wireframe_ruche}
+\caption{Maquette : fiche d'une ruche et composition (corps, hausses, cadres).}
+\label{fig:wf-ruche}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Matrice des droits d'acces (RBAC)}
+%------------------------------------------------------------------------------
+La matrice precise, pour chaque fonction, le droit accorde a chaque profil.
+\textbf{Legende :} CRUD = creation / lecture / mise a jour / suppression ;
+R = lecture ; X = execution ; A = approbation ; --- = aucun acces.
+
+\begin{longtable}{>{\bfseries}p{3.6cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm}}
+\toprule
+\textbf{Fonction} & \textbf{Prop.} & \textbf{Apic.} & \textbf{Sup.} & \textbf{Resp.} & \textbf{Admin} & \textbf{API} \\
+\midrule
+\endhead
+Fermes et sites          & CRUD & R    & R    & R    & CRUD & --- \\
+Ruches (corps/cadres)    & CRUD & R    & R    & R    & CRUD & --- \\
+Agents                   & R    & ---  & R    & R    & CRUD & --- \\
+Planifier une visite     & R    & X    & X    & X    & X    & --- \\
+Approuver le planning    & ---  & ---  & A    & ---  & X    & --- \\
+Realiser visite/rapport  & R    & X    & X    & ---  & R    & --- \\
+Calendrier agents x ruches & R  & R    & R    & R    & R    & --- \\
+TB production            & R    & ---  & ---  & R    & R    & --- \\
+TB alertes / traiter     & R    & ---  & ---  & X    & R    & --- \\
+Synthese et ROI          & R    & ---  & ---  & R    & R    & --- \\
+Parametrer seuils/unites & ---  & ---  & ---  & R    & CRUD & --- \\
+Internationalisation     & ---  & ---  & ---  & ---  & CRUD & --- \\
+Export CSV / TXT         & R    & R    & R    & R    & R    & --- \\
+Sauvegarde / restauration & --- & ---  & ---  & ---  & X    & --- \\
+API quantite de miel     & ---  & ---  & ---  & ---  & ---  & R \\
+\bottomrule
+\end{longtable}
+
+\begin{encadre}
+Cette matrice doit etre appliquee cote serveur (verification systematique des
+droits dans la couche de controle), et non uniquement par le masquage des
+elements d'interface.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Registre des risques}
+%------------------------------------------------------------------------------
+\begin{longtable}{>{\bfseries}p{4.6cm} C{1.8cm} C{1.6cm} p{5.4cm}}
+\toprule
+\textbf{Risque} & \textbf{Probab.} & \textbf{Impact} & \textbf{Mesure de reduction} \\
+\midrule
+\endhead
+Retard de developpement       & Moyenne & Fort      & Prioriser le noyau CRUD ; jalons hebdomadaires (S5 a S12). \\
+Portee trop large             & Moyenne & Fort      & Se limiter aux fonctions de priorite haute ; le reste en option. \\
+Complexite i18n arabe (RTL)   & Moyenne & Moyen     & Test precoce de bout en bout FR/EN/AR, gestion \texttt{dir=rtl}. \\
+Perte de donnees terrain      & Moyenne & Fort      & File de commandes hors-ligne + synchronisation + sauvegarde. \\
+Failles applicatives (injection, XSS) & Moyenne & Fort & \texttt{PreparedStatement}, echappement JSP, revue de securite. \\
+Fausses alertes (capteurs)    & Moyenne & Moyen     & Seuils parametrables + validation humaine par le rapport. \\
+Indisponibilite d'OAuth Google & Faible & Moyen     & Repli d'authentification locale pour la demonstration. \\
+Volumetrie des mesures        & Faible  & Moyen     & Archivage et agregation par periode (volet automatise). \\
+Usage d'un generateur de code & Faible  & Tres fort & Conception et code faits maison, tracabilite et revue par pairs. \\
+\bottomrule
+\end{longtable}
+
+%------------------------------------------------------------------------------
+\section{Protection des donnees personnelles}
+%------------------------------------------------------------------------------
+Le systeme manipule des donnees personnelles (noms et contacts des fermiers et
+des agents) et des donnees potentiellement sensibles (\textbf{geolocalisation}
+precise des sites). Les principes suivants sont retenus, dans l'esprit du RGPD :
+\begin{itemize}
+  \item \textbf{Minimisation et finalite} : ne collecter que les donnees utiles au suivi apicole.
+  \item \textbf{Securite} : chiffrement des echanges (SSL / X.509) et acces authentifies, deja prevus.
+  \item \textbf{Controle d'acces} : application stricte de la matrice RBAC ci-dessus.
+  \item \textbf{Droits des personnes} : consultation, rectification et \textbf{effacement} des donnees, \textbf{portabilite} assuree par l'export CSV / TXT.
+  \item \textbf{Conservation} : duree de retention definie pour les mesures et les visites, au-dela de laquelle les donnees sont archivees ou anonymisees.
+  \item \textbf{Tracabilite} : journalisation des acces et des actions sensibles (approbation de planning, cloture de site).
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Strategie de tests}
+%------------------------------------------------------------------------------
+La strategie complete le plan de tests fonctionnels (chapitre~10) par les
+niveaux unitaire et d'integration. La conception faiblement couplee (interfaces
+\texttt{Repository}, services segreges) rend les regles metier testables en
+isolation, par injection de doubles (mocks).
+
+\begin{longtable}{>{\bfseries}p{2.8cm} p{4.4cm} p{4.4cm} C{2.2cm}}
+\toprule
+\textbf{Niveau} & \textbf{Portee} & \textbf{Exemples} & \textbf{Outil} \\
+\midrule
+\endhead
+Unitaire      & Regles de gestion isolees          & Contraintes cadres/hausses, calcul du miel (Composite), ROI, seuils & JUnit 5, Mockito \\
+Integration   & Acces aux donnees (Repository/JDBC) & CRUD persiste, requetes de calcul                                   & JUnit + base H2 \\
+Systeme       & Cas fonctionnels de bout en bout    & Cas TC01 a TC16 du chapitre~10                                      & JUnit, Selenium \\
+Acceptation   & Validation par la demonstration     & Parcours agent, fermier, responsable                                & Soutenance \\
+\bottomrule
+\end{longtable}
+
+\begin{itemize}
+  \item \textbf{Couverture visee} : au moins 70\,\% de la couche metier (regles de gestion), mesuree par \texttt{JaCoCo}.
+  \item \textbf{Tracabilite} : chaque exigence est reliee a au moins un cas de test (matrice du chapitre~10), completee par les tests unitaires correspondants.
+  \item \textbf{Automatisation} : execution des tests a chaque build (Maven), pre-requis a la livraison.
+\end{itemize}
+
+\begin{encadre}
+\textbf{Synergie avec la conception :} l'inversion de dependance (DIP) permet de
+substituer un \texttt{RucheRepository} en memoire aux implementations JDBC, ce
+qui rend les tests rapides, deterministes et independants de la base.
+\end{encadre}

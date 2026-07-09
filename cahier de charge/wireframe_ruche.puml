@@ -1,0 +1,22 @@
+@startsalt wireframe_ruche
+{+
+{* Zümm | Calendrier | Tableaux de bord | Ruches | Agents }
+{^"Fiche ruche R1"
+  Modele | ^Dadant^ | Etat | ^Active^ | Agent responsable | ^K. Ben Ali^
+  Site | ^Rucher Nord^ | Nb hausses | "2"
+}
+{T
++ Ruche R1
+++ Corps (capacite 10 cadres)
++++ Cadre 1 - couvain
++++ Cadre 2 - couvain
+++ Hausse 1 (capacite 10 cadres)
++++ Cadre 1 - miel
+++ Hausse 2 (capacite 10 cadres)
++++ Cadre 1 - miel
+}
+{
+  [ Ajouter une hausse ] | [ Ajouter un cadre ] | [ Planifier une visite ]
+}
+}
+@endsalt

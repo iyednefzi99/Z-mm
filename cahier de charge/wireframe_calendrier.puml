@@ -1,0 +1,21 @@
+@startsalt wireframe_calendrier
+{+
+{* Zümm | Calendrier | Tableaux de bord | Ruches | Agents | Deconnexion }
+{
+  Filtres: | Site: ^Tous^ | Agent: ^Tous^ | Vue: ^Mois^ | [ Appliquer ]
+}
+{#
+. | Ruche R1 | Ruche R2 | Ruche R3
+Agent A | OK executee | . | O prevue
+Agent B | . | O prevue | .
+Agent C | O prevue | . | OK executee
+}
+{^"Pop-up (clic sur une case)"
+  Date / heure: | "12/07/2026 09:00"
+  Raison: | ^Inspection sanitaire^
+  Actions prevues: | "Controle du couvain, ajout d'une hausse"
+  Actions effectuees: | "(affichees si la visite est executee)"
+  [ Fermer ]
+}
+}
+@endsalt

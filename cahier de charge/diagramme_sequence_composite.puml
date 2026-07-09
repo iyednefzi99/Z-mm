@@ -49,7 +49,7 @@ note over Ruche, Cadre
   Composite : Ruche, Compartiment et Cadre partagent
   l'interface ElementRuche. getPoidsMiel() se resout
   recursivement, sans que le client connaisse la structure.
-  Correspond a getBeeHouseHoneyActualQuantity().
+  Correspond a getZummHoneyActualQuantity().
 end note
 
 @enduml

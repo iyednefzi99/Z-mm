@@ -81,7 +81,7 @@ end note
 ' ===================== ISP : services metier segreges =====================
 package "ISP  (services segreges)" {
   interface ServiceRequeteMiel {
-    +getBeeHouseHoneyActualQuantity(id : int) : float
+    +getZummHoneyActualQuantity(id : int) : float
   }
   interface ServiceVisite {
     +planifier(v : Visite)

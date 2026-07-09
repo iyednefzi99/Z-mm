@@ -1,0 +1,21 @@
+@startsalt wireframe_tdb_production
+{+
+{* Zümm | Calendrier | Tableaux de bord | Ruches | Agents }
+{/ Production | Alertes | Synthese / ROI }
+{
+  Ferme: ^Toutes^ | Site: ^Tous^ | Periode: ^Saison^ | Seuil (kg): "25" | [ Filtrer ]
+}
+{#
+Site | Ruche | Production (kg) | Statut
+Nord | R1 | 28 | depasse : collecte
+Nord | R3 | 31 | depasse : extension
+Sud | R7 | 26 | depasse : collecte
+}
+{^"Production par site"
+  {
+    [ Zone graphique : histogramme de la production (kg) par site et par ruche ]
+  }
+  { Nord: R1=28  R3=31 | Sud: R7=26 | Seuil=25 kg }
+}
+}
+@endsalt

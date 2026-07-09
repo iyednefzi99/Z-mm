@@ -16,12 +16,12 @@ title Diagramme de composants - Zümm
 component "Application web\n(JSP, Servlets, MVC)" as Web
 component "Module metier\n(EJB)" as Metier
 component "Module i18n\n(fichiers XML)" as I18n
-component "Module configuration\n(ConfigBKS.ini)" as Config
+component "Module configuration\n(ConfigZumm.ini)" as Config
 component "Client OAuth\n(service web XML)" as OAuthC
 component "Service web API\n(XML)" as API
 database "SGBD relationnel" as DB
 
-interface "getBeeHouseHoneyActualQuantity" as IHoney
+interface "getZummHoneyActualQuantity" as IHoney
 interface "JDBC" as IJdbc
 
 Web ..> Metier : utilise

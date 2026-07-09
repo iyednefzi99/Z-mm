@@ -34,7 +34,7 @@ patrons de \emph{refactoring.guru}, adaptes au domaine apicole du projet.
 \endhead
 S -- Responsabilite unique &
 L'entite \texttt{Ruche} porte la methode de calcul
-\texttt{getBeeHouseHoneyActualQuantity()} : elle melange l'etat (donnees) et la
+\texttt{getZummHoneyActualQuantity()} : elle melange l'etat (donnees) et la
 logique metier ; \texttt{Visite} regroupe donnees et champs de rapport. &
 Le calcul est extrait dans \texttt{ServiceMielImpl} (via le Composite) et le
 rapport devient \texttt{RapportVisite}. Chaque classe n'a plus qu'une seule
@@ -58,7 +58,7 @@ I -- Segregation des interfaces &
 Un service unique \og fourre-tout \fg{} (CRUD + visites + tableaux de bord +
 API miel) obligerait l'application tierce a dependre de methodes inutilisees. &
 Interfaces ciblees : \texttt{ServiceRequeteMiel} (l'API tierce ne voit que
-\texttt{getBeeHouseHoneyActualQuantity}), \texttt{ServiceVisite},
+\texttt{getZummHoneyActualQuantity}), \texttt{ServiceVisite},
 \texttt{ServiceTableauDeBord}. Chaque client ne depend que de son contrat. \\
 D -- Inversion de dependance &
 La couche metier (EJB) appelle directement JDBC (implementation concrete) :
@@ -127,7 +127,7 @@ Le Servlet orchestre directement tous les services metier. &
 \texttt{FacadeApplication} offre un point d'entree simplifie aux Servlets
 par-dessus les sous-systemes. \\
 Singleton \newline {\small\itshape creationnel -- transverse} &
-Le fichier \texttt{ConfigBKS.ini} et les libelles i18n seraient relus en
+Le fichier \texttt{ConfigZumm.ini} et les libelles i18n seraient relus en
 plusieurs instances. &
 \texttt{Configuration} et \texttt{GestionnaireI18n} garantissent une instance
 unique partagee. \\
@@ -220,7 +220,7 @@ La figure~\ref{fig:seq-composite} detaille la resolution recursive de
 ruche, qui propage l'appel a chaque compartiment, puis a chaque cadre (feuille).
 Seuls les cadres de type \texttt{MIEL} contribuent, et la tare est retranchee au
 niveau de la ruche. Le client ignore la structure interne ; ce calcul realise la
-methode \texttt{getBeeHouseHoneyActualQuantity} exposee par le service web.
+methode \texttt{getZummHoneyActualQuantity} exposee par le service web.
 
 \begin{figure}[htbp]
 \centering

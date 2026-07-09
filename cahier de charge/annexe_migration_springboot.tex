@@ -51,9 +51,9 @@ JSP (presentation) & Thymeleaf (server-side) ou React / Angular (SPA) & Templati
 EJB (\texttt{@Stateless}, conteneur EJB) & Spring \texttt{@Service} / \texttt{@Component} & Meme role (logique metier, injection, transactions) sans conteneur EJB lourd ; \texttt{@Transactional} gere les transactions. \\
 JDBC (SQL manuel, \texttt{ResultSet}) & Spring Data JPA / Hibernate & Le mapping objet-relationnel remplace le SQL a la main ; \texttt{JpaRepository} genere les CRUD (\texttt{JdbcTemplate} reste disponible). \\
 i18n par fichier XML & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & Meme principe d'externalisation des textes, format \texttt{.properties} standard, toujours FR / EN / AR. \\
-\texttt{ConfigBKS.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parametrage sans recompilation, injectable par profil ; les seuils et unites deviennent des beans types. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parametrage sans recompilation, injectable par profil ; les seuils et unites deviennent des beans types. \\
 OAuth Google (WS XML maison) & Spring Security OAuth2 Client & Login Google en quelques lignes de configuration au lieu d'un client OAuth ecrit a la main, et plus sur. \\
-Web service API XML \texttt{getBeeHouseHoneyActualQuantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee ; XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
+Web service API XML \texttt{getZummHoneyActualQuantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee ; XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
 X.509 / SSL (manuel) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & Activation HTTPS declarative, memes certificats X.509, configuration triviale. \\
 JavaScript (front libre) & React / Vue / Angular (ou Thymeleaf + JS) & Front decouple consommant l'API REST, parite web et mobile simplifiee. \\
 \bottomrule
@@ -113,7 +113,7 @@ ne disparait, seule la mise en oeuvre est modernisee.
 \end{figure}
 
 Les modules transverses suivent la meme logique : i18n XML \textrightarrow{}
-\texttt{MessageSource}, \texttt{ConfigBKS.ini} \textrightarrow{}
+\texttt{MessageSource}, \texttt{ConfigZumm.ini} \textrightarrow{}
 \texttt{application.yml}, service web XML \textrightarrow{} API REST + OpenAPI.
 
 %------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ competences acquises :
         equivalent Spring Boot est demontre (Servlet \textrightarrow{}
         \texttt{@RestController}, EJB \textrightarrow{} \texttt{@Service}, JDBC
         \textrightarrow{} Spring Data JPA, XML i18n \textrightarrow{}
-        \texttt{MessageSource}, \texttt{ConfigBKS.ini} \textrightarrow{}
+        \texttt{MessageSource}, \texttt{ConfigZumm.ini} \textrightarrow{}
         \texttt{application.yml}, WS XML \textrightarrow{} API REST + OpenAPI,
         X.509 / SSL \textrightarrow{} configuration SSL declarative). Cette
         correspondance prouve que \textbf{l'architecture cible reste identique} :

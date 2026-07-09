@@ -402,7 +402,7 @@ Indicateurs capteurs & Modèle de données prêt pour l'automatisation          
 Déploiement autonome & Installation J2EE sans abonnement ni service tiers obligatoire & Haute \\
 Mode hors-ligne & Saisie sans connexion et synchronisation différée & Haute \\
 Authentification simple & OAuth Google et parcours de saisie terrain rapide & Haute \\
-Modularité configurable & Activation des modules par profil via ConfigBKS.ini & Moyenne \\
+Modularité configurable & Activation des modules par profil via ConfigZumm.ini & Moyenne \\
 Portabilité des données & Export CSV et TXT, service web API et sauvegarde, sans verrouillage & Haute \\
 Aide contextuelle & Interface simple et cohérente, guidage de l'utilisateur & Moyenne \\
 Parité web et mobile & Mêmes fonctions sur tous les supports & Moyenne \\
@@ -478,7 +478,7 @@ met chaque limite en regard de l'exigence retenue pour l'éviter dans Zümm.
 Abonnement payant et paywall & Système autodéployable en J2EE, sans abonnement obligatoire, l'ensemble des fonctions de gestion reste accessible. \\
 Fonctionnement hors-ligne limité & Mode hors-ligne robuste avec synchronisation différée, la saisie terrain n'exige pas de connexion permanente. \\
 Création de compte imposée et friction & Authentification simple par OAuth Google et parcours de saisie rapide, l'ergonomie prime. \\
-Surcharge de fonctions inutiles & Modules activables par profil et par le fichier de configuration ConfigBKS.ini, grâce à l'architecture faiblement couplée. \\
+Surcharge de fonctions inutiles & Modules activables par profil et par le fichier de configuration ConfigZumm.ini, grâce à l'architecture faiblement couplée. \\
 Dépendance et perte des données & Données maîtrisées par l'utilisateur, export CSV et TXT, service web API et sauvegarde, sans verrouillage propriétaire. \\
 Interface dense et courbe d'apprentissage & Interface simple, cohérente et conviviale avec aide contextuelle, conformément aux exigences d'ergonomie. \\
 Fonctions inégales selon la plateforme & Parité fonctionnelle entre accès web et mobile grâce à l'architecture multi-niveaux. \\
@@ -544,7 +544,7 @@ Seuil & id, type, valeur, unite & entier, énumération, décimal, texte & Seuil
   \item \textbf{Quantité de miel d'une ruche} : somme des poids des cadres de miel des hausses, diminuée de la tare des éléments.
 \end{itemize}
 \[ \text{QuantiteMiel}(r) = \sum_{c \in \text{cadresMiel}(r)} \text{poids}(c) - \text{tare}(r) \]
-Cette valeur est exposée par le service web via \texttt{getBeeHouseHoneyActualQuantity(beeHouseID)}.
+Cette valeur est exposée par le service web via \texttt{getZummHoneyActualQuantity(zummID)}.
 \begin{itemize}
   \item \textbf{Retour sur investissement} d'un site ou d'une ruche :
 \end{itemize}
@@ -564,7 +564,7 @@ Cette valeur est exposée par le service web via \texttt{getBeeHouseHoneyActualQ
 
 \section{Requêtes types}
 Les résultats s'appuient sur des requêtes exécutées via JDBC, par exemple pour la
-quantité de miel d'une ruche : \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = beeHouseID}.
+quantité de miel d'une ruche : \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = zummID}.
 
 %==============================================================================
 \chapter{Cas d'utilisation détaillés}
@@ -622,7 +622,7 @@ d'inclusion et d'extension).
 \begin{itemize}
   \item \textbf{Acteur} : application tierce (Excel ou autre).
   \item \textbf{Préconditions} : l'application dispose d'un accès sécurisé au service web.
-  \item \textbf{Scénario nominal} : l'application appelle \texttt{getBeeHouseHoneyActualQuantity(beeHouseID)}, le service calcule et retourne la quantité de miel.
+  \item \textbf{Scénario nominal} : l'application appelle \texttt{getZummHoneyActualQuantity(zummID)}, le service calcule et retourne la quantité de miel.
   \item \textbf{Postcondition} : la valeur est restituée au format du service web XML.
 \end{itemize}
 
@@ -652,7 +652,7 @@ Déploiement & Répartition sur le navigateur, le serveur d'applications J2EE, l
 
 \section{Diagramme de classes}
 Le diagramme de classes, présenté en alignement horizontal, décrit les entités
-métier, leurs attributs, la méthode de service \texttt{getBeeHouseHoneyActualQuantity}
+métier, leurs attributs, la méthode de service \texttt{getZummHoneyActualQuantity}
 et les relations avec leurs cardinalités.
 \begin{figure}[htbp]
 \centering
@@ -672,7 +672,7 @@ et les relations avec leurs cardinalités.
 \node[couche] (m) at (0,2) {Métier : EJB};
 \node[couche] (d) at (0,1) {Accès aux données : JDBC};
 \node[couche] (b) at (0,0) {Base de données relationnelle};
-\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,right=3mm of c,xshift=4.7cm] (s) {i18n XML / ConfigBKS.ini / Services web};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,right=3mm of c,xshift=4.7cm] (s) {i18n XML / ConfigZumm.ini / Services web};
 \draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
 \draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
 \draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
@@ -786,10 +786,10 @@ JSP              & Front-end de présentation. \\
 EJB              & Composants métier. \\
 JDBC             & Accès aux données. \\
 Internationalisation & Textes de l'IHM externalisés dans un fichier XML, ouverture à la traduction hors-ligne sans limite de langues, FR, EN et AR au minimum en démonstration. \\
-Configuration    & Paramétrage par fichier texte \texttt{ConfigBKS.ini}. \\
+Configuration    & Paramétrage par fichier texte \texttt{ConfigZumm.ini}. \\
 Sécurité inter-composants & Certificats \textbf{X.509} et protocole \textbf{SSL}. \\
 Authentification utilisateur & \textbf{OAuth Google} via un service web XML et son API. \\
-API tierce       & Service web XML exposant \texttt{float getBeeHouseHoneyActualQuantity(int beeHouseID)} pour récupérer la quantité de miel d'une ruche. \\
+API tierce       & Service web XML exposant \texttt{float getZummHoneyActualQuantity(int zummID)} pour récupérer la quantité de miel d'une ruche. \\
 Front-end        & JavaScript et frameworks libres, dans le respect de l'ergonomie imposée. \\
 \bottomrule
 \end{longtable}
@@ -838,7 +838,7 @@ JSP & Produire les pages dynamiques & Couche de présentation \\
 EJB & Encapsuler la logique métier et la rendre réutilisable & Couche métier \\
 JDBC & Accéder à la base relationnelle de façon standard & Couche d'accès aux données \\
 XML i18n & Externaliser les textes pour la traduction hors-ligne & Module d'internationalisation \\
-ConfigBKS.ini & Paramétrer le système sans recompilation & Module de configuration \\
+ConfigZumm.ini & Paramétrer le système sans recompilation & Module de configuration \\
 OAuth Google & Authentifier les utilisateurs sans gérer les mots de passe & Accès au système \\
 Service web API XML & Exposer les données aux applications tierces & Interface d'interopérabilité \\
 X.509 et SSL & Chiffrer et authentifier les échanges & Communications inter-composants \\
@@ -848,11 +848,11 @@ JavaScript & Enrichir l'ergonomie du front-end & Couche de présentation \\
 
 \section{Packaging et déploiement}
 \begin{itemize}
-  \item \textbf{Packaging} : l'application est empaquetée sous forme d'archive Java d'entreprise (WAR pour la partie web, EAR si les EJB sont regroupés), incluant les fichiers XML d'internationalisation et le fichier \texttt{ConfigBKS.ini}.
+  \item \textbf{Packaging} : l'application est empaquetée sous forme d'archive Java d'entreprise (WAR pour la partie web, EAR si les EJB sont regroupés), incluant les fichiers XML d'internationalisation et le fichier \texttt{ConfigZumm.ini}.
   \item \textbf{Serveur} : déploiement sur un serveur d'applications J2EE fournissant conteneur de servlets et conteneur d'EJB.
   \item \textbf{Base de données} : SGBD relationnel accédé via JDBC.
   \item \textbf{Sécurité} : installation des certificats X.509 et activation de SSL pour les échanges, configuration de l'accès OAuth Google.
-  \item \textbf{Configuration} : les seuils, unités et modules actifs sont ajustés dans \texttt{ConfigBKS.ini} sans redéploiement.
+  \item \textbf{Configuration} : les seuils, unités et modules actifs sont ajustés dans \texttt{ConfigZumm.ini} sans redéploiement.
 \end{itemize}
 La répartition physique est illustrée par le diagramme de déploiement (figure \ref{fig:deploiement}).
 
@@ -972,9 +972,9 @@ TC06 & Rapport de visite & Remplir tous les champs et enregistrer & Rapport pers
 TC07 & Alerte production & Dépasser le seuil de production & Alerte de collecte affichée \\
 TC08 & Alerte baisse & Simuler une chute d'effectif & Alerte d'inspection affichée \\
 TC09 & Calcul ROI & Saisir coûts et production & ROI calculé correctement \\
-TC10 & API miel & Appeler getBeeHouseHoneyActualQuantity & Quantité correcte retournée \\
+TC10 & API miel & Appeler getZummHoneyActualQuantity & Quantité correcte retournée \\
 TC11 & Internationalisation & Basculer FR, EN puis AR & Textes traduits via le fichier XML \\
-TC12 & Configuration & Modifier un seuil dans ConfigBKS.ini & Nouveau seuil pris en compte \\
+TC12 & Configuration & Modifier un seuil dans ConfigZumm.ini & Nouveau seuil pris en compte \\
 TC13 & Authentification & Se connecter par OAuth Google & Accès autorisé \\
 TC14 & Sécurité & Vérifier SSL et certificat X.509 & Échanges chiffrés et validés \\
 TC15 & Export & Exporter les enregistrements & Fichiers CSV et TXT générés \\
@@ -1259,5 +1259,7 @@ Le présent cahier des charges s'appuie sur les sources suivantes.
 \input{annexe_migration_springboot}
 
 \input{annexe_solid_patterns}
+
+\input{annexe_complements}
 
 \end{document}

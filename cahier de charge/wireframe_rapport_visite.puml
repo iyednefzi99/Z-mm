@@ -1,0 +1,18 @@
+@startsalt wireframe_rapport_visite
+{+
+{* Zümm | Calendrier | Tableaux de bord | Ruches | Agents }
+{^"Rapport de visite - Ruche R1 (Dadant)"
+  Date | "12/07/2026" | Heure | "09:00" | Duree (min) | "35"
+  Raison | ^Inspection sanitaire^
+  Constatations | "Couvain bien developpe, aucun parasite       "
+  Actions prevues | "Ajout d'une hausse                           "
+  Actions effectuees | "Hausse ajoutee, cadres controles            "
+  Recommandations | "Revisiter dans deux semaines                 "
+  ..
+  Effectif | ^Fort^ | Etat de sante | ^Bon^ | Productivite | (X) 1 ( ) 2 ( ) 3
+  Photos | [ Ajouter une photo... ]
+  ..
+  [ Enregistrer ] | [ Enregistrer hors-ligne ] | [ Annuler ]
+}
+}
+@endsalt
