@@ -32,6 +32,40 @@ ruches de plusieurs fermes.
 \label{fig:mld}
 \end{figure}
 
+\subsection{Table de correspondance du vocabulaire}
+Pour garantir la coherence entre les livrables, chaque entite metier porte le
+meme concept sous trois formes : le nom du \textbf{dictionnaire de donnees}
+(chapitre~5), la \textbf{classe} du diagramme UML et la \textbf{table} du MLD.
+Convention d'ecriture des attributs : \texttt{camelCase} dans les classes
+(\texttt{nbHausses}), \texttt{snake\_case} dans les tables (\texttt{nb\_hausses}).
+
+\begin{longtable}{>{\bfseries}p{4.4cm} p{4.4cm} p{4.4cm}}
+\caption{Correspondance des noms entre dictionnaire, classes et MLD.}
+\label{tab:vocabulaire}\\
+\toprule
+\textbf{Dictionnaire (metier)} & \textbf{Classe (UML)} & \textbf{Table (MLD)} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dictionnaire (metier)} & \textbf{Classe (UML)} & \textbf{Table (MLD)} \\
+\midrule
+\endhead
+Fermier & \texttt{Fermier} & \texttt{FERMIER} \\
+Ferme & \texttt{Ferme} & \texttt{FERME} \\
+Site & \texttt{Site} & \texttt{SITE} \\
+Ruche & \texttt{Ruche} & \texttt{RUCHE} \\
+Compartiment (corps / hausse) & \texttt{Compartiment} & \texttt{COMPARTIMENT} \\
+Cadre & \texttt{Cadre} & \texttt{CADRE} \\
+Agent & \texttt{Agent} & \texttt{AGENT} \\
+Planning & \texttt{Planning} & \texttt{PLANNING} \\
+Visite & \texttt{Visite} & \texttt{VISITE} \\
+Photo & (rapport de visite) & \texttt{PHOTO} \\
+Mesure & \texttt{Mesure} & \texttt{MESURE} \\
+Recolte & \texttt{Recolte} & \texttt{RECOLTE} \\
+Seuil & \texttt{Seuil} & \texttt{SEUIL} \\
+\bottomrule
+\end{longtable}
+
 %------------------------------------------------------------------------------
 \section{Maquettes de l'interface (wireframes)}
 %------------------------------------------------------------------------------
@@ -136,6 +170,39 @@ precise des sites). Les principes suivants sont retenus, dans l'esprit du RGPD :
   \item \textbf{Conservation} : duree de retention definie pour les mesures et les visites, au-dela de laquelle les donnees sont archivees ou anonymisees.
   \item \textbf{Tracabilite} : journalisation des acces et des actions sensibles (approbation de planning, cloture de site).
 \end{itemize}
+
+Les principes ci-dessus se traduisent par les mesures techniques suivantes, par
+categorie de donnees. Le \textbf{chiffrement au repos} vise en priorite les
+colonnes sensibles (contacts, geolocalisation) ; la \textbf{pseudonymisation}
+dissocie l'identite de l'agent de l'historique agronomique lors de l'anonymisation.
+
+{\small
+\begin{longtable}{>{\bfseries}p{3.1cm} p{3.3cm} p{2.7cm} p{4.2cm}}
+\caption{Mesures techniques de protection des donnees (esprit RGPD).}
+\label{tab:rgpd}\\
+\toprule
+\textbf{Donnee} & \textbf{Finalite} & \textbf{Retention} & \textbf{Securite / effacement} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Donnee} & \textbf{Finalite} & \textbf{Retention} & \textbf{Securite / effacement} \\
+\midrule
+\endhead
+Identite (nom, contact) & Comptes et responsabilites & Relation + 1 an & Chiffrement au repos, RBAC ; anonymisation sur demande \\
+Geolocalisation des sites & Suivi, cartes, meteo & Vie du site + 1 an & Chiffrement au repos, precision reductible ; effacement a la cloture \\
+Visites et rapports & Tracabilite sanitaire et production & 5 ans & Chiffrement au repos ; pseudonymisation (dissociation de l'agent) \\
+Photos d'inspection & Suivi visuel de la colonie & 2 ans & Stockage chiffre, acces restreint ; suppression avec le rapport \\
+Mesures capteurs & Analyse de performance & Brutes 1 an, puis agregees & Chiffrement au repos ; agregation / anonymisation \\
+Journaux d'acces & Securite et imputabilite & 6 a 12 mois & Acces administrateur ; purge automatique \\
+\bottomrule
+\end{longtable}}
+
+\begin{encadre}
+\textbf{Procedure d'effacement :} sur demande d'une personne concernee, le
+systeme produit d'abord un export (portabilite CSV / TXT), puis efface ou
+anonymise les enregistrements selon la table ci-dessus. Un \textbf{registre des
+traitements} et un referent protection des donnees sont tenus pour le projet.
+\end{encadre}
 
 %------------------------------------------------------------------------------
 \section{Strategie de tests}
