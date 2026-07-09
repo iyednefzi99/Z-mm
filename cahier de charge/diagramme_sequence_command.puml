@@ -1,0 +1,65 @@
+@startuml diagramme_sequence_command
+' Diagramme de sequence - Pattern Command : mode hors-ligne et synchronisation differee
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 18
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern Command : mode hors-ligne et synchronisation differee
+
+actor "Agent apiculteur" as Agent
+participant "IHM\n(JSP / JavaScript)" as IHM
+participant "CommandeCollecteMiel\n(Command)" as Cmd
+participant "FileCommandesHorsLigne\n(Invoker)" as File
+participant "VisiteService\n(Receiver, EJB)" as EJB
+database "Base de donnees\n(JDBC)" as BD
+
+autonumber
+
+== Mode hors-ligne (sans reseau) ==
+Agent -> IHM : collecter le miel de la ruche
+IHM -> Cmd : new CommandeCollecteMiel(ruche, donnees)
+IHM -> File : empiler(commande)
+activate File
+File --> IHM : en attente de synchronisation
+deactivate File
+IHM --> Agent : operation enregistree localement
+
+== Retour du reseau : synchronisation differee ==
+IHM -> File : rejouer()
+activate File
+loop pour chaque commande en attente
+  File -> Cmd : executer()
+  activate Cmd
+  Cmd -> EJB : appliquer(ruche, donnees)
+  activate EJB
+  EJB -> BD : INSERT rapport / UPDATE statut
+  BD --> EJB : confirmation
+  EJB --> Cmd : succes
+  deactivate EJB
+  alt Echec (conflit)
+    Cmd -> Cmd : annuler()
+  end
+  Cmd --> File : resultat
+  deactivate Cmd
+end
+File --> IHM : synchronisation terminee
+deactivate File
+IHM --> Agent : donnees synchronisees
+
+note over Cmd, File
+  Command : chaque operation terrain est un objet ;
+  la file rejoue (executer) ou compense (annuler)
+  les commandes a la reconnexion.
+end note
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml diagramme_sequence_observer
+' Diagramme de sequence - Pattern Observer (+ Strategy) : flux d'alerte
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 18
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern Observer (+ Strategy) : declenchement d'une alerte
+
+participant "Capteur\n(Adapter)" as Capteur
+participant "GestionnaireAlertes\n(Subject)" as GA
+participant "RegleSeuilProduction\n(Strategy)" as Regle
+participant "TableauDeBordAlertes\n(Observer)" as TB
+participant "NotificationResponsable\n(Observer)" as NR
+
+autonumber
+
+== Abonnement (une seule fois) ==
+TB -> GA : abonner(this)
+NR -> GA : abonner(this)
+
+== Reception d'une mesure ==
+Capteur -> GA : traiter(mesure)
+activate GA
+GA -> Regle : evaluer(mesure)
+activate Regle
+Regle --> GA : alerte (seuil depasse)
+deactivate Regle
+
+alt Seuil franchi : alerte declenchee
+  GA -> TB : notifier(alerte)
+  activate TB
+  TB -> TB : rafraichir la case site x ruche
+  deactivate TB
+  GA -> NR : notifier(alerte)
+  activate NR
+  NR -> NR : planifier une inspection imminente
+  deactivate NR
+else Aucun depassement
+  GA -> GA : ignorer
+end
+deactivate GA
+
+note over GA, NR
+  OCP : ajouter une regle (Strategy) ou un observateur
+  ne modifie pas le GestionnaireAlertes.
+end note
+
+@enduml

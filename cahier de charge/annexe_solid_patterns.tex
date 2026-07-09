@@ -164,3 +164,37 @@ a la couche d'acces aux donnees (JDBC), les \texttt{Service} et le domaine
 faiblement couplees du chapitre~\ref{chap:conception} est ainsi renforcee, sans
 etre modifiee.
 \end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Illustration dynamique : patrons Observer et Command}
+%------------------------------------------------------------------------------
+Deux diagrammes de sequence detaillent le comportement des patrons les plus
+structurants du systeme.
+
+\subsection{Observer (+ Strategy) : declenchement d'une alerte}
+La figure~\ref{fig:seq-observer} montre comment une mesure recue par le
+\texttt{GestionnaireAlertes} (sujet) est evaluee par une regle interchangeable
+(\emph{Strategy}) puis, en cas de depassement, propagee aux observateurs abonnes
+(tableau de bord d'alertes, notification du responsable). Ajouter une regle ou un
+observateur n'impose aucune modification du gestionnaire (principe ouvert/ferme).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_observer}
+\caption{Sequence du pattern Observer (+ Strategy) : flux de declenchement d'une alerte.}
+\label{fig:seq-observer}
+\end{figure}
+
+\subsection{Command : mode hors-ligne et synchronisation differee}
+La figure~\ref{fig:seq-command} illustre la saisie d'une operation terrain sans
+reseau : l'operation est encapsulee dans une \texttt{CommandeVisite} empilee dans
+la \texttt{FileCommandesHorsLigne}. Au retour du reseau, la file rejoue
+(\texttt{executer}) chaque commande, ou la compense (\texttt{annuler}) en cas de
+conflit, realisant la synchronisation differee exigee par le mode hors-ligne.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_command}
+\caption{Sequence du pattern Command : mode hors-ligne et synchronisation differee.}
+\label{fig:seq-command}
+\end{figure}
