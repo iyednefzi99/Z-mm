@@ -1,0 +1,179 @@
+@startuml diagramme_classes_solid
+' Diagramme de conception refactore - SOLID & Design Patterns - Zümm
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam class {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  HeaderBackgroundColor #D4A017
+}
+skinparam package {
+  BackgroundColor #FBFAF7
+  BorderColor #B8860B
+  FontColor #B8860B
+}
+title Conception refactoree - SOLID & Design Patterns - Zümm
+
+' ===================== COMPOSITE : composition physique de la ruche =====================
+package "Composite  (composition ruche + calcul du miel)" {
+  interface ElementRuche {
+    +getPoidsMiel() : float
+    +getPoidsTotal() : float
+  }
+  class Cadre {
+    -slot : int
+    -type : TypeCadre
+    -poids : float
+  }
+  abstract class Compartiment {
+    -capaciteCadres : int
+  }
+  class Corps
+  class Hausse
+  class Ruche {
+    -modele : String
+  }
+  ElementRuche <|.. Cadre
+  ElementRuche <|.. Compartiment
+  ElementRuche <|.. Ruche
+  Compartiment <|-- Corps
+  Compartiment <|-- Hausse
+  Ruche "1" o-- "1..6" Compartiment
+  Compartiment "1" o-- "1..10" Cadre
+}
+note bottom of ElementRuche
+  SRP : le calcul du miel quitte l'entite Ruche.
+  Composite : getPoidsMiel() est resolu recursivement
+  (Ruche -> Compartiment -> Cadre), traitement uniforme.
+end note
+
+' ===================== STATE : cycle de vie de la ruche =====================
+package "State  (cycle de vie de la ruche)" {
+  interface EtatRuche {
+    +peupler(r : Ruche)
+    +activer(r : Ruche)
+    +diviser(r : Ruche)
+    +collecter(r : Ruche)
+    +cloturer(r : Ruche)
+  }
+  class Creee
+  class Peuplee
+  class Active
+  class EnDivision
+  class EnCollecte
+  class Cloturee
+  EtatRuche <|.. Creee
+  EtatRuche <|.. Peuplee
+  EtatRuche <|.. Active
+  EtatRuche <|.. EnDivision
+  EtatRuche <|.. EnCollecte
+  EtatRuche <|.. Cloturee
+}
+Ruche "1" --> "1" EtatRuche : etatCourant
+note bottom of EtatRuche
+  State : remplace les if/switch sur le statut.
+  Chaque etat encapsule ses transitions autorisees
+  (cf. diagramme de machine a etats).
+end note
+
+' ===================== ISP : services metier segreges =====================
+package "ISP  (services segreges)" {
+  interface ServiceRequeteMiel {
+    +getBeeHouseHoneyActualQuantity(id : int) : float
+  }
+  interface ServiceVisite {
+    +planifier(v : Visite)
+    +enregistrerRapport(r : RapportVisite)
+  }
+  interface ServiceTableauDeBord {
+    +production(filtre) : Rapport
+    +syntheseROI(filtre) : Rapport
+  }
+}
+
+' ===================== DIP : persistance par abstraction (Repository/DAO) =====================
+package "DIP  (Repository / DAO)" {
+  interface RucheRepository {
+    +findById(id : int) : Ruche
+    +save(r : Ruche)
+  }
+  interface VisiteRepository
+  class RucheRepositoryJdbc
+  class VisiteRepositoryJdbc
+  RucheRepository <|.. RucheRepositoryJdbc
+  VisiteRepository <|.. VisiteRepositoryJdbc
+}
+note bottom of RucheRepository
+  DIP : la couche metier depend de l'interface
+  Repository, pas de JDBC. Facilite les tests et
+  la migration (JDBC -> Spring Data JPA).
+end note
+
+class ServiceMielImpl
+ServiceRequeteMiel <|.. ServiceMielImpl
+ServiceMielImpl ..> RucheRepository : depend de
+ServiceMielImpl ..> Ruche : agrege via Composite
+
+' ===================== STRATEGY + OBSERVER : alertes =====================
+package "Strategy + Observer  (alertes)" {
+  interface RegleAlerte {
+    +evaluer(m : Mesure) : Alerte
+  }
+  class RegleSeuilProduction
+  class RegleBaisseEffectif
+  class RegleBaisseProduction
+  RegleAlerte <|.. RegleSeuilProduction
+  RegleAlerte <|.. RegleBaisseEffectif
+  RegleAlerte <|.. RegleBaisseProduction
+
+  class GestionnaireAlertes {
+    -regles : List<RegleAlerte>
+    +traiter(m : Mesure)
+    +abonner(o : Observateur)
+  }
+  interface Observateur {
+    +notifier(a : Alerte)
+  }
+  class TableauDeBordAlertes
+  class NotificationResponsable
+  Observateur <|.. TableauDeBordAlertes
+  Observateur <|.. NotificationResponsable
+  GestionnaireAlertes o--> "*" RegleAlerte : Strategy
+  GestionnaireAlertes o--> "*" Observateur : Observer
+}
+
+' ===================== FABRIQUE + BUILDER + COMMAND (resumes) =====================
+package "Factory / Builder / Command" {
+  class FabriqueRuche {
+    +creer(modele : String) : Ruche
+  }
+  class ConstructeurRapport {
+    +avecConstat(..) : ConstructeurRapport
+    +avecPhoto(..) : ConstructeurRapport
+    +construire() : RapportVisite
+  }
+  interface CommandeVisite {
+    +executer()
+    +annuler()
+  }
+  class CommandeCollecteMiel
+  class CommandeDivisionEssaim
+  class FileCommandesHorsLigne {
+    +empiler(c : CommandeVisite)
+    +rejouer()
+  }
+  CommandeVisite <|.. CommandeCollecteMiel
+  CommandeVisite <|.. CommandeDivisionEssaim
+  FileCommandesHorsLigne o--> "*" CommandeVisite
+  FabriqueRuche ..> Ruche : Factory Method
+  ConstructeurRapport ..> RapportVisite : Builder
+}
+note bottom of FileCommandesHorsLigne
+  Command : les operations terrain sont des objets ;
+  la file rejoue les commandes a la reconnexion
+  (mode hors-ligne + synchronisation differee).
+end note
+
+@enduml

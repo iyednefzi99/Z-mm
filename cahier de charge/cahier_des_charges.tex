@@ -800,7 +800,18 @@ Front-end        & JavaScript et frameworks libres, dans le respect de l'ergonom
   \item \textbf{Évolutivité} : ouverture à l'ajout de langues, d'unités et d'indicateurs.
   \item \textbf{Interopérabilité} : services web interrogeables par des applications tierces.
   \item \textbf{Sécurité} : chiffrement des échanges et authentification forte.
+  \item \textbf{Qualité de conception} : respect des principes \textbf{SOLID} et recours aux \textbf{design patterns} (patrons de conception) pour garantir un couplage faible et l'évolutivité, comme détaillé en annexe~\ref{chap:solid}.
 \end{itemize}
+
+\begin{encadre}
+\textbf{Principes de conception retenus :} l'architecture applique les cinq
+principes \textbf{SOLID} (responsabilité unique, ouvert/fermé, substitution de
+Liskov, ségrégation des interfaces, inversion de dépendance) et un ensemble de
+\textbf{design patterns} (Composite, State, Strategy, Observer, Command, Factory
+Method, Builder, Adapter, Facade, Singleton, Proxy). Leur application au
+système, justifiée « avant / après », est détaillée dans
+l'annexe~\ref{chap:solid}.
+\end{encadre}
 
 \section{Questions de conception à couvrir}
 La conception devra répondre explicitement aux questions suivantes :
@@ -1211,6 +1222,12 @@ Le présent cahier des charges s'appuie sur les sources suivantes.
   \item Manager-GO, \emph{Élaborer un cahier des charges}.\\ \url{https://www.manager-go.com/gestion-de-projet/dossiers-methodes/elaborer-un-cdc}
 \end{itemize}
 
+\subsection*{Principes de conception logicielle}
+\begin{itemize}
+  \item Alex so yes, \emph{Les principes SOLID}.\\ \url{https://alexsoyes.com/solid/}
+  \item Refactoring Guru, \emph{Catalogue des design patterns}.\\ \url{https://refactoring.guru}
+\end{itemize}
+
 \subsection*{Référentiel métier apicole}
 \begin{itemize}
   \item Organic Africa, \emph{Amélioration de la production de miel}.\\ \url{https://www.organic-africa.net/fr/agriculture-biologique/agriculture-biologique/animaux/apiculture/amelioration-de-la-production-de-miel.html}
@@ -1240,5 +1257,7 @@ Le présent cahier des charges s'appuie sur les sources suivantes.
 \end{itemize}
 
 \input{annexe_migration_springboot}
+
+\input{annexe_solid_patterns}
 
 \end{document}

@@ -1,0 +1,166 @@
+%==============================================================================
+%  ANNEXE - Principes SOLID et design patterns
+%  Application au systeme Zümm : justification "avant / apres"
+%  A inserer via \input{annexe_solid_patterns} dans cahier_des_charges.tex
+%  (utilise la charte "Miel & noir" : miel, mielfonce, encadre, colonne C,
+%   longtable, booktabs -- deja definis dans le preambule principal)
+%==============================================================================
+
+%==============================================================================
+\chapter{Annexe - Principes SOLID et design patterns}
+\label{chap:solid}
+%==============================================================================
+Cette annexe repond a la question du \emph{comment} de la qualite logicielle.
+Elle documente l'application des cinq principes \textbf{SOLID} et d'un ensemble
+de \textbf{design patterns} (patrons de conception) au systeme \textbf{Z\"umm},
+en mettant chaque decision en regard de la conception initiale (\emph{avant})
+et de la conception refactoree (\emph{apres}). L'objectif est une architecture
+\textbf{multi-niveaux, evolutive et faiblement couplee}, conforme aux exigences
+du chapitre~\ref{chap:conception}.
+
+\begin{encadre}
+\textbf{Sources methodologiques :} les definitions retenues suivent la
+presentation des principes SOLID de \emph{alexsoyes.com} et le catalogue de
+patrons de \emph{refactoring.guru}, adaptes au domaine apicole du projet.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Les cinq principes SOLID}
+%------------------------------------------------------------------------------
+\begin{longtable}{>{\bfseries}p{2.4cm} p{6cm} p{6.2cm}}
+\toprule
+\textbf{Principe} & \textbf{Avant (conception initiale)} & \textbf{Apres (refactoree)} \\
+\midrule
+\endhead
+S -- Responsabilite unique &
+L'entite \texttt{Ruche} porte la methode de calcul
+\texttt{getBeeHouseHoneyActualQuantity()} : elle melange l'etat (donnees) et la
+logique metier ; \texttt{Visite} regroupe donnees et champs de rapport. &
+Le calcul est extrait dans \texttt{ServiceMielImpl} (via le Composite) et le
+rapport devient \texttt{RapportVisite}. Chaque classe n'a plus qu'une seule
+raison de changer. \\
+O -- Ouvert / ferme &
+La detection d'alertes et la conversion d'unites reposeraient sur des
+\texttt{if / switch} sur \texttt{typeSeuil} et \texttt{unite} : ajouter une
+regle ou une unite impose de modifier le code existant. &
+\texttt{RegleAlerte} (Strategy) et \texttt{ConvertisseurUnite} : une nouvelle
+regle ou unite = une nouvelle classe, sans toucher au \texttt{GestionnaireAlertes}.
+Ouvert a l'extension, ferme a la modification. \\
+L -- Substitution de Liskov &
+Le diagramme de cas d'utilisation generalise l'agent superviseur a partir de
+l'agent apiculteur ; transpose tel quel en heritage de classes, un sous-type
+restrictif casserait la substituabilite. &
+\texttt{Corps} et \texttt{Hausse} heritent de \texttt{Compartiment} en
+respectant integralement son contrat (capacite 1..10, \texttt{getPoidsMiel}).
+Le role de l'agent passe par l'enumeration \texttt{Role} + permissions
+(composition) plutot qu'un heritage restrictif. \\
+I -- Segregation des interfaces &
+Un service unique \og fourre-tout \fg{} (CRUD + visites + tableaux de bord +
+API miel) obligerait l'application tierce a dependre de methodes inutilisees. &
+Interfaces ciblees : \texttt{ServiceRequeteMiel} (l'API tierce ne voit que
+\texttt{getBeeHouseHoneyActualQuantity}), \texttt{ServiceVisite},
+\texttt{ServiceTableauDeBord}. Chaque client ne depend que de son contrat. \\
+D -- Inversion de dependance &
+La couche metier (EJB) appelle directement JDBC (implementation concrete) :
+couplage fort a la base et aux \texttt{ResultSet}. &
+La couche metier depend d'abstractions \texttt{RucheRepository} /
+\texttt{VisiteRepository} (pattern DAO), implementees par
+\texttt{RucheRepositoryJdbc}. Tests par mock et migration JDBC \textrightarrow{}
+Spring Data JPA facilites (cf. annexe~\ref{chap:migration}). \\
+\bottomrule
+\end{longtable}
+
+%------------------------------------------------------------------------------
+\section{Design patterns retenus}
+%------------------------------------------------------------------------------
+Le tableau suivant recense les patrons appliques, leur categorie (creationnel,
+structurel, comportemental) et la couche concernee, avec la justification
+\emph{avant / apres}.
+
+\begin{longtable}{>{\bfseries}p{2.7cm} p{5.9cm} p{6.2cm}}
+\toprule
+\textbf{Pattern} & \textbf{Avant} & \textbf{Apres} \\
+\midrule
+\endhead
+Composite \newline {\small\itshape structurel -- metier} &
+Le calcul du miel parcourt manuellement les collections de cadres avec du code
+de sommation duplique. &
+\texttt{ElementRuche.getPoidsMiel()} est resolu recursivement
+(Ruche \textrightarrow{} Compartiment \textrightarrow{} Cadre) : traitement
+uniforme de l'arborescence. \\
+State \newline {\small\itshape comportemental -- metier} &
+Le statut de la ruche serait teste par des \texttt{switch} disperses (creee,
+active, en collecte, cloturee, \ldots). &
+\texttt{EtatRuche} et ses etats concrets encapsulent les transitions autorisees ;
+alignement direct sur le diagramme de machine a etats. \\
+Strategy \newline {\small\itshape comportemental -- metier} &
+Les regles d'alerte, la conversion d'unites et le ROI seraient codes en dur. &
+Familles d'algorithmes interchangeables (\texttt{RegleAlerte},
+\texttt{ConvertisseurUnite}), injectables et testables isolement. \\
+Observer \newline {\small\itshape comportemental -- metier} &
+Le code de mesure appellerait directement les tableaux de bord (couplage fort). &
+\texttt{GestionnaireAlertes} notifie les \texttt{Observateur} abonnes (tableau
+de bord d'alertes, notification du responsable) au franchissement d'un seuil. \\
+Command \newline {\small\itshape comportemental -- controle} &
+Les operations terrain (collecte, division, changement de reine) sont des appels
+directs, non rejouables hors-ligne. &
+Chaque operation devient une \texttt{CommandeVisite} ; la
+\texttt{FileCommandesHorsLigne} rejoue les commandes a la reconnexion
+(mode hors-ligne + synchronisation differee). \\
+Factory Method \newline {\small\itshape creationnel -- metier} &
+Les ruches sont creees par des \texttt{new} disperses avec initialisation
+manuelle des compartiments. &
+\texttt{FabriqueRuche.creer(modele)} produit une ruche preconfiguree selon le
+modele (Dadant, Langstroth\ldots) avec corps et capacites coherents. \\
+Builder \newline {\small\itshape creationnel -- presentation} &
+Le rapport de visite, aux nombreux champs optionnels, imposerait un constructeur
+telescopique ou des setters epars. &
+\texttt{ConstructeurRapport} construit \texttt{RapportVisite} de facon fluide
+(constatations, actions, photos, evaluations). \\
+Adapter \newline {\small\itshape structurel -- donnees} &
+Les capteurs heterogenes (formats et unites differents) seraient traites au cas
+par cas. &
+\texttt{AdaptateurCapteur} uniformise chaque source en \texttt{Mesure} avec
+unites parametrables (volet automatise). \\
+Facade \newline {\small\itshape structurel -- controle} &
+Le Servlet orchestre directement tous les services metier. &
+\texttt{FacadeApplication} offre un point d'entree simplifie aux Servlets
+par-dessus les sous-systemes. \\
+Singleton \newline {\small\itshape creationnel -- transverse} &
+Le fichier \texttt{ConfigBKS.ini} et les libelles i18n seraient relus en
+plusieurs instances. &
+\texttt{Configuration} et \texttt{GestionnaireI18n} garantissent une instance
+unique partagee. \\
+Proxy \newline {\small\itshape structurel -- services web} &
+L'acces a l'API exposerait directement le service metier. &
+Un \texttt{ProxySecurite} controle l'authentification OAuth et le chiffrement
+SSL / X.509 avant de deleguer au service. \\
+\bottomrule
+\end{longtable}
+
+%------------------------------------------------------------------------------
+\section{Vue de conception refactoree}
+%------------------------------------------------------------------------------
+La figure~\ref{fig:solid} synthetise les principaux patrons dans un diagramme
+de classes de conception : le Composite (composition de la ruche et calcul du
+miel), le State (cycle de vie), les services segreges (ISP), la persistance par
+abstraction (DIP / Repository), le couple Strategy + Observer (alertes) et le
+trio Factory / Builder / Command.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes_solid}
+\caption{Diagramme de classes refactore : application de SOLID et des design
+patterns au systeme Z\"umm.}
+\label{fig:solid}
+\end{figure}
+
+\begin{encadre}
+\textbf{Correspondance avec les couches :} les \texttt{Repository} appartiennent
+a la couche d'acces aux donnees (JDBC), les \texttt{Service} et le domaine
+(Composite, State, Strategy, Observer, Command) a la couche metier (EJB), la
+\texttt{Facade} et le \texttt{Proxy} a la couche de controle (Servlets), le
+\texttt{Builder} de rapport a la presentation (JSP). L'architecture en couches
+faiblement couplees du chapitre~\ref{chap:conception} est ainsi renforcee, sans
+etre modifiee.
+\end{encadre}
