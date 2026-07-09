@@ -1,0 +1,60 @@
+%==============================================================================
+\chapter{Cas d'utilisation détaillés}
+%==============================================================================
+Cette partie décrit comment le système réalise les opérations des utilisateurs.
+Les acteurs sont le fermier, l'agent apiculteur, l'agent superviseur, le
+responsable, l'administrateur et les applications tierces.
+
+Le diagramme de cas d'utilisation global (figure \ref{fig:uc}) présente
+l'ensemble des acteurs, la généralisation de l'agent superviseur à partir de
+l'agent apiculteur, ainsi que toutes les dépendances entre cas (relations
+d'inclusion et d'extension).
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_cas_utilisation}
+\caption{Diagramme de cas d'utilisation global avec acteurs et dépendances (include et extend).}
+\label{fig:uc}
+\end{figure}
+
+\section{UC1 : Planifier et approuver une visite}
+\begin{itemize}
+  \item \textbf{Acteur} : agent superviseur.
+  \item \textbf{Préconditions} : la ruche existe et l'agent est authentifié.
+  \item \textbf{Scénario nominal} : l'agent propose une date de visite, le superviseur examine le planning puis approuve, le système enregistre le statut approuvé.
+  \item \textbf{Alternatives} : le superviseur refuse et demande une nouvelle date.
+  \item \textbf{Postcondition} : la visite est planifiée et visible dans le calendrier.
+\end{itemize}
+
+\section{UC2 : Réaliser une visite et remplir le rapport}
+\begin{itemize}
+  \item \textbf{Acteur} : agent apiculteur responsable de la ruche.
+  \item \textbf{Préconditions} : une visite est planifiée et approuvée.
+  \item \textbf{Scénario nominal} : l'agent renseigne date, heure, durée, raison, constatations, actions prévues et effectuées, recommandations, puis évalue l'effectif, l'état de santé et la productivité de 1 à 3.
+  \item \textbf{Alternatives} : saisie hors-ligne puis synchronisation différée, ajout de photos.
+  \item \textbf{Postcondition} : le rapport est enregistré et la case du calendrier passe au statut exécuté.
+\end{itemize}
+
+\section{UC3 : Consulter le tableau de bord de production}
+\begin{itemize}
+  \item \textbf{Acteur} : fermier ou propriétaire.
+  \item \textbf{Préconditions} : des mesures de production existent.
+  \item \textbf{Scénario nominal} : le fermier filtre par ferme, site et période, le système affiche les ruches dont la production dépasse le seuil et propose collecte ou extension.
+  \item \textbf{Postcondition} : le fermier décide d'une intervention.
+\end{itemize}
+
+\section{UC4 : Traiter une alerte sanitaire}
+\begin{itemize}
+  \item \textbf{Acteur} : responsable.
+  \item \textbf{Préconditions} : une baisse anormale a été détectée.
+  \item \textbf{Scénario nominal} : le système signale la ruche concernée, le responsable planifie une inspection imminente.
+  \item \textbf{Postcondition} : une visite d'inspection est planifiée.
+\end{itemize}
+
+\section{UC5 : Interroger la quantité de miel via l'API}
+\begin{itemize}
+  \item \textbf{Acteur} : application tierce (Excel ou autre).
+  \item \textbf{Préconditions} : l'application dispose d'un accès sécurisé au service web.
+  \item \textbf{Scénario nominal} : l'application appelle \texttt{getZummHoneyActualQuantity(zummID)}, le service calcule et retourne la quantité de miel.
+  \item \textbf{Postcondition} : la valeur est restituée au format du service web XML.
+\end{itemize}
+

@@ -1,0 +1,90 @@
+%==============================================================================
+\chapter{Dictionnaire de données et règles de calcul}
+%==============================================================================
+Ce chapitre répond à la question des inputs et des outputs du système. Il définit
+les données manipulées, leurs types et les formules de calcul des résultats.
+
+\section{Conventions de types}
+Les types utilisés sont : entier, décimal, texte, date, heure, datetime, booléen,
+énumération et référence (clé étrangère vers une autre entité). Les grandeurs
+physiques sont associées à une unité paramétrable pour permettre
+l'internationalisation des systèmes de mesure.
+
+\section{Dictionnaire des données (inputs)}
+\begin{longtable}{>{\bfseries}p{2.6cm} p{3.4cm} p{2.4cm} p{5cm}}
+\toprule
+\textbf{Entité} & \textbf{Attribut} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\endhead
+Fermier & id, nom, contact & entier, texte & Propriétaire exploitant. \\
+Ferme & id, nom, fermier & entier, texte, référence & Exploitation rattachée à un fermier. \\
+Site & id, nom & entier, texte & Emplacement d'apiculture. \\
+Site & latitude, longitude & décimal (degrés) & Géolocalisation. \\
+Site & altitude & décimal (unité paramétrable) & Altitude du site. \\
+Site & dateMiseEnOeuvre, dateDemenagement, dateCloture & date & Cycle de vie du site, deux dernières optionnelles. \\
+Ruche & id, modele & entier, texte & Ruche hébergée par un site. \\
+Ruche & nbHausses & entier (0 à 5) & Nombre d'étages d'extension. \\
+Ruche & ferme & référence & Ferme propriétaire (distincte du site d'emplacement). \\
+Ruche & etat & énumération & État du cycle de vie (créée, peuplée, active, en division, en collecte, clôturée), voir figure~\ref{fig:etat}. \\
+Ruche & agentResponsable & référence & Agent responsable à l'instant donné. \\
+Compartiment & id, type & entier, énumération & Compartiment de la ruche : corps ou hausse. \\
+Compartiment & capaciteCadres & entier (1 à 10) & Nombre de slots de cadres. \\
+Cadre & id, slot, type & entier, énumération & Cadre installé sur un slot identifié. \\
+Cadre & poids & décimal (unité paramétrable) & Poids du cadre, base du calcul de la quantité de miel. \\
+Agent & id, nom, role & entier, texte, énumération & Apiculteur, superviseur, responsable ou administrateur. \\
+Planning & id, ruche, agent & entier, référence & Planning de visite. \\
+Planning & datePrevue, statutApprobation & date, énumération & Date prévue et approbation du superviseur. \\
+Planning & superviseur & référence & Agent superviseur qui approuve le planning. \\
+Visite & id, ruche, agent & entier, référence & Visite réalisée. \\
+Visite & planning & référence & Planning approuvé à l'origine de la visite (optionnel). \\
+Visite & date, heure, duree & date, heure, entier (min) & Horodatage et durée. \\
+Visite & raison & énumération & Motif de la visite. \\
+Visite & constatations, actionsPrevues, actionsEffectuees, recommandations & texte & Contenu du rapport. \\
+Visite & effectifQualitatif, etatSante & énumération & Évaluation de l'essaim. \\
+Visite & productivite & entier (1 à 3) & Niveau de productivité. \\
+Photo & id, url, visite & entier, texte, référence & Photo attachée à un rapport de visite. \\
+Mesure & id, ruche, typeIndicateur & entier, référence, énumération & Mesure d'un indicateur. \\
+Mesure & valeur, unite & décimal, texte & Valeur et unité paramétrable. \\
+Mesure & horodatage, latitude, longitude & datetime, décimal & Mesure horodatée et géolocalisée. \\
+Récolte & id, ruche, date & entier, référence, date & Récolte de miel. \\
+Récolte & quantiteMiel, lotQR & décimal (unité paramétrable), texte & Quantité et identifiant de lot. \\
+Seuil & id, type, valeur, unite & entier, énumération, décimal, texte & Seuil paramétrable du système. \\
+\bottomrule
+\end{longtable}
+
+\begin{encadre}
+\textbf{Schéma de référence :} le dictionnaire ci-dessus est la vue métier des
+données. Sa traduction relationnelle normalisée (clés, types SQL et contraintes
+\texttt{CHECK}) constitue le \textbf{modèle logique de données} (MLD), qui fait
+foi pour l'implémentation et est présenté à l'annexe~\ref{chap:complements}
+(figure~\ref{fig:mld}). La correspondance des noms entre le dictionnaire, le
+diagramme de classes et le MLD est donnée par la table~\ref{tab:vocabulaire}.
+\end{encadre}
+
+\section{Résultats et règles de calcul (outputs)}
+\begin{itemize}
+  \item \textbf{Quantité de miel d'une ruche} : somme des poids des cadres de miel des hausses, diminuée de la tare des éléments.
+\end{itemize}
+\[ \text{QuantiteMiel}(r) = \sum_{c \in \text{cadresMiel}(r)} \text{poids}(c) - \text{tare}(r) \]
+Cette valeur est exposée par le service web via \texttt{getZummHoneyActualQuantity(zummID)}.
+\begin{itemize}
+  \item \textbf{Retour sur investissement} d'un site ou d'une ruche :
+\end{itemize}
+\[ \text{ROI} = \frac{\text{Production valorisée}}{\text{Coûts des interventions}} \]
+\begin{itemize}
+  \item \textbf{Alerte de collecte} : déclenchée si la production dépasse le seuil paramétrable.
+\end{itemize}
+\[ \text{Production}(r) > \text{SeuilProduction} \Rightarrow \text{alerte collecte ou extension} \]
+\begin{itemize}
+  \item \textbf{Alerte de baisse} : déclenchée si la baisse relative dépasse le seuil.
+\end{itemize}
+\[ \frac{V_{\text{préc}} - V_{\text{actuel}}}{V_{\text{préc}}} > \text{SeuilBaisse} \Rightarrow \text{alerte inspection} \]
+\begin{itemize}
+  \item \textbf{Conversion d'unités} vers l'unité de référence, pour comparer des mesures hétérogènes :
+\end{itemize}
+\[ V_{\text{référence}} = V_{\text{mesure}} \times \text{facteurConversion}(\text{unite}) \]
+
+\section{Requêtes types}
+Les résultats s'appuient sur des requêtes exécutées via JDBC, par exemple pour la
+quantité de miel d'une ruche : \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = zummID}.
+

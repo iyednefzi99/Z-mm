@@ -1,0 +1,106 @@
+%==============================================================================
+\chapter{Périmètre du projet}
+%==============================================================================
+
+\section{Domaine couvert}
+Le périmètre du présent cahier des charges couvre \textbf{la première partie}
+du système : la gestion manuelle des opérations, leur planification et leur
+suivi, ainsi que la préparation de l'architecture pour l'intégration future
+des indicateurs automatisés.
+
+\section{Modèle métier et règles de gestion}
+\begin{longtable}{>{\bfseries}p{3cm} p{11cm}}
+\toprule
+\textbf{Entité} & \textbf{Règles de gestion} \\
+\midrule
+\endhead
+Fermier   & Peut posséder plusieurs fermes. \\
+Ferme     & Peut comporter plusieurs sites d'apiculture. \\
+Site      & Contient une ou plusieurs ruches, dispose d'une localisation géographique (latitude, longitude, altitude, date de mise en œuvre, éventuelles dates de déménagement / clôture). Un site peut accueillir des ruches de différents fermiers et de différentes fermes. \\
+Ruche     & Composée d'un compartiment de base (socle / corps) et d'au plus \textbf{5} étages d'extension (hausses). \\
+Corps / Hausse & Peut accueillir des cadres de cire installés sur des \emph{slots} identifiés. Le socle/corps doit contenir \textbf{au moins 1} cadre, la capacité maximale d'un corps comme d'une hausse est de \textbf{10 cadres}. \\
+Cadre     & Occupe un emplacement (slot) unique dans le corps ou la hausse. \\
+Agent apiculteur & Réalise les visites et inspections. Une ruche peut être suivie successivement par plusieurs agents, mais elle est sous la responsabilité d'\textbf{un seul agent} à un instant donné. \\
+Agent superviseur & Approuve le planning de visite des ruches dont il a la charge. \\
+\bottomrule
+\end{longtable}
+
+\begin{encadre}[nobreak=true]
+\textbf{Contrainte de composition :} 1 ruche = 1 socle/corps obligatoire + 0 à 5 hausses,
+chaque corps/hausse = 1 à 10 cadres, un cadre par slot.
+\end{encadre}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\small},
+  ent/.style={draw=mielfonce,fill=grisdoux,rounded corners=3pt,minimum height=9mm,inner xsep=7pt,thick},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[ent] (a) {Fermier};
+\node[ent,right=7mm of a] (b) {Ferme};
+\node[ent,right=7mm of b] (c) {Site};
+\node[ent,right=7mm of c] (d) {Ruche};
+\node[ent,below=9mm of d] (e) {Corps / Hausse};
+\node[ent,left=7mm of e] (f) {Cadre};
+\draw[fl] (a)--(b); \draw[fl] (b)--(c); \draw[fl] (c)--(d);
+\draw[fl] (d)--(e); \draw[fl] (e)--(f);
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(a)!0.5!(b)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(b)!0.5!(c)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(c)!0.5!(d)$) {1..n};
+\end{tikzpicture}
+\caption{Hiérarchie des entités métier du système Zümm.}
+\label{fig:hierarchie}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\small]
+% périmètre du site
+\draw[draw=mielfonce,thick,rounded corners=6pt,fill=grisdoux] (0,0) rectangle (11,4.4);
+\node[anchor=north west,mielfonce,font=\bfseries] at (0.2,4.25) {Site apicole};
+\node[anchor=north west,font=\footnotesize] at (0.2,3.7)
+  {latitude / longitude / altitude, date de mise en oeuvre};
+% trois ruches installées sur le site
+\foreach \x in {0.9,4.3,7.7}{
+  \begin{scope}[shift={(\x,0.7)}]
+    \fill[miel!30,draw=mielfonce,thick] (0,0) rectangle (1.4,0.6);
+    \fill[miel!40,draw=mielfonce,thick] (0,0.6) rectangle (1.4,1.2);
+    \fill[mielfonce] (-0.12,1.2)--(1.52,1.2)--(0.7,1.7)--cycle;
+    \draw[mielfonce,thick] (-0.1,-0.12) rectangle (1.5,0);
+  \end{scope}
+}
+\node[font=\scriptsize] at (1.6,0.45) {Ruche};
+\node[font=\scriptsize] at (5.0,0.45) {Ruche};
+\node[font=\scriptsize] at (8.4,0.45) {Ruche};
+% ressources externes
+\node[anchor=west,font=\footnotesize,align=left] at (11.4,3.2)
+  {Ressources\\(nectar / pollen)\\a environ 1 km};
+\draw[-{Latex[length=2mm]},mielfonce,dashed] (11,3.0) -- (11.35,3.0);
+\node[anchor=west,font=\footnotesize,align=left] at (11.4,1.2)
+  {Distances de securite\\100 / 200 / 300 m\\3 a 4 km des cultures\\traitees};
+\end{tikzpicture}
+\caption{Schéma d'un site apicole : plusieurs ruches géolocalisées et contraintes d'emplacement.}
+\label{fig:site}
+\end{figure}
+
+\section{Utilisateurs et droits d'accès}
+\begin{longtable}{>{\bfseries}p{3.2cm} p{10.8cm}}
+\toprule
+\textbf{Profil} & \textbf{Rôle et droits} \\
+\midrule
+\endhead
+Fermier / Propriétaire & Consulte les tableaux de bord de production, de rentabilité et de synthèse, décide de la clôture d'un site ou du déplacement de ruches. \\
+Agent apiculteur & Réalise les visites, remplit les rapports, exécute les opérations sur les ruches sous sa responsabilité. \\
+Agent superviseur & Approuve les plannings de visite des ruches dont il est responsable. \\
+Responsable / Manager & Surveille les alertes (chute de production ou d'effectif) et déclenche les inspections imminentes. \\
+Administrateur & Gère les paramètres système, les unités de mesure, les seuils et les référentiels. \\
+\bottomrule
+\end{longtable}
+
+\section{Hors périmètre}
+\begin{itemize}
+  \item L'acquisition physique et le déploiement matériel des capteurs (projet ultérieur).
+  \item L'automatisation temps réel de la collecte des indicateurs (interface prévue mais non implémentée dans cette phase).
+\end{itemize}
+

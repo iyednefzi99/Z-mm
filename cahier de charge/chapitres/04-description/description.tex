@@ -1,0 +1,254 @@
+%==============================================================================
+\chapter{Description fonctionnelle des besoins}
+%==============================================================================
+
+\section{Gestion des entités (CRUD)}
+Le système doit assurer la création, la consultation, la modification et la
+suppression de toutes les entités métier : fermiers, fermes, sites, ruches,
+corps/hausses, cadres, agents, visites et rapports, dans le respect des règles
+de gestion énoncées au chapitre~3.
+
+\section{Planification et suivi des visites}
+\begin{itemize}
+  \item Les visites sont \textbf{régulières ou irrégulières}, pour des motifs variés :
+        inspection sanitaire, peuplement par un nouvel essaim, changement de reine,
+        ravitaillement de nourriture, prescription de médicament, subdivision d'essaim,
+        ajout de cadre et/ou d'étage d'extension, collecte de cadres de miel,
+        évaluation de la production, évaluation de l'effectif et du volume de l'essaim.
+  \item Chaque agent suit un \textbf{planning de visite approuvé} par l'agent superviseur de la ruche concernée.
+\end{itemize}
+
+\subsection{Rapport de visite}
+Chaque visite donne lieu à un rapport contenant : \textbf{date, heure, durée,
+raison, constatations, actions prévues, actions effectuées, recommandations},
+une évaluation qualitative de l'effectif / du volume de l'essaim, son état de
+santé et son niveau de productivité sur une \textbf{échelle de 1 à 3}.
+
+\section{Tableaux de bord}
+
+\subsection{Calendrier / matrice agents × ruches}
+Matrice croisant \textbf{agents et ruches}, déclinée par mois, semaine, saison
+et année, avec \textbf{filtres} et regroupements par site, par agent et par agent
+responsable. Un clic sur une case représentant une visite planifiée affiche un
+\textbf{pop-up} résumant ce qui est prévu (date, heure, raison, actions) et, si
+la visite est déjà exécutée, ce qui a été réalisé ainsi que la date et l'heure
+effectives.
+
+\subsection{Tableau de bord production (fermier / propriétaire)}
+Met en évidence les couples \textbf{site × ruche} dont la production (poids) a
+dépassé un \textbf{seuil paramétrable}, signalant soit une collecte de miel
+imminente, soit une intervention d'extension et/ou de division d'essaim pour
+favoriser l'expansion de la colonie.
+
+\subsection{Tableau de bord alertes (responsable)}
+Signale les couples \textbf{site × ruche} dont la production ou l'effectif
+baissent de façon inhabituelle au-delà d'un seuil paramétrable, déclenchant une
+\textbf{alerte} et une inspection imminente.
+
+\subsection{Tableau de bord de synthèse (propriétaire)}
+Graphiques, courbes et histogrammes représentant :
+\begin{itemize}
+  \item la quantité produite par ferme et par site
+  \item le nombre d'interventions par ferme, par site et par ruche
+  \item le \textbf{retour sur investissement} (rapport coûts / production) pour arbitrer
+        le sort de chaque site ou ruche (clôture, déplacement).
+\end{itemize}
+
+\section{Indicateurs de performance (volet automatisé : préparation)}
+Les mesures sont \textbf{horodatées et géolocalisées}, exprimées dans des unités
+\textbf{paramétrables} (internationalisation des systèmes d'unités). Les mesures
+d'un même indicateur ne partagent pas nécessairement la même unité, les capteurs
+étant hétérogènes. Indicateurs concernés :
+\begin{itemize}
+  \item poids du cadre, du socle et de l'étage d'extension
+  \item température et humidité, à l'intérieur et à l'extérieur de la ruche
+  \item effectif des mouvements d'entrée et de sortie des abeilles
+  \item niveau de bruit / bourdonnement, intérieur et extérieur
+  \item niveau de luminosité, intérieur et extérieur
+  \item vitesse et direction du vent à l'extérieur
+  \item état d'ouverture de la ruche (intervention, orage, vol, attaque animale, etc.).
+\end{itemize}
+
+\subsection{Analyse prédictive et surveillance connectée}
+Les solutions de surveillance connectée (precision beekeeping) telles qu'Arnia,
+BroodMinder ou BeeHero montrent que l'exploitation avancée des mêmes indicateurs
+permet d'anticiper les événements de la colonie. Le modèle de données doit rester
+ouvert à ces traitements, prévus pour le volet automatisé.
+\begin{itemize}
+  \item détection acoustique de l'essaimage 1 à 5 jours à l'avance par analyse de la signature sonore de la colonie
+  \item confirmation de la présence de la reine à partir du bourdonnement
+  \item détection d'ouverture, de choc ou de basculement de la ruche par accéléromètre (vol, chute, attaque animale), en complément de l'indicateur d'ouverture
+  \item orientation de la ruche par boussole électronique
+  \item pesée continue par balance pour suivre le flux de nectar et la dynamique de production
+  \item analyse dans le cloud par intelligence artificielle des signatures acoustiques pour corréler son et activité de la ruche.
+\end{itemize}
+
+\subsection{Protocole d'ingestion des mesures}
+Le volet automatisé reste hors périmètre de développement, mais l'interface
+d'ingestion est spécifiée dès maintenant pour que le modèle de données et
+l'architecture l'anticipent.
+\begin{itemize}
+  \item \textbf{Transport} : une passerelle terrain transmet les mesures au
+        serveur, au choix selon la connectivité, par \textbf{REST sur HTTPS}
+        (\texttt{POST /api/mesures}) ou par \textbf{MQTT} (publication sur le
+        topic \texttt{zumm/\{rucheId\}/\{indicateur\}}).
+  \item \textbf{Format} : \textbf{JSON}, une mesure portant l'identifiant de la
+        ruche, le type d'indicateur, la valeur, l'unité, l'horodatage et la
+        géolocalisation ; l'envoi par lot est un tableau de mesures.
+  \item \textbf{Fréquence} : paramétrable par indicateur (par exemple poids
+        toutes les 15 min, température toutes les 5 min, acoustique échantillonnée
+        en continu), afin de maîtriser la volumétrie.
+  \item \textbf{Robustesse} : ingestion \textbf{asynchrone} par file d'attente ;
+        \textbf{idempotence} sur la clé (ruche, indicateur, horodatage) pour
+        rejouer sans doublon ; en zone reculée, mise en tampon locale sur la
+        passerelle puis synchronisation différée.
+  \item \textbf{Sécurité} : passerelle authentifiée (clé ou certificat), canal
+        TLS ; rejet des valeurs hors plage physique plausible (garde-fou).
+\end{itemize}
+\begin{verbatim}
+POST /api/mesures        Content-Type: application/json
+{
+  "rucheId": 42, "typeIndicateur": "TEMPERATURE_INTERNE",
+  "valeur": 34.8, "unite": "degC",
+  "horodatage": "2026-07-09T14:05:00Z",
+  "latitude": 36.806, "longitude": 10.181
+}
+\end{verbatim}
+
+\subsection{Seuils par défaut et logique d'alerte}
+Les seuils sont stockés dans la table \texttt{SEUIL} (paramétrables, chapitre~5).
+Les valeurs ci-dessous sont des \textbf{valeurs par défaut de référence}, ancrées
+dans le protocole apicole (chapitre~12).
+\begin{longtable}{>{\bfseries}p{4.4cm} p{5.2cm} p{4.4cm}}
+\toprule
+\textbf{Indicateur} & \textbf{Seuil par défaut} & \textbf{Alerte déclenchée} \\
+\midrule
+\endhead
+Température interne (couvain) & \textless\,32\,°C ou \textgreater\,36\,°C & Risque thermique sur le couvain \\
+Humidité interne & \textgreater\,80\,\% & Excès d'humidité, risque sanitaire \\
+Poids : gain de la hausse & \textgreater\ seuil de production & Collecte de miel imminente \\
+Poids : chute soudaine & \textgreater\,1,5\,kg en moins d'1\,h & Essaimage, vol, chute ou attaque \\
+Production ou effectif & Baisse relative \textgreater\,20\,\% vs période précédente & Inspection sanitaire imminente \\
+Activité entrée/sortie & $\approx$\,0 en journée favorable & Colonie affaiblie ou reine absente \\
+État d'ouverture & Ouvert hors visite planifiée & Intrusion ou perturbation \\
+Signature acoustique & Motif d'essaimage détecté & Pré-alerte d'essaimage (1 à 5 j) \\
+\bottomrule
+\end{longtable}
+\begin{encadre}
+\textbf{Règle d'évaluation :} à chaque mesure, la valeur est convertie vers
+l'unité de référence (formule de conversion, §5.3), puis comparée au seuil
+paramétrable. Pour limiter les \emph{fausses alertes}, une alerte n'est levée que
+si le dépassement \textbf{persiste sur $N$ mesures consécutives} (anti-rebond /
+hystérésis). Toute alerte reste une \textbf{aide à la décision} confirmée par le
+rapport de visite : l'agent conserve la validation finale.
+\end{encadre}
+
+\section{Grille de synthèse des fonctions}
+\begin{longtable}{>{\bfseries}p{3.4cm} p{7.6cm} C{2.2cm}}
+\toprule
+\textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
+\midrule
+\endhead
+CRUD entités        & Gestion complète du modèle métier                       & Haute \\
+Planning de visites & Planification + approbation par le superviseur           & Haute \\
+Rapports de visite  & Saisie structurée des constats et actions               & Haute \\
+Calendrier agents×ruches & Matrice filtrable avec pop-up de résumé            & Haute \\
+Alertes production  & Détection des dépassements de seuil                     & Haute \\
+Alertes sanitaires  & Détection des baisses anormales d'effectif/production   & Haute \\
+Synthèse \& ROI     & Graphiques coûts/production, aide à la décision         & Moyenne \\
+Indicateurs capteurs & Modèle de données prêt pour l'automatisation            & Moyenne \\
+\midrule
+\multicolumn{3}{l}{\textit{\color{mielfonce} Exigences anti-défaut (tirées des limites des solutions existantes)}} \\
+\midrule
+Déploiement autonome & Installation J2EE sans abonnement ni service tiers obligatoire & Haute \\
+Mode hors-ligne & Saisie sans connexion et synchronisation différée & Haute \\
+Authentification simple & OAuth Google et parcours de saisie terrain rapide & Haute \\
+Modularité configurable & Activation des modules par profil via ConfigZumm.ini & Moyenne \\
+Portabilité des données & Export CSV et TXT, service web API et sauvegarde, sans verrouillage & Haute \\
+Aide contextuelle & Interface simple et cohérente, guidage de l'utilisateur & Moyenne \\
+Parité web et mobile & Mêmes fonctions sur tous les supports & Moyenne \\
+Internationalisation & Fichier XML FR, EN et AR, extensible à d'autres langues & Haute \\
+Ouverture matérielle & Capteurs hétérogènes et unités paramétrables & Moyenne \\
+Ingestion asynchrone & Mesures horodatées différées, volet manuel autonome & Moyenne \\
+Validation humaine & Seuils paramétrables et confirmation par le rapport de visite & Haute \\
+Sécurité des échanges & SSL et certificats X.509, accès authentifiés & Haute \\
+Aide à la décision & Alertes indicatives, l'agent conserve la validation finale & Moyenne \\
+\bottomrule
+\end{longtable}
+
+\section{Fonctionnalités complémentaires inspirées des solutions du marché}
+Afin de renforcer l'ergonomie et la valeur d'usage, le système s'inspire des
+bonnes pratiques des applications apicoles de référence telles que HiveTracks.
+Ces fonctionnalités étendent les besoins déjà décrits sans les remplacer.
+\begin{longtable}{>{\bfseries}p{4.2cm} p{7.5cm} C{2.1cm}}
+\toprule
+\textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
+\midrule
+\endhead
+Photos d'inspection & Attacher une ou plusieurs photos à chaque rapport de visite pour un suivi visuel de la colonie et des cadres. & Haute \\
+Saisie vocale assistée & Dicter le compte rendu de visite, la transcription alimentant automatiquement les champs du rapport. & Basse \\
+Contexte météo & Afficher la météo locale de la semaine à partir de la localisation du site pour éclairer les décisions d'intervention. & Moyenne \\
+Carte et rayons de butinage & Positionner les ruches sur une carte et tracer des rayons de butinage (par exemple 1, 2 et 3 km, unités paramétrables) pour visualiser l'environnement accessible aux abeilles. & Moyenne \\
+Liste de tâches et rappels & Gérer une liste de tâches et un calendrier de rappels (nourrissement, inspection, statut de la reine) pour ne manquer aucune échéance. & Haute \\
+Suivi de la reine & Enregistrer l'historique du statut de la reine (présence, âge, remplacement, marquage) au fil des visites. & Haute \\
+Récolte et QR code & Saisir les récoltes de miel et générer un QR code par lot présentant les notes de dégustation, la provenance et les photos, pour la traçabilité et la valorisation. & Moyenne \\
+Accès multi-supports & Offrir un accès web et une expérience adaptée aux terminaux mobiles pour la saisie terrain. & Moyenne \\
+\bottomrule
+\end{longtable}
+\begin{encadre}
+\textbf{Cohérence avec les exigences :} les rayons de butinage et la météo
+réutilisent la géolocalisation des sites et le mécanisme d'unités paramétrables.
+Les rappels s'appuient sur le planning de visite existant, et le suivi de la
+reine enrichit le rapport de visite déjà défini.
+\end{encadre}
+
+\section{Fonctions de gestion avancée (inspiration Apiary Book et BeePlus)}
+Les applications de gestion apicole Apiary Book et BeePlus mettent en avant des
+fonctions d'organisation et de traçabilité qui complètent le périmètre du
+système.
+\begin{longtable}{>{\bfseries}p{4.2cm} p{7.5cm} C{2.1cm}}
+\toprule
+\textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
+\midrule
+\endhead
+Mode hors-ligne et synchronisation & Saisir les données terrain sans connexion et les synchroniser automatiquement au retour du réseau. & Haute \\
+Suivi des traitements & Conserver l'historique des médicaments et traitements sanitaires appliqués à chaque ruche. & Haute \\
+Gestion du matériel et inventaire & Suivre le matériel (corps, hausses, cadres, ruches) et son affectation aux sites. & Moyenne \\
+Suivi financier & Enregistrer coûts et revenus par ferme, site et ruche, en appui du calcul du retour sur investissement. & Moyenne \\
+Export des données & Exporter les enregistrements aux formats CSV et TXT pour une analyse externe. & Moyenne \\
+Détection de maladies & Aider à l'identification des maladies à partir des constatations de visite. & Basse \\
+Sauvegarde des données & Sauvegarder et restaurer les données dans le cloud. & Moyenne \\
+\bottomrule
+\end{longtable}
+\begin{encadre}
+\textbf{Cohérence avec les exigences :} le suivi financier alimente le tableau de
+bord de retour sur investissement, l'export CSV prolonge le service web API, et
+le suivi des traitements enrichit le motif de visite prescription de médicament.
+\end{encadre}
+
+\section{Limites connues des solutions existantes et exigences pour les éviter}
+L'analyse des retours d'expérience sur les solutions du marché (HiveTracks,
+Apiary Book, BeePlus) et sur les systèmes de surveillance connectée (Arnia,
+BroodMinder, BeeHero) fait ressortir des limites récurrentes. Le tableau suivant
+met chaque limite en regard de l'exigence retenue pour l'éviter dans Zümm.
+\begin{longtable}{>{\bfseries}p{5.2cm} p{9.3cm}}
+\toprule
+\textbf{Limite observée} & \textbf{Exigence retenue pour l'éviter} \\
+\midrule
+\endhead
+Abonnement payant et paywall & Système autodéployable en J2EE, sans abonnement obligatoire, l'ensemble des fonctions de gestion reste accessible. \\
+Fonctionnement hors-ligne limité & Mode hors-ligne robuste avec synchronisation différée, la saisie terrain n'exige pas de connexion permanente. \\
+Création de compte imposée et friction & Authentification simple par OAuth Google et parcours de saisie rapide, l'ergonomie prime. \\
+Surcharge de fonctions inutiles & Modules activables par profil et par le fichier de configuration ConfigZumm.ini, grâce à l'architecture faiblement couplée. \\
+Dépendance et perte des données & Données maîtrisées par l'utilisateur, export CSV et TXT, service web API et sauvegarde, sans verrouillage propriétaire. \\
+Interface dense et courbe d'apprentissage & Interface simple, cohérente et conviviale avec aide contextuelle, conformément aux exigences d'ergonomie. \\
+Fonctions inégales selon la plateforme & Parité fonctionnelle entre accès web et mobile grâce à l'architecture multi-niveaux. \\
+Solutions uniquement anglophones & Internationalisation par fichier XML, au moins FR, EN et AR, ouverte à d'autres langues. \\
+Coût élevé du matériel de capteurs & Ouverture aux capteurs hétérogènes et bon marché avec unités paramétrables, sans verrouillage matériel. \\
+Autonomie et connectivité en zone reculée & Ingestion asynchrone de mesures horodatées, le volet manuel fonctionne sans capteurs. \\
+Fausses alertes et fiabilité des capteurs & Seuils paramétrables et validation humaine par le rapport de visite, les alertes restent une aide à la décision. \\
+Confidentialité et sécurité des données & Chiffrement SSL et certificats X.509, authentification des accès. \\
+Surconfiance dans l'automatisation & Positionnement en aide à la décision, l'agent apiculteur conserve la validation finale. \\
+\bottomrule
+\end{longtable}
+

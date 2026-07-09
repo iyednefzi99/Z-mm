@@ -13,16 +13,27 @@ développer.
 ```
 🐝 Zümm/
 ├── 📂 cahier de charge/
-│   ├── 📘 cahier_des_charges.tex          # Document principal (LaTeX)
-│   ├── 🚀 annexe_migration_springboot.tex # Annexe : J2EE -> Spring Boot
-│   ├── 🧱 annexe_solid_patterns.tex       # Annexe E : SOLID & design patterns
-│   ├── 🧩 annexe_complements.tex          # Annexe F : MLD, IHM, RBAC, risques, RGPD, tests
-│   ├── 🖇️ *.puml                          # Sources des diagrammes (UML, MLD, maquettes)
-│   ├── 🖼️ images/                         # PNG générés + illustrations
-│   └── 📕 cahier_des_charges.pdf          # Document compilé (livrable)
+│   ├── 📘 cahier_des_charges.tex        # Préambule + \input des chapitres et annexes
+│   ├── 📂 chapitres/                     # Un dossier par chapitre
+│   │   ├── 01-contexte/ … 05-dictionnaire/   (📄 .tex)
+│   │   ├── 06-cas-utilisation/          (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   ├── 07-conception/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   ├── 08-contraintes/ … 11-tests/       (📄 .tex)
+│   │   ├── 12-referentiel/              (📄 .tex · 🖼️ images/)
+│   │   └── 13-glossaire/ · 14-references/    (📄 .tex)
+│   ├── 📂 annexes/
+│   │   ├── A-structure-ruche/           (📄 .tex · 🖼️ images/)
+│   │   ├── B-technologies/ · C-migration/    (📄 .tex)
+│   │   ├── D-solid-patterns/            (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   └── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   └── 📕 cahier_des_charges.pdf        # Document compilé (livrable)
 ├── 🙈 .gitignore
 └── 📖 README.md
 ```
+
+> 💡 Chaque dossier de chapitre/annexe contient son `.tex`, ses `images/` (PNG) et,
+> le cas échéant, ses `diagrammes/` (sources `.puml`). Les chapitres sans figure
+> n'ont qu'un `.tex`.
 
 ## 📚 Contenu du dossier
 
@@ -55,10 +66,12 @@ latexmk -pdf cahier_des_charges.tex
 ## 🔄 Régénérer les diagrammes
 
 Depuis `cahier de charge/`, avec Graphviz installé (ou `GRAPHVIZ_DOT` pointant
-sur `dot`) :
+sur `dot`). Chaque `.puml` est régénéré vers le dossier `images/` voisin :
 
 ```bash
-java -jar plantuml.jar -tpng -o images *.puml
+for d in chapitres/*/diagrammes annexes/*/diagrammes; do
+  java -jar plantuml.jar -tpng -o ../images "$d"/*.puml
+done
 ```
 
 > 💡 Les maquettes (`wireframe_*.puml`) utilisent la syntaxe **Salt** de PlantUML.

@@ -1,0 +1,94 @@
+%==============================================================================
+\chapter{Contraintes et exigences techniques}
+%==============================================================================
+
+\section{Architecture}
+Architecture \textbf{scalable, évolutive, flexible, multi-niveaux et faiblement
+couplée}, s'appuyant sur \textbf{J2EE} comme infrastructure principale.
+
+\section{Exigences techniques imposées}
+\begin{longtable}{>{\bfseries}p{4cm} p{10cm}}
+\toprule
+\textbf{Exigence} & \textbf{Description} \\
+\midrule
+\endhead
+MVC              & Séparation modèle / vue / contrôleur. \\
+Servlet          & Traitement des requêtes côté serveur. \\
+JSP              & Front-end de présentation. \\
+EJB              & Composants métier. \\
+JDBC             & Accès aux données. \\
+Internationalisation & Textes de l'IHM externalisés dans un fichier XML, ouverture à la traduction hors-ligne sans limite de langues, FR, EN et AR au minimum en démonstration. \\
+Configuration    & Paramétrage par fichier texte \texttt{ConfigZumm.ini}. \\
+Sécurité inter-composants & Certificats \textbf{X.509} et protocole \textbf{SSL}. \\
+Authentification utilisateur & \textbf{OAuth Google} via un service web XML et son API. \\
+API tierce       & Service web XML exposant \texttt{float getZummHoneyActualQuantity(int zummID)} pour récupérer la quantité de miel d'une ruche. \\
+Front-end        & JavaScript et frameworks libres, dans le respect de l'ergonomie imposée. \\
+\bottomrule
+\end{longtable}
+
+\section{Exigences non fonctionnelles}
+\begin{itemize}
+  \item \textbf{Ergonomie, convivialité et simplicité} d'utilisation, consistance de l'interface et qualité du design infographique (importance capitale).
+  \item \textbf{Évolutivité} : ouverture à l'ajout de langues, d'unités et d'indicateurs.
+  \item \textbf{Interopérabilité} : services web interrogeables par des applications tierces.
+  \item \textbf{Sécurité} : chiffrement des échanges et authentification forte.
+  \item \textbf{Qualité de conception} : respect des principes \textbf{SOLID} et recours aux \textbf{design patterns} (patrons de conception) pour garantir un couplage faible et l'évolutivité, comme détaillé en annexe~\ref{chap:solid}.
+\end{itemize}
+
+\begin{encadre}
+\textbf{Principes de conception retenus :} l'architecture applique les cinq
+principes \textbf{SOLID} (responsabilité unique, ouvert/fermé, substitution de
+Liskov, ségrégation des interfaces, inversion de dépendance) et un ensemble de
+\textbf{design patterns} (Composite, State, Strategy, Observer, Command, Factory
+Method, Builder, Adapter, Facade, Singleton, Proxy). Leur application au
+système, justifiée « avant / après », est détaillée dans
+l'annexe~\ref{chap:solid}.
+\end{encadre}
+
+\section{Questions de conception à couvrir}
+La conception devra répondre explicitement aux questions suivantes :
+\begin{enumerate}
+  \item Quels sont les \textbf{inputs} (liste, dictionnaire de données et types) et \textbf{outputs} (liste, dictionnaire, types, formules et requêtes de calcul) du système ?
+  \item De quoi se compose la solution ?
+  \item Quels sont les utilisateurs types et leurs droits d'accès aux fonctionnalités ?
+  \item Comment le système réalise-t-il les opérations utilisateur ?
+  \item Comment le système est-il packagé et déployé ?
+  \item Comment les éléments interagissent-ils et dans quel ordre / chronologie ?
+  \item Pourquoi, comment et où telle technologie a-t-elle été utilisée ?
+\end{enumerate}
+
+\section{Justification des choix technologiques}
+Le tableau suivant répond au pourquoi, au comment et au où de chaque technologie
+imposée. Les \textbf{implémentations concrètes} de ce socle (serveur
+d'applications, SGBD, bibliothèques front-end, style de service web) et le
+\textbf{comparatif justifié} des alternatives évaluées sont détaillés à
+l'annexe~\ref{chap:technologies}.
+\begin{longtable}{>{\bfseries}p{2.6cm} p{6cm} p{5.4cm}}
+\toprule
+\textbf{Technologie} & \textbf{Pourquoi} & \textbf{Où} \\
+\midrule
+\endhead
+MVC & Séparer les responsabilités et faciliter la maintenance & Organisation générale de l'application \\
+Servlet & Traiter les requêtes et orchestrer les traitements & Couche de contrôle \\
+JSP & Produire les pages dynamiques & Couche de présentation \\
+EJB & Encapsuler la logique métier et la rendre réutilisable & Couche métier \\
+JDBC & Accéder à la base relationnelle de façon standard & Couche d'accès aux données \\
+XML i18n & Externaliser les textes pour la traduction hors-ligne & Module d'internationalisation \\
+ConfigZumm.ini & Paramétrer le système sans recompilation & Module de configuration \\
+OAuth Google & Authentifier les utilisateurs sans gérer les mots de passe & Accès au système \\
+Service web API XML & Exposer les données aux applications tierces & Interface d'interopérabilité \\
+X.509 et SSL & Chiffrer et authentifier les échanges & Communications inter-composants \\
+JavaScript & Enrichir l'ergonomie du front-end & Couche de présentation \\
+\bottomrule
+\end{longtable}
+
+\section{Packaging et déploiement}
+\begin{itemize}
+  \item \textbf{Packaging} : l'application est empaquetée sous forme d'archive Java d'entreprise (WAR pour la partie web, EAR si les EJB sont regroupés), incluant les fichiers XML d'internationalisation et le fichier \texttt{ConfigZumm.ini}.
+  \item \textbf{Serveur} : déploiement sur un serveur d'applications J2EE fournissant conteneur de servlets et conteneur d'EJB.
+  \item \textbf{Base de données} : SGBD relationnel accédé via JDBC.
+  \item \textbf{Sécurité} : installation des certificats X.509 et activation de SSL pour les échanges, configuration de l'accès OAuth Google.
+  \item \textbf{Configuration} : les seuils, unités et modules actifs sont ajustés dans \texttt{ConfigZumm.ini} sans redéploiement.
+\end{itemize}
+La répartition physique est illustrée par le diagramme de déploiement (figure \ref{fig:deploiement}).
+

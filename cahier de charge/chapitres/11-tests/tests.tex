@@ -1,0 +1,57 @@
+%==============================================================================
+\chapter{Plan de tests et validation}
+%==============================================================================
+La stratégie de test couvre les fonctions métier, les contraintes de gestion et
+les exigences techniques. Chaque cas de test précise la fonction visée, les
+préconditions, les étapes et le résultat attendu.
+
+\section{Cas de tests}
+\begin{longtable}{>{\bfseries}p{1.4cm} p{3.6cm} p{4.2cm} p{4.4cm}}
+\toprule
+\textbf{ID} & \textbf{Fonction} & \textbf{Étapes} & \textbf{Résultat attendu} \\
+\midrule
+\endhead
+TC01 & CRUD ruche & Créer, lire, modifier, supprimer une ruche & Opérations conformes et persistées \\
+TC02 & Contrainte cadres & Ajouter un 11e cadre à un corps & Refus, maximum de 10 cadres \\
+TC03 & Contrainte hausses & Ajouter une 6e hausse & Refus, maximum de 5 hausses \\
+TC04 & Contrainte socle & Retirer le dernier cadre du corps & Refus, au moins 1 cadre \\
+TC05 & Planning de visite & Proposer puis approuver une visite & Statut approuvé enregistré \\
+TC06 & Rapport de visite & Remplir tous les champs et enregistrer & Rapport persisté, case exécutée \\
+TC07 & Alerte production & Dépasser le seuil de production & Alerte de collecte affichée \\
+TC08 & Alerte baisse & Simuler une chute d'effectif & Alerte d'inspection affichée \\
+TC09 & Calcul ROI & Saisir coûts et production & ROI calculé correctement \\
+TC10 & API miel & Appeler getZummHoneyActualQuantity & Quantité correcte retournée \\
+TC11 & Internationalisation & Basculer FR, EN puis AR & Textes traduits via le fichier XML \\
+TC12 & Configuration & Modifier un seuil dans ConfigZumm.ini & Nouveau seuil pris en compte \\
+TC13 & Authentification & Se connecter par OAuth Google & Accès autorisé \\
+TC14 & Sécurité & Vérifier SSL et certificat X.509 & Échanges chiffrés et validés \\
+TC15 & Export & Exporter les enregistrements & Fichiers CSV et TXT générés \\
+TC16 & Mode hors-ligne & Saisir sans réseau puis reconnecter & Synchronisation réussie \\
+\bottomrule
+\end{longtable}
+
+\section{Matrice de traçabilité}
+La matrice relie chaque exigence à son cas d'utilisation, aux classes et tables
+qui la portent, à l'écran (maquette) concerné et aux cas de test qui la valident.
+Elle assure la traçabilité de bout en bout, du besoin jusqu'à la vérification.
+{\small
+\begin{longtable}{>{\bfseries}p{3.4cm} C{1.3cm} p{3.3cm} p{2.5cm} p{2.6cm}}
+\toprule
+\textbf{Exigence} & \textbf{UC} & \textbf{Classes / Tables} & \textbf{Écran} & \textbf{Tests} \\
+\midrule
+\endhead
+Gestion des entités et contraintes & --- & Ruche, Compartiment, Cadre & Fiche ruche (fig.~\ref{fig:wf-ruche}) & TC01--TC04 \\
+Planification et approbation & UC1 & Planning, Agent & Calendrier (fig.~\ref{fig:wf-calendrier}) & TC05 \\
+Réalisation et rapport de visite & UC2 & Visite, Photo & Rapport (fig.~\ref{fig:wf-rapport}) & TC06 \\
+Tableau de bord production & UC3 & Recolte, Mesure, Seuil & TB prod. (fig.~\ref{fig:wf-production}) & TC07, TC09 \\
+Alerte sanitaire / baisse & UC4 & Mesure, Seuil & Calendrier & TC08 \\
+Service web API (miel) & UC5 & Ruche, Recolte & --- & TC10 \\
+Internationalisation & --- & (i18n XML) & Tous & TC11 \\
+Configuration par seuils & --- & Seuil & TB prod. & TC12 \\
+Authentification OAuth & --- & Agent & Connexion (fig.~\ref{fig:seq-oauth}) & TC13 \\
+Sécurité des échanges & --- & (SSL / X.509) & --- & TC14 \\
+Portabilité et export & --- & (export CSV/TXT) & Tous & TC15 \\
+Mode hors-ligne & UC2 & Visite (file locale) & Rapport & TC16 \\
+\bottomrule
+\end{longtable}}
+

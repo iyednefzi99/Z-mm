@@ -1,0 +1,178 @@
+%==============================================================================
+\chapter{Conception (modèles UML)}
+\label{chap:conception}
+%==============================================================================
+Le dossier de conception comprend les diagrammes UML suivants. Chacun est décrit
+par son contenu attendu afin de guider la modélisation.
+\begin{longtable}{>{\bfseries}p{3.8cm} p{10.2cm}}
+\toprule
+\textbf{Diagramme} & \textbf{Contenu attendu} \\
+\midrule
+\endhead
+Cas d'utilisation & Acteurs (fermier, agent, superviseur, responsable, administrateur, application tierce) et cas principaux (voir figure \ref{fig:uc}). \\
+Classes & Entités du dictionnaire de données et leurs relations (Fermier 1 vers n Ferme, Ferme 1 vers n Site, Site 1 vers n Ruche, Ruche 1 vers n Corps ou hausse, Corps ou hausse 1 vers n Cadre) et méthodes de service. \\
+Objets & Instantané d'un site contenant trois ruches peuplées avec leurs cadres. \\
+Séquence & Déroulé de la réalisation d'une visite (Agent, IHM JSP, Servlet, EJB, JDBC, base de données). \\
+Activité & Processus de planification, approbation, exécution et clôture d'une visite. \\
+Machine à états & Cycle de vie d'une ruche (créée, peuplée, active, en division, en collecte, clôturée). \\
+Interaction ou collaboration & Même scénario que la séquence sous forme de collaboration entre objets. \\
+Package & Couches présentation, contrôle, métier, accès aux données, internationalisation, configuration et services web. \\
+Composant & Composants applicatifs (application web, service OAuth, service API, module i18n, module configuration, base de données). \\
+Déploiement & Répartition sur le navigateur, le serveur d'applications J2EE, le SGBD, le service Google OAuth et les capteurs. \\
+\bottomrule
+\end{longtable}
+
+\section{Diagramme de classes}
+Le diagramme de classes, présenté en alignement horizontal, décrit les entités
+métier, leurs attributs, la méthode de service \texttt{getZummHoneyActualQuantity}
+et les relations avec leurs cardinalités.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes}
+\caption{Diagramme de classes du système Zümm (alignement horizontal).}
+\label{fig:classes}
+\end{figure}
+
+\section{Vue en couches (package)}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
+]
+\node[couche] (p) at (0,4) {Présentation : JSP et JavaScript};
+\node[couche] (c) at (0,3) {Contrôle : Servlets (MVC)};
+\node[couche] (m) at (0,2) {Métier : EJB};
+\node[couche] (d) at (0,1) {Accès aux données : JDBC};
+\node[couche] (b) at (0,0) {Base de données relationnelle};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,right=3mm of c,xshift=4.7cm] (s) {i18n XML / ConfigZumm.ini / Services web};
+\draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
+\draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
+\draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
+\draw[-{Latex[length=2mm]},mielfonce] (d)--(b);
+\end{tikzpicture}
+\caption{Architecture multi-niveaux en couches faiblement couplées.}
+\label{fig:couches}
+\end{figure}
+
+\section{Vue de déploiement}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  noeud/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=3cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[noeud] (nav) {Navigateur\\(client web)};
+\node[noeud,right=1.6cm of nav] (srv) {Serveur J2EE\\(Servlets, EJB)};
+\node[noeud,right=1.6cm of srv] (bd) {SGBD\\relationnel};
+\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,below=1cm of bd] (capt) {Capteurs\\(volet automatisé)};
+\draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (capt)--(srv);
+\end{tikzpicture}
+\caption{Diagramme de déploiement du système.}
+\label{fig:deploiement}
+\end{figure}
+
+\section{Diagramme de séquence (UC2)}
+Le diagramme de séquence ci-dessous détaille le cas d'utilisation UC2, réaliser
+une visite et remplir le rapport. Il montre le passage à travers les couches
+(agent, IHM, servlet, EJB, base de données) ainsi que les cas en ligne et
+hors-ligne avec synchronisation différée.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{diagramme_sequence_uc2}
+\caption{Diagramme de séquence du cas d'utilisation UC2 (réaliser une visite).}
+\label{fig:sequence-uc2}
+\end{figure}
+
+\section{Séquence d'authentification (OAuth Google)}
+Le parcours d'authentification suit le flot \emph{Authorization Code} d'OAuth~2.0.
+Le navigateur ne transporte jamais le secret client : l'échange du code
+d'autorisation contre le jeton d'accès se fait de \textbf{serveur à serveur}, sur
+un canal SSL authentifié par certificat X.509. La session applicative est ensuite
+ouverte au moyen d'un cookie sécurisé (\texttt{HttpOnly}, \texttt{Secure}), et le
+profil renvoyé par Google est associé à un \texttt{Agent} existant (ou en crée un
+en attente d'habilitation). En démonstration, un repli d'authentification locale
+est prévu en cas d'indisponibilité du fournisseur.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  msg/.style={-{Latex[length=1.6mm]},mielfonce,thick},
+  rmsg/.style={-{Latex[length=1.6mm]},mielfonce,thick,dashed}
+]
+% ---- lignes de vie ----
+\foreach \x/\name in {0/{Agent (navigateur)}, 6/{Serveur Zümm}, 12/{Google OAuth}}{
+  \node[draw=mielfonce,fill=grisdoux,thick,align=center,minimum height=7mm,inner xsep=6pt] at (\x,0) {\name};
+  \draw[mielfonce,dashed] (\x,-0.45) -- (\x,-9.9);
+}
+% ---- messages ----
+\draw[msg]  (0,-1.0) -- (6,-1.0)  node[midway,above]{1. Accès à une page protégée};
+\draw[rmsg] (6,-1.7) -- (0,-1.7)  node[midway,above]{2. 302 : redirection (client\_id, scope, state)};
+\draw[msg]  (0,-2.4) -- (12,-2.4) node[midway,above]{3. Authentification + consentement};
+\draw[rmsg] (12,-3.1) -- (0,-3.1) node[midway,above]{4. 302 : redirection + code + state};
+\draw[msg]  (0,-3.8) -- (6,-3.8)  node[midway,above]{5. GET /callback (code, state)};
+\draw[msg]  (6,-4.5) -- (12,-4.5) node[midway,above]{6. POST /token (code, secret) --- SSL / X.509};
+\draw[rmsg] (12,-5.2) -- (6,-5.2) node[midway,above]{7. access\_token + id\_token (JWT)};
+\draw[msg]  (6,-5.9) -- (12,-5.9) node[midway,above]{8. GET /userinfo (access\_token)};
+\draw[rmsg] (12,-6.6) -- (6,-6.6) node[midway,above]{9. Profil (email, nom)};
+\node[draw=mielfonce,fill=miel!12,thick,align=center,inner sep=3pt] at (6,-7.5)
+  {10. Vérifie \texttt{state}, associe l'Agent,\\ouvre la session (RBAC)};
+\draw[rmsg] (6,-8.6) -- (0,-8.6) node[midway,above]{11. 302 : application + cookie de session sécurisé};
+\end{tikzpicture}
+\caption{Séquence d'authentification OAuth~2.0 (Authorization Code) avec Google.}
+\label{fig:seq-oauth}
+\end{figure}
+
+\section{Diagramme d'objets}
+Le diagramme d'objets présente un instantané d'un site hébergeant trois ruches,
+avec le détail de la composition d'une ruche en corps, hausse et cadres.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_objets}
+\caption{Diagramme d'objets, instantané d'un site apicole.}
+\label{fig:objets}
+\end{figure}
+
+\section{Diagramme d'activité}
+Le diagramme d'activité modélise le processus de planification, d'approbation et
+de réalisation d'une visite, avec les variantes en ligne et hors-ligne.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_activite}
+\caption{Diagramme d'activité du processus de visite.}
+\label{fig:activite}
+\end{figure}
+
+\section{Diagramme de machine à états}
+Le diagramme de machine à états décrit le cycle de vie d'une ruche, de sa
+création à sa clôture.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_etat}
+\caption{Machine à états du cycle de vie d'une ruche.}
+\label{fig:etat}
+\end{figure}
+
+\section{Diagramme de collaboration}
+Le diagramme de collaboration reprend le scénario UC2 sous forme de messages
+numérotés échangés entre les objets.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_collaboration}
+\caption{Diagramme de collaboration du cas d'utilisation UC2.}
+\label{fig:collaboration}
+\end{figure}
+
+\section{Diagramme de composants}
+Le diagramme de composants montre l'organisation des composants applicatifs,
+leurs interfaces et leurs dépendances, dont l'interface de service exposant la
+quantité de miel.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_composant}
+\caption{Diagramme de composants du système Zümm.}
+\label{fig:composant}
+\end{figure}
+
