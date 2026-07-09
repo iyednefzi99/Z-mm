@@ -1,0 +1,28 @@
+@startuml diagramme_collaboration
+' Diagramme de collaboration (communication) - UC2
+left to right direction
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+}
+title Diagramme de collaboration - UC2 : realiser une visite
+
+object "Agent apiculteur" as Agent #D4A017
+object "IHM (JSP / JS)" as IHM
+object "Servlet (Controleur)" as Servlet
+object "EJB VisiteService" as EJB
+object "Base de donnees" as BD
+
+Agent --> IHM : "1 : ouvrir la visite"
+IHM --> Servlet : "2 : GET visite(id)"
+Servlet --> EJB : "3 : getVisite(id)"
+EJB --> BD : "4 : SELECT visite"
+Agent --> IHM : "5 : valider le rapport"
+IHM --> Servlet : "6 : POST rapport"
+Servlet --> EJB : "7 : enregistrerRapport()"
+EJB --> BD : "8 : INSERT rapport"
+EJB --> BD : "9 : UPDATE statut = execute"
+
+@enduml

@@ -1,0 +1,105 @@
+@startuml diagramme_objets
+' Diagramme d'objets - instantane d'un site
+skinparam shadowing false
+skinparam object {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  AttributeFontColor #1C1C1C
+}
+title Diagramme d'objets - instantane d'un site apicole
+
+object "site1 : Site" as site1 {
+  nom = "Rucher Nord"
+  latitude = 36.80
+  longitude = 10.18
+  altitude = 120
+}
+
+' ---------- Ruche 1 : Dadant, 2 hausses ----------
+object "ruche1 : Ruche" as ruche1 {
+  modele = "Dadant"
+  nbHausses = 2
+}
+object "corps1 : Compartiment" as corps1 {
+  type = CORPS
+  capaciteCadres = 10
+}
+object "hausse1 : Compartiment" as hausse1 {
+  type = HAUSSE
+  capaciteCadres = 10
+}
+object "hausse2 : Compartiment" as hausse2 {
+  type = HAUSSE
+  capaciteCadres = 10
+}
+object "cadre1 : Cadre" as cadre1 {
+  slot = 1
+  type = COUVAIN
+}
+object "cadre2 : Cadre" as cadre2 {
+  slot = 1
+  type = MIEL
+}
+
+' ---------- Ruche 2 : Langstroth, 1 hausse ----------
+object "ruche2 : Ruche" as ruche2 {
+  modele = "Langstroth"
+  nbHausses = 1
+}
+object "corps2 : Compartiment" as corps2 {
+  type = CORPS
+  capaciteCadres = 10
+}
+object "hausse3 : Compartiment" as hausse3 {
+  type = HAUSSE
+  capaciteCadres = 10
+}
+object "cadre3 : Cadre" as cadre3 {
+  slot = 1
+  type = COUVAIN
+}
+
+' ---------- Ruche 3 : Voirnot, 0 hausse ----------
+object "ruche3 : Ruche" as ruche3 {
+  modele = "Voirnot"
+  nbHausses = 0
+}
+object "corps3 : Compartiment" as corps3 {
+  type = CORPS
+  capaciteCadres = 10
+}
+object "cadre4 : Cadre" as cadre4 {
+  slot = 1
+  type = COUVAIN
+}
+
+object "agent1 : Agent" as agent1 {
+  nom = "K. Ben Ali"
+  role = APICULTEUR
+}
+
+' emplacement (heberge)
+site1 --> ruche1
+site1 --> ruche2
+site1 --> ruche3
+
+' composition ruche1
+ruche1 *--> corps1
+ruche1 *--> hausse1
+ruche1 *--> hausse2
+corps1 *--> cadre1
+hausse1 *--> cadre2
+
+' composition ruche2
+ruche2 *--> corps2
+ruche2 *--> hausse3
+corps2 *--> cadre3
+
+' composition ruche3
+ruche3 *--> corps3
+corps3 *--> cadre4
+
+agent1 --> ruche1 : responsable de
+
+@enduml

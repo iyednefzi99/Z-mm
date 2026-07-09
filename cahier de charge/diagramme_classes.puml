@@ -1,0 +1,245 @@
+@startuml diagramme_classes
+' Diagramme de classes - Zümm
+' Alignement horizontal
+left to right direction
+skinparam linetype ortho
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  HeaderBackgroundColor #D4A017
+}
+title Diagramme de classes - Zümm
+
+enum Role {
+  APICULTEUR
+  SUPERVISEUR
+  RESPONSABLE
+  ADMINISTRATEUR
+  PROPRIETAIRE
+}
+
+enum TypeCompartiment {
+  CORPS
+  HAUSSE
+}
+
+enum TypeCadre {
+  COUVAIN
+  MIEL
+  POLLEN
+  CIRE_GAUFREE
+  CIRE_ETIREE
+  NOURRISSAGE
+  VIDE
+}
+
+enum RaisonVisite {
+  INSPECTION_SANITAIRE
+  PEUPLEMENT_ESSAIM
+  CHANGEMENT_REINE
+  RAVITAILLEMENT_NOURRITURE
+  PRESCRIPTION_MEDICAMENT
+  SUIVI_TRAITEMENT
+  DIVISION_ESSAIM
+  FORMATION_NUCLEUS
+  ESSAIMAGE_ARTIFICIEL
+  AJOUT_CADRE
+  AJOUT_HAUSSE
+  COLLECTE_MIEL
+  EVALUATION_PRODUCTION
+  EVALUATION_EFFECTIF
+  MARQUAGE_REINE
+  INSPECTION_COUVAIN
+  CONTROLE_PARASITE
+  VISITE_ROUTINE
+  AUTRE
+}
+
+enum EffectifQualitatif {
+  TRES_FAIBLE
+  FAIBLE
+  MOYEN
+  FORT
+  TRES_FORT
+}
+
+enum EtatSante {
+  EXCELLENT
+  BON
+  MOYEN
+  FAIBLE
+  CRITIQUE
+  MALADE
+  ESSAIM_ABANDONNE
+}
+
+enum TypeIndicateur {
+  POIDS_CADRE
+  POIDS_CORPS
+  POIDS_HAUSSE
+  POIDS_TOTAL
+  TEMPERATURE_INTERNE
+  TEMPERATURE_EXTERNE
+  HUMIDITE_INTERNE
+  HUMIDITE_EXTERNE
+  MOUVEMENT_ENTREE
+  MOUVEMENT_SORTIE
+  BRUIT_INTERNE
+  BRUIT_EXTERNE
+  LUMINOSITE_INTERNE
+  LUMINOSITE_EXTERNE
+  VITESSE_VENT
+  DIRECTION_VENT
+  ETAT_OUVERTURE
+  ACCELERATION_CHOC
+  ORIENTATION_BOUSSOLE
+  SIGNATURE_ACOUSTIQUE
+}
+
+enum StatutApprobation {
+  PROPOSE
+  EN_ATTENTE
+  APPROUVE
+  REFUSE
+  REPORTE
+  ANNULE
+}
+
+enum TypeSeuil {
+  SEUIL_PRODUCTION
+  SEUIL_BAISSE_PRODUCTION
+  SEUIL_BAISSE_EFFECTIF
+  DUREE_MAX_VISITE
+  DISTANCE_SECURITE_HABITATION
+  DISTANCE_SECURITE_CULTURE
+  TEMPERATURE_MIN
+  TEMPERATURE_MAX
+  HUMIDITE_MAX
+  POIDS_MIN
+}
+
+class Fermier {
+  -id : int
+  -nom : String
+  -contact : String
+}
+
+class Ferme {
+  -id : int
+  -nom : String
+}
+
+class Site {
+  -id : int
+  -nom : String
+  -latitude : double
+  -longitude : double
+  -altitude : double
+  -dateMiseEnOeuvre : Date
+  -dateDemenagement : Date
+  -dateCloture : Date
+}
+
+class Ruche {
+  -id : int
+  -modele : String
+  -nbHausses : int
+  +getBeeHouseHoneyActualQuantity() : float
+}
+
+class Compartiment {
+  -id : int
+  -type : TypeCompartiment
+  -capaciteCadres : int
+}
+
+class Cadre {
+  -id : int
+  -slot : int
+  -type : TypeCadre
+}
+
+class Agent {
+  -id : int
+  -nom : String
+  -role : Role
+}
+
+class Planning {
+  -id : int
+  -datePrevue : Date
+  -statutApprobation : StatutApprobation
+}
+
+class Visite {
+  -id : int
+  -date : Date
+  -heure : Time
+  -duree : int
+  -raison : RaisonVisite
+  -constatations : String
+  -actionsPrevues : String
+  -actionsEffectuees : String
+  -recommandations : String
+  -effectifQualitatif : EffectifQualitatif
+  -etatSante : EtatSante
+  -productivite : int
+}
+
+class Mesure {
+  -id : int
+  -typeIndicateur : TypeIndicateur
+  -valeur : double
+  -unite : String
+  -horodatage : DateTime
+  -latitude : double
+  -longitude : double
+}
+
+class Recolte {
+  -id : int
+  -date : Date
+  -quantiteMiel : double
+  -lotQR : String
+}
+
+class Seuil {
+  -id : int
+  -type : TypeSeuil
+  -valeur : double
+  -unite : String
+}
+
+Fermier "1" --> "0..*" Ferme : possede
+Ferme "1" --> "0..*" Site : comporte
+' Emplacement physique : un site peut heberger des ruches de fermes differentes
+Site "1" --> "1..*" Ruche : heberge
+' Propriete : distincte de l'emplacement (une ruche appartient a une ferme)
+Ferme "1" --> "0..*" Ruche : possede
+Ruche "1" *-- "1..6" Compartiment : composition
+Compartiment "1" *-- "1..10" Cadre : contient
+Agent "1" --> "0..*" Ruche : responsable de
+Ruche "1" --> "0..*" Visite : fait l objet de
+Agent "1" --> "0..*" Visite : realise
+Ruche "1" --> "0..*" Planning : est planifiee par
+Agent "1" --> "0..*" Planning : etablit
+Planning "1" --> "0..1" Visite : donne lieu a
+Ruche "1" --> "0..*" Mesure : mesuree par
+Ruche "1" --> "0..*" Recolte : produit
+
+note bottom of Compartiment
+  1 corps obligatoire + 0 a 5 hausses
+  1 a 10 cadres par compartiment
+end note
+
+note bottom of Agent
+  Responsabilite temporelle : une ruche est
+  sous la responsabilite d'un seul agent a un
+  instant t, mais peut etre suivie
+  successivement par plusieurs agents.
+end note
+
+@enduml

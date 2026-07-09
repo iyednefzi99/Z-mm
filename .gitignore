@@ -1,0 +1,50 @@
+# ===== LaTeX : fichiers intermediaires de compilation =====
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+*.lb
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
+*.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.nav
+*.snm
+*.vrb
+*.idx
+*.ilg
+*.ind
+*.dvi
+*.xdv
+
+# ===== Outils de generation (non versionnes) =====
+plantuml.jar
+*.jar
+graphviz/
+graphviz*.zip
+
+# ===== IDE / OS =====
+.idea/
+*.iml
+.vscode/
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ===== Remarques =====
+# Les PNG des diagrammes (images/*.png) et le PDF final (cahier_des_charges.pdf)
+# sont VOLONTAIREMENT versionnes : ils font partie du livrable et evitent
+# d'exiger PlantUML/Graphviz/LaTeX pour consulter le dossier.

@@ -1,0 +1,38 @@
+@startuml diagramme_composant
+' Diagramme de composants - Zümm
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam component {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+}
+skinparam database {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+}
+title Diagramme de composants - Zümm
+
+component "Application web\n(JSP, Servlets, MVC)" as Web
+component "Module metier\n(EJB)" as Metier
+component "Module i18n\n(fichiers XML)" as I18n
+component "Module configuration\n(ConfigBKS.ini)" as Config
+component "Client OAuth\n(service web XML)" as OAuthC
+component "Service web API\n(XML)" as API
+database "SGBD relationnel" as DB
+
+interface "getBeeHouseHoneyActualQuantity" as IHoney
+interface "JDBC" as IJdbc
+
+Web ..> Metier : utilise
+Web ..> I18n : utilise
+Web ..> Config : utilise
+Web ..> OAuthC : utilise
+API ..> Metier : utilise
+Metier - IJdbc
+IJdbc - DB
+API - IHoney
+
+OAuthC ..> [Google OAuth] : SSL / X.509
+
+@enduml

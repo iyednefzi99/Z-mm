@@ -1,0 +1,119 @@
+@startuml diagramme_cas_utilisation
+' Diagramme de cas d'utilisation global - Zümm
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+}
+skinparam actor {
+  BackgroundColor #D4A017
+  BorderColor #B8860B
+}
+title Diagramme de cas d'utilisation global - Zümm
+
+' ---------- Acteurs ----------
+actor "Agent apiculteur" as Agent
+actor "Agent superviseur" as Superviseur
+actor "Fermier /\nProprietaire" as Fermier
+actor "Responsable" as Responsable
+actor "Administrateur" as Admin
+actor "Application tierce" as App
+actor "Service Google OAuth" as OAuth
+
+' Generalisations d'acteurs
+Superviseur --|> Agent
+
+rectangle "Zümm" {
+  ' ---------- Authentification ----------
+  usecase "S authentifier" as UCAuth
+  usecase "Gerer les fermes et sites" as UCSites
+  usecase "Gerer les ruches\n(corps, hausses, cadres)" as UCRuches
+  usecase "Gerer les agents" as UCAgents
+
+  ' ---------- Visites ----------
+  usecase "Planifier une visite" as UCPlan
+  usecase "Approuver le planning" as UCApprouver
+  usecase "Realiser une visite" as UCVisite
+  usecase "Remplir le rapport de visite" as UCRapport
+  usecase "Ajouter des photos" as UCPhotos
+  usecase "Saisir en mode hors-ligne" as UCHorsLigne
+  usecase "Consulter le calendrier\nagents x ruches" as UCCalendrier
+  usecase "Afficher le pop-up de visite" as UCPopup
+
+  ' ---------- Operations sur la ruche ----------
+  usecase "Collecter le miel" as UCMiel
+  usecase "Diviser un essaim" as UCDivision
+  usecase "Changer la reine" as UCReine
+  usecase "Ravitailler en nourriture" as UCNourriture
+  usecase "Prescrire un medicament" as UCMedic
+  usecase "Ajouter un cadre ou une hausse" as UCCadre
+
+  ' ---------- Tableaux de bord ----------
+  usecase "Consulter le tableau de bord\nde production" as UCTBProd
+  usecase "Consulter le tableau de bord\nd alertes" as UCTBAlertes
+  usecase "Consulter la synthese et le ROI" as UCTBSynthese
+  usecase "Traiter une alerte" as UCAlerte
+
+  ' ---------- Configuration ----------
+  usecase "Parametrer les seuils et unites" as UCSeuils
+  usecase "Gerer l internationalisation" as UCI18n
+
+  ' ---------- Interoperabilite ----------
+  usecase "Interroger la quantite de miel\n(API)" as UCAPI
+
+  ' ---------- Portabilite des donnees ----------
+  usecase "Exporter les donnees\n(CSV / TXT)" as UCExport
+  usecase "Sauvegarder / restaurer\nles donnees" as UCBackup
+}
+
+' ---------- Associations acteurs / cas ----------
+Agent --> UCPlan
+Agent --> UCVisite
+Agent --> UCCalendrier
+Superviseur --> UCApprouver
+Admin --> UCAgents
+Admin --> UCSeuils
+Admin --> UCI18n
+Admin --> UCSites
+Fermier --> UCSites
+Fermier --> UCRuches
+Fermier --> UCTBProd
+Fermier --> UCTBSynthese
+Responsable --> UCTBAlertes
+Responsable --> UCAlerte
+App --> UCAPI
+Fermier --> UCExport
+Admin --> UCBackup
+
+' ---------- Dependances include ----------
+UCVisite ..> UCRapport : <<include>>
+UCPlan ..> UCApprouver : <<include>>
+UCAlerte ..> UCPlan : <<include>>
+UCRuches ..> UCAuth : <<include>>
+UCVisite ..> UCAuth : <<include>>
+UCTBProd ..> UCAuth : <<include>>
+UCTBAlertes ..> UCAuth : <<include>>
+UCTBSynthese ..> UCAuth : <<include>>
+UCSeuils ..> UCAuth : <<include>>
+UCExport ..> UCAuth : <<include>>
+UCBackup ..> UCAuth : <<include>>
+UCAPI ..> UCAuth : <<include>>
+
+' ---------- Dependances extend ----------
+UCPhotos ..> UCRapport : <<extend>>
+UCHorsLigne ..> UCRapport : <<extend>>
+UCPopup ..> UCCalendrier : <<extend>>
+UCMiel ..> UCVisite : <<extend>>
+UCDivision ..> UCVisite : <<extend>>
+UCReine ..> UCVisite : <<extend>>
+UCNourriture ..> UCVisite : <<extend>>
+UCMedic ..> UCVisite : <<extend>>
+UCCadre ..> UCVisite : <<extend>>
+
+' ---------- Acteur systeme externe ----------
+UCAuth --> OAuth
+
+@enduml

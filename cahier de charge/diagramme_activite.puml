@@ -1,0 +1,37 @@
+@startuml diagramme_activite
+' Diagramme d'activite - processus d'une visite
+skinparam shadowing false
+skinparam activity {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  DiamondBackgroundColor #D4A017
+  DiamondBorderColor #B8860B
+  StartColor #B8860B
+  EndColor #B8860B
+}
+title Diagramme d'activite - planification et realisation d'une visite
+
+start
+:L'agent propose une date de visite;
+:Le superviseur examine le planning;
+if (Planning approuve ?) then (oui)
+  :Notifier l'agent;
+  :Realiser la visite;
+  :Remplir le rapport\n(constatations, actions, evaluation 1 a 3);
+  if (Mode en ligne ?) then (oui)
+    :Enregistrer le rapport dans la base;
+    :Mettre a jour le statut a execute;
+    :Actualiser le calendrier;
+  else (non)
+    :Enregistrer localement;
+    :Synchroniser au retour du reseau;
+  endif
+  stop
+else (non)
+  :Notifier le refus;
+  :Proposer une nouvelle date;
+  stop
+endif
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml diagramme_etat
+' Diagramme de machine a etats - cycle de vie d'une ruche
+skinparam shadowing false
+skinparam state {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+  StartColor #B8860B
+  EndColor #B8860B
+}
+title Machine a etats - cycle de vie d'une ruche
+
+[*] --> Creee
+Creee --> Peuplee : peuplement par essaim
+Peuplee --> Active : colonie etablie
+Active --> EnDivision : essaimage ou division
+EnDivision --> Active : division realisee
+Active --> EnCollecte : seuil de production atteint
+EnCollecte --> Active : miel collecte
+Active --> Cloturee : cloture du site
+Peuplee --> Cloturee : abandon ou fuite
+Cloturee --> [*]
+
+@enduml

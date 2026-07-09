@@ -1,0 +1,61 @@
+@startuml diagramme_sequence_uc2
+' Diagramme de sequence - UC2 : Realiser une visite et remplir le rapport
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 18
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Diagramme de sequence - UC2 : Realiser une visite et remplir le rapport
+
+actor "Agent apiculteur" as Agent
+participant "IHM\n(JSP / JavaScript)" as IHM
+participant "Servlet\n(Controleur MVC)" as Servlet
+participant "EJB\nVisiteService" as EJB
+database "Base de donnees\n(JDBC)" as BD
+
+autonumber
+
+Agent -> IHM : ouvrir la visite planifiee et approuvee
+IHM -> Servlet : GET visite(id)
+Servlet -> EJB : getVisite(id)
+EJB -> BD : SELECT visite, ruche
+BD --> EJB : donnees de la visite
+EJB --> Servlet : visite
+Servlet --> IHM : formulaire pre-rempli
+IHM --> Agent : afficher le formulaire
+
+Agent -> IHM : saisir date, heure, duree, raison,\nconstatations, actions, recommandations
+Agent -> IHM : evaluer effectif, sante et productivite (1 a 3)
+
+opt Ajout de photos
+  Agent -> IHM : joindre une ou plusieurs photos
+end
+
+Agent -> IHM : valider le rapport
+IHM -> Servlet : POST rapport
+
+alt Mode en ligne
+  Servlet -> EJB : enregistrerRapport(rapport)
+  EJB -> EJB : verifier les contraintes\n(duree, echelle 1 a 3)
+  EJB -> BD : INSERT rapport
+  EJB -> BD : UPDATE visite SET statut = execute
+  BD --> EJB : confirmation
+  EJB --> Servlet : succes
+  Servlet --> IHM : visite executee
+  IHM --> Agent : confirmation, case du calendrier mise a jour
+else Mode hors-ligne
+  IHM -> IHM : enregistrer localement le rapport
+  IHM --> Agent : rapport en attente de synchronisation
+  note over IHM, Servlet : synchronisation differee au retour du reseau
+end
+
+@enduml
