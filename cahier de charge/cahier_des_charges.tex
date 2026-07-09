@@ -14,7 +14,7 @@
 \usepackage{amsmath}
 
 % ---------- Mise en page ------------------------------------------------------
-\usepackage[a4paper,margin=2.5cm,headheight=22pt]{geometry}
+\usepackage[a4paper,margin=2cm,headheight=26pt,headsep=12pt,footskip=26pt]{geometry}
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{parskip}
@@ -24,6 +24,7 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage{tabularx}
+\usepackage{xltabular}
 \usepackage{enumitem}
 \setlist{nosep,leftmargin=1.4em}
 
@@ -49,11 +50,23 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\textcolor{mielfonce}{Zümm}}
+\fancyhead[L]{\small\textcolor{mielfonce}{\textbf{Zümm}}}
 \fancyhead[R]{\small\textcolor{mielfonce}{Cahier des charges}}
-\fancyfoot[C]{\small\thepage}
+\fancyfoot[L]{\small\textcolor{bleunuit}{Mini-projet J2EE}}
+\fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}
+\fancyfoot[R]{\small\textcolor{bleunuit}{\today}}
 \renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \footrulewidth\hfill}}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[L]{\small\textcolor{bleunuit}{Mini-projet J2EE}}%
+  \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}%
+  \fancyfoot[R]{\small\textcolor{bleunuit}{\today}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
 
 % ---------- Liens -------------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel]{hyperref}

@@ -9,7 +9,7 @@ suivi, ainsi que la préparation de l'architecture pour l'intégration future
 des indicateurs automatisés.
 
 \section{Modèle métier et règles de gestion}
-\begin{longtable}{>{\bfseries}p{3cm} p{11cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} X}
 \toprule
 \textbf{Entité} & \textbf{Règles de gestion} \\
 \midrule
@@ -23,7 +23,7 @@ Cadre     & Occupe un emplacement (slot) unique dans le corps ou la hausse. \\
 Agent apiculteur & Réalise les visites et inspections. Une ruche peut être suivie successivement par plusieurs agents, mais elle est sous la responsabilité d'\textbf{un seul agent} à un instant donné. \\
 Agent superviseur & Approuve le planning de visite des ruches dont il a la charge. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{encadre}[nobreak=true]
 \textbf{Contrainte de composition :} 1 ruche = 1 socle/corps obligatoire + 0 à 5 hausses,
@@ -85,7 +85,7 @@ chaque corps/hausse = 1 à 10 cadres, un cadre par slot.
 \end{figure}
 
 \section{Utilisateurs et droits d'accès}
-\begin{longtable}{>{\bfseries}p{3.2cm} p{10.8cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.2cm} X}
 \toprule
 \textbf{Profil} & \textbf{Rôle et droits} \\
 \midrule
@@ -96,7 +96,7 @@ Agent superviseur & Approuve les plannings de visite des ruches dont il est resp
 Responsable / Manager & Surveille les alertes (chute de production ou d'effectif) et déclenche les inspections imminentes. \\
 Administrateur & Gère les paramètres système, les unités de mesure, les seuils et les référentiels. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \section{Hors périmètre}
 \begin{itemize}

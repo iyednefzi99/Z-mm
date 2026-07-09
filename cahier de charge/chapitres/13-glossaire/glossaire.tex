@@ -1,6 +1,6 @@
 \chapter{Glossaire}
 %==============================================================================
-\begin{longtable}{>{\bfseries}p{4cm} p{10cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
 \toprule
 \textbf{Terme} & \textbf{Définition} \\
 \midrule
@@ -33,12 +33,12 @@ REST / JSON & Style d'API web et format texte d'échange des données (ingestion
 MQTT & Protocole de messagerie léger (publication/abonnement) adapté aux capteurs et aux réseaux contraints. \\
 JWT (jeton) & Jeton signé porteur d'identité, émis par le fournisseur OAuth. \\
 RBAC & Contrôle d'accès basé sur les rôles, appliqué côté serveur (voir annexe~\ref{chap:complements}). \\
-RGPD & Règlement général sur la protection des données ; encadre les données personnelles. \\
+RGPD & Règlement général sur la protection des données. Encadre les données personnelles. \\
 Rétention & Durée de conservation d'une donnée avant archivage, anonymisation ou purge. \\
 Chiffrement au repos & Chiffrement des données stockées (colonnes sensibles) en base. \\
 Pseudonymisation & Dissociation de l'identité d'une personne de ses données, réversible sous contrôle. \\
 Idempotence & Propriété d'une opération rejouable sans créer de doublon (ingestion des mesures). \\
 Hystérésis & Persistance d'un dépassement sur plusieurs mesures avant de lever une alerte (anti-rebond). \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 

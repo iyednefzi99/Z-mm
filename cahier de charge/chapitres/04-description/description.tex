@@ -94,16 +94,16 @@ l'architecture l'anticipent.
         topic \texttt{zumm/\{rucheId\}/\{indicateur\}}).
   \item \textbf{Format} : \textbf{JSON}, une mesure portant l'identifiant de la
         ruche, le type d'indicateur, la valeur, l'unité, l'horodatage et la
-        géolocalisation ; l'envoi par lot est un tableau de mesures.
+        géolocalisation. L'envoi par lot est un tableau de mesures.
   \item \textbf{Fréquence} : paramétrable par indicateur (par exemple poids
         toutes les 15 min, température toutes les 5 min, acoustique échantillonnée
         en continu), afin de maîtriser la volumétrie.
-  \item \textbf{Robustesse} : ingestion \textbf{asynchrone} par file d'attente ;
+  \item \textbf{Robustesse} : ingestion \textbf{asynchrone} par file d'attente, avec
         \textbf{idempotence} sur la clé (ruche, indicateur, horodatage) pour
-        rejouer sans doublon ; en zone reculée, mise en tampon locale sur la
+        rejouer sans doublon. En zone reculée, mise en tampon locale sur la
         passerelle puis synchronisation différée.
   \item \textbf{Sécurité} : passerelle authentifiée (clé ou certificat), canal
-        TLS ; rejet des valeurs hors plage physique plausible (garde-fou).
+        TLS. Rejet des valeurs hors plage physique plausible (garde-fou).
 \end{itemize}
 \begin{verbatim}
 POST /api/mesures        Content-Type: application/json
@@ -119,7 +119,7 @@ POST /api/mesures        Content-Type: application/json
 Les seuils sont stockés dans la table \texttt{SEUIL} (paramétrables, chapitre~5).
 Les valeurs ci-dessous sont des \textbf{valeurs par défaut de référence}, ancrées
 dans le protocole apicole (chapitre~12).
-\begin{longtable}{>{\bfseries}p{4.4cm} p{5.2cm} p{4.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.4cm} X p{4.4cm}}
 \toprule
 \textbf{Indicateur} & \textbf{Seuil par défaut} & \textbf{Alerte déclenchée} \\
 \midrule
@@ -133,7 +133,7 @@ Activité entrée/sortie & $\approx$\,0 en journée favorable & Colonie affaibli
 État d'ouverture & Ouvert hors visite planifiée & Intrusion ou perturbation \\
 Signature acoustique & Motif d'essaimage détecté & Pré-alerte d'essaimage (1 à 5 j) \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 \begin{encadre}
 \textbf{Règle d'évaluation :} à chaque mesure, la valeur est convertie vers
 l'unité de référence (formule de conversion, §5.3), puis comparée au seuil
@@ -144,7 +144,7 @@ rapport de visite : l'agent conserve la validation finale.
 \end{encadre}
 
 \section{Grille de synthèse des fonctions}
-\begin{longtable}{>{\bfseries}p{3.4cm} p{7.6cm} C{2.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.4cm} X C{2.2cm}}
 \toprule
 \textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
 \midrule
@@ -174,13 +174,13 @@ Validation humaine & Seuils paramétrables et confirmation par le rapport de vis
 Sécurité des échanges & SSL et certificats X.509, accès authentifiés & Haute \\
 Aide à la décision & Alertes indicatives, l'agent conserve la validation finale & Moyenne \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \section{Fonctionnalités complémentaires inspirées des solutions du marché}
 Afin de renforcer l'ergonomie et la valeur d'usage, le système s'inspire des
 bonnes pratiques des applications apicoles de référence telles que HiveTracks.
 Ces fonctionnalités étendent les besoins déjà décrits sans les remplacer.
-\begin{longtable}{>{\bfseries}p{4.2cm} p{7.5cm} C{2.1cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.1cm}}
 \toprule
 \textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
 \midrule
@@ -194,7 +194,7 @@ Suivi de la reine & Enregistrer l'historique du statut de la reine (présence, �
 Récolte et QR code & Saisir les récoltes de miel et générer un QR code par lot présentant les notes de dégustation, la provenance et les photos, pour la traçabilité et la valorisation. & Moyenne \\
 Accès multi-supports & Offrir un accès web et une expérience adaptée aux terminaux mobiles pour la saisie terrain. & Moyenne \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 \begin{encadre}
 \textbf{Cohérence avec les exigences :} les rayons de butinage et la météo
 réutilisent la géolocalisation des sites et le mécanisme d'unités paramétrables.
@@ -206,7 +206,7 @@ reine enrichit le rapport de visite déjà défini.
 Les applications de gestion apicole Apiary Book et BeePlus mettent en avant des
 fonctions d'organisation et de traçabilité qui complètent le périmètre du
 système.
-\begin{longtable}{>{\bfseries}p{4.2cm} p{7.5cm} C{2.1cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.1cm}}
 \toprule
 \textbf{Fonction} & \textbf{Description} & \textbf{Priorité} \\
 \midrule
@@ -219,7 +219,7 @@ Export des données & Exporter les enregistrements aux formats CSV et TXT pour u
 Détection de maladies & Aider à l'identification des maladies à partir des constatations de visite. & Basse \\
 Sauvegarde des données & Sauvegarder et restaurer les données dans le cloud. & Moyenne \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 \begin{encadre}
 \textbf{Cohérence avec les exigences :} le suivi financier alimente le tableau de
 bord de retour sur investissement, l'export CSV prolonge le service web API, et
@@ -231,7 +231,7 @@ L'analyse des retours d'expérience sur les solutions du marché (HiveTracks,
 Apiary Book, BeePlus) et sur les systèmes de surveillance connectée (Arnia,
 BroodMinder, BeeHero) fait ressortir des limites récurrentes. Le tableau suivant
 met chaque limite en regard de l'exigence retenue pour l'éviter dans Zümm.
-\begin{longtable}{>{\bfseries}p{5.2cm} p{9.3cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.2cm} X}
 \toprule
 \textbf{Limite observée} & \textbf{Exigence retenue pour l'éviter} \\
 \midrule
@@ -250,5 +250,5 @@ Fausses alertes et fiabilité des capteurs & Seuils paramétrables et validation
 Confidentialité et sécurité des données & Chiffrement SSL et certificats X.509, authentification des accès. \\
 Surconfiance dans l'automatisation & Positionnement en aide à la décision, l'agent apiculteur conserve la validation finale. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 

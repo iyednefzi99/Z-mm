@@ -7,7 +7,7 @@ Architecture \textbf{scalable, évolutive, flexible, multi-niveaux et faiblement
 couplée}, s'appuyant sur \textbf{J2EE} comme infrastructure principale.
 
 \section{Exigences techniques imposées}
-\begin{longtable}{>{\bfseries}p{4cm} p{10cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
 \toprule
 \textbf{Exigence} & \textbf{Description} \\
 \midrule
@@ -24,7 +24,7 @@ Authentification utilisateur & \textbf{OAuth Google} via un service web XML et s
 API tierce       & Service web XML exposant \texttt{float getZummHoneyActualQuantity(int zummID)} pour récupérer la quantité de miel d'une ruche. \\
 Front-end        & JavaScript et frameworks libres, dans le respect de l'ergonomie imposée. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \section{Exigences non fonctionnelles}
 \begin{itemize}
@@ -63,7 +63,7 @@ imposée. Les \textbf{implémentations concrètes} de ce socle (serveur
 d'applications, SGBD, bibliothèques front-end, style de service web) et le
 \textbf{comparatif justifié} des alternatives évaluées sont détaillés à
 l'annexe~\ref{chap:technologies}.
-\begin{longtable}{>{\bfseries}p{2.6cm} p{6cm} p{5.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} X p{5.4cm}}
 \toprule
 \textbf{Technologie} & \textbf{Pourquoi} & \textbf{Où} \\
 \midrule
@@ -80,7 +80,7 @@ Service web API XML & Exposer les données aux applications tierces & Interface 
 X.509 et SSL & Chiffrer et authentifier les échanges & Communications inter-composants \\
 JavaScript & Enrichir l'ergonomie du front-end & Couche de présentation \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \section{Packaging et déploiement}
 \begin{itemize}

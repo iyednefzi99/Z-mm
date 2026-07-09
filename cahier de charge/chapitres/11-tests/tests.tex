@@ -6,7 +6,7 @@ les exigences techniques. Chaque cas de test précise la fonction visée, les
 préconditions, les étapes et le résultat attendu.
 
 \section{Cas de tests}
-\begin{longtable}{>{\bfseries}p{1.4cm} p{3.6cm} p{4.2cm} p{4.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{1.4cm} p{3.6cm} p{4.2cm} X}
 \toprule
 \textbf{ID} & \textbf{Fonction} & \textbf{Étapes} & \textbf{Résultat attendu} \\
 \midrule
@@ -28,14 +28,14 @@ TC14 & Sécurité & Vérifier SSL et certificat X.509 & Échanges chiffrés et v
 TC15 & Export & Exporter les enregistrements & Fichiers CSV et TXT générés \\
 TC16 & Mode hors-ligne & Saisir sans réseau puis reconnecter & Synchronisation réussie \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \section{Matrice de traçabilité}
 La matrice relie chaque exigence à son cas d'utilisation, aux classes et tables
 qui la portent, à l'écran (maquette) concerné et aux cas de test qui la valident.
 Elle assure la traçabilité de bout en bout, du besoin jusqu'à la vérification.
 {\small
-\begin{longtable}{>{\bfseries}p{3.4cm} C{1.3cm} p{3.3cm} p{2.5cm} p{2.6cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}X C{1.3cm} p{3.3cm} p{2.5cm} p{2.6cm}}
 \toprule
 \textbf{Exigence} & \textbf{UC} & \textbf{Classes / Tables} & \textbf{Écran} & \textbf{Tests} \\
 \midrule
@@ -53,5 +53,5 @@ Sécurité des échanges & --- & (SSL / X.509) & --- & TC14 \\
 Portabilité et export & --- & (export CSV/TXT) & Tous & TC15 \\
 Mode hors-ligne & UC2 & Visite (file locale) & Rapport & TC16 \\
 \bottomrule
-\end{longtable}}
+\end{xltabular}}
 

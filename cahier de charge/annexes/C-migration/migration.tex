@@ -40,29 +40,29 @@ l'equivalent moderne de chaque exigence.
 Le tableau suivant met en regard chaque technologie imposee (et notee) avec son
 equivalent Spring Boot, ainsi que la nature concrete du changement.
 
-\begin{longtable}{>{\bfseries}p{3cm} p{3.4cm} p{7.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} p{3.4cm} X}
 \toprule
 \textbf{J2EE (impose)} & \textbf{Spring Boot} & \textbf{Ce qui change concretement} \\
 \midrule
 \endhead
-MVC (manuel) & Spring MVC (\texttt{@Controller}, \texttt{@RequestMapping}) & Le pattern reste ; le routage devient declaratif par annotations au lieu du \texttt{web.xml}. \\
+MVC (manuel) & Spring MVC (\texttt{@Controller}, \texttt{@RequestMapping}) & Le pattern reste, le routage devient declaratif par annotations au lieu du \texttt{web.xml}. \\
 Servlet (\texttt{HttpServlet}, \texttt{doGet/doPost}) & \texttt{@RestController} / \texttt{@Controller} & Plus de \texttt{extends HttpServlet} : une methode annotee = un endpoint. Le \texttt{DispatcherServlet} orchestre en arriere-plan. \\
-JSP (presentation) & Thymeleaf (server-side) ou React / Angular (SPA) & Templating moderne sans scriptlets Java ; pour un effet marche fort, API REST + front decouple. \\
-EJB (\texttt{@Stateless}, conteneur EJB) & Spring \texttt{@Service} / \texttt{@Component} & Meme role (logique metier, injection, transactions) sans conteneur EJB lourd ; \texttt{@Transactional} gere les transactions. \\
-JDBC (SQL manuel, \texttt{ResultSet}) & Spring Data JPA / Hibernate & Le mapping objet-relationnel remplace le SQL a la main ; \texttt{JpaRepository} genere les CRUD (\texttt{JdbcTemplate} reste disponible). \\
+JSP (presentation) & Thymeleaf (server-side) ou React / Angular (SPA) & Templating moderne sans scriptlets Java. Pour un effet marche fort, API REST + front decouple. \\
+EJB (\texttt{@Stateless}, conteneur EJB) & Spring \texttt{@Service} / \texttt{@Component} & Meme role (logique metier, injection, transactions) sans conteneur EJB lourd. \texttt{@Transactional} gere les transactions. \\
+JDBC (SQL manuel, \texttt{ResultSet}) & Spring Data JPA / Hibernate & Le mapping objet-relationnel remplace le SQL a la main. \texttt{JpaRepository} genere les CRUD (\texttt{JdbcTemplate} reste disponible). \\
 i18n par fichier XML & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & Meme principe d'externalisation des textes, format \texttt{.properties} standard, toujours FR / EN / AR. \\
-\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parametrage sans recompilation, injectable par profil ; les seuils et unites deviennent des beans types. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parametrage sans recompilation, injectable par profil. Les seuils et unites deviennent des beans types. \\
 OAuth Google (WS XML maison) & Spring Security OAuth2 Client & Login Google en quelques lignes de configuration au lieu d'un client OAuth ecrit a la main, et plus sur. \\
-Web service API XML \texttt{getZummHoneyActualQuantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee ; XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
+Web service API XML \texttt{getZummHoneyActualQuantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee. XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
 X.509 / SSL (manuel) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & Activation HTTPS declarative, memes certificats X.509, configuration triviale. \\
 JavaScript (front libre) & React / Vue / Angular (ou Thymeleaf + JS) & Front decouple consommant l'API REST, parite web et mobile simplifiee. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Tableau de correspondance : infrastructure et deploiement}
 %------------------------------------------------------------------------------
-\begin{longtable}{>{\bfseries}p{4cm} p{4.5cm} p{5.3cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} p{4.5cm} X}
 \toprule
 \textbf{J2EE} & \textbf{Spring Boot} & \textbf{Benefice} \\
 \midrule
@@ -73,7 +73,7 @@ Deploiement manuel sur conteneur & Docker + \texttt{docker-compose} & Alignement
 SGBD relationnel via JDBC & PostgreSQL / MySQL via JPA + Flyway & Schema versionne, reproductible entre environnements. \\
 Gestion des dependances manuelle (Ant) & Maven / Gradle + Spring Boot Starters & Une dependance = un starter (\texttt{-web}, \texttt{-security}, \texttt{-data-jpa}). \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Correspondance des couches}

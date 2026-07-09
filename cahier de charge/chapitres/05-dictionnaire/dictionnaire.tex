@@ -11,7 +11,7 @@ physiques sont associées à une unité paramétrable pour permettre
 l'internationalisation des systèmes de mesure.
 
 \section{Dictionnaire des données (inputs)}
-\begin{longtable}{>{\bfseries}p{2.6cm} p{3.4cm} p{2.4cm} p{5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} p{3.4cm} p{2.4cm} X}
 \toprule
 \textbf{Entité} & \textbf{Attribut} & \textbf{Type} & \textbf{Description} \\
 \midrule
@@ -50,7 +50,7 @@ Récolte & id, ruche, date & entier, référence, date & Récolte de miel. \\
 Récolte & quantiteMiel, lotQR & décimal (unité paramétrable), texte & Quantité et identifiant de lot. \\
 Seuil & id, type, valeur, unite & entier, énumération, décimal, texte & Seuil paramétrable du système. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{encadre}
 \textbf{Schéma de référence :} le dictionnaire ci-dessus est la vue métier des

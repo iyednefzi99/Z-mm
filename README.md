@@ -1,4 +1,4 @@
-# 🐝 Zümm — Système de gestion et de suivi apicole
+# 🐝 Zümm : Système de gestion et de suivi apicole
 
 🍯 Mini-projet **J2EE** : application multi-niveaux de gestion et de suivi de ruches
 (🐝 gestion manuelle des opérations, 📅 planification des visites, 📊 tableaux de bord,

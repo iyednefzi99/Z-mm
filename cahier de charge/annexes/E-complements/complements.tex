@@ -19,7 +19,7 @@ donnees et la strategie de tests.
 %------------------------------------------------------------------------------
 Le MLD traduit le dictionnaire de donnees (chapitre~5) en tables relationnelles
 avec cles primaires, cles etrangeres et contraintes de gestion (\texttt{CHECK}
-sur le nombre de hausses, la capacite en cadres et la productivite ; unicite du
+sur le nombre de hausses, la capacite en cadres et la productivite, ainsi que l'unicite du
 couple compartiment/slot). Il distingue la relation d'\emph{emplacement}
 (un site heberge des ruches) de la relation de \emph{propriete} (une ferme
 possede des ruches), conformement a la regle autorisant un site a accueillir des
@@ -39,7 +39,7 @@ meme concept sous trois formes : le nom du \textbf{dictionnaire de donnees}
 Convention d'ecriture des attributs : \texttt{camelCase} dans les classes
 (\texttt{nbHausses}), \texttt{snake\_case} dans les tables (\texttt{nb\_hausses}).
 
-\begin{longtable}{>{\bfseries}p{4.4cm} p{4.4cm} p{4.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}X p{4.4cm} p{4.4cm}}
 \caption{Correspondance des noms entre dictionnaire, classes et MLD.}
 \label{tab:vocabulaire}\\
 \toprule
@@ -64,7 +64,7 @@ Mesure & \texttt{Mesure} & \texttt{MESURE} \\
 Recolte & \texttt{Recolte} & \texttt{RECOLTE} \\
 Seuil & \texttt{Seuil} & \texttt{SEUIL} \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Maquettes de l'interface (wireframes)}
@@ -104,10 +104,10 @@ le developpement. Elles respectent la charte visuelle et la simplicite exigee.
 \section{Matrice des droits d'acces (RBAC)}
 %------------------------------------------------------------------------------
 La matrice precise, pour chaque fonction, le droit accorde a chaque profil.
-\textbf{Legende :} CRUD = creation / lecture / mise a jour / suppression ;
-R = lecture ; X = execution ; A = approbation ; --- = aucun acces.
+\textbf{Legende :} CRUD = creation / lecture / mise a jour / suppression,
+R = lecture, X = execution, A = approbation, --- = aucun acces.
 
-\begin{longtable}{>{\bfseries}p{3.6cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}X C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm}}
 \toprule
 \textbf{Fonction} & \textbf{Prop.} & \textbf{Apic.} & \textbf{Sup.} & \textbf{Resp.} & \textbf{Admin} & \textbf{API} \\
 \midrule
@@ -128,7 +128,7 @@ Export CSV / TXT         & R    & R    & R    & R    & R    & --- \\
 Sauvegarde / restauration & --- & ---  & ---  & ---  & X    & --- \\
 API quantite de miel     & ---  & ---  & ---  & ---  & ---  & R \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{encadre}
 Cette matrice doit etre appliquee cote serveur (verification systematique des
@@ -139,13 +139,13 @@ elements d'interface.
 %------------------------------------------------------------------------------
 \section{Registre des risques}
 %------------------------------------------------------------------------------
-\begin{longtable}{>{\bfseries}p{4.6cm} C{1.8cm} C{1.6cm} p{5.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.6cm} C{1.8cm} C{1.6cm} X}
 \toprule
 \textbf{Risque} & \textbf{Probab.} & \textbf{Impact} & \textbf{Mesure de reduction} \\
 \midrule
 \endhead
-Retard de developpement       & Moyenne & Fort      & Prioriser le noyau CRUD ; jalons hebdomadaires (S5 a S12). \\
-Portee trop large             & Moyenne & Fort      & Se limiter aux fonctions de priorite haute ; le reste en option. \\
+Retard de developpement       & Moyenne & Fort      & Prioriser le noyau CRUD, avec jalons hebdomadaires (S5 a S12). \\
+Portee trop large             & Moyenne & Fort      & Se limiter aux fonctions de priorite haute, le reste en option. \\
 Complexite i18n arabe (RTL)   & Moyenne & Moyen     & Test precoce de bout en bout FR/EN/AR, gestion \texttt{dir=rtl}. \\
 Perte de donnees terrain      & Moyenne & Fort      & File de commandes hors-ligne + synchronisation + sauvegarde. \\
 Failles applicatives (injection, XSS) & Moyenne & Fort & \texttt{PreparedStatement}, echappement JSP, revue de securite. \\
@@ -154,7 +154,7 @@ Indisponibilite d'OAuth Google & Faible & Moyen     & Repli d'authentification l
 Volumetrie des mesures        & Faible  & Moyen     & Archivage et agregation par periode (volet automatise). \\
 Usage d'un generateur de code & Faible  & Tres fort & Conception et code faits maison, tracabilite et revue par pairs. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Protection des donnees personnelles}
@@ -173,11 +173,11 @@ precise des sites). Les principes suivants sont retenus, dans l'esprit du RGPD :
 
 Les principes ci-dessus se traduisent par les mesures techniques suivantes, par
 categorie de donnees. Le \textbf{chiffrement au repos} vise en priorite les
-colonnes sensibles (contacts, geolocalisation) ; la \textbf{pseudonymisation}
+colonnes sensibles (contacts, geolocalisation). La \textbf{pseudonymisation}
 dissocie l'identite de l'agent de l'historique agronomique lors de l'anonymisation.
 
 {\small
-\begin{longtable}{>{\bfseries}p{3.1cm} p{3.3cm} p{2.7cm} p{4.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{3.3cm} p{2.7cm} X}
 \caption{Mesures techniques de protection des donnees (esprit RGPD).}
 \label{tab:rgpd}\\
 \toprule
@@ -188,14 +188,14 @@ dissocie l'identite de l'agent de l'historique agronomique lors de l'anonymisati
 \textbf{Donnee} & \textbf{Finalite} & \textbf{Retention} & \textbf{Securite / effacement} \\
 \midrule
 \endhead
-Identite (nom, contact) & Comptes et responsabilites & Relation + 1 an & Chiffrement au repos, RBAC ; anonymisation sur demande \\
-Geolocalisation des sites & Suivi, cartes, meteo & Vie du site + 1 an & Chiffrement au repos, precision reductible ; effacement a la cloture \\
-Visites et rapports & Tracabilite sanitaire et production & 5 ans & Chiffrement au repos ; pseudonymisation (dissociation de l'agent) \\
-Photos d'inspection & Suivi visuel de la colonie & 2 ans & Stockage chiffre, acces restreint ; suppression avec le rapport \\
-Mesures capteurs & Analyse de performance & Brutes 1 an, puis agregees & Chiffrement au repos ; agregation / anonymisation \\
-Journaux d'acces & Securite et imputabilite & 6 a 12 mois & Acces administrateur ; purge automatique \\
+Identite (nom, contact) & Comptes et responsabilites & Relation + 1 an & Chiffrement au repos, RBAC, anonymisation sur demande \\
+Geolocalisation des sites & Suivi, cartes, meteo & Vie du site + 1 an & Chiffrement au repos, precision reductible, effacement a la cloture \\
+Visites et rapports & Tracabilite sanitaire et production & 5 ans & Chiffrement au repos, pseudonymisation (dissociation de l'agent) \\
+Photos d'inspection & Suivi visuel de la colonie & 2 ans & Stockage chiffre, acces restreint, suppression avec le rapport \\
+Mesures capteurs & Analyse de performance & Brutes 1 an, puis agregees & Chiffrement au repos, agregation / anonymisation \\
+Journaux d'acces & Securite et imputabilite & 6 a 12 mois & Acces administrateur, purge automatique \\
 \bottomrule
-\end{longtable}}
+\end{xltabular}}
 
 \begin{encadre}
 \textbf{Procedure d'effacement :} sur demande d'une personne concernee, le
@@ -212,7 +212,7 @@ niveaux unitaire et d'integration. La conception faiblement couplee (interfaces
 \texttt{Repository}, services segreges) rend les regles metier testables en
 isolation, par injection de doubles (mocks).
 
-\begin{longtable}{>{\bfseries}p{2.8cm} p{4.4cm} p{4.4cm} C{2.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.8cm} X p{4.4cm} C{2.2cm}}
 \toprule
 \textbf{Niveau} & \textbf{Portee} & \textbf{Exemples} & \textbf{Outil} \\
 \midrule
@@ -222,7 +222,7 @@ Integration   & Acces aux donnees (Repository/JDBC) & CRUD persiste, requetes de
 Systeme       & Cas fonctionnels de bout en bout    & Cas TC01 a TC16 du chapitre~10                                      & JUnit, Selenium \\
 Acceptation   & Validation par la demonstration     & Parcours agent, fermier, responsable                                & Soutenance \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{itemize}
   \item \textbf{Couverture visee} : au moins 70\,\% de la couche metier (regles de gestion), mesuree par \texttt{JaCoCo}.

@@ -27,40 +27,40 @@ patrons de \emph{refactoring.guru}, adaptes au domaine apicole du projet.
 %------------------------------------------------------------------------------
 \section{Les cinq principes SOLID}
 %------------------------------------------------------------------------------
-\begin{longtable}{>{\bfseries}p{2.4cm} p{6cm} p{6.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.4cm} p{6cm} X}
 \toprule
 \textbf{Principe} & \textbf{Avant (conception initiale)} & \textbf{Apres (refactoree)} \\
 \midrule
 \endhead
-S -- Responsabilite unique &
+S : Responsabilite unique &
 L'entite \texttt{Ruche} porte la methode de calcul
 \texttt{getZummHoneyActualQuantity()} : elle melange l'etat (donnees) et la
-logique metier ; \texttt{Visite} regroupe donnees et champs de rapport. &
+logique metier. \texttt{Visite} regroupe donnees et champs de rapport. &
 Le calcul est extrait dans \texttt{ServiceMielImpl} (via le Composite) et le
 rapport devient \texttt{RapportVisite}. Chaque classe n'a plus qu'une seule
 raison de changer. \\
-O -- Ouvert / ferme &
+O : Ouvert / ferme &
 La detection d'alertes et la conversion d'unites reposeraient sur des
 \texttt{if / switch} sur \texttt{typeSeuil} et \texttt{unite} : ajouter une
 regle ou une unite impose de modifier le code existant. &
 \texttt{RegleAlerte} (Strategy) et \texttt{ConvertisseurUnite} : une nouvelle
 regle ou unite = une nouvelle classe, sans toucher au \texttt{GestionnaireAlertes}.
 Ouvert a l'extension, ferme a la modification. \\
-L -- Substitution de Liskov &
+L : Substitution de Liskov &
 Le diagramme de cas d'utilisation generalise l'agent superviseur a partir de
-l'agent apiculteur ; transpose tel quel en heritage de classes, un sous-type
+l'agent apiculteur. Transpose tel quel en heritage de classes, un sous-type
 restrictif casserait la substituabilite. &
 \texttt{Corps} et \texttt{Hausse} heritent de \texttt{Compartiment} en
 respectant integralement son contrat (capacite 1..10, \texttt{getPoidsMiel}).
 Le role de l'agent passe par l'enumeration \texttt{Role} + permissions
 (composition) plutot qu'un heritage restrictif. \\
-I -- Segregation des interfaces &
+I : Segregation des interfaces &
 Un service unique \og fourre-tout \fg{} (CRUD + visites + tableaux de bord +
 API miel) obligerait l'application tierce a dependre de methodes inutilisees. &
 Interfaces ciblees : \texttt{ServiceRequeteMiel} (l'API tierce ne voit que
 \texttt{getZummHoneyActualQuantity}), \texttt{ServiceVisite},
 \texttt{ServiceTableauDeBord}. Chaque client ne depend que de son contrat. \\
-D -- Inversion de dependance &
+D : Inversion de dependance &
 La couche metier (EJB) appelle directement JDBC (implementation concrete) :
 couplage fort a la base et aux \texttt{ResultSet}. &
 La couche metier depend d'abstractions \texttt{RucheRepository} /
@@ -68,7 +68,7 @@ La couche metier depend d'abstractions \texttt{RucheRepository} /
 \texttt{RucheRepositoryJdbc}. Tests par mock et migration JDBC \textrightarrow{}
 Spring Data JPA facilites (cf. annexe~\ref{chap:migration}). \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Design patterns retenus}
@@ -77,66 +77,66 @@ Le tableau suivant recense les patrons appliques, leur categorie (creationnel,
 structurel, comportemental) et la couche concernee, avec la justification
 \emph{avant / apres}.
 
-\begin{longtable}{>{\bfseries}p{2.7cm} p{5.9cm} p{6.2cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{5.9cm} X}
 \toprule
 \textbf{Pattern} & \textbf{Avant} & \textbf{Apres} \\
 \midrule
 \endhead
-Composite \newline {\small\itshape structurel -- metier} &
+Composite \newline {\small\itshape structurel : metier} &
 Le calcul du miel parcourt manuellement les collections de cadres avec du code
 de sommation duplique. &
 \texttt{ElementRuche.getPoidsMiel()} est resolu recursivement
 (Ruche \textrightarrow{} Compartiment \textrightarrow{} Cadre) : traitement
 uniforme de l'arborescence. \\
-State \newline {\small\itshape comportemental -- metier} &
+State \newline {\small\itshape comportemental : metier} &
 Le statut de la ruche serait teste par des \texttt{switch} disperses (creee,
 active, en collecte, cloturee, \ldots). &
-\texttt{EtatRuche} et ses etats concrets encapsulent les transitions autorisees ;
-alignement direct sur le diagramme de machine a etats. \\
-Strategy \newline {\small\itshape comportemental -- metier} &
+\texttt{EtatRuche} et ses etats concrets encapsulent les transitions autorisees.
+Alignement direct sur le diagramme de machine a etats. \\
+Strategy \newline {\small\itshape comportemental : metier} &
 Les regles d'alerte, la conversion d'unites et le ROI seraient codes en dur. &
 Familles d'algorithmes interchangeables (\texttt{RegleAlerte},
 \texttt{ConvertisseurUnite}), injectables et testables isolement. \\
-Observer \newline {\small\itshape comportemental -- metier} &
+Observer \newline {\small\itshape comportemental : metier} &
 Le code de mesure appellerait directement les tableaux de bord (couplage fort). &
 \texttt{GestionnaireAlertes} notifie les \texttt{Observateur} abonnes (tableau
 de bord d'alertes, notification du responsable) au franchissement d'un seuil. \\
-Command \newline {\small\itshape comportemental -- controle} &
+Command \newline {\small\itshape comportemental : controle} &
 Les operations terrain (collecte, division, changement de reine) sont des appels
 directs, non rejouables hors-ligne. &
-Chaque operation devient une \texttt{CommandeVisite} ; la
+Chaque operation devient une \texttt{CommandeVisite}. La
 \texttt{FileCommandesHorsLigne} rejoue les commandes a la reconnexion
 (mode hors-ligne + synchronisation differee). \\
-Factory Method \newline {\small\itshape creationnel -- metier} &
+Factory Method \newline {\small\itshape creationnel : metier} &
 Les ruches sont creees par des \texttt{new} disperses avec initialisation
 manuelle des compartiments. &
 \texttt{FabriqueRuche.creer(modele)} produit une ruche preconfiguree selon le
 modele (Dadant, Langstroth\ldots) avec corps et capacites coherents. \\
-Builder \newline {\small\itshape creationnel -- presentation} &
+Builder \newline {\small\itshape creationnel : presentation} &
 Le rapport de visite, aux nombreux champs optionnels, imposerait un constructeur
 telescopique ou des setters epars. &
 \texttt{ConstructeurRapport} construit \texttt{RapportVisite} de facon fluide
 (constatations, actions, photos, evaluations). \\
-Adapter \newline {\small\itshape structurel -- donnees} &
+Adapter \newline {\small\itshape structurel : donnees} &
 Les capteurs heterogenes (formats et unites differents) seraient traites au cas
 par cas. &
 \texttt{AdaptateurCapteur} uniformise chaque source en \texttt{Mesure} avec
 unites parametrables (volet automatise). \\
-Facade \newline {\small\itshape structurel -- controle} &
+Facade \newline {\small\itshape structurel : controle} &
 Le Servlet orchestre directement tous les services metier. &
 \texttt{FacadeApplication} offre un point d'entree simplifie aux Servlets
 par-dessus les sous-systemes. \\
-Singleton \newline {\small\itshape creationnel -- transverse} &
+Singleton \newline {\small\itshape creationnel : transverse} &
 Le fichier \texttt{ConfigZumm.ini} et les libelles i18n seraient relus en
 plusieurs instances. &
 \texttt{Configuration} et \texttt{GestionnaireI18n} garantissent une instance
 unique partagee. \\
-Proxy \newline {\small\itshape structurel -- services web} &
+Proxy \newline {\small\itshape structurel : services web} &
 L'acces a l'API exposerait directement le service metier. &
 Un \texttt{ProxySecurite} controle l'authentification OAuth et le chiffrement
 SSL / X.509 avant de deleguer au service. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 %------------------------------------------------------------------------------
 \section{Vue de conception refactoree}
@@ -203,7 +203,7 @@ conflit, realisant la synchronisation differee exigee par le mode hors-ligne.
 La figure~\ref{fig:seq-state} montre la Ruche (contexte) qui delegue chaque
 operation a son etat courant. L'etat decide de la transition (activation,
 collecte, retour a l'etat actif) ou refuse une operation interdite dans l'etat
-en cours -- ici un peuplement demande sur une ruche deja active. Le comportement
+en cours, ici un peuplement demande sur une ruche deja active. Le comportement
 depend ainsi de l'etat sans aucun \texttt{switch} sur le statut, en coherence
 avec le diagramme de machine a etats (figure~\ref{fig:etat}).
 
@@ -219,7 +219,7 @@ La figure~\ref{fig:seq-composite} detaille la resolution recursive de
 \texttt{getPoidsMiel()} : le client (\texttt{ServiceMielImpl}) interroge la
 ruche, qui propage l'appel a chaque compartiment, puis a chaque cadre (feuille).
 Seuls les cadres de type \texttt{MIEL} contribuent, et la tare est retranchee au
-niveau de la ruche. Le client ignore la structure interne ; ce calcul realise la
+niveau de la ruche. Le client ignore la structure interne. Ce calcul realise la
 methode \texttt{getZummHoneyActualQuantity} exposee par le service web.
 
 \begin{figure}[htbp]
@@ -261,13 +261,13 @@ Les capteurs heterogenes deviennent ainsi interchangeables.
 \section{Repartition des patrons par couche}
 %------------------------------------------------------------------------------
 La figure~\ref{fig:packages-patterns} synthetise la localisation de chaque patron
-dans l'architecture multi-niveaux : le \emph{Builder} en presentation ; la
-\emph{Facade}, le \emph{Proxy} et la file de \emph{Command} en controle ; le
+dans l'architecture multi-niveaux. Le \emph{Builder} se situe en presentation. La
+\emph{Facade}, le \emph{Proxy} et la file de \emph{Command} relevent du controle. Le
 domaine (\emph{Composite}, \emph{State}, \emph{Observer}, \emph{Strategy},
-\emph{Factory Method}) et les services segreges (\emph{ISP}) en metier ; le
-\emph{Repository} (\emph{DAO / DIP}) et l'\emph{Adapter} en acces aux donnees ;
-enfin les \emph{Singleton} de configuration et d'internationalisation ainsi que
-la \emph{Strategy} de conversion d'unites en couche transverse. Cette vue confirme
+\emph{Factory Method}) et les services segreges (\emph{ISP}) se placent en metier. Le
+\emph{Repository} (\emph{DAO / DIP}) et l'\emph{Adapter} assurent l'acces aux donnees.
+Enfin, les \emph{Singleton} de configuration et d'internationalisation ainsi que
+la \emph{Strategy} de conversion d'unites occupent la couche transverse. Cette vue confirme
 que les patrons renforcent l'architecture en couches faiblement couplees sans en
 alterer la structure.
 

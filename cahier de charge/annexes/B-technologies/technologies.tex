@@ -26,7 +26,7 @@ multi-niveaux (figure~\ref{fig:couches}), l'implémentation concrète retenue et
 sa version de référence. Toutes les briques sont \textbf{libres et gratuites},
 conformément à l'exigence d'autodéploiement sans abonnement.
 
-\begin{longtable}{>{\bfseries}p{3.1cm} p{4.9cm} p{5.4cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{4.9cm} X}
 \toprule
 \textbf{Couche / besoin} & \textbf{Technologie retenue} & \textbf{Rôle dans Zümm} \\
 \midrule
@@ -48,12 +48,12 @@ Sécurité échanges & TLS / SSL + certificats X.509     & Chiffrement et authen
 Hors-ligne        & PWA (Service Worker + IndexedDB)  & Saisie terrain sans réseau, synchronisation différée \\
 Build \& tests    & Maven, JUnit 5, Mockito, Arquillian & Compilation, tests unitaires et in-container \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{encadre}
 \textbf{Note :} le passage de l'appellation historique « J2EE » à
 \textbf{Jakarta EE 10} ne change ni les concepts ni les API notées (Servlet,
-JSP, EJB, JDBC) ; il ne fait qu'adopter la version maintenue de la plateforme.
+JSP, EJB, JDBC). Il ne fait qu'adopter la version maintenue de la plateforme.
 La trajectoire de modernisation vers Spring Boot est traitée séparément à
 l'annexe~\ref{chap:migration}.
 \end{encadre}
@@ -67,64 +67,64 @@ regard des exigences du projet (autodéploiement, gratuité, ergonomie,
 géolocalisation, interopérabilité).
 
 \subsection{Serveur d'applications}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Conteneur \textbf{EJB + Servlet} complet et gratuit, démarrage rapide, documentation abondante. TomEE reste plus léger mais moins intégré ; Payara convient aussi (fork de GlassFish orienté production). \\
+WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Conteneur \textbf{EJB + Servlet} complet et gratuit, démarrage rapide, documentation abondante. TomEE reste plus léger mais moins intégré. Payara convient aussi (fork de GlassFish orienté production). \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \subsection{Système de gestion de base de données}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
 PostgreSQL & MySQL / MariaDB, H2, Oracle XE & \textbf{Géolocalisation} native (PostGIS) pour les sites et rayons de butinage, bon support des contraintes \texttt{CHECK} (règles cadres/hausses), séries temporelles de mesures. Gratuit et sans verrouillage propriétaire, contrairement à Oracle. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \subsection{Style du service web tiers}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & Le cahier des charges impose un \textbf{service web XML} exposant \texttt{float getZummHoneyActualQuantity(int zummID)} ; SOAP en est la traduction littérale, avec contrat WSDL interrogeable depuis Excel. Un endpoint REST/JSON pourra compléter l'offre en modernisation (annexe~\ref{chap:migration}). \\
+JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & Le cahier des charges impose un \textbf{service web XML} exposant \texttt{float getZummHoneyActualQuantity(int zummID)}. SOAP en est la traduction littérale, avec contrat WSDL interrogeable depuis Excel. Un endpoint REST/JSON pourra compléter l'offre en modernisation (annexe~\ref{chap:migration}). \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \subsection{Cartographie et rayons de butinage}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
 Leaflet + OSM & Google Maps JS API, Mapbox & \textbf{Libre et sans clé payante} ni quota facturé, cohérent avec l'exigence d'autodéploiement. Tracé simple des cercles de butinage (1, 2, 3~km) à partir des coordonnées des sites. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \subsection{Bibliothèque de graphiques}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-Chart.js & D3.js, ApexCharts, Highcharts & Courbe d'apprentissage faible et rendu direct des histogrammes et courbes des tableaux de bord (production, ROI). D3 est plus puissant mais surdimensionné ; Highcharts n'est pas libre pour un usage commercial. \\
+Chart.js & D3.js, ApexCharts, Highcharts & Courbe d'apprentissage faible et rendu direct des histogrammes et courbes des tableaux de bord (production, ROI). D3 est plus puissant mais surdimensionné. Highcharts n'est pas libre pour un usage commercial. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \subsection{Accès hors-ligne et mobile}
-\begin{longtable}{>{\bfseries}p{2.7cm} p{4.2cm} p{6.5cm}}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
 PWA (Service Worker + IndexedDB) & Application native (Android/iOS), Flutter, React~Native & \textbf{Parité web / mobile} avec une seule base de code, saisie terrain sans réseau puis synchronisation différée. Évite le développement et la distribution d'applications natives, hors périmètre académique. \\
 \bottomrule
-\end{longtable}
+\end{xltabular}
 
 \begin{encadre}
 \textbf{Cohérence avec la contrainte académique :} toutes les briques retenues
