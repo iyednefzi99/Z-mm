@@ -228,3 +228,52 @@ methode \texttt{getBeeHouseHoneyActualQuantity} exposee par le service web.
 \caption{Sequence du pattern Composite : calcul recursif de la quantite de miel d'une ruche.}
 \label{fig:seq-composite}
 \end{figure}
+
+\subsection{Strategy : conversion d'unites heterogenes}
+La figure~\ref{fig:seq-strategy} montre la normalisation d'une mesure exprimee
+dans une unite quelconque : le \texttt{RegistreConvertisseurs} (contexte)
+selectionne la strategie correspondant a l'unite (\texttt{ConvertisseurLbVersKg}),
+qui ramene la valeur a l'unite de reference avant comparaison au seuil. Une
+nouvelle unite se traduit par une nouvelle strategie, sans modifier le contexte.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_strategy}
+\caption{Sequence du pattern Strategy : conversion d'unites heterogenes vers l'unite de reference.}
+\label{fig:seq-strategy}
+\end{figure}
+
+\subsection{Adapter : ingestion de capteurs heterogenes}
+La figure~\ref{fig:seq-adapter} illustre l'integration d'un capteur du marche :
+l'\texttt{AdaptateurBroodMinder} traduit l'API proprietaire du capteur en une
+\texttt{Mesure} normalisee (unites converties, horodatage, geolocalisation),
+exposant l'interface uniforme \texttt{Capteur} attendue par la couche metier.
+Les capteurs heterogenes deviennent ainsi interchangeables.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_adapter}
+\caption{Sequence du pattern Adapter : ingestion de capteurs heterogenes (volet automatise).}
+\label{fig:seq-adapter}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Repartition des patrons par couche}
+%------------------------------------------------------------------------------
+La figure~\ref{fig:packages-patterns} synthetise la localisation de chaque patron
+dans l'architecture multi-niveaux : le \emph{Builder} en presentation ; la
+\emph{Facade}, le \emph{Proxy} et la file de \emph{Command} en controle ; le
+domaine (\emph{Composite}, \emph{State}, \emph{Observer}, \emph{Strategy},
+\emph{Factory Method}) et les services segreges (\emph{ISP}) en metier ; le
+\emph{Repository} (\emph{DAO / DIP}) et l'\emph{Adapter} en acces aux donnees ;
+enfin les \emph{Singleton} de configuration et d'internationalisation ainsi que
+la \emph{Strategy} de conversion d'unites en couche transverse. Cette vue confirme
+que les patrons renforcent l'architecture en couches faiblement couplees sans en
+alterer la structure.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_packages_patterns}
+\caption{Repartition des design patterns par couche de l'architecture multi-niveaux.}
+\label{fig:packages-patterns}
+\end{figure}

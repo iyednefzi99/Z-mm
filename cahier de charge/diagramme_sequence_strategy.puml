@@ -1,0 +1,49 @@
+@startuml diagramme_sequence_strategy
+' Diagramme de sequence - Pattern Strategy : conversion d'unites heterogenes
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 16
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern Strategy : conversion d'unites heterogenes
+
+participant "GestionnaireAlertes\n(Client)" as Client
+participant "RegistreConvertisseurs\n(Context)" as Registre
+participant "ConvertisseurLbVersKg\n(Strategy)" as Conv
+participant "Seuil" as Seuil
+
+autonumber
+
+Client -> Registre : normaliser(mesure)
+activate Registre
+Registre -> Registre : choisir la strategie selon mesure.unite
+note right of Registre : unite "lb" -> ConvertisseurLbVersKg
+Registre -> Conv : versReference(valeur)
+activate Conv
+Conv --> Registre : valeur en unite de reference (kg)
+deactivate Conv
+Registre --> Client : mesure normalisee
+deactivate Registre
+
+Client -> Seuil : getValeur()
+activate Seuil
+Seuil --> Client : seuil (kg)
+deactivate Seuil
+Client -> Client : comparer mesure normalisee au seuil
+
+note over Registre, Conv
+  Strategy : chaque unite = une strategie de conversion.
+  Ajouter une unite = ajouter une classe, sans modifier
+  le contexte (principe ouvert/ferme).
+end note
+
+@enduml

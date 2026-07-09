@@ -1,0 +1,53 @@
+@startuml diagramme_sequence_adapter
+' Diagramme de sequence - Pattern Adapter : capteurs heterogenes
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 16
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern Adapter : ingestion de capteurs heterogenes
+
+participant "ServiceIngestion\n(Client)" as Client
+participant "AdaptateurBroodMinder\n(Adapter)" as Adapt
+participant "CapteurBroodMinder\n(Adaptee, API tierce)" as Sensor
+participant "ConvertisseurUnite\n(Strategy)" as Conv
+participant "mesure : Mesure" as Mesure
+
+autonumber
+
+Client -> Adapt : lire()
+activate Adapt
+Adapt -> Sensor : getRawData()
+activate Sensor
+Sensor --> Adapt : donnees brutes (poids en lb, temp en F)
+deactivate Sensor
+
+Adapt -> Conv : versReference(valeurs)
+activate Conv
+Conv --> Adapt : valeurs en unites de reference
+deactivate Conv
+
+Adapt -> Mesure : new Mesure(typeIndicateur, valeur,\nunite, horodatage, latitude, longitude)
+activate Mesure
+Mesure --> Adapt : mesure normalisee
+deactivate Mesure
+Adapt --> Client : Mesure (interface Capteur uniforme)
+deactivate Adapt
+
+note over Adapt, Sensor
+  Adapter : rend l'API proprietaire du capteur compatible
+  avec l'interface Capteur du systeme. Les capteurs
+  heterogenes (Arnia, BroodMinder...) deviennent
+  interchangeables sans impact sur la couche metier.
+end note
+
+@enduml

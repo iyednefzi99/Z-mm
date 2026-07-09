@@ -1,0 +1,63 @@
+@startuml diagramme_packages_patterns
+' Diagramme de packages - repartition des design patterns par couche
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam component {
+  BackgroundColor #F3F2EE
+  BorderColor #B8860B
+  ArrowColor #B8860B
+}
+skinparam package {
+  BackgroundColor #FBFAF7
+  BorderColor #B8860B
+  FontColor #B8860B
+}
+title Repartition des design patterns par couche (architecture multi-niveaux)
+
+package "Presentation  (JSP / JavaScript)" as P {
+  [Vues JSP]
+  [ConstructeurRapport  <<Builder>>]
+}
+
+package "Controle  (Servlets / MVC)" as C {
+  [FacadeApplication  <<Facade>>]
+  [ProxySecurite  <<Proxy>>]
+  [FileCommandesHorsLigne  <<Command>>]
+}
+
+package "Metier  (EJB)" as M {
+  [Ruche / ElementRuche  <<Composite>>]
+  [EtatRuche  <<State>>]
+  [GestionnaireAlertes  <<Observer>>]
+  [RegleAlerte  <<Strategy>>]
+  [FabriqueRuche  <<Factory Method>>]
+  [Services segreges  <<ISP>>]
+}
+
+package "Acces aux donnees  (JDBC)" as D {
+  [RucheRepository  <<DAO / DIP>>]
+  [AdaptateurCapteur  <<Adapter>>]
+}
+
+package "Transverse  (i18n / config / unites)" as T {
+  [Configuration  <<Singleton>>]
+  [GestionnaireI18n  <<Singleton>>]
+  [ConvertisseurUnite  <<Strategy>>]
+}
+
+database "SGBD relationnel" as DB
+
+P --> C
+C --> M
+M --> D
+D --> DB
+M ..> T : utilise
+C ..> T : utilise
+
+note bottom of T
+  La couche transverse (internationalisation, configuration,
+  conversion d'unites) est accessible aux couches controle et
+  metier, conformement a l'architecture faiblement couplee.
+end note
+
+@enduml
