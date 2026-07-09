@@ -1,4 +1,4 @@
-# Zümm — Système de gestion et de suivi apicole
+# 🐝 Zümm — Système de gestion et de suivi apicole
 
 Mini-projet **J2EE** : application multi-niveaux de gestion et de suivi de ruches
 (gestion manuelle des opérations, planification des visites, tableaux de bord,
@@ -8,7 +8,7 @@ Ce dépôt contient, à ce stade, le **cahier des charges** et le **dossier de
 conception** (documentation LaTeX + diagrammes UML). Le code applicatif reste à
 développer.
 
-## Structure du dépôt
+## 📁 Structure du dépôt
 
 ```
 Zümm/
@@ -24,7 +24,7 @@ Zümm/
 └── README.md
 ```
 
-## Contenu du dossier
+## 📚 Contenu du dossier
 
 - **Cahier des charges** (méthode Manager-GO) : contexte, objectifs, périmètre,
   besoins fonctionnels, dictionnaire de données, cas d'utilisation, plan de tests.
@@ -37,7 +37,7 @@ Zümm/
   matrice des droits (RBAC), registre des risques, RGPD, stratégie de tests
   (annexe F).
 
-## Prérequis (outillage documentaire)
+## 🛠️ Prérequis (outillage documentaire)
 
 - **LaTeX** : une distribution complète (MiKTeX, TeX Live) avec `latexmk`.
 - **PlantUML** (`plantuml.jar`) + **Java 11+** pour régénérer les diagrammes.
@@ -45,14 +45,14 @@ Zümm/
   d'objets, de cas d'utilisation et le MLD (le moteur Smetana intégré ne suffit
   pas pour ces diagrammes).
 
-## Compiler le document
+## 📄 Compiler le document
 
 ```bash
 cd "cahier de charge"
 latexmk -pdf cahier_des_charges.tex
 ```
 
-## Régénérer les diagrammes
+## 🔄 Régénérer les diagrammes
 
 Depuis `cahier de charge/`, avec Graphviz installé (ou `GRAPHVIZ_DOT` pointant
 sur `dot`) :
@@ -63,7 +63,7 @@ java -jar plantuml.jar -tpng -o images *.puml
 
 > Les maquettes (`wireframe_*.puml`) utilisent la syntaxe **Salt** de PlantUML.
 
-## Notes techniques
+## ⚙️ Notes techniques
 
 - L'identifiant d'API `getZummHoneyActualQuantity(int zummID)` et le fichier de
   configuration `ConfigZumm.ini` portent le nom du produit **Zümm** (forme ASCII
@@ -72,7 +72,7 @@ java -jar plantuml.jar -tpng -o images *.puml
   services web sécurisés (OAuth Google, X.509 / SSL). Une trajectoire de
   modernisation vers Spring Boot est documentée en annexe.
 
-## Contrainte académique
+## 🎓 Contrainte académique
 
 L'usage de générateurs de code pour produire le livrable est proscrit par
 l'épreuve. La documentation et la conception de ce dépôt sont réalisées à la main.
