@@ -1,0 +1,55 @@
+@startuml diagramme_sequence_composite
+' Diagramme de sequence - Pattern Composite : calcul recursif du miel
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 16
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern Composite : calcul de la quantite de miel
+
+participant "ServiceMielImpl\n(Client)" as Client
+participant "ruche : Ruche\n(Composite)" as Ruche
+participant "hausse : Hausse\n(Composite)" as Hausse
+participant "cadre : Cadre\n(Feuille)" as Cadre
+
+autonumber
+
+Client -> Ruche : getPoidsMiel()
+activate Ruche
+loop pour chaque Compartiment (corps + hausses)
+  Ruche -> Hausse : getPoidsMiel()
+  activate Hausse
+  loop pour chaque Cadre du compartiment
+    Hausse -> Cadre : getPoidsMiel()
+    activate Cadre
+    alt type == MIEL
+      Cadre --> Hausse : poids du cadre
+    else autre type (couvain, pollen...)
+      Cadre --> Hausse : 0
+    end
+    deactivate Cadre
+  end
+  Hausse --> Ruche : somme des cadres de miel
+  deactivate Hausse
+end
+Ruche -> Ruche : total - tare(ruche)
+Ruche --> Client : quantite de miel
+deactivate Ruche
+
+note over Ruche, Cadre
+  Composite : Ruche, Compartiment et Cadre partagent
+  l'interface ElementRuche. getPoidsMiel() se resout
+  recursivement, sans que le client connaisse la structure.
+  Correspond a getBeeHouseHoneyActualQuantity().
+end note
+
+@enduml

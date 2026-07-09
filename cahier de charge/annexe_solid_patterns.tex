@@ -198,3 +198,33 @@ conflit, realisant la synchronisation differee exigee par le mode hors-ligne.
 \caption{Sequence du pattern Command : mode hors-ligne et synchronisation differee.}
 \label{fig:seq-command}
 \end{figure}
+
+\subsection{State : cycle de vie de la ruche}
+La figure~\ref{fig:seq-state} montre la Ruche (contexte) qui delegue chaque
+operation a son etat courant. L'etat decide de la transition (activation,
+collecte, retour a l'etat actif) ou refuse une operation interdite dans l'etat
+en cours -- ici un peuplement demande sur une ruche deja active. Le comportement
+depend ainsi de l'etat sans aucun \texttt{switch} sur le statut, en coherence
+avec le diagramme de machine a etats (figure~\ref{fig:etat}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{diagramme_sequence_state}
+\caption{Sequence du pattern State : delegation des transitions du cycle de vie de la ruche.}
+\label{fig:seq-state}
+\end{figure}
+
+\subsection{Composite : calcul de la quantite de miel}
+La figure~\ref{fig:seq-composite} detaille la resolution recursive de
+\texttt{getPoidsMiel()} : le client (\texttt{ServiceMielImpl}) interroge la
+ruche, qui propage l'appel a chaque compartiment, puis a chaque cadre (feuille).
+Seuls les cadres de type \texttt{MIEL} contribuent, et la tare est retranchee au
+niveau de la ruche. Le client ignore la structure interne ; ce calcul realise la
+methode \texttt{getBeeHouseHoneyActualQuantity} exposee par le service web.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_composite}
+\caption{Sequence du pattern Composite : calcul recursif de la quantite de miel d'une ruche.}
+\label{fig:seq-composite}
+\end{figure}

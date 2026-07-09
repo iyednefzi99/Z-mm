@@ -1,0 +1,72 @@
+@startuml diagramme_sequence_state
+' Diagramme de sequence - Pattern State : cycle de vie de la ruche
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 16
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Pattern State : cycle de vie de la ruche
+
+actor "Agent apiculteur" as Agent
+participant "ruche : Ruche\n(Context)" as Ruche
+participant "Peuplee\n(EtatRuche)" as Peuplee
+participant "Active\n(EtatRuche)" as Active
+participant "EnCollecte\n(EtatRuche)" as Collecte
+
+autonumber
+
+== Peuplement puis activation ==
+Agent -> Ruche : activer()
+activate Ruche
+Ruche -> Peuplee : activer(ruche)
+activate Peuplee
+Peuplee -> Ruche : setEtat(Active)
+deactivate Peuplee
+Ruche --> Agent : ruche active
+deactivate Ruche
+
+== Collecte du miel (transition autorisee) ==
+Agent -> Ruche : collecter()
+activate Ruche
+Ruche -> Active : collecter(ruche)
+activate Active
+Active -> Ruche : setEtat(EnCollecte)
+deactivate Active
+Ruche --> Agent : collecte en cours
+deactivate Ruche
+
+== Fin de collecte : retour a l'etat actif ==
+Agent -> Ruche : terminerCollecte()
+activate Ruche
+Ruche -> Collecte : terminerCollecte(ruche)
+activate Collecte
+Collecte -> Ruche : setEtat(Active)
+deactivate Collecte
+deactivate Ruche
+
+== Transition invalide rejetee par l'etat courant ==
+Agent -> Ruche : peupler()
+activate Ruche
+Ruche -> Active : peupler(ruche)
+activate Active
+Active --> Ruche : refus (ruche deja peuplee)
+deactivate Active
+Ruche --> Agent : operation interdite dans l'etat Active
+deactivate Ruche
+
+note over Ruche, Collecte
+  State : la Ruche (contexte) delegue chaque operation
+  a son etat courant. Chaque etat decide de la transition
+  ou refuse une operation interdite -- plus de switch(statut).
+end note
+
+@enduml
