@@ -1,4 +1,8 @@
-# 🐝 Zümm : Système de gestion et de suivi apicole
+<p align="center">
+  <img src="../assets/logo/zumm-logo.png" alt="Logo Zümm" width="240">
+</p>
+
+<h1 align="center">🐝 Zümm : Système de gestion et de suivi apicole</h1>
 
 🍯 Mini-projet **J2EE** : application multi-niveaux de gestion et de suivi de ruches
 (🐝 gestion manuelle des opérations, 📅 planification des visites, 📊 tableaux de bord,
@@ -12,8 +16,10 @@ développer.
 
 ```
 🐝 Zümm/
+├── 🎨 assets/logo/                      # Logos Zümm (principal, icône, monochrome, brandsheet)
 ├── 📂 cahier de charge/
 │   ├── 📘 cahier_des_charges.tex        # Préambule + \input des chapitres et annexes
+│   ├── 📖 README.md                     # Ce fichier
 │   ├── 📂 chapitres/                     # Un dossier par chapitre
 │   │   ├── 01-contexte/ … 05-dictionnaire/   (📄 .tex)
 │   │   ├── 06-cas-utilisation/          (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
@@ -27,8 +33,7 @@ développer.
 │   │   ├── D-solid-patterns/            (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
 │   │   └── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
 │   └── 📕 cahier_des_charges.pdf        # Document compilé (livrable)
-├── 🙈 .gitignore
-└── 📖 README.md
+└── 🙈 .gitignore
 ```
 
 > 💡 Chaque dossier de chapitre/annexe contient son `.tex`, ses `images/` (PNG) et,

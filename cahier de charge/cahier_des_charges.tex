@@ -69,7 +69,7 @@
 }
 
 % ---------- Liens -------------------------------------------------------------
-\usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel]{hyperref}
+\usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
 
 % ---------- Environnement encadré (contraintes/notes) -------------------------
 \usepackage{mdframed}
@@ -84,6 +84,7 @@
 % ---------- Figures & images -------------------------------------------------
 \usepackage{graphicx}
 \graphicspath{%
+  {../assets/logo/}%
   {chapitres/06-cas-utilisation/images/}%
   {chapitres/07-conception/images/}%
   {chapitres/12-referentiel/images/}%
@@ -103,9 +104,13 @@
 \begin{document}
 
 % ------------------------------- PAGE DE GARDE -------------------------------
+% Page de garde numérotée en romain (invisible) pour éviter la collision de
+% destination hyperref « page.1 » avec la première page arabe.
+\pagenumbering{roman}
 \begin{titlepage}
 \centering
-\vspace*{1.5cm}
+\vspace*{1.0cm}
+\includegraphics[width=4.5cm]{zumm-logo}\\[0.6cm]
 {\color{miel}\rule{\linewidth}{2pt}}\\[0.4cm]
 {\Huge\bfseries\color{mielfonce} CAHIER DES CHARGES}\\[0.3cm]
 {\LARGE\color{bleunuit} Zümm}\\[0.2cm]
@@ -126,6 +131,10 @@ Méthode       & Manager-GO - Élaboration d'un CdC\\
 Description fonctionnelle des besoins / Enveloppe budgétaire / Délais}
 \vspace{1cm}
 \end{titlepage}
+
+% Retour à la numérotation arabe : le sommaire et le contenu conservent
+% exactement les mêmes numéros de page qu'auparavant.
+\pagenumbering{arabic}
 
 % ------------------------------- SOMMAIRE -----------------------------------
 \tableofcontents
