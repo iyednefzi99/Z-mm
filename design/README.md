@@ -19,6 +19,12 @@ la référence que tout support (web, mobile, print, slides) doit respecter.
 > Les trois versions sont **équivalentes** : même palette, mêmes tokens, mêmes règles.
 > En cas de doute, la version **française** fait foi.
 
+### 🎞️ Motion
+
+| Sujet | Fichier |
+|---|---|
+| Dialogue / Modale (ouverture · fermeture) | [`motion/dialog.md`](./motion/dialog.md) |
+
 ---
 
 ## 🧭 Méthode / Method / المنهج
