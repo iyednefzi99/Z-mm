@@ -36,6 +36,10 @@ plantuml.jar
 graphviz/
 graphviz*.zip
 
+# ===== Outillage skills (non versionne) =====
+.agents/
+skills-lock.json
+
 # ===== IDE / OS =====
 .idea/
 *.iml
