@@ -24,6 +24,7 @@ la référence que tout support (web, mobile, print, slides) doit respecter.
 | Sujet | Fichier |
 |---|---|
 | Dialogue / Modale (ouverture · fermeture) | [`motion/dialog.md`](./motion/dialog.md) |
+| Transitions (animation · translation · morph) | [`motion/transitions.md`](./motion/transitions.md) |
 
 ### 🧭 Principes
 
@@ -32,6 +33,21 @@ la référence que tout support (web, mobile, print, slides) doit respecter.
 | Bon designer vs mauvais designer (état d'esprit) | [`principes/good-vs-bad-designer.md`](./principes/good-vs-bad-designer.md) |
 | Éviter le noir et le blanc purs (neutres) | [`principes/eviter-noir-et-blanc-purs.md`](./principes/eviter-noir-et-blanc-purs.md) |
 | Design & confiance client (5 leviers) | [`principes/design-et-confiance-client.md`](./principes/design-et-confiance-client.md) |
+
+### 🧱 Tokens
+
+| Sujet | Fichier |
+|---|---|
+| Tokens machine-lisibles (couleurs, type, espacement, rayons, ombres, motion, palette de séries) | [`tokens.json`](./tokens.json) |
+
+> `tokens.json` est le **miroir exploitable par le code** de `DESIGN.md` (format inspiré du
+> DTCG). Le front-end peut l'importer directement ; `DESIGN.md` (FR) reste la source de vérité.
+
+### 🔗 Ressources
+
+| Sujet | Fichier |
+|---|---|
+| 100 sites design (UI kits, systèmes, icônes, polices, palettes…) | [`ressources.md`](./ressources.md) |
 
 ---
 
@@ -73,6 +89,10 @@ planche de marque.
 ## 🚀 Utilisation
 
 1. Lis le `DESIGN.md` dans ta langue avant de créer une interface, une slide ou un document.
-2. Copie le bloc de **tokens CSS** (section 10) comme base de tes variables.
+2. Copie le bloc de **tokens CSS** (section 10) — ou importe [`tokens.json`](./tokens.json)
+   côté code — comme base de tes variables.
 3. Respecte les règles d'usage du logo (section 6) et la sémantique des couleurs (section 2.3).
-4. En RTL (arabe), inverse la mise en page et aligne chiffres/tableaux à droite.
+   Pour les **graphiques multi-séries**, utilise la palette catégorielle (section 7.2), pas
+   les couleurs sémantiques.
+4. Vérifie le **contraste** (section 2.4, ratios chiffrés) et les **états** de composants (7.1).
+5. En RTL (arabe), inverse la mise en page et aligne chiffres/tableaux à droite.

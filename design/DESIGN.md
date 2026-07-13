@@ -65,7 +65,7 @@ un **vert ardoise** profond. Les valeurs ci-dessous sont les jetons (tokens) off
 | `--z-ink-muted` | `#5B6B65` | Texte secondaire, légendes, métadonnées. |
 | `--z-line` | `#DCE4E0` | Bordures, séparateurs, contours de champs. |
 | `--z-surface` | `#F5F7F5` | Fond de section, cartes en retrait. |
-| `--z-bg` | `#FFFFFF` | Fond de page (mode clair). |
+| `--z-bg` | `#FCFDFC` | Fond de page (mode clair) — blanc cassé teinté vert, **jamais `#FFFFFF` pur** (voir [`principes/eviter-noir-et-blanc-purs.md`](./principes/eviter-noir-et-blanc-purs.md)). |
 
 ### 2.3 Couleurs sémantiques (états)
 
@@ -81,12 +81,31 @@ un **vert ardoise** profond. Les valeurs ci-dessous sont les jetons (tokens) off
 
 ### 2.4 Accessibilité contraste
 
-- Texte courant : `--z-ink` sur `--z-bg` → conforme AA/AAA.
-- **Le miel `#D9A521` ne passe pas AA en petit texte sur blanc** : l'utiliser en aplat
-  pour des surfaces/CTA avec texte foncé (`--z-slate-900`) par-dessus, pas comme couleur
-  de texte fin.
-- Vert `#2E9E3F` sur blanc : OK pour icônes et gros texte ; pour texte fin, préférer
-  `--z-green-600`.
+Ratios WCAG mesurés (fond `--z-bg` en mode clair, sauf mention). Seuils : **AA** = 4.5:1
+(texte normal) / 3:1 (gros texte ≥ 24 px ou 19 px gras) ; **AAA** = 7:1.
+
+| Paire (premier plan sur fond) | Ratio | Verdict |
+|---|---|---|
+| `--z-ink` sur `--z-bg` | 15.8:1 | ✅ AAA |
+| `--z-ink-muted` sur `--z-bg` | 5.5:1 | ✅ AA |
+| `--z-green-600` sur `--z-bg` | 5.4:1 | ✅ AA |
+| `--z-honey-600` sur `--z-bg` | 3.3:1 | ⚠️ AA gros texte seulement |
+| `--z-green-500` sur `--z-bg` | 3.5:1 | ⚠️ AA gros texte / icônes |
+| `--z-honey-500` sur `--z-bg` | 2.2:1 | ❌ aplat uniquement, jamais en texte |
+| `--z-slate-900` sur `--z-honey-500` (texte de CTA) | 5.5:1 | ✅ AA |
+| Blanc sur `--z-green-500` (bouton secondaire) | 3.5:1 | ⚠️ AA gros texte |
+| Blanc sur `--z-danger` | 5.4:1 | ✅ AA |
+| Blanc sur `--z-info` | 5.0:1 | ✅ AA |
+| `#EAF1EE` sur `--z-slate-900` (mode sombre) | 10.7:1 | ✅ AAA |
+| `--z-honey-500` sur `--z-slate-900` (accent sombre) | 5.5:1 | ✅ AA |
+| `--z-green-300` sur `--z-slate-900` (mode sombre) | 5.7:1 | ✅ AA |
+
+**À retenir** :
+- **Le miel `#D9A521` ne passe pas AA en texte** : l'utiliser en aplat pour des surfaces/CTA
+  avec texte foncé (`--z-slate-900`) par-dessus, pas comme couleur de texte fin.
+- Vert `#2E9E3F` sur `--z-bg` : OK pour icônes et gros texte ; pour texte fin, préférer
+  `--z-green-600`. Bouton secondaire (blanc sur vert) : réserver aux libellés de taille ≥ 16 px gras.
+- En mode sombre, éviter le vert `500` en texte fin → `--z-green-300` (voir § 8).
 
 ---
 
@@ -157,8 +176,8 @@ Système sobre et lisible ; le logo utilise une grotesque humaniste (formes rond
   `zumm-brandsheet.png` (planche de marque).
 - **Zone de protection** : marge libre ≥ hauteur du « Z » tout autour.
 - **Taille mini** de l'emblème : `24 px` (favicon `48×48` = version fournie).
-- **Fonds autorisés** : blanc, `--z-surface`, ou `--z-slate-900` (utiliser alors la
-  version claire/monochrome). Éviter le logo couleur sur fond miel ou vert saturé.
+- **Fonds autorisés** : blanc cassé (`--z-bg`), `--z-surface`, ou `--z-slate-900` (utiliser
+  alors la version claire/monochrome). Éviter le logo couleur sur fond miel ou vert saturé.
 - **Interdits** : déformer, recolorer le dégradé, ajouter une ombre portée, pivoter,
   séparer l'abeille du wordmark de façon incohérente.
 
@@ -180,6 +199,56 @@ Spécifications d'intention — le front-end les traduit dans sa techno.
   en-tête `--z-slate-800`.
 - **Graphiques / télémétrie** : série température → miel, humidité → info, poids → vert,
   seuils critiques → danger. Une couleur = une métrique, de façon stable dans toute l'app.
+
+### 7.1 États des composants interactifs
+
+Tout composant interactif expose **six états** cohérents. Le focus doit rester visible
+au clavier (`:focus-visible`), jamais supprimé.
+
+| État | Bouton primaire | Champ de saisie |
+|---|---|---|
+| Repos | fond `--z-honey-500`, texte `--z-slate-900` | bordure `--z-line`, fond `--z-bg` |
+| Survol | fond `--z-honey-600` | bordure `--z-ink-muted` |
+| Actif (pressé) | fond `--z-honey-600` + `translateY(1px)` | — |
+| Focus (clavier) | anneau `--z-honey-500` 2 px + halo `rgba(217,165,33,.25)` | anneau `--z-honey-500` 2 px |
+| Désactivé | opacité `.45`, `cursor: not-allowed` | fond `--z-surface`, texte `--z-ink-muted` |
+| Chargement | spinner, largeur figée, libellé masqué | — |
+| Erreur | — | bordure `--z-danger` + message `--z-danger` sous le champ |
+
+> Boutons secondaire/fantôme : mêmes états, en déclinant respectivement `--z-green-500/600`
+> et `--z-line`/`--z-slate-800`. La transition d'état réutilise `--z-dur-fast`
+> (voir [`motion/transitions.md`](./motion/transitions.md)).
+
+### 7.2 Palette de données (séries de graphiques)
+
+Les couleurs **sémantiques** (§ 2.3) codent un *état* ; elles ne servent jamais à distinguer
+des **séries** (plusieurs ruches/ruchers sur un même graphe). Pour cela, une palette
+**catégorielle** dédiée, à assigner **dans l'ordre, jamais en boucle** — la 8ᵉ série
+devient « Autre », un petit multiple, ou un second encodage (trait/texture).
+
+Palette validée (colorblind-safe, ΔE adjacent min 35.9) — méthode *dataviz* d'Adobe/skill,
+vérifiée par script :
+
+| # | Rôle | Mode clair | Mode sombre |
+|---|---|---|---|
+| 1 | Miel (série principale) | `#D9A521` | `#B8860B` |
+| 2 | Bleu | `#2A78D6` | `#3987E5` |
+| 3 | Vert ruche | `#2E9E3F` | `#008300` |
+| 4 | Rose | `#E87BA4` | `#D55181` |
+| 5 | Orange | `#EB6834` | `#D95926` |
+| 6 | Violet | `#4A3AA7` | `#9085E9` |
+| 7 | Aqua | `#1BAF7A` | `#199E70` |
+
+**Règles** :
+- **Une légende est toujours présente** pour ≥ 2 séries, et ≤ 4 séries sont aussi
+  étiquetées en direct : l'identité n'est jamais portée par la couleur seule.
+- **La couleur suit l'entité** (la ruche), pas son rang : filtrer une série ne repeint
+  pas les survivantes.
+- Miel/rose/aqua ont un contraste < 3:1 sur fond clair → toujours accompagnés d'un libellé
+  visible ou d'une vue tableau (jamais de valeur peinte sur fond clair sans texte).
+- **Magnitude** (une seule métrique, faible → fort) : rampe **monochrome** miel clair → foncé
+  (`--z-honey-300` → `--z-honey-600`), pas la palette catégorielle.
+- **Jamais de double axe Y** : deux échelles = deux graphes ou une base indexée commune.
 
 ---
 
@@ -211,9 +280,12 @@ Spécifications d'intention — le front-end les traduit dans sa techno.
   --z-slate-800:#2C4A42; --z-slate-900:#1E3A34;
   /* Neutres */
   --z-ink:#1B2320; --z-ink-muted:#5B6B65; --z-line:#DCE4E0;
-  --z-surface:#F5F7F5; --z-bg:#FFFFFF;
+  --z-surface:#F5F7F5; --z-bg:#FCFDFC;
   /* Sémantique */
   --z-success:#2E9E3F; --z-warning:#D9A521; --z-danger:#C0392B; --z-info:#2C7A7B;
+  /* Données — palette catégorielle de séries (mode clair) */
+  --z-cat-1:#D9A521; --z-cat-2:#2A78D6; --z-cat-3:#2E9E3F; --z-cat-4:#E87BA4;
+  --z-cat-5:#EB6834; --z-cat-6:#4A3AA7; --z-cat-7:#1BAF7A;
   /* Rayons */
   --z-radius-sm:6px; --z-radius-md:12px; --z-radius-lg:20px; --z-radius-pill:999px;
   /* Ombres */

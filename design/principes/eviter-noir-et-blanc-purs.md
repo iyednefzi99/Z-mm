@@ -27,11 +27,28 @@ l'œil et donnent un rendu « brut ». On utilise des neutres proches, plus doux
 | ◾ | `#121212` |
 | ◾ | `#0C0C0C` |
 
+> Les hex ci-dessus sont des exemples **génériques** (neutres chauds). Les neutres de Zümm,
+> eux, sont **teintés vert** pour rester dans l'identité (voir tokens ci-dessous).
+
+---
+
+## 🐝 Les neutres de Zümm (source de vérité)
+
+Ne pas piocher un blanc/noir au hasard : le système Zümm fixe déjà ses neutres teintés vert.
+
+| Token | Hex | Rôle | Remplace |
+|---|---|---|---|
+| `--z-bg` | `#FCFDFC` | Fond de page clair | ~~`#FFFFFF`~~ |
+| `--z-surface` | `#F5F7F5` | Fond de section, cartes | — |
+| `--z-ink` | `#1B2320` | Texte principal | ~~`#000000`~~ |
+| `--z-slate-900` | `#1E3A34` | Fond de page sombre | ~~`#000000`~~ |
+
 ---
 
 ## 🎯 À retenir
 
-- **Fonds clairs** : partir d'un blanc cassé (`#FAF9F6` / `#F7F6F3`) plutôt que `#FFFFFF`.
-- **Textes / fonds sombres** : viser `#121212`–`#222222` plutôt que `#000000`.
-- Vérifier malgré tout le **contraste AA/AAA** (voir `DESIGN.md`, accessibilité).
-- À combiner avec la palette de marque (miel `#D9A521`, vert `#2E9E3F`).
+- **Fonds clairs** : utiliser `--z-bg` (`#FCFDFC`) — jamais `#FFFFFF` pur.
+- **Textes / fonds sombres** : utiliser `--z-ink` (`#1B2320`) / `--z-slate-900` (`#1E3A34`),
+  jamais `#000000`.
+- Vérifier malgré tout le **contraste AA/AAA** (voir `DESIGN.md` § 2.4, ratios chiffrés).
+- Les neutres restent **teintés vers le vert de marque**, pas des gris chauds génériques.
