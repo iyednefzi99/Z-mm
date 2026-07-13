@@ -1,0 +1,90 @@
+%==============================================================================
+\chapter{Data dictionary and calculation rules}
+%==============================================================================
+This chapter answers the question of the system's inputs and outputs. It defines
+the data handled, their types and the formulas used to compute the results.
+
+\section{Type conventions}
+The types used are: integer, decimal, text, date, time, datetime, boolean,
+enumeration and reference (foreign key to another entity). Physical quantities
+are associated with a configurable unit to allow the internationalisation of
+measurement systems.
+
+\section{Data dictionary (inputs)}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} p{3.4cm} p{2.4cm} X}
+\toprule
+\textbf{Entity} & \textbf{Attribute} & \textbf{Type} & \textbf{Description} \\
+\midrule
+\endhead
+Farmer & id, nom, contact & integer, text & Operating owner. \\
+Farm & id, nom, fermier & integer, text, reference & Operation attached to a farmer. \\
+Site & id, nom & integer, text & Beekeeping location. \\
+Site & latitude, longitude & decimal (degrees) & Geolocation. \\
+Site & altitude & decimal (configurable unit) & Site altitude. \\
+Site & dateMiseEnOeuvre, dateDemenagement, dateCloture & date & Site life cycle, the last two optional. \\
+Hive & id, modele & integer, text & Hive hosted by a site. \\
+Hive & nbHausses & integer (0 to 5) & Number of extension levels. \\
+Hive & ferme & reference & Owning farm (distinct from the location site). \\
+Hive & etat & enumeration & Life-cycle state (created, populated, active, splitting, harvesting, closed), see figure~\ref{fig:etat}. \\
+Hive & agentResponsable & reference & Agent responsible at the given time. \\
+Compartment & id, type & integer, enumeration & Hive compartment: body or super. \\
+Compartment & capaciteCadres & integer (1 to 10) & Number of frame slots. \\
+Frame & id, slot, type & integer, enumeration & Frame installed on an identified slot. \\
+Frame & poids & decimal (configurable unit) & Frame weight, basis of the honey-quantity calculation. \\
+Agent & id, nom, role & integer, text, enumeration & Beekeeper, supervisor, manager or administrator. \\
+Schedule & id, ruche, agent & integer, reference & Visit schedule. \\
+Schedule & datePrevue, statutApprobation & date, enumeration & Planned date and supervisor approval. \\
+Schedule & superviseur & reference & Supervising agent who approves the schedule. \\
+Visit & id, ruche, agent & integer, reference & Visit carried out. \\
+Visit & planning & reference & Approved schedule behind the visit (optional). \\
+Visit & date, heure, duree & date, time, integer (min) & Timestamp and duration. \\
+Visit & raison & enumeration & Reason for the visit. \\
+Visit & constatations, actionsPrevues, actionsEffectuees, recommandations & text & Report content. \\
+Visit & effectifQualitatif, etatSante & enumeration & Swarm assessment. \\
+Visit & productivite & integer (1 to 3) & Productivity level. \\
+Photo & id, url, visite & integer, text, reference & Photo attached to a visit report. \\
+Measurement & id, ruche, typeIndicateur & integer, reference, enumeration & Measurement of an indicator. \\
+Measurement & valeur, unite & decimal, text & Value and configurable unit. \\
+Measurement & horodatage, latitude, longitude & datetime, decimal & Time-stamped and geolocated measurement. \\
+Harvest & id, ruche, date & integer, reference, date & Honey harvest. \\
+Harvest & quantiteMiel, lotQR & decimal (configurable unit), text & Quantity and batch identifier. \\
+Threshold & id, type, valeur, unite & integer, enumeration, decimal, text & Configurable system threshold. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Reference schema:} the dictionary above is the business view of the
+data. Its normalised relational translation (keys, SQL types and \texttt{CHECK}
+constraints) constitutes the \textbf{logical data model} (LDM), which is
+authoritative for the implementation and is presented in
+appendix~\ref{chap:complements} (figure~\ref{fig:mld}). The name correspondence
+between the dictionary, the class diagram and the LDM is given by
+table~\ref{tab:vocabulaire}.
+\end{encadre}
+
+\section{Results and calculation rules (outputs)}
+\begin{itemize}
+  \item \textbf{Honey quantity of a hive}: sum of the weights of the honey frames of the supers, minus the tare of the elements.
+\end{itemize}
+\[ \text{HoneyQuantity}(h) = \sum_{f \in \text{honeyFrames}(h)} \text{weight}(f) - \text{tare}(h) \]
+This value is exposed by the web service via \texttt{getZummHoneyActualQuantity(zummID)}.
+\begin{itemize}
+  \item \textbf{Return on investment} of a site or a hive:
+\end{itemize}
+\[ \text{ROI} = \frac{\text{Valued production}}{\text{Operation costs}} \]
+\begin{itemize}
+  \item \textbf{Harvest alert}: triggered if production exceeds the configurable threshold.
+\end{itemize}
+\[ \text{Production}(h) > \text{ProductionThreshold} \Rightarrow \text{harvest or extension alert} \]
+\begin{itemize}
+  \item \textbf{Drop alert}: triggered if the relative drop exceeds the threshold.
+\end{itemize}
+\[ \frac{V_{\text{prev}} - V_{\text{current}}}{V_{\text{prev}}} > \text{DropThreshold} \Rightarrow \text{inspection alert} \]
+\begin{itemize}
+  \item \textbf{Unit conversion} to the reference unit, to compare heterogeneous measurements:
+\end{itemize}
+\[ V_{\text{reference}} = V_{\text{measurement}} \times \text{conversionFactor}(\text{unit}) \]
+
+\section{Typical queries}
+The results rely on queries executed via JDBC, for example for the honey
+quantity of a hive: \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = zummID}.

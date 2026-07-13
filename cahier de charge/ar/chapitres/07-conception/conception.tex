@@ -1,0 +1,168 @@
+%==============================================================================
+\chapter{التصميم (نماذج UML)}
+\label{chap:conception}
+%==============================================================================
+يتضمّن ملف التصميم مخطّطات \textenglish{UML} التالية. كلٌّ منها موصوف بمحتواه
+المنتظر لتوجيه النمذجة.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.8cm} X}
+\toprule
+\textbf{المخطّط} & \textbf{المحتوى المنتظر} \\
+\midrule
+\endhead
+حالات الاستعمال & الفاعلون (مربّي النحل، عون، مشرف، مسؤول، مدير نظام، تطبيق خارجي) والحالات الرئيسية (انظر الشكل \ref{fig:uc}). \\
+الأصناف & كيانات قاموس المعطيات وعلاقاتها (مربّي النحل 1 إلى n مزرعة، مزرعة 1 إلى n موقع، موقع 1 إلى n خلية، خلية 1 إلى n جسم أو عاسلة، جسم أو عاسلة 1 إلى n إطار) وطرق الخدمة. \\
+الكائنات & لقطة لموقع يحتوي على ثلاث خلايا مُعمَّرة بإطاراتها. \\
+التسلسل & سير إنجاز زيارة (العون، واجهة JSP، Servlet، EJB، JDBC، قاعدة المعطيات). \\
+النشاط & سيرورة تخطيط زيارة والمصادقة عليها وتنفيذها وإغلاقها. \\
+آلة الحالات & دورة حياة خلية (مُنشأة، مُعمَّرة، نشطة، في تقسيم، في جمع، مُغلقة). \\
+التفاعل أو التعاون & السيناريو نفسه للتسلسل في شكل تعاون بين الكائنات. \\
+الحزمة & طبقات العرض والتحكم والأعمال والوصول إلى المعطيات والتدويل والإعداد وخدمات الويب. \\
+المكوّن & المكوّنات التطبيقية (تطبيق ويب، خدمة OAuth، خدمة API، وحدة i18n، وحدة الإعداد، قاعدة المعطيات). \\
+النشر & التوزيع على المتصفّح وخادم تطبيقات J2EE ونظام إدارة قواعد المعطيات وخدمة Google OAuth والمستشعرات. \\
+\bottomrule
+\end{xltabular}
+
+\section{مخطّط الأصناف}
+يصف مخطّط الأصناف، المعروض بمحاذاة أفقية، الكيانات المهنية وخصائصها وطريقة الخدمة
+\texttt{getZummHoneyActualQuantity} والعلاقات بتعدّدياتها.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes}
+\caption{مخطّط أصناف نظام Zümm (محاذاة أفقية).}
+\label{fig:classes}
+\end{figure}
+
+\section{العرض الطبقي (الحزمة)}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
+]
+\node[couche] (p) at (0,4) {العرض: JSP وJavaScript};
+\node[couche] (c) at (0,3) {التحكم: Servlets (MVC)};
+\node[couche] (m) at (0,2) {الأعمال: EJB};
+\node[couche] (d) at (0,1) {الوصول إلى المعطيات: JDBC};
+\node[couche] (b) at (0,0) {قاعدة معطيات علائقية};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,right=3mm of c,xshift=4.7cm] (s) {i18n XML / ConfigZumm.ini / خدمات الويب};
+\draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
+\draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
+\draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
+\draw[-{Latex[length=2mm]},mielfonce] (d)--(b);
+\end{tikzpicture}
+\caption{بنية متعددة الطبقات في طبقات ضعيفة الاقتران.}
+\label{fig:couches}
+\end{figure}
+
+\section{عرض النشر}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  noeud/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=3cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[noeud] (nav) {المتصفّح\\(عميل ويب)};
+\node[noeud,right=1.6cm of nav] (srv) {خادم J2EE\\(Servlets، EJB)};
+\node[noeud,right=1.6cm of srv] (bd) {نظام إدارة\\قواعد معطيات};
+\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,below=1cm of bd] (capt) {مستشعرات\\(الشقّ الآلي)};
+\draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (capt)--(srv);
+\end{tikzpicture}
+\caption{مخطّط نشر النظام.}
+\label{fig:deploiement}
+\end{figure}
+
+\section{مخطّط التسلسل (UC2)}
+يفصّل مخطّط التسلسل أدناه حالة الاستعمال UC2، إنجاز زيارة وملء التقرير. يُظهر
+المرور عبر الطبقات (العون، الواجهة، servlet، EJB، قاعدة المعطيات) إضافةً إلى
+الحالتين المتّصلة وغير المتّصلة مع مزامنة مؤجّلة.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{diagramme_sequence_uc2}
+\caption{مخطّط تسلسل حالة الاستعمال UC2 (إنجاز زيارة).}
+\label{fig:sequence-uc2}
+\end{figure}
+
+\section{تسلسل المصادقة (Google OAuth)}
+يتّبع مسار المصادقة تدفّق \emph{Authorization Code} لـ OAuth~2.0. لا ينقل
+المتصفّح أبدًا السرّ الخاص بالعميل: يتمّ تبادل رمز التفويض بالرمز المميّز للوصول
+\textbf{من خادم إلى خادم}، عبر قناة SSL مُوثَّقة بشهادة X.509. تُفتَح جلسة
+التطبيق بعد ذلك بواسطة كعكة آمنة (\texttt{HttpOnly}، \texttt{Secure})، ويُربَط
+الملف الذي تُرجعه Google بعون \texttt{Agent} موجود (أو يُنشئ واحدًا في انتظار
+التأهيل). في العرض، يُتوقَّع تراجع إلى مصادقة محلية عند عدم توفّر المزوّد.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  msg/.style={-{Latex[length=1.6mm]},mielfonce,thick},
+  rmsg/.style={-{Latex[length=1.6mm]},mielfonce,thick,dashed}
+]
+\foreach \x/\name in {0/{العون (المتصفّح)}, 6/{خادم Zümm}, 12/{Google OAuth}}{
+  \node[draw=mielfonce,fill=grisdoux,thick,align=center,minimum height=7mm,inner xsep=6pt] at (\x,0) {\name};
+  \draw[mielfonce,dashed] (\x,-0.45) -- (\x,-9.9);
+}
+\draw[msg]  (0,-1.0) -- (6,-1.0)  node[midway,above]{1. الوصول إلى صفحة محمية};
+\draw[rmsg] (6,-1.7) -- (0,-1.7)  node[midway,above]{2. 302: إعادة توجيه (client\_id، scope، state)};
+\draw[msg]  (0,-2.4) -- (12,-2.4) node[midway,above]{3. المصادقة + الموافقة};
+\draw[rmsg] (12,-3.1) -- (0,-3.1) node[midway,above]{4. 302: إعادة توجيه + code + state};
+\draw[msg]  (0,-3.8) -- (6,-3.8)  node[midway,above]{5. GET /callback (code، state)};
+\draw[msg]  (6,-4.5) -- (12,-4.5) node[midway,above]{6. POST /token (code، secret) --- SSL / X.509};
+\draw[rmsg] (12,-5.2) -- (6,-5.2) node[midway,above]{7. access\_token + id\_token (JWT)};
+\draw[msg]  (6,-5.9) -- (12,-5.9) node[midway,above]{8. GET /userinfo (access\_token)};
+\draw[rmsg] (12,-6.6) -- (6,-6.6) node[midway,above]{9. الملف (email، الاسم)};
+\node[draw=mielfonce,fill=miel!12,thick,align=center,inner sep=3pt] at (6,-7.5)
+  {10. التحقّق من \texttt{state}، ربط العون،\\فتح الجلسة (RBAC)};
+\draw[rmsg] (6,-8.6) -- (0,-8.6) node[midway,above]{11. 302: التطبيق + كعكة جلسة آمنة};
+\end{tikzpicture}
+\caption{تسلسل مصادقة OAuth~2.0 (Authorization Code) مع Google.}
+\label{fig:seq-oauth}
+\end{figure}
+
+\section{مخطّط الكائنات}
+يعرض مخطّط الكائنات لقطة لموقع يستضيف ثلاث خلايا، مع تفصيل تركيب خلية إلى جسم
+وعاسلة وإطارات.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_objets}
+\caption{مخطّط الكائنات، لقطة لموقع تربية نحل.}
+\label{fig:objets}
+\end{figure}
+
+\section{مخطّط النشاط}
+يُنمذج مخطّط النشاط سيرورة تخطيط زيارة والمصادقة عليها وإنجازها، مع البديلين
+المتّصل وغير المتّصل.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_activite}
+\caption{مخطّط نشاط سيرورة الزيارة.}
+\label{fig:activite}
+\end{figure}
+
+\section{مخطّط آلة الحالات}
+يصف مخطّط آلة الحالات دورة حياة خلية، من إنشائها إلى إغلاقها.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_etat}
+\caption{آلة حالات دورة حياة خلية.}
+\label{fig:etat}
+\end{figure}
+
+\section{مخطّط التعاون}
+يستعيد مخطّط التعاون سيناريو UC2 في شكل رسائل مرقّمة مُتبادَلة بين الكائنات.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_collaboration}
+\caption{مخطّط تعاون حالة الاستعمال UC2.}
+\label{fig:collaboration}
+\end{figure}
+
+\section{مخطّط المكوّنات}
+يُظهر مخطّط المكوّنات تنظيم المكوّنات التطبيقية وواجهاتها وتبعياتها، ومنها واجهة
+الخدمة التي تعرض كمية العسل.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_composant}
+\caption{مخطّط مكوّنات نظام Zümm.}
+\label{fig:composant}
+\end{figure}

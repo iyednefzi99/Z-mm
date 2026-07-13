@@ -8,7 +8,8 @@
 (🐝 gestion manuelle des opérations, 📅 planification des visites, 📊 tableaux de bord,
 🔔 alertes) avec préparation d'un volet capteurs / supervision automatisée. 📡
 
-📦 Ce dépôt contient, à ce stade, le **cahier des charges** et le **dossier de
+📦 Ce dépôt contient, à ce stade, le **cahier des charges** — décliné en
+**trois langues** (🇫🇷 français · 🇬🇧 anglais · 🇸🇦 arabe) — et le **dossier de
 conception** (documentation LaTeX + diagrammes UML). 🚧 Le code applicatif reste à
 développer.
 
@@ -17,31 +18,27 @@ développer.
 ```
 🐝 Zümm/
 ├── 🎨 assets/logo/                      # Logos Zümm (principal, icône, monochrome, brandsheet)
-├── 📂 cahier de charge/
-│   ├── 📘 cahier_des_charges.tex        # Préambule + \input des chapitres et annexes
+├── 📂 cahier de charge/                 # Cahier des charges trilingue (🇫🇷 🇬🇧 🇸🇦)
 │   ├── 📖 README.md                     # Ce fichier
-│   ├── 📂 chapitres/                     # Un dossier par chapitre
-│   │   ├── 01-contexte/ … 05-dictionnaire/   (📄 .tex)
-│   │   ├── 06-cas-utilisation/          (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   ├── 07-conception/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   ├── 08-contraintes/ … 11-tests/       (📄 .tex)
-│   │   ├── 12-referentiel/              (📄 .tex · 🖼️ images/)
-│   │   └── 13-glossaire/ · 14-references/    (📄 .tex)
-│   ├── 📂 annexes/
-│   │   ├── A-structure-ruche/           (📄 .tex · 🖼️ images/)
-│   │   ├── B-technologies/ · C-migration/    (📄 .tex)
-│   │   ├── D-solid-patterns/            (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   ├── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   ├── F-intelligence-artificielle/ (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   └── G-securite/                   (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   └── 📕 cahier_des_charges.pdf        # Document compilé (livrable)
+│   ├── 🇫🇷 fr/                          # Version française — SOURCE (texte + figures partagées)
+│   │   ├── 📘 cahier_des_charges_fr.tex # pdflatex → cahier_des_charges_fr.pdf
+│   │   ├── 📂 chapitres/                # 01-contexte … 14-references (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   └── 📂 annexes/                  # A-structure-ruche … G-securite
+│   ├── 🇬🇧 en/                          # English — pdflatex → cahier_des_charges_en.pdf
+│   │   ├── 📘 cahier_des_charges_en.tex
+│   │   └── 📂 chapitres/ + annexes/     # Traductions (figures réutilisées depuis fr/)
+│   └── 🇸🇦 ar/                          # العربية — xelatex, RTL → cahier_des_charges_ar.pdf
+│       ├── 📘 cahier_des_charges_ar.tex
+│       └── 📂 chapitres/ + annexes/     # ترجمة (نفس الرسوم من fr/)
 ├── 🎨 design/                           # Charte de design (DESIGN.md FR/EN/AR + README)
 └── 🙈 .gitignore
 ```
 
-> 💡 Chaque dossier de chapitre/annexe contient son `.tex`, ses `images/` (PNG) et,
-> le cas échéant, ses `diagrammes/` (sources `.puml`). Les chapitres sans figure
-> n'ont qu'un `.tex`.
+> 💡 Les **figures** (diagrammes UML en PNG et images) vivent dans `fr/` et sont
+> **partagées** par les trois langues (`en/` et `ar/` y pointent via `graphicspath`) :
+> le texte des figures reste donc en français, seuls les libellés TikZ et les
+> légendes sont traduits. Chaque dossier de chapitre/annexe contient son `.tex`,
+> ses `images/` (PNG) et, le cas échéant, ses `diagrammes/` (sources `.puml`).
 
 ## 📚 Contenu du dossier
 
@@ -81,16 +78,24 @@ front-end, pas du code.
   d'objets, de cas d'utilisation et le MLD (le moteur Smetana intégré ne suffit
   pas pour ces diagrammes).
 
-## 📄 Compiler le document
+## 📄 Compiler les documents
+
+Chaque langue se compile depuis son propre dossier :
 
 ```bash
-cd "cahier de charge"
-latexmk -pdf cahier_des_charges.tex
+cd "cahier de charge/fr" && latexmk -pdf cahier_des_charges_fr.tex           # 🇫🇷 français (pdflatex)
+cd "cahier de charge/en" && latexmk -pdf cahier_des_charges_en.tex           # 🇬🇧 anglais  (pdflatex)
+cd "cahier de charge/ar" && latexmk -pdf -xelatex cahier_des_charges_ar.tex  # 🇸🇦 arabe    (XeLaTeX, RTL)
 ```
+
+> 💡 La version **arabe** nécessite **XeLaTeX** (RTL via `polyglossia` / `bidi` +
+> police *Traditional Arabic*) ; le français et l'anglais utilisent **pdflatex**.
+> Les identifiants de code et d'API (SQL, `getZummHoneyActualQuantity`,
+> `ConfigZumm.ini`, noms de classes) restent identiques dans les trois langues.
 
 ## 🔄 Régénérer les diagrammes
 
-Depuis `cahier de charge/`, avec Graphviz installé (ou `GRAPHVIZ_DOT` pointant
+Depuis `cahier de charge/fr/`, avec Graphviz installé (ou `GRAPHVIZ_DOT` pointant
 sur `dot`). Chaque `.puml` est régénéré vers le dossier `images/` voisin :
 
 ```bash

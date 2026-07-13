@@ -1,0 +1,193 @@
+%==============================================================================
+%  كراس الشروط - Zümm
+%  نظام إدارة ومتابعة تربية النحل
+%  بنية مطابقة لمنهجية Manager-GO
+%  المحرك : XeLaTeX (كتابة من اليمين إلى اليسار)
+%==============================================================================
+\documentclass[11pt,a4paper]{report}
+
+% ---------- الخط واللغة (XeLaTeX + polyglossia) -------------------------------
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{arabic}
+\setotherlanguage{english}
+\newfontfamily\arabicfont[Script=Arabic,ItalicFont={Traditional Arabic},BoldItalicFont={Traditional Arabic},AutoFakeSlant=0]{Traditional Arabic}
+\newfontfamily\arabicfonttt[Script=Arabic]{Traditional Arabic}
+\newfontfamily\arabicfontsf[Script=Arabic]{Traditional Arabic}
+\newfontfamily\englishfont{Latin Modern Roman}
+\usepackage{amsmath}
+
+% ---------- تنسيق الصفحة ------------------------------------------------------
+\usepackage[a4paper,margin=2cm,headheight=26pt,headsep=12pt,footskip=26pt]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{parskip}
+
+% ---------- الجداول والقوائم --------------------------------------------------
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=1.4em,rightmargin=1.4em}
+
+% ---------- الألوان والنمط ----------------------------------------------------
+\usepackage{xcolor}
+\definecolor{miel}{HTML}{D4A017}
+\definecolor{mielfonce}{HTML}{B8860B}
+\definecolor{grisdoux}{HTML}{F3F2EE}
+\definecolor{bleunuit}{HTML}{1C1C1C}
+
+% ---------- العناوين ----------------------------------------------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{mielfonce}}
+  {\filright\Large\color{miel}\chaptertitlename\ \thechapter}{10pt}{\Huge}
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{bleunuit}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{mielfonce}}{\thesubsection}{1em}{}
+
+% ---------- الترويسة والتذييل -------------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\textcolor{mielfonce}{\textbf{Zümm}}}
+\fancyhead[L]{\small\textcolor{mielfonce}{كراس الشروط}}
+\fancyfoot[R]{\small\textcolor{bleunuit}{مشروع مصغّر J2EE}}
+\fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}
+\fancyfoot[L]{\small\textcolor{bleunuit}{\today}}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \footrulewidth\hfill}}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[R]{\small\textcolor{bleunuit}{مشروع مصغّر J2EE}}%
+  \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}%
+  \fancyfoot[L]{\small\textcolor{bleunuit}{\today}}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0.4pt}%
+}
+
+% ---------- الروابط -----------------------------------------------------------
+\usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
+
+% ---------- الإطار (القيود / الملاحظات) ---------------------------------------
+\usepackage{mdframed}
+\newmdenv[
+  linecolor=miel,linewidth=1pt,
+  backgroundcolor=grisdoux,
+  roundcorner=4pt,
+  innertopmargin=6pt,innerbottommargin=6pt,
+  innerleftmargin=8pt,innerrightmargin=8pt
+]{encadre}
+
+% ---------- الصور (مشتركة مع النسخة الفرنسية) ---------------------------------
+\usepackage{graphicx}
+\graphicspath{%
+  {../../assets/logo/}%
+  {../fr/chapitres/06-cas-utilisation/images/}%
+  {../fr/chapitres/07-conception/images/}%
+  {../fr/chapitres/12-referentiel/images/}%
+  {../fr/annexes/A-structure-ruche/images/}%
+  {../fr/annexes/D-solid-patterns/images/}%
+  {../fr/annexes/E-complements/images/}%
+  {../fr/annexes/F-intelligence-artificielle/images/}%
+  {../fr/annexes/G-securite/images/}%
+}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric,fit}
+\usepackage{caption}
+\captionsetup{font=small,labelfont={bf,color=mielfonce},labelsep=period}
+
+% عمود بعرض ثابت وتوسيط
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+% السهم « → » غير موجود في خط Traditional Arabic : نستعمل سهم الرياضيات
+\renewcommand{\textrightarrow}{\ensuremath{\rightarrow}}
+
+%==============================================================================
+\begin{document}
+
+% ------------------------------- صفحة الغلاف --------------------------------
+\pagenumbering{roman}
+\begin{titlepage}
+\centering
+\vspace*{1.0cm}
+\includegraphics[width=4.5cm]{zumm-logo}\\[0.6cm]
+{\color{miel}\rule{\linewidth}{2pt}}\\[0.4cm]
+{\Huge\bfseries\color{mielfonce} كراس الشروط}\\[0.3cm]
+{\LARGE\color{bleunuit} \textenglish{Zümm}}\\[0.2cm]
+{\large\itshape نظام إدارة ومتابعة تربية النحل}\\[0.4cm]
+{\color{miel}\rule{\linewidth}{2pt}}\\[1.2cm]
+
+\begin{tabular}{@{}>{\bfseries\color{mielfonce}}r l@{}}
+المشروع    & تطبيق لإدارة تربية النحل (مشروع مصغّر \textenglish{J2EE})\\[4pt]
+النوع      & كراس شروط وظيفي وتقني\\[4pt]
+الإصدار    & 1.0\\[4pt]
+التاريخ    & \today\\[4pt]
+المنهجية   & \textenglish{Manager-GO} --- إعداد كراس شروط\\
+\end{tabular}
+
+\vfill
+{\large\bfseries خلية متصلة ولوحات قيادة للأداء}\\[0.3cm]
+{\small وثيقة مطابقة للمخطط النموذجي: السياق / الأهداف / النطاق /\\
+الوصف الوظيفي للحاجيات / الميزانية / الآجال}
+\vspace{1cm}
+\end{titlepage}
+
+\pagenumbering{arabic}
+
+% ------------------------------- الفهرس -------------------------------------
+\tableofcontents
+\thispagestyle{fancy}
+\clearpage
+
+\section*{سجل الإصدارات}
+\addcontentsline{toc}{chapter}{سجل الإصدارات}
+\begin{center}
+\begin{tabular}{ccp{3cm}p{6.5cm}}
+\toprule
+\textbf{الإصدار} & \textbf{التاريخ} & \textbf{المؤلف} & \textbf{التعديلات} \\
+\midrule
+0.1 & \today & فريق المشروع & الهيكلة الأولية ونقل الموضوع. \\
+0.5 & \today & فريق المشروع & المرجعية المهنية لتربية النحل والرسوم التوضيحية. \\
+1.0 & \today & فريق المشروع & وظائف السوق ومتطلبات تفادي العيوب وقاموس المعطيات وحالات الاستعمال والتصميم \textenglish{UML} وخطة الاختبارات. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\clearpage
+
+%==============================================================================
+%  الفصول
+%==============================================================================
+\input{chapitres/01-contexte/contexte}
+\input{chapitres/02-objectifs/objectifs}
+\input{chapitres/03-perimetre/perimetre}
+\input{chapitres/04-description/description}
+\input{chapitres/05-dictionnaire/dictionnaire}
+\input{chapitres/06-cas-utilisation/cas-utilisation}
+\input{chapitres/07-conception/conception}
+\input{chapitres/08-contraintes/contraintes}
+\input{chapitres/09-budget/budget}
+\input{chapitres/10-delais/delais}
+\input{chapitres/11-tests/tests}
+\input{chapitres/12-referentiel/referentiel}
+
+%==============================================================================
+%  الملاحق
+%==============================================================================
+\appendix
+\input{annexes/A-structure-ruche/structure-ruche}
+\input{chapitres/13-glossaire/glossaire}
+\input{chapitres/14-references/references}
+\input{annexes/B-technologies/technologies}
+\input{annexes/C-migration/migration}
+\input{annexes/D-solid-patterns/solid-patterns}
+\input{annexes/E-complements/complements}
+\input{annexes/F-intelligence-artificielle/intelligence-artificielle}
+\input{annexes/G-securite/securite}
+
+\end{document}

@@ -1,0 +1,58 @@
+%==============================================================================
+\chapter{Detailed use cases}
+%==============================================================================
+This part describes how the system carries out the users' operations. The actors
+are the farmer, the beekeeping agent, the supervising agent, the manager, the
+administrator and the third-party applications.
+
+The overall use-case diagram (figure \ref{fig:uc}) presents all the actors, the
+generalisation of the supervising agent from the beekeeping agent, as well as
+all the dependencies between cases (include and extend relationships).
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_cas_utilisation}
+\caption{Overall use-case diagram with actors and dependencies (include and extend).}
+\label{fig:uc}
+\end{figure}
+
+\section{UC1: Plan and approve a visit}
+\begin{itemize}
+  \item \textbf{Actor}: supervising agent.
+  \item \textbf{Preconditions}: the hive exists and the agent is authenticated.
+  \item \textbf{Main scenario}: the agent proposes a visit date, the supervisor reviews the schedule then approves, the system records the approved status.
+  \item \textbf{Alternatives}: the supervisor refuses and requests a new date.
+  \item \textbf{Postcondition}: the visit is scheduled and visible in the calendar.
+\end{itemize}
+
+\section{UC2: Carry out a visit and fill in the report}
+\begin{itemize}
+  \item \textbf{Actor}: beekeeping agent responsible for the hive.
+  \item \textbf{Preconditions}: a visit is planned and approved.
+  \item \textbf{Main scenario}: the agent enters date, time, duration, reason, findings, planned and carried-out actions, recommendations, then assesses the population, the health status and the productivity from 1 to 3.
+  \item \textbf{Alternatives}: offline entry then deferred synchronisation, adding photos.
+  \item \textbf{Postcondition}: the report is saved and the calendar cell switches to the carried-out status.
+\end{itemize}
+
+\section{UC3: View the production dashboard}
+\begin{itemize}
+  \item \textbf{Actor}: farmer or owner.
+  \item \textbf{Preconditions}: production measurements exist.
+  \item \textbf{Main scenario}: the farmer filters by farm, site and period, the system displays the hives whose production exceeds the threshold and proposes harvest or extension.
+  \item \textbf{Postcondition}: the farmer decides on an operation.
+\end{itemize}
+
+\section{UC4: Handle a health alert}
+\begin{itemize}
+  \item \textbf{Actor}: manager.
+  \item \textbf{Preconditions}: an abnormal drop has been detected.
+  \item \textbf{Main scenario}: the system flags the hive concerned, the manager plans an imminent inspection.
+  \item \textbf{Postcondition}: an inspection visit is scheduled.
+\end{itemize}
+
+\section{UC5: Query the honey quantity via the API}
+\begin{itemize}
+  \item \textbf{Actor}: third-party application (Excel or other).
+  \item \textbf{Preconditions}: the application has secure access to the web service.
+  \item \textbf{Main scenario}: the application calls \texttt{getZummHoneyActualQuantity(zummID)}, the service computes and returns the honey quantity.
+  \item \textbf{Postcondition}: the value is returned in the XML web-service format.
+\end{itemize}

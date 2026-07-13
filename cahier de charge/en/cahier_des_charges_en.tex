@@ -1,25 +1,25 @@
 %==============================================================================
-%  CAHIER DES CHARGES - Zümm
-%  Système de gestion et de suivi apicole
-%  Structure conforme à la méthode Manager-GO
-%  (Contexte / Objectifs / Perimetre / Besoins fonctionnels / Budget / Delais)
+%  REQUIREMENTS SPECIFICATION - Zümm
+%  Beekeeping Management and Monitoring System
+%  Structure based on the Manager-GO method
+%  (Context / Objectives / Scope / Functional needs / Budget / Schedule)
 %==============================================================================
 \documentclass[11pt,a4paper]{report}
 
-% ---------- Encodage & langue -------------------------------------------------
+% ---------- Encoding & language ----------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[french]{babel}
+\usepackage[english]{babel}
 \usepackage{lmodern}
 \usepackage{amsmath}
 
-% ---------- Mise en page ------------------------------------------------------
+% ---------- Page layout -------------------------------------------------------
 \usepackage[a4paper,margin=2cm,headheight=26pt,headsep=12pt,footskip=26pt]{geometry}
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{parskip}
 
-% ---------- Tableaux & listes -------------------------------------------------
+% ---------- Tables & lists ----------------------------------------------------
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{booktabs}
@@ -28,15 +28,15 @@
 \usepackage{enumitem}
 \setlist{nosep,leftmargin=1.4em}
 
-% ---------- Couleurs & style --------------------------------------------------
+% ---------- Colours & style ---------------------------------------------------
 \usepackage{xcolor}
-% ---- Charte "Miel & noir elegant" -------------------------------------------
-\definecolor{miel}{HTML}{D4A017}      % or (accents)
-\definecolor{mielfonce}{HTML}{B8860B} % or foncé (titres)
-\definecolor{grisdoux}{HTML}{F3F2EE}  % gris clair (fond doux)
-\definecolor{bleunuit}{HTML}{1C1C1C}  % anthracite (secondaire)
+% ---- "Honey & elegant black" palette ----------------------------------------
+\definecolor{miel}{HTML}{D4A017}      % gold (accents)
+\definecolor{mielfonce}{HTML}{B8860B} % dark gold (headings)
+\definecolor{grisdoux}{HTML}{F3F2EE}  % light grey (soft background)
+\definecolor{bleunuit}{HTML}{1C1C1C}  % anthracite (secondary)
 
-% ---------- Titres ------------------------------------------------------------
+% ---------- Headings ----------------------------------------------------------
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
   {\normalfont\huge\bfseries\color{mielfonce}}
@@ -46,13 +46,13 @@
 \titleformat{\subsection}
   {\normalfont\large\bfseries\color{mielfonce}}{\thesubsection}{1em}{}
 
-% ---------- En-têtes / pieds --------------------------------------------------
+% ---------- Headers / footers -------------------------------------------------
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[L]{\small\textcolor{mielfonce}{\textbf{Zümm}}}
-\fancyhead[R]{\small\textcolor{mielfonce}{Cahier des charges}}
-\fancyfoot[L]{\small\textcolor{bleunuit}{Mini-projet J2EE}}
+\fancyhead[R]{\small\textcolor{mielfonce}{Requirements Specification}}
+\fancyfoot[L]{\small\textcolor{bleunuit}{J2EE mini-project}}
 \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}
 \fancyfoot[R]{\small\textcolor{bleunuit}{\today}}
 \renewcommand{\headrulewidth}{0.6pt}
@@ -61,17 +61,17 @@
 \renewcommand{\footrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \footrulewidth\hfill}}
 \fancypagestyle{plain}{%
   \fancyhf{}%
-  \fancyfoot[L]{\small\textcolor{bleunuit}{Mini-projet J2EE}}%
+  \fancyfoot[L]{\small\textcolor{bleunuit}{J2EE mini-project}}%
   \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}%
   \fancyfoot[R]{\small\textcolor{bleunuit}{\today}}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0.4pt}%
 }
 
-% ---------- Liens -------------------------------------------------------------
+% ---------- Links -------------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
 
-% ---------- Environnement encadré (contraintes/notes) -------------------------
+% ---------- Framed environment (constraints/notes) ----------------------------
 \usepackage{mdframed}
 \newmdenv[
   linecolor=miel,linewidth=1pt,
@@ -81,84 +81,81 @@
   innerleftmargin=8pt,innerrightmargin=8pt
 ]{encadre}
 
-% ---------- Figures & images -------------------------------------------------
+% ---------- Figures & images (shared with the French version) ----------------
 \usepackage{graphicx}
 \graphicspath{%
-  {../assets/logo/}%
-  {chapitres/06-cas-utilisation/images/}%
-  {chapitres/07-conception/images/}%
-  {chapitres/12-referentiel/images/}%
-  {annexes/A-structure-ruche/images/}%
-  {annexes/D-solid-patterns/images/}%
-  {annexes/E-complements/images/}%
-  {annexes/F-intelligence-artificielle/images/}%
+  {../../assets/logo/}%
+  {../fr/chapitres/06-cas-utilisation/images/}%
+  {../fr/chapitres/07-conception/images/}%
+  {../fr/chapitres/12-referentiel/images/}%
+  {../fr/annexes/A-structure-ruche/images/}%
+  {../fr/annexes/D-solid-patterns/images/}%
+  {../fr/annexes/E-complements/images/}%
+  {../fr/annexes/F-intelligence-artificielle/images/}%
+  {../fr/annexes/G-securite/images/}%
 }
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric,fit}
 \usepackage{caption}
 \captionsetup{font=small,labelfont={bf,color=mielfonce},labelsep=period}
 
-% Colonne largeur fixe centrée
+% Fixed-width centred column
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 %==============================================================================
 \begin{document}
 
-% ------------------------------- PAGE DE GARDE -------------------------------
-% Page de garde numérotée en romain (invisible) pour éviter la collision de
-% destination hyperref « page.1 » avec la première page arabe.
+% ------------------------------- TITLE PAGE ---------------------------------
 \pagenumbering{roman}
 \begin{titlepage}
 \centering
 \vspace*{1.0cm}
 \includegraphics[width=4.5cm]{zumm-logo}\\[0.6cm]
 {\color{miel}\rule{\linewidth}{2pt}}\\[0.4cm]
-{\Huge\bfseries\color{mielfonce} CAHIER DES CHARGES}\\[0.3cm]
+{\Huge\bfseries\color{mielfonce} REQUIREMENTS SPECIFICATION}\\[0.3cm]
 {\LARGE\color{bleunuit} Zümm}\\[0.2cm]
-{\large\itshape Système de gestion et de suivi apicole}\\[0.4cm]
+{\large\itshape Beekeeping Management and Monitoring System}\\[0.4cm]
 {\color{miel}\rule{\linewidth}{2pt}}\\[1.2cm]
 
 \begin{tabular}{@{}>{\bfseries\color{mielfonce}}r l@{}}
-Projet        & Application de gestion apicole (mini-projet J2EE)\\[4pt]
-Type          & Cahier des charges fonctionnel et technique\\[4pt]
-Version       & 1.0\\[4pt]
-Date          & \today\\[4pt]
-Méthode       & Manager-GO - Élaboration d'un CdC\\
+Project & Beekeeping management application (J2EE mini-project)\\[4pt]
+Type    & Functional and technical requirements specification\\[4pt]
+Version & 1.0\\[4pt]
+Date    & \today\\[4pt]
+Method  & Manager-GO -- Drawing up a requirements specification\\
 \end{tabular}
 
 \vfill
-{\large\bfseries Ruche connectée \& tableaux de bord de performance}\\[0.3cm]
-{\small Document conforme au plan type : Contexte / Objectifs / Périmètre /\\
-Description fonctionnelle des besoins / Enveloppe budgétaire / Délais}
+{\large\bfseries Connected hive \& performance dashboards}\\[0.3cm]
+{\small Document following the standard outline: Context / Objectives / Scope /\\
+Functional description of needs / Budget envelope / Schedule}
 \vspace{1cm}
 \end{titlepage}
 
-% Retour à la numérotation arabe : le sommaire et le contenu conservent
-% exactement les mêmes numéros de page qu'auparavant.
 \pagenumbering{arabic}
 
-% ------------------------------- SOMMAIRE -----------------------------------
+% ------------------------------- CONTENTS -----------------------------------
 \tableofcontents
 \thispagestyle{fancy}
 \clearpage
 
-\section*{Historique des versions}
-\addcontentsline{toc}{chapter}{Historique des versions}
+\section*{Version history}
+\addcontentsline{toc}{chapter}{Version history}
 \begin{center}
 \begin{tabular}{ccp{3cm}p{6.5cm}}
 \toprule
-\textbf{Version} & \textbf{Date} & \textbf{Auteur} & \textbf{Modifications} \\
+\textbf{Version} & \textbf{Date} & \textbf{Author} & \textbf{Changes} \\
 \midrule
-0.1 & \today & Équipe projet & Structure initiale et transcription du sujet. \\
-0.5 & \today & Équipe projet & Référentiel métier apicole et illustrations. \\
-1.0 & \today & Équipe projet & Fonctionnalités du marché, exigences anti-défaut, dictionnaire de données, cas d'utilisation, conception UML et plan de tests. \\
+0.1 & \today & Project team & Initial structure and transcription of the brief. \\
+0.5 & \today & Project team & Beekeeping domain reference and illustrations. \\
+1.0 & \today & Project team & Market features, defect-prevention requirements, data dictionary, use cases, UML design and test plan. \\
 \bottomrule
 \end{tabular}
 \end{center}
 \clearpage
 
 %==============================================================================
-%  CHAPITRES
+%  CHAPTERS
 %==============================================================================
 \input{chapitres/01-contexte/contexte}
 \input{chapitres/02-objectifs/objectifs}
@@ -174,7 +171,7 @@ Description fonctionnelle des besoins / Enveloppe budgétaire / Délais}
 \input{chapitres/12-referentiel/referentiel}
 
 %==============================================================================
-%  ANNEXES
+%  APPENDICES
 %==============================================================================
 \appendix
 \input{annexes/A-structure-ruche/structure-ruche}
@@ -185,5 +182,6 @@ Description fonctionnelle des besoins / Enveloppe budgétaire / Délais}
 \input{annexes/D-solid-patterns/solid-patterns}
 \input{annexes/E-complements/complements}
 \input{annexes/F-intelligence-artificielle/intelligence-artificielle}
+\input{annexes/G-securite/securite}
 
 \end{document}

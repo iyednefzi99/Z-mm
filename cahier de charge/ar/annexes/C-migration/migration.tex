@@ -1,0 +1,150 @@
+%==============================================================================
+%  ملحق - الخيار التقني: الامتثال الأكاديمي ورؤية السوق
+%==============================================================================
+
+%==============================================================================
+\chapter{ملحق --- الخيار التقني: أكاديمي ورؤية السوق}
+\label{chap:migration}
+%==============================================================================
+يجيب هذا الملحق عن مسألة \emph{لماذا} و\emph{كيف} لغة التطوير. يقارن الأساس
+\textbf{J2EE} المفروض في كراس الشروط هذا بمنظومة \textbf{Spring Boot}، التي
+أصبحت معيار تطوير Java المؤسّسي، ويوثّق مسيرة تحديث دون تغيير اللغة.
+
+\section{التموضع}
+يُنفَّذ نظام \textbf{Zümm} بـ \textbf{J2EE (Java EE)} وفق المتطلبات التقنية
+(الفصل~\ref{chap:conception} وشبكة التقييم): MVC، Servlets، JSP، EJB، JDBC،
+تدويل مُخرَج، خدمات ويب آمنة (OAuth، X.509 / SSL) وواجهة برمجية قابلة للاستجواب
+من تطبيقات خارجية. يجسّد هذا الأساس الكفاءات الجوهرية لمسار DSI: إتقان طبقات نظام
+المعلومات، وفصل المسؤوليات، والتشغيل البيني.
+
+\begin{encadre}
+\textbf{ملاحظة السوق:} تُعتبر لبنات Java EE التاريخية (JSP، Servlets «العارية»
+وEJB) اليوم \emph{موروثة (legacy)}. تُفضّل التوظيفات على أنظمة المعلومات الجديدة
+بأغلبية كبيرة منظومة \textbf{Spring Boot}. يحافظ هذا الملحق على لغة \textbf{Java}
+ويُبرهن، تقنيةً تقنيةً، على المكافئ الحديث لكل متطلب.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{جدول التقابل: النواة التقنية}
+%------------------------------------------------------------------------------
+يضع الجدول التالي كل تقنية مفروضة (ومُقيَّمة) في مقابل مكافئها في Spring Boot،
+إضافةً إلى الطبيعة الملموسة للتغيير.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} p{3.4cm} X}
+\toprule
+\textbf{J2EE (مفروض)} & \textbf{Spring Boot} & \textbf{ما يتغيّر فعليًا} \\
+\midrule
+\endhead
+MVC (يدوي) & Spring MVC (\texttt{@Controller}، \texttt{@RequestMapping}) & يبقى النمط، ويصبح التوجيه تصريحيًا بالتعليقات التوضيحية بدل \texttt{web.xml}. \\
+Servlet (\texttt{HttpServlet}، \texttt{doGet/doPost}) & \texttt{@RestController} / \texttt{@Controller} & لا مزيد من \texttt{extends HttpServlet}: طريقة مُعلَّقة واحدة = نقطة نهاية. يُنسّق \texttt{DispatcherServlet} في الخلفية. \\
+JSP (العرض) & Thymeleaf (خادمي) أو React / Angular (SPA) & قوْلبة حديثة دون scriptlets من Java. لأثر سوق قوي، واجهة REST + أمامية مفصولة. \\
+EJB (\texttt{@Stateless}، حاوية EJB) & Spring \texttt{@Service} / \texttt{@Component} & الدور نفسه (منطق الأعمال، الحقن، المعاملات) دون حاوية EJB ثقيلة. يدير \texttt{@Transactional} المعاملات. \\
+JDBC (SQL يدوي، \texttt{ResultSet}) & Spring Data JPA / Hibernate & يحلّ الربط الكائني-العلائقي محلّ SQL اليدوي. يولّد \texttt{JpaRepository} عمليات CRUD (يبقى \texttt{JdbcTemplate} متاحًا). \\
+i18n بملف XML & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & المبدأ نفسه لإخراج النصوص، صيغة \texttt{.properties} معيارية، دائمًا FR / EN / AR. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & ضبط دون إعادة تصريف، قابل للحقن حسب الملف الشخصي. تصبح العتبات والوحدات كائنات مُنمَّطة. \\
+OAuth Google (خدمة ويب XML يدوية) & Spring Security OAuth2 Client & دخول Google بأسطر إعداد قليلة بدل عميل OAuth مكتوب يدويًا، وأكثر أمانًا. \\
+خدمة ويب API XML \texttt{getZummHoneyActualQuantity} & واجهة REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON بدل XML، توثيق مُولَّد تلقائيًا. يبقى XML ممكنًا عبر \texttt{produces = APPLICATION\_XML}. \\
+X.509 / SSL (يدوي) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & تفعيل HTTPS تصريحي، الشهادات X.509 نفسها، إعداد بسيط. \\
+JavaScript (واجهة حرة) & React / Vue / Angular (أو Thymeleaf + JS) & واجهة أمامية مفصولة تستهلك REST، تكافؤ ويب وجوّال مُبسَّط. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{جدول التقابل: البنية التحتية والنشر}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} p{4.5cm} X}
+\toprule
+\textbf{J2EE} & \textbf{Spring Boot} & \textbf{الفائدة} \\
+\midrule
+\endhead
+خادم تطبيقات ثقيل (WildFly، GlassFish، WebLogic) & Tomcat / Jetty مُضمَّن & يُقلِع التطبيق وحده: \texttt{java -jar app.jar}، لا خادم للتثبيت. \\
+تحزيم WAR / EAR & JAR تنفيذي (fat-jar) & أداة واحدة مستقلّة، مثالية للسحابة وDocker. \\
+نشر يدوي على حاوية & Docker + \texttt{docker-compose} & مواءمة DevOps للسوق، تكامل مستمرّ مُيسَّر. \\
+نظام قواعد معطيات علائقي عبر JDBC & PostgreSQL / MySQL عبر JPA + Flyway & مخطّط مُؤرشَف، قابل للاستنساخ بين البيئات. \\
+إدارة تبعيات يدوية (Ant) & Maven / Gradle + Spring Boot Starters & تبعية واحدة = starter واحد (\texttt{-web}، \texttt{-security}، \texttt{-data-jpa}). \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{تقابل الطبقات}
+%------------------------------------------------------------------------------
+العرض الطبقي ضعيف الاقتران المطلوب في الفصل~\ref{chap:conception}
+(الشكل~\ref{fig:couches}) \textbf{محفوظ بالكامل}: لا تختفي أيّ طبقة، تُحدَّث
+المُنفَّذات فقط.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  j2ee/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=5.4cm,minimum height=8mm,font=\footnotesize,align=center},
+  spring/.style={draw=mielfonce,fill=miel!15,thick,minimum width=5.4cm,minimum height=8mm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[font=\small\bfseries,mielfonce] at (0,5) {J2EE (مفروض)};
+\node[font=\small\bfseries,mielfonce] at (7,5) {Spring Boot (الهدف)};
+\node[j2ee] (p1) at (0,4) {العرض: JSP + JavaScript};
+\node[j2ee] (c1) at (0,3) {التحكم: Servlets (MVC)};
+\node[j2ee] (m1) at (0,2) {الأعمال: EJB};
+\node[j2ee] (d1) at (0,1) {الوصول إلى المعطيات: JDBC};
+\node[j2ee] (b1) at (0,0) {قاعدة معطيات علائقية};
+\node[spring] (p2) at (7,4) {@Controller + Thymeleaf / React};
+\node[spring] (c2) at (7,3) {@RestController (Spring MVC)};
+\node[spring] (m2) at (7,2) {@Service (Spring Beans)};
+\node[spring] (d2) at (7,1) {@Repository (Spring Data JPA)};
+\node[spring] (b2) at (7,0) {PostgreSQL / MySQL (دون تغيير)};
+\draw[fl] (p1)--(p2); \draw[fl] (c1)--(c2); \draw[fl] (m1)--(m2);
+\draw[fl] (d1)--(d2); \draw[fl] (b1)--(b2);
+\end{tikzpicture}
+\caption{تقابل الطبقات من J2EE إلى Spring Boot: بنية محفوظة، تنفيذ مُحدَّث.}
+\label{fig:migration-couches}
+\end{figure}
+
+تتبع الوحدات المُستعرِضة المنطق نفسه: XML i18n \textrightarrow{}
+\texttt{MessageSource}، \texttt{ConfigZumm.ini} \textrightarrow{}
+\texttt{application.yml}، خدمة ويب XML \textrightarrow{} واجهة REST + OpenAPI.
+
+%------------------------------------------------------------------------------
+\section{الحجّة: الامتثال الأكاديمي ورؤية السوق}
+%------------------------------------------------------------------------------
+يستند \textbf{Zümm}، وفق كراس الشروط، إلى بنية \textbf{J2EE متعددة الطبقات،
+قابلة للتطوّر، وضعيفة الاقتران}: MVC، Servlets، JSP، EJB، JDBC، تدويل بملف
+مُخرَج، خدمات ويب آمنة (OAuth، X.509 / SSL) وواجهة برمجية قابلة للاستجواب من
+تطبيقات خارجية. اعتُمد هذا الأساس ونُفِّذ \textbf{كما هو مطلوب}، لأنه يشكّل مرجع
+تقييم المشروع ويجسّد الكفاءات الجوهرية لمسار DSI: إتقان طبقات نظام المعلومات،
+وفصل المسؤوليات، والتشغيل البيني.
+
+غير أن تحليلًا \textbf{موجّهًا نحو السوق} يقود إلى ملاحظة مهمة. تُعتبر لبنات
+Java EE التاريخية (JSP، Servlets «العارية» وEJB) اليوم \emph{موروثة}. تُفضّل
+التوظيفات على أنظمة المعلومات الجديدة بأغلبية كبيرة منظومة \textbf{Spring Boot}،
+التي أصبحت المعيار \emph{الفعلي} لتطوير Java المؤسّسي. تجاهل هذا الواقع يعني
+تسليم حلّ مطابق تقنيًا لكنه \textbf{بعيد عن الممارسات المهنية الحالية}.
+
+لذلك اعتمدنا \textbf{مقاربة بمستويي قراءة}، دون مغادرة لغة \textbf{Java} أبدًا،
+ما يضمن استمرارية الكفاءات المُكتسَبة:
+\begin{enumerate}
+  \item \textbf{مستوى الامتثال}: يحترم المُخرَج بالكامل التقنيات المفروضة وشبكة
+        التقييم. تعكس مخطّطات التصميم (تسلسل العون \textrightarrow{} JSP
+        \textrightarrow{} Servlet \textrightarrow{} EJB \textrightarrow{} JDBC،
+        الطبقات، النشر) هذه البنية بأمانة.
+  \item \textbf{مستوى التحديث}: لكل تقنية مفروضة، يُبرهَن على مكافئها في Spring
+        Boot (Servlet \textrightarrow{} \texttt{@RestController}، EJB
+        \textrightarrow{} \texttt{@Service}، JDBC \textrightarrow{} Spring Data
+        JPA، XML i18n \textrightarrow{} \texttt{MessageSource}،
+        \texttt{ConfigZumm.ini} \textrightarrow{} \texttt{application.yml}، خدمة
+        ويب XML \textrightarrow{} واجهة REST + OpenAPI، X.509 / SSL
+        \textrightarrow{} إعداد SSL تصريحي). يُثبت هذا التقابل أن \textbf{البنية
+        الهدف تبقى مطابقة}: يكسب التنفيذ فقط في الإيجاز والأمان وقابلية الصيانة.
+\end{enumerate}
+
+يقدّم هذا الخيار فائدة ثالثة، في تناسق مباشر مع منافذ مسار DSI. يتوقّع كراس
+الشروط \textbf{شقّ مستشعرات وتحليل تنبّئي} (كشف التطريد، معالجة صوتية). يتلاءم هذا
+النموذج طبيعيًا مع \textbf{خدمة مصغّرة بلغة Python} (pandas، scikit-learn)
+مكشوفة للنواة Java عبر REST، مُجسّدًا عمليًا مهنة \textbf{محلّل المعطيات} المذكورة
+في مخطّط الدراسة وانفتاح \textbf{بنية ضعيفة الاقتران} على التغاير التكنولوجي.
+
+\begin{encadre}
+\textbf{الخلاصة:} يُلبّي المشروع تمامًا المتطلبات الأكاديمية (J2EE) مع توثيق
+\textbf{مسيرة تحديثه} (Spring Boot وخدمة مصغّرة للمعطيات). تحوّل هذه القراءة
+المزدوجة قيدًا تربويًا إلى ميزة مهنية: تُبرهن لا على إتقان أساسيات نظام المعلومات
+فحسب، بل أيضًا على القدرة على تطوير بنية نحو المعايير المطلوبة في سوق الشغل لعام
+2026.
+\end{encadre}

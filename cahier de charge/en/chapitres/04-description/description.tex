@@ -1,0 +1,252 @@
+%==============================================================================
+\chapter{Functional description of needs}
+%==============================================================================
+
+\section{Entity management (CRUD)}
+The system must ensure the creation, viewing, modification and deletion of all
+business entities: farmers, farms, sites, hives, bodies/supers, frames, agents,
+visits and reports, in compliance with the management rules stated in
+chapter~3.
+
+\section{Planning and monitoring of visits}
+\begin{itemize}
+  \item Visits are \textbf{regular or irregular}, for various reasons:
+        health inspection, populating with a new swarm, requeening,
+        food replenishment, medication prescription, swarm splitting,
+        adding a frame and/or an extension level, collecting honey frames,
+        production assessment, assessment of the swarm's population and volume.
+  \item Each agent follows a \textbf{visit schedule approved} by the supervising agent of the hive concerned.
+\end{itemize}
+
+\subsection{Visit report}
+Each visit gives rise to a report containing: \textbf{date, time, duration,
+reason, findings, planned actions, actions carried out, recommendations}, a
+qualitative assessment of the swarm's population / volume, its health status and
+its productivity level on a \textbf{scale of 1 to 3}.
+
+\section{Dashboards}
+
+\subsection{Calendar / agents × hives matrix}
+A matrix cross-referencing \textbf{agents and hives}, broken down by month, week,
+season and year, with \textbf{filters} and groupings by site, by agent and by
+responsible agent. Clicking a cell representing a planned visit displays a
+\textbf{pop-up} summarising what is planned (date, time, reason, actions) and, if
+the visit has already been carried out, what was done together with the actual
+date and time.
+
+\subsection{Production dashboard (farmer / owner)}
+Highlights the \textbf{site × hive} pairs whose production (weight) has exceeded
+a \textbf{configurable threshold}, indicating either an imminent honey harvest or
+an extension and/or swarm-splitting operation to encourage colony expansion.
+
+\subsection{Alerts dashboard (manager)}
+Flags the \textbf{site × hive} pairs whose production or population is dropping
+unusually beyond a configurable threshold, triggering an \textbf{alert} and an
+imminent inspection.
+
+\subsection{Summary dashboard (owner)}
+Charts, curves and histograms representing:
+\begin{itemize}
+  \item the quantity produced per farm and per site
+  \item the number of operations per farm, per site and per hive
+  \item the \textbf{return on investment} (cost / production ratio) to decide
+        the fate of each site or hive (closure, relocation).
+\end{itemize}
+
+\section{Performance indicators (automated part: preparation)}
+The measurements are \textbf{time-stamped and geolocated}, expressed in
+\textbf{configurable} units (internationalisation of unit systems). The
+measurements of a single indicator do not necessarily share the same unit, as
+the sensors are heterogeneous. Indicators concerned:
+\begin{itemize}
+  \item weight of the frame, the base and the extension level
+  \item temperature and humidity, inside and outside the hive
+  \item count of bee entry and exit movements
+  \item noise / buzzing level, inside and outside
+  \item light level, inside and outside
+  \item wind speed and direction outside
+  \item hive opening status (operation, storm, theft, animal attack, etc.).
+\end{itemize}
+
+\subsection{Predictive analysis and connected monitoring}
+Connected monitoring solutions (precision beekeeping) such as Arnia,
+BroodMinder or BeeHero show that advanced exploitation of the same indicators
+makes it possible to anticipate colony events. The data model must remain open
+to these processes, planned for the automated part.
+\begin{itemize}
+  \item acoustic detection of swarming 1 to 5 days in advance through analysis of the colony's sound signature
+  \item confirmation of the queen's presence from the buzzing
+  \item detection of opening, shock or tipping of the hive by accelerometer (theft, fall, animal attack), in addition to the opening indicator
+  \item hive orientation by electronic compass
+  \item continuous weighing by scale to track the nectar flow and production dynamics
+  \item cloud-based analysis by artificial intelligence of acoustic signatures to correlate sound and hive activity.
+\end{itemize}
+
+\subsection{Measurement ingestion protocol}
+The automated part remains out of the development scope, but the ingestion
+interface is specified now so that the data model and the architecture
+anticipate it.
+\begin{itemize}
+  \item \textbf{Transport}: a field gateway transmits the measurements to the
+        server, chosen according to connectivity, either by \textbf{REST over
+        HTTPS} (\texttt{POST /api/mesures}) or by \textbf{MQTT} (publishing on
+        the topic \texttt{zumm/\{rucheId\}/\{indicateur\}}).
+  \item \textbf{Format}: \textbf{JSON}, a measurement carrying the hive
+        identifier, the indicator type, the value, the unit, the timestamp and
+        the geolocation. A batch upload is an array of measurements.
+  \item \textbf{Frequency}: configurable per indicator (for example weight
+        every 15 min, temperature every 5 min, acoustics sampled
+        continuously), in order to control the data volume.
+  \item \textbf{Robustness}: \textbf{asynchronous} ingestion via a queue, with
+        \textbf{idempotency} on the key (hive, indicator, timestamp) to replay
+        without duplicates. In a remote area, local buffering on the gateway
+        then deferred synchronisation.
+  \item \textbf{Security}: authenticated gateway (key or certificate), TLS
+        channel. Rejection of values outside the physically plausible range
+        (safeguard).
+\end{itemize}
+\begin{verbatim}
+POST /api/mesures        Content-Type: application/json
+{
+  "rucheId": 42, "typeIndicateur": "TEMPERATURE_INTERNE",
+  "valeur": 34.8, "unite": "degC",
+  "horodatage": "2026-07-09T14:05:00Z",
+  "latitude": 36.806, "longitude": 10.181
+}
+\end{verbatim}
+
+\subsection{Default thresholds and alert logic}
+The thresholds are stored in the \texttt{SEUIL} table (configurable, chapter~5).
+The values below are \textbf{reference default values}, anchored in the
+beekeeping protocol (chapter~12).
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.4cm} X p{4.4cm}}
+\toprule
+\textbf{Indicator} & \textbf{Default threshold} & \textbf{Alert triggered} \\
+\midrule
+\endhead
+Internal temperature (brood) & \textless\,32\,°C or \textgreater\,36\,°C & Thermal risk to the brood \\
+Internal humidity & \textgreater\,80\,\% & Excess humidity, health risk \\
+Weight: super gain & \textgreater\ production threshold & Imminent honey harvest \\
+Weight: sudden drop & \textgreater\,1.5\,kg in less than 1\,h & Swarming, theft, fall or attack \\
+Production or population & Relative drop \textgreater\,20\,\% vs previous period & Imminent health inspection \\
+Entry/exit activity & $\approx$\,0 on a favourable day & Weakened colony or missing queen \\
+Opening status & Open outside a planned visit & Intrusion or disturbance \\
+Acoustic signature & Swarming pattern detected & Swarming pre-alert (1 to 5 days) \\
+\bottomrule
+\end{xltabular}
+\begin{encadre}
+\textbf{Evaluation rule:} at each measurement, the value is converted to the
+reference unit (conversion formula, §5.3), then compared with the configurable
+threshold. To limit \emph{false alerts}, an alert is only raised if the breach
+\textbf{persists over $N$ consecutive measurements} (debounce / hysteresis).
+Any alert remains a \textbf{decision-support aid} confirmed by the visit report:
+the agent keeps the final validation.
+\end{encadre}
+
+\section{Summary grid of functions}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.4cm} X C{2.2cm}}
+\toprule
+\textbf{Function} & \textbf{Description} & \textbf{Priority} \\
+\midrule
+\endhead
+Entity CRUD        & Complete management of the business model                & High \\
+Visit scheduling   & Planning + approval by the supervisor                    & High \\
+Visit reports      & Structured recording of findings and actions             & High \\
+Agents×hives calendar & Filterable matrix with summary pop-up                 & High \\
+Production alerts  & Detection of threshold breaches                          & High \\
+Health alerts      & Detection of abnormal population/production drops         & High \\
+Summary \& ROI     & Cost/production charts, decision support                 & Medium \\
+Sensor indicators  & Data model ready for automation                          & Medium \\
+\midrule
+\multicolumn{3}{l}{\textit{\color{mielfonce} Defect-prevention requirements (drawn from the limits of existing solutions)}} \\
+\midrule
+Autonomous deployment & J2EE installation with no mandatory subscription or third-party service & High \\
+Offline mode & Data entry without connection and deferred synchronisation & High \\
+Simple authentication & Google OAuth and fast field-entry flow & High \\
+Configurable modularity & Enabling modules per profile via ConfigZumm.ini & Medium \\
+Data portability & CSV and TXT export, web-service API and backup, with no lock-in & High \\
+Contextual help & Simple, consistent interface, user guidance & Medium \\
+Web and mobile parity & Same functions on all devices & Medium \\
+Internationalisation & FR, EN and AR XML file, extensible to other languages & High \\
+Hardware openness & Heterogeneous sensors and configurable units & Medium \\
+Asynchronous ingestion & Deferred time-stamped measurements, autonomous manual part & Medium \\
+Human validation & Configurable thresholds and confirmation by the visit report & High \\
+Exchange security & SSL and X.509 certificates, authenticated access & High \\
+Decision support & Indicative alerts, the agent keeps the final validation & Medium \\
+\bottomrule
+\end{xltabular}
+
+\section{Additional features inspired by market solutions}
+In order to strengthen usability and value in use, the system draws on the best
+practices of reference beekeeping applications such as HiveTracks. These
+features extend the needs already described without replacing them.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.1cm}}
+\toprule
+\textbf{Function} & \textbf{Description} & \textbf{Priority} \\
+\midrule
+\endhead
+Inspection photos & Attach one or more photos to each visit report for a visual follow-up of the colony and the frames. & High \\
+Assisted voice entry & Dictate the visit report, the transcription automatically feeding the report fields. & Low \\
+Weather context & Display the local weekly weather from the site location to inform operation decisions. & Medium \\
+Map and foraging radii & Position the hives on a map and draw foraging radii (for example 1, 2 and 3 km, configurable units) to visualise the environment accessible to the bees. & Medium \\
+Task list and reminders & Manage a task list and a reminder calendar (feeding, inspection, queen status) so as not to miss any deadline. & High \\
+Queen tracking & Record the history of the queen's status (presence, age, replacement, marking) across visits. & High \\
+Harvest and QR code & Record honey harvests and generate a QR code per batch presenting the tasting notes, the provenance and the photos, for traceability and valorisation. & Medium \\
+Multi-device access & Offer web access and an experience suited to mobile terminals for field entry. & Medium \\
+\bottomrule
+\end{xltabular}
+\begin{encadre}
+\textbf{Consistency with the requirements:} the foraging radii and the weather
+reuse the geolocation of the sites and the configurable-units mechanism. The
+reminders rely on the existing visit schedule, and the queen tracking enriches
+the visit report already defined.
+\end{encadre}
+
+\section{Advanced management functions (inspiration from Apiary Book and BeePlus)}
+The beekeeping management applications Apiary Book and BeePlus emphasise
+organisation and traceability functions that complement the system's scope.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.1cm}}
+\toprule
+\textbf{Function} & \textbf{Description} & \textbf{Priority} \\
+\midrule
+\endhead
+Offline mode and synchronisation & Enter field data without a connection and synchronise it automatically when the network returns. & High \\
+Treatment tracking & Keep the history of the medications and health treatments applied to each hive. & High \\
+Equipment and inventory management & Track the equipment (bodies, supers, frames, hives) and its allocation to sites. & Medium \\
+Financial tracking & Record costs and revenues per farm, site and hive, in support of the return-on-investment calculation. & Medium \\
+Data export & Export the records in CSV and TXT formats for external analysis. & Medium \\
+Disease detection & Help identify diseases from the visit findings. & Low \\
+Data backup & Back up and restore the data in the cloud. & Medium \\
+\bottomrule
+\end{xltabular}
+\begin{encadre}
+\textbf{Consistency with the requirements:} the financial tracking feeds the
+return-on-investment dashboard, the CSV export extends the web-service API, and
+the treatment tracking enriches the medication-prescription visit reason.
+\end{encadre}
+
+\section{Known limits of existing solutions and requirements to avoid them}
+The analysis of user feedback on market solutions (HiveTracks, Apiary Book,
+BeePlus) and on connected monitoring systems (Arnia, BroodMinder, BeeHero)
+brings out recurring limits. The following table sets each limit against the
+requirement adopted to avoid it in Zümm.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.2cm} X}
+\toprule
+\textbf{Observed limit} & \textbf{Requirement adopted to avoid it} \\
+\midrule
+\endhead
+Paid subscription and paywall & Self-deployable J2EE system, with no mandatory subscription; all management functions remain accessible. \\
+Limited offline operation & Robust offline mode with deferred synchronisation; field entry does not require a permanent connection. \\
+Forced account creation and friction & Simple authentication via Google OAuth and a fast entry flow; usability comes first. \\
+Overload of useless features & Modules enabled per profile and via the ConfigZumm.ini configuration file, thanks to the loosely coupled architecture. \\
+Dependency and data loss & Data controlled by the user, CSV and TXT export, web-service API and backup, with no proprietary lock-in. \\
+Dense interface and learning curve & Simple, consistent and user-friendly interface with contextual help, in line with the usability requirements. \\
+Uneven functions across platforms & Functional parity between web and mobile access thanks to the multi-tier architecture. \\
+English-only solutions & Internationalisation through an XML file, at least FR, EN and AR, open to other languages. \\
+High cost of sensor hardware & Openness to heterogeneous and low-cost sensors with configurable units, with no hardware lock-in. \\
+Autonomy and connectivity in a remote area & Asynchronous ingestion of time-stamped measurements; the manual part works without sensors. \\
+False alerts and sensor reliability & Configurable thresholds and human validation through the visit report; alerts remain a decision-support aid. \\
+Data confidentiality and security & SSL encryption and X.509 certificates, authenticated access. \\
+Over-reliance on automation & Positioned as decision support; the beekeeping agent keeps the final validation. \\
+\bottomrule
+\end{xltabular}

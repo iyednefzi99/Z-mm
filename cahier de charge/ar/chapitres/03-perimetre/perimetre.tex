@@ -1,0 +1,101 @@
+%==============================================================================
+\chapter{نطاق المشروع}
+%==============================================================================
+
+\section{المجال المُغطّى}
+يغطّي نطاق كراس الشروط هذا \textbf{الجزء الأول} من النظام: الإدارة اليدوية
+للعمليات وتخطيطها ومتابعتها، إضافةً إلى تهيئة البنية لدمج المؤشّرات الآلية
+مستقبلًا.
+
+\section{النموذج المهني وقواعد التسيير}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} X}
+\toprule
+\textbf{الكيان} & \textbf{قواعد التسيير} \\
+\midrule
+\endhead
+مربّي النحل & يمكن أن يملك عدة مزارع. \\
+المزرعة & يمكن أن تضمّ عدة مواقع لتربية النحل. \\
+الموقع & يحتوي على خلية واحدة أو أكثر، وله موقع جغرافي (خط العرض، خط الطول، الارتفاع، تاريخ التشغيل، وتواريخ محتملة للنقل / الإغلاق). يمكن لموقع أن يستقبل خلايا من مربّين ومزارع مختلفة. \\
+الخلية & تتكوّن من مقصورة قاعدية (قاعدة / جسم) ومن 5 طوابق تمديد على الأكثر (عاسلات). \\
+الجسم / العاسلة & يمكن أن يستقبل إطارات شمعية مركّبة على مواضع (\emph{slots}) محدّدة. يجب أن يحتوي الجسم القاعدي على إطار واحد على الأقل، والسعة القصوى للجسم كما للعاسلة هي 10 إطارات. \\
+الإطار & يشغل موضعًا (\emph{slot}) وحيدًا في الجسم أو العاسلة. \\
+عون تربية النحل & يقوم بالزيارات وعمليات التفتيش. يمكن متابعة خلية على التوالي من قِبَل عدة أعوان، لكنها تكون تحت مسؤولية عون واحد في لحظة معيّنة. \\
+العون المشرف & يصادق على برنامج زيارة الخلايا التي هي في عهدته. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}[nobreak=true]
+\textbf{قيد التركيب:} خلية واحدة = جسم/قاعدة إجباري واحد + من 0 إلى 5 عاسلات،
+كل جسم/عاسلة = من 1 إلى 10 إطارات، إطار واحد لكل موضع.
+\end{encadre}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\small},
+  ent/.style={draw=mielfonce,fill=grisdoux,rounded corners=3pt,minimum height=9mm,inner xsep=7pt,thick},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[ent] (a) {مربّي النحل};
+\node[ent,right=7mm of a] (b) {المزرعة};
+\node[ent,right=7mm of b] (c) {الموقع};
+\node[ent,right=7mm of c] (d) {الخلية};
+\node[ent,below=9mm of d] (e) {الجسم / العاسلة};
+\node[ent,left=7mm of e] (f) {الإطار};
+\draw[fl] (a)--(b); \draw[fl] (b)--(c); \draw[fl] (c)--(d);
+\draw[fl] (d)--(e); \draw[fl] (e)--(f);
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(a)!0.5!(b)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(b)!0.5!(c)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(c)!0.5!(d)$) {1..n};
+\end{tikzpicture}
+\caption{التسلسل الهرمي للكيانات المهنية لنظام Zümm.}
+\label{fig:hierarchie}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\small]
+\draw[draw=mielfonce,thick,rounded corners=6pt,fill=grisdoux] (0,0) rectangle (11,4.4);
+\node[anchor=north east,mielfonce,font=\bfseries] at (10.8,4.25) {موقع لتربية النحل};
+\node[anchor=north east,font=\footnotesize] at (10.8,3.7)
+  {خط العرض / خط الطول / الارتفاع، تاريخ التشغيل};
+\foreach \x in {0.9,4.3,7.7}{
+  \begin{scope}[shift={(\x,0.7)}]
+    \fill[miel!30,draw=mielfonce,thick] (0,0) rectangle (1.4,0.6);
+    \fill[miel!40,draw=mielfonce,thick] (0,0.6) rectangle (1.4,1.2);
+    \fill[mielfonce] (-0.12,1.2)--(1.52,1.2)--(0.7,1.7)--cycle;
+    \draw[mielfonce,thick] (-0.1,-0.12) rectangle (1.5,0);
+  \end{scope}
+}
+\node[font=\scriptsize] at (1.6,0.45) {خلية};
+\node[font=\scriptsize] at (5.0,0.45) {خلية};
+\node[font=\scriptsize] at (8.4,0.45) {خلية};
+\node[anchor=west,font=\footnotesize,align=right] at (11.4,3.2)
+  {موارد\\(رحيق / غبار طلع)\\على بُعد 1 كم تقريبًا};
+\draw[-{Latex[length=2mm]},mielfonce,dashed] (11,3.0) -- (11.35,3.0);
+\node[anchor=west,font=\footnotesize,align=right] at (11.4,1.2)
+  {مسافات الأمان\\100 / 200 / 300 م\\3 إلى 4 كم عن\\المزروعات المعالَجة};
+\end{tikzpicture}
+\caption{مخطّط موقع لتربية النحل: عدة خلايا محدّدة الموقع وقيود التموضع.}
+\label{fig:site}
+\end{figure}
+
+\section{المستخدمون وحقوق الوصول}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.2cm} X}
+\toprule
+\textbf{الملف} & \textbf{الدور والحقوق} \\
+\midrule
+\endhead
+مربّي النحل / المالك & يطّلع على لوحات قيادة الإنتاج والمردودية والخلاصة، ويقرّر إغلاق موقع أو نقل الخلايا. \\
+عون تربية النحل & يقوم بالزيارات ويملأ التقارير وينفّذ العمليات على الخلايا التي في مسؤوليته. \\
+العون المشرف & يصادق على برامج زيارة الخلايا التي هو مسؤول عنها. \\
+المسؤول / المدير & يراقب التنبيهات (انخفاض الإنتاج أو العدد) ويُطلق عمليات التفتيش الوشيكة. \\
+مدير النظام & يدير معطيات النظام ووحدات القياس والعتبات والمرجعيات. \\
+\bottomrule
+\end{xltabular}
+
+\section{خارج النطاق}
+\begin{itemize}
+  \item الاقتناء المادي والنشر العتادي للمستشعرات (مشروع لاحق).
+  \item الأتمتة الآنية لجمع المؤشّرات (واجهة مُقرّرة لكن غير مُنفّذة في هذه المرحلة).
+\end{itemize}

@@ -1,0 +1,232 @@
+%==============================================================================
+%  APPENDIX - Security and robustness
+%  Defence in depth (web hardening) + load / reliability testing (k6)
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix -- Security and robustness}
+\label{chap:securite}
+%==============================================================================
+Security is a \textbf{cross-cutting} requirement already present in the
+requirements specification: encryption of exchanges by \textbf{X.509 / SSL},
+delegated authentication by \textbf{Google OAuth}, the \textbf{RBAC} rights
+matrix and \textbf{GDPR} compliance (appendix~\ref{chap:complements}). This
+appendix \textbf{consolidates} it into a coherent \textbf{defence-in-depth}
+strategy, then addresses \textbf{robustness} (resistance to load and to peaks),
+since \emph{availability} is one of the three security properties. The good
+practices adopted follow the domain's reference guides (web-site hardening) and
+the free \textbf{k6} tooling for load testing.
+
+\begin{encadre}
+\textbf{CIA triad:} security aims at \textbf{Confidentiality} (encryption,
+access control), \textbf{Integrity} (input validation, prepared statements,
+backups) and \textbf{Availability} (anti-DDoS, rate limiting, load tests). No
+building block is a \emph{mandatory} third-party service: each has a free,
+self-deployable equivalent (ModSecurity, Let's Encrypt, k6), in line with the
+self-deployment requirement.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Synthetic threat model}
+%------------------------------------------------------------------------------
+The table sets the usual risks of a web application against the measure adopted
+in Zümm.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
+\toprule
+\textbf{Threat} & \textbf{Measure adopted in Zümm} \\
+\midrule
+\endhead
+Interception of exchanges & End-to-end TLS / SSL, X.509 certificates, HTTPS redirection and HSTS header. \\
+Credential theft & Google OAuth (no stored password), two-factor authentication handled by the provider. \\
+SQL injection & Prepared statements (\emph{PreparedStatement}) via JDBC, input validation and typing. \\
+XSS (injected script) & Systematic output escaping, \texttt{Content-Security-Policy} header. \\
+CSRF (forged request) & Per-session anti-CSRF token, \texttt{SameSite} cookies. \\
+Session hijacking & \texttt{HttpOnly} and \texttt{Secure} cookies, session expiry and rotation (already §\,7). \\
+Privilege escalation & \textbf{RBAC} access control and least privilege (appendix~\ref{chap:complements}). \\
+Denial of service (DDoS) & Rate limiting, web application firewall (WAF), asynchronous ingestion of measurements. \\
+Data exposure & Encryption at rest, GDPR minimisation, encrypted backups. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Defence in depth}
+%------------------------------------------------------------------------------
+Security does not rely on a single barrier but on \textbf{successive layers}: if
+one gives way, the others hold. Figure~\ref{fig:secu-couches} projects these
+layers onto Zümm's architecture.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  couche/.style={draw=mielfonce,thick,rounded corners=3pt,minimum width=12.2cm,minimum height=8mm,font=\footnotesize,align=center},
+  l1/.style={couche,fill=grisdoux},
+  l2/.style={couche,fill=miel!12},
+  l3/.style={couche,fill=miel!22},
+  l4/.style={couche,fill=miel!34},
+  l5/.style={couche,fill=miel!12}
+]
+\node[l1] (c1) at (0,4) {\textbf{Perimeter}: WAF, anti-DDoS, rate limiting, CDN (optional, deployable)};
+\node[l2] (c2) at (0,3) {\textbf{Transport}: TLS / SSL, X.509 certificates, HTTPS redirection, HSTS};
+\node[l3] (c3) at (0,2) {\textbf{Application}: OAuth2, RBAC, input validation, CSP headers, anti-CSRF};
+\node[l4] (c4) at (0,1) {\textbf{Data}: prepared statements, encryption at rest, least DB privilege};
+\node[l5] (c5) at (0,0) {\textbf{Operations}: updates, logging \& monitoring, tested backups};
+\end{tikzpicture}
+\caption{Defence in depth: five protection layers projected onto Zümm's architecture.}
+\label{fig:secu-couches}
+\end{figure}
+
+\subsection{Perimeter and transport}
+At the edge, a \textbf{web application firewall} (WAF, for example ModSecurity)
+filters malicious requests and \textbf{rate limiting} absorbs peaks and abuse
+attempts. \textbf{Transport} encryption is already required: TLS / SSL,
+\textbf{X.509} certificates, forced redirection to HTTPS and the
+\texttt{Strict-Transport-Security} (HSTS) header to forbid any cleartext
+fallback.
+
+\subsection{Application}
+The application layer combines delegated \textbf{authentication} (Google OAuth,
+with two-factor handled by the provider), least-privilege RBAC \textbf{access
+control} (appendix~\ref{chap:complements}), \textbf{input validation},
+\textbf{anti-CSRF protection} and \textbf{security headers}
+(\texttt{Content-Security-Policy}, \texttt{X-Frame-Options},
+\texttt{X-Content-Type-Options}). Session management relies on \texttt{HttpOnly}
+and \texttt{Secure} cookies already specified in chapter~\ref{chap:conception}.
+
+\subsection{Data and operations}
+Data access goes exclusively through \textbf{prepared statements}
+(anti-injection), a \textbf{least-privilege} database account and
+\textbf{encryption at rest} of sensitive data. In operations, regular
+\textbf{updates} of the server and dependencies, \textbf{logging} and
+\textbf{monitoring}, as well as \textbf{encrypted backups whose restoration is
+tested}, close the loop.
+
+%------------------------------------------------------------------------------
+\section{Hardening grid}
+%------------------------------------------------------------------------------
+The table lists web-site hardening good practices and specifies, for each, its
+\textbf{status} in Zümm: already required by the requirements specification or
+added by this appendix.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.2cm}}
+\toprule
+\textbf{Practice} & \textbf{Implementation in Zümm} & \textbf{Status} \\
+\midrule
+\endhead
+HTTPS / TLS everywhere & X.509 certificates, HTTPS redirection, HSTS. & Already required \\
+Strong authentication & Google OAuth + provider two-factor. & Already required \\
+Access control (RBAC) & Least-privilege roles and permissions. & Already required \\
+Prepared statements & Exclusively parameterised JDBC access. & Already required \\
+Web application firewall (WAF) & Edge request filtering (ModSecurity). & \textbf{Added} \\
+Rate limiting / anti-DDoS & Absorption of peaks and abuse. & \textbf{Added} \\
+Security headers & CSP, X-Frame-Options, X-Content-Type-Options. & \textbf{Added} \\
+Anti-CSRF protection & Per-session token, SameSite cookies. & \textbf{Added} \\
+Updates \& patches & Up-to-date application server and dependencies. & \textbf{Added} \\
+Logging \& monitoring & Access and error traces, alerts. & \textbf{Added} \\
+Encrypted backups & Regular backup + tested restoration. & \textbf{Added} \\
+Anti-malware scanning & Periodic scan of repositories and uploads. & \textbf{Added} \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Robustness: load and reliability testing (k6)}
+%------------------------------------------------------------------------------
+Since \textbf{availability} is a security property, the system must withstand
+the nominal load and \textbf{peaks}. We adopt \textbf{k6}, a \textbf{free},
+scriptable load-testing tool that simulates \emph{virtual users} (VUs) and
+checks objective \textbf{thresholds}.
+
+\subsection{Types of tests}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} X}
+\toprule
+\textbf{Type} & \textbf{Objective} \\
+\midrule
+\endhead
+Load & Verify the behaviour at the expected load (nominal users and measurements). \\
+Stress & Find the breaking point by increasing the load beyond nominal. \\
+Spike & Simulate a sudden burst, for example a massive surge of sensor measurements. \\
+Soak (endurance) & Detect memory leaks and degradation over a long duration. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Zümm-specific scenarios}
+\begin{itemize}
+  \item \textbf{Burst ingestion}: \texttt{POST /api/mesures} in batches (sensor
+        part, §\,4.5), to validate the asynchronous queue and idempotency.
+  \item \textbf{Dashboards}: concurrent viewing of the production and alerts
+        dashboards (aggregations, charts).
+  \item \textbf{API web service}: repeated calls to
+        \texttt{getZummHoneyActualQuantity} by third-party applications.
+\end{itemize}
+
+\subsection{Thresholds and verdict}
+The test fails if the objective thresholds are not met, which points to a
+bottleneck to fix (pool size, index, cache, scaling). For illustration:
+\begin{verbatim}
+thresholds:
+  request p95 latency        < 500 ms
+  HTTP error rate            < 1 %
+  /api/mesures ingestion     sustained nominal throughput without loss
+\end{verbatim}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_test_charge}
+\caption{k6 load test: progressive ramp-up, measurement of latency and error
+rate, verdict against the thresholds.}
+\label{fig:secu-k6}
+\end{figure}
+
+\subsection{Complement to the test plan}
+The following cases extend the test plan of chapter~\ref{chap:tests}
+(TC01--TC16) on the security and robustness aspect.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{1.6cm} p{4.4cm} X}
+\toprule
+\textbf{ID} & \textbf{Object} & \textbf{Expected result} \\
+\midrule
+\endhead
+TC17 & Load test (k6) & p95 and error-rate thresholds met at nominal load. \\
+TC18 & Spike test & The system absorbs a burst without loss or lasting error. \\
+TC19 & SQL injection / XSS & Malicious inputs rejected or neutralised (escaping). \\
+TC20 & Backup / restoration & Full restoration verified from an encrypted backup. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Pre-deployment checklist (go-live)}
+%------------------------------------------------------------------------------
+Before any production release, the points below are checked. This checklist
+summarises the previous sections into an operational review, domain by domain.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.4cm} X}
+\toprule
+\textbf{Domain} & \textbf{Points to check before production} \\
+\midrule
+\endhead
+Secrets \& configuration & No cleartext secret in the repository; \texttt{ConfigZumm.ini}, keys and certificates out of version control, stored in a protected way. \\
+Transport & HTTPS forced, cleartext-traffic redirection, HSTS header active, X.509 certificates valid and not expired. \\
+Authentication \& access & Google OAuth operational, RBAC matrix verified, default accounts and access disabled. \\
+Application & Security headers (CSP, X-Frame-Options), anti-CSRF protection, input validation, error messages without information leakage. \\
+Data & Prepared statements everywhere, encryption at rest of sensitive data, recent backup \textbf{and tested restoration}. \\
+Dependencies & Application server and libraries up to date, dependency vulnerability scan performed. \\
+Robustness & k6 load test \textbf{green} (p95 and error-rate thresholds), spike test passed, ramp-up and rollback plan defined. \\
+Observability & Access and error logging, monitoring and alerts in place, consistent timestamping. \\
+Compliance & GDPR respected (minimisation, retention period, rights), notices and register up to date (appendix~\ref{chap:complements}). \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Release rule:} an unmet point is \textbf{blocking} until fixed. The
+checklist is replayed at each major release, in the spirit of continuous
+improvement and under \textbf{human control}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Compliance and consistency with the requirements}
+%------------------------------------------------------------------------------
+\begin{encadre}
+\textbf{Conclusion:} the appendix consolidates \textbf{layered} security
+(perimeter, transport, application, data, operations) and adds \textbf{measured
+robustness} through load tests. It extends, without contradicting, the
+requirements already set (X.509 / SSL, OAuth, RBAC, GDPR) and respects
+\textbf{self-deployment}: each building block adopted (ModSecurity WAF, Let's
+Encrypt certificates, k6) is \textbf{free and open source}. Security remains,
+like the alerts, a continuous process placed under \textbf{human control}.
+\end{encadre}

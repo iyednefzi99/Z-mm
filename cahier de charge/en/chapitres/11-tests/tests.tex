@@ -1,0 +1,58 @@
+%==============================================================================
+\chapter{Test plan and validation}
+\label{chap:tests}
+%==============================================================================
+The test strategy covers the business functions, the management constraints and
+the technical requirements. Each test case specifies the target function, the
+preconditions, the steps and the expected result.
+
+\section{Test cases}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{1.4cm} p{3.6cm} p{4.2cm} X}
+\toprule
+\textbf{ID} & \textbf{Function} & \textbf{Steps} & \textbf{Expected result} \\
+\midrule
+\endhead
+TC01 & Hive CRUD & Create, read, modify, delete a hive & Compliant and persisted operations \\
+TC02 & Frame constraint & Add an 11th frame to a body & Rejected, maximum of 10 frames \\
+TC03 & Super constraint & Add a 6th super & Rejected, maximum of 5 supers \\
+TC04 & Base constraint & Remove the last frame of the body & Rejected, at least 1 frame \\
+TC05 & Visit schedule & Propose then approve a visit & Approved status recorded \\
+TC06 & Visit report & Fill in all fields and save & Report persisted, cell carried out \\
+TC07 & Production alert & Exceed the production threshold & Harvest alert displayed \\
+TC08 & Drop alert & Simulate a population drop & Inspection alert displayed \\
+TC09 & ROI calculation & Enter costs and production & ROI computed correctly \\
+TC10 & Honey API & Call getZummHoneyActualQuantity & Correct quantity returned \\
+TC11 & Internationalisation & Switch FR, EN then AR & Texts translated via the XML file \\
+TC12 & Configuration & Modify a threshold in ConfigZumm.ini & New threshold taken into account \\
+TC13 & Authentication & Log in via Google OAuth & Access granted \\
+TC14 & Security & Verify SSL and X.509 certificate & Encrypted and validated exchanges \\
+TC15 & Export & Export the records & CSV and TXT files generated \\
+TC16 & Offline mode & Enter without a network then reconnect & Successful synchronisation \\
+\bottomrule
+\end{xltabular}
+
+\section{Traceability matrix}
+The matrix links each requirement to its use case, to the classes and tables
+that carry it, to the screen (mockup) concerned and to the test cases that
+validate it. It ensures end-to-end traceability, from the need to the
+verification.
+{\small
+\begin{xltabular}{\textwidth}{>{\bfseries}X C{1.3cm} p{3.3cm} p{2.5cm} p{2.6cm}}
+\toprule
+\textbf{Requirement} & \textbf{UC} & \textbf{Classes / Tables} & \textbf{Screen} & \textbf{Tests} \\
+\midrule
+\endhead
+Entity management and constraints & --- & Hive, Compartment, Frame & Hive form (fig.~\ref{fig:wf-ruche}) & TC01--TC04 \\
+Planning and approval & UC1 & Schedule, Agent & Calendar (fig.~\ref{fig:wf-calendrier}) & TC05 \\
+Visit execution and report & UC2 & Visit, Photo & Report (fig.~\ref{fig:wf-rapport}) & TC06 \\
+Production dashboard & UC3 & Harvest, Measurement, Threshold & Prod. dashboard (fig.~\ref{fig:wf-production}) & TC07, TC09 \\
+Health / drop alert & UC4 & Measurement, Threshold & Calendar & TC08 \\
+API web service (honey) & UC5 & Hive, Harvest & --- & TC10 \\
+Internationalisation & --- & (i18n XML) & All & TC11 \\
+Threshold configuration & --- & Threshold & Prod. dashboard & TC12 \\
+OAuth authentication & --- & Agent & Login (fig.~\ref{fig:seq-oauth}) & TC13 \\
+Exchange security & --- & (SSL / X.509) & --- & TC14 \\
+Portability and export & --- & (CSV/TXT export) & All & TC15 \\
+Offline mode & UC2 & Visit (local queue) & Report & TC16 \\
+\bottomrule
+\end{xltabular}}

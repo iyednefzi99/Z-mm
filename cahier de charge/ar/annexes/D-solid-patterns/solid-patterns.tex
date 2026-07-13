@@ -1,0 +1,251 @@
+%==============================================================================
+%  ملحق - مبادئ SOLID وأنماط التصميم
+%==============================================================================
+
+%==============================================================================
+\chapter{ملحق --- مبادئ SOLID وأنماط التصميم}
+\label{chap:solid}
+%==============================================================================
+يجيب هذا الملحق عن مسألة \emph{كيف} لجودة البرمجيات. يوثّق تطبيق مبادئ
+\textbf{SOLID} الخمسة ومجموعة من \textbf{أنماط التصميم} على نظام \textbf{Zümm}،
+واضعًا كل قرار في مقابل التصميم الأولي (\emph{قبل}) والتصميم المُعاد هيكلته
+(\emph{بعد}). الهدف بنية \textbf{متعددة الطبقات، قابلة للتطوّر، وضعيفة الاقتران}،
+مطابقة لمتطلبات الفصل~\ref{chap:conception}.
+
+\begin{encadre}
+\textbf{المصادر المنهجية:} تتّبع التعاريف المعتمَدة عرض مبادئ SOLID من
+\emph{alexsoyes.com} وكتالوج الأنماط من \emph{refactoring.guru}، مُكيّفة مع
+المجال النحلي للمشروع.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{مبادئ SOLID الخمسة}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.4cm} p{6cm} X}
+\toprule
+\textbf{المبدأ} & \textbf{قبل (التصميم الأولي)} & \textbf{بعد (مُعاد هيكلته)} \\
+\midrule
+\endhead
+S: المسؤولية الوحيدة &
+يحمل الكيان \texttt{Ruche} طريقة الحساب \texttt{getZummHoneyActualQuantity()}:
+يخلط الحالة (المعطيات) ومنطق الأعمال. تجمع \texttt{Visite} المعطيات وحقول
+التقرير. &
+يُستخرَج الحساب في \texttt{ServiceMielImpl} (عبر Composite) ويصبح التقرير
+\texttt{RapportVisite}. لكل صنف الآن سبب وحيد للتغيير. \\
+O: الانفتاح / الانغلاق &
+يعتمد كشف التنبيهات وتحويل الوحدات على \texttt{if / switch} على
+\texttt{typeSeuil} و\texttt{unite}: تتطلّب إضافة قاعدة أو وحدة تعديل الشيفرة
+القائمة. &
+\texttt{RegleAlerte} (Strategy) و\texttt{ConvertisseurUnite}: قاعدة أو وحدة
+جديدة = صنف جديد، دون المساس بـ \texttt{GestionnaireAlertes}. منفتح على التوسيع،
+مُغلق على التعديل. \\
+L: استبدال ليسكوف &
+يُعمّم مخطّط حالات الاستعمال العون المشرف انطلاقًا من عون تربية النحل. مَنقولًا
+كما هو إلى وراثة الأصناف، يكسر نوعٌ فرعيٌّ مُقيِّد قابلية الاستبدال. &
+يرث \texttt{Corps} و\texttt{Hausse} من \texttt{Compartiment} مع احترام عقده
+بالكامل (السعة 1..10، \texttt{getPoidsMiel}). يمرّ دور العون عبر التعداد
+\texttt{Role} + الأذونات (التركيب) بدل وراثة مُقيِّدة. \\
+I: فصل الواجهات &
+خدمة وحيدة «جامعة لكل شيء» (CRUD + الزيارات + لوحات القيادة + واجهة العسل)
+تُجبِر التطبيق الخارجي على الاعتماد على طرق غير مستعمَلة. &
+واجهات مُوجَّهة: \texttt{ServiceRequeteMiel} (لا يرى التطبيق الخارجي سوى
+\texttt{getZummHoneyActualQuantity})، \texttt{ServiceVisite}،
+\texttt{ServiceTableauDeBord}. يعتمد كل عميل على عقده فقط. \\
+D: عكس التبعية &
+تستدعي طبقة الأعمال (EJB) JDBC مباشرةً (تنفيذ ملموس): اقتران قوي بالقاعدة وبـ
+\texttt{ResultSet}. &
+تعتمد طبقة الأعمال على تجريدات \texttt{RucheRepository} /
+\texttt{VisiteRepository} (نمط DAO)، مُنفَّذة بـ \texttt{RucheRepositoryJdbc}.
+اختبار بالمحاكاة وترحيل JDBC \textrightarrow{} Spring Data JPA مُيسَّران (انظر
+الملحق~\ref{chap:migration}). \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{أنماط التصميم المعتمَدة}
+%------------------------------------------------------------------------------
+يُحصي الجدول التالي الأنماط المُطبَّقة وفئتها (إنشائي، بنيوي، سلوكي) والطبقة
+المعنية، مع تبرير \emph{قبل / بعد}.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{5.9cm} X}
+\toprule
+\textbf{النمط} & \textbf{قبل} & \textbf{بعد} \\
+\midrule
+\endhead
+Composite \newline {\small\itshape بنيوي: الأعمال} &
+يجتاز حساب العسل يدويًا مجموعات الإطارات بشيفرة جمع مُكرَّرة. &
+يُحلّ \texttt{ElementRuche.getPoidsMiel()} تعاوديًا (Ruche \textrightarrow{}
+Compartiment \textrightarrow{} Cadre): معالجة موحّدة للشجرة. \\
+State \newline {\small\itshape سلوكي: الأعمال} &
+تُختبَر حالة الخلية بـ \texttt{switch} مُبعثَرة (مُنشأة، نشطة، في جمع، مُغلقة،
+\ldots). &
+يُغلِّف \texttt{EtatRuche} وحالاته الملموسة الانتقالات المسموحة. محاذاة مباشرة
+مع مخطّط آلة الحالات. \\
+Strategy \newline {\small\itshape سلوكي: الأعمال} &
+تُبرمَج قواعد التنبيه وتحويل الوحدات والعائد بشكل صلب. &
+عائلات خوارزميات قابلة للتبادل (\texttt{RegleAlerte}، \texttt{ConvertisseurUnite})،
+قابلة للحقن والاختبار منفردةً. \\
+Observer \newline {\small\itshape سلوكي: الأعمال} &
+تستدعي شيفرة القياس لوحات القيادة مباشرةً (اقتران قوي). &
+يُخطِر \texttt{GestionnaireAlertes} \texttt{Observateur} المُشترِكين (لوحة
+التنبيهات، إخطار المسؤول) عند تجاوز عتبة. \\
+Command \newline {\small\itshape سلوكي: التحكم} &
+العمليات الميدانية (الجمع، التقسيم، تغيير الملكة) استدعاءات مباشرة، غير قابلة
+لإعادة التشغيل دون اتصال. &
+تصبح كل عملية \texttt{CommandeVisite}. يُعيد \texttt{FileCommandesHorsLigne}
+تشغيل الأوامر عند إعادة الاتصال (وضع دون اتصال + مزامنة مؤجّلة). \\
+Factory Method \newline {\small\itshape إنشائي: الأعمال} &
+تُنشأ الخلايا بـ \texttt{new} مُبعثَرة مع تهيئة يدوية للمقصورات. &
+يُنتج \texttt{FabriqueRuche.creer(modele)} خلية مُهيّأة مسبقًا حسب النموذج
+(Dadant، Langstroth\ldots) بجسم وسعات متّسقة. \\
+Builder \newline {\small\itshape إنشائي: العرض} &
+تقرير الزيارة، بحقوله الاختيارية العديدة، يتطلّب مُنشئًا تلسكوبيًا أو setters
+مُبعثَرة. &
+يبني \texttt{ConstructeurRapport} \texttt{RapportVisite} بسلاسة (الملاحظات،
+الإجراءات، الصور، التقييمات). \\
+Adapter \newline {\small\itshape بنيوي: المعطيات} &
+تُعالَج المستشعرات غير المتجانسة (صيغ ووحدات مختلفة) حالةً بحالة. &
+يُوحّد \texttt{AdaptateurCapteur} كل مصدر في \texttt{Mesure} بوحدات قابلة للضبط
+(الشقّ الآلي). \\
+Facade \newline {\small\itshape بنيوي: التحكم} &
+يُنسّق Servlet جميع خدمات الأعمال مباشرةً. &
+يوفّر \texttt{FacadeApplication} نقطة دخول مُبسَّطة للـ Servlets فوق الأنظمة
+الفرعية. \\
+Singleton \newline {\small\itshape إنشائي: مُستعرِض} &
+يُعاد قراءة ملف \texttt{ConfigZumm.ini} وعناوين i18n في عدة نُسخ. &
+يضمن \texttt{Configuration} و\texttt{GestionnaireI18n} نسخة وحيدة مُشتركة. \\
+Proxy \newline {\small\itshape بنيوي: خدمات الويب} &
+يعرض الوصول إلى الواجهة خدمة الأعمال مباشرةً. &
+يتحكّم \texttt{ProxySecurite} في مصادقة OAuth وتشفير SSL / X.509 قبل التفويض إلى
+الخدمة. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{عرض التصميم المُعاد هيكلته}
+%------------------------------------------------------------------------------
+يُلخّص الشكل~\ref{fig:solid} الأنماط الرئيسية في مخطّط أصناف تصميمي: Composite
+(تركيب الخلية وحساب العسل)، State (دورة الحياة)، الخدمات المفصولة (ISP)،
+الاستمرارية بالتجريد (DIP / Repository)، زوج Strategy + Observer (التنبيهات)،
+وثلاثي Factory / Builder / Command.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes_solid}
+\caption{مخطّط أصناف مُعاد هيكلته: تطبيق SOLID وأنماط التصميم على نظام Zümm.}
+\label{fig:solid}
+\end{figure}
+
+\begin{encadre}
+\textbf{التقابل مع الطبقات:} تنتمي \texttt{Repository} إلى طبقة الوصول إلى
+المعطيات (JDBC)، و\texttt{Service} والمجال (Composite، State، Strategy،
+Observer، Command) إلى طبقة الأعمال (EJB)، و\texttt{Facade} و\texttt{Proxy} إلى
+طبقة التحكم (Servlets)، و\texttt{Builder} التقرير إلى العرض (JSP). تتعزّز بذلك
+البنية الطبقية ضعيفة الاقتران للفصل~\ref{chap:conception}، دون تعديلها.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{توضيح ديناميكي: نمطا Observer وCommand}
+%------------------------------------------------------------------------------
+يفصّل مخطّطا تسلسل سلوك أكثر الأنماط بنيويةً في النظام.
+
+\subsection{Observer (+ Strategy): إطلاق تنبيه}
+يُظهر الشكل~\ref{fig:seq-observer} كيف يُقيَّم قياس يستقبله
+\texttt{GestionnaireAlertes} (الموضوع) بقاعدة قابلة للتبادل (\emph{Strategy})،
+ثم يُنشَر عند التجاوز إلى المراقبين المُشترِكين (لوحة التنبيهات، إخطار المسؤول).
+إضافة قاعدة أو مراقب لا تتطلّب أي تعديل للمُدير (مبدأ الانفتاح/الانغلاق).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_observer}
+\caption{تسلسل نمط Observer (+ Strategy): مسار إطلاق تنبيه.}
+\label{fig:seq-observer}
+\end{figure}
+
+\subsection{Command: الوضع دون اتصال والمزامنة المؤجّلة}
+يوضّح الشكل~\ref{fig:seq-command} إدخال عملية ميدانية دون شبكة: تُغلَّف العملية
+في \texttt{CommandeVisite} تُكدَّس في \texttt{FileCommandesHorsLigne}. عند عودة
+الشبكة، يُعيد الطابور تشغيل (\texttt{executer}) كل أمر، أو يُعوّضه
+(\texttt{annuler}) عند التعارض، مُحقّقًا المزامنة المؤجّلة التي يتطلّبها الوضع
+دون اتصال.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_command}
+\caption{تسلسل نمط Command: الوضع دون اتصال والمزامنة المؤجّلة.}
+\label{fig:seq-command}
+\end{figure}
+
+\subsection{State: دورة حياة الخلية}
+يُظهر الشكل~\ref{fig:seq-state} \texttt{Ruche} (السياق) وهي تُفوّض كل عملية إلى
+حالتها الراهنة. تقرّر الحالة الانتقال (التفعيل، الجمع، العودة إلى الحالة النشطة)
+أو ترفض عملية ممنوعة في الحالة الجارية، هنا تعمير مطلوب على خلية نشطة أصلًا.
+يعتمد السلوك بذلك على الحالة دون أيّ \texttt{switch} على الوضع، تناسقًا مع مخطّط
+آلة الحالات (الشكل~\ref{fig:etat}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{diagramme_sequence_state}
+\caption{تسلسل نمط State: تفويض انتقالات دورة حياة الخلية.}
+\label{fig:seq-state}
+\end{figure}
+
+\subsection{Composite: حساب كمية العسل}
+يفصّل الشكل~\ref{fig:seq-composite} الحلّ التعاودي لـ \texttt{getPoidsMiel()}:
+يستعلم العميل (\texttt{ServiceMielImpl}) الخلية، التي تنشر الاستدعاء إلى كل
+مقصورة، ثم إلى كل إطار (ورقة). لا تُسهم سوى الإطارات من نوع \texttt{MIEL}،
+ويُطرَح وزن الفارغ على مستوى الخلية. يتجاهل العميل البنية الداخلية. يُنفّذ هذا
+الحساب طريقة \texttt{getZummHoneyActualQuantity} التي تعرضها خدمة الويب.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_composite}
+\caption{تسلسل نمط Composite: الحساب التعاودي لكمية عسل خلية.}
+\label{fig:seq-composite}
+\end{figure}
+
+\subsection{Strategy: تحويل وحدات غير متجانسة}
+يُظهر الشكل~\ref{fig:seq-strategy} تسوية قياس مُعبَّر عنه بأيّ وحدة: يختار
+\texttt{RegistreConvertisseurs} (السياق) الاستراتيجية المطابقة للوحدة
+(\texttt{ConvertisseurLbVersKg})، التي تُرجع القيمة إلى الوحدة المرجعية قبل
+المقارنة بالعتبة. تُترجَم وحدة جديدة إلى استراتيجية جديدة، دون تعديل السياق.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_strategy}
+\caption{تسلسل نمط Strategy: تحويل الوحدات غير المتجانسة إلى الوحدة المرجعية.}
+\label{fig:seq-strategy}
+\end{figure}
+
+\subsection{Adapter: استيعاب مستشعرات غير متجانسة}
+يوضّح الشكل~\ref{fig:seq-adapter} دمج مستشعر من السوق: يترجم
+\texttt{AdaptateurBroodMinder} واجهة المستشعر الخاصّة إلى \texttt{Mesure}
+مُوحَّدة (وحدات مُحوَّلة، طابع زمني، تحديد موقع)، عارضًا الواجهة الموحّدة
+\texttt{Capteur} التي تنتظرها طبقة الأعمال. تصبح المستشعرات غير المتجانسة بذلك
+قابلة للتبادل.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_adapter}
+\caption{تسلسل نمط Adapter: استيعاب مستشعرات غير متجانسة (الشقّ الآلي).}
+\label{fig:seq-adapter}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{توزيع الأنماط حسب الطبقة}
+%------------------------------------------------------------------------------
+يُلخّص الشكل~\ref{fig:packages-patterns} موضع كل نمط في البنية متعددة الطبقات.
+يقع \emph{Builder} في العرض. تنتمي \emph{Facade} و\emph{Proxy} وطابور
+\emph{Command} إلى التحكم. يقع المجال (\emph{Composite}، \emph{State}،
+\emph{Observer}، \emph{Strategy}، \emph{Factory Method}) والخدمات المفصولة
+(\emph{ISP}) في الأعمال. يضمن \emph{Repository} (\emph{DAO / DIP})
+و\emph{Adapter} الوصول إلى المعطيات. أخيرًا، تحتلّ \emph{Singleton} الإعداد
+والتدويل و\emph{Strategy} تحويل الوحدات الطبقة المُستعرِضة. يؤكّد هذا العرض أن
+الأنماط تعزّز البنية الطبقية ضعيفة الاقتران دون تغيير بنيتها.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_packages_patterns}
+\caption{توزيع أنماط التصميم حسب طبقة البنية متعددة الطبقات.}
+\label{fig:packages-patterns}
+\end{figure}

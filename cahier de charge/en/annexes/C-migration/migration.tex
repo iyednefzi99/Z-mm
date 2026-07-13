@@ -1,0 +1,171 @@
+%==============================================================================
+%  APPENDIX - Technology choice: academic compliance and market vision
+%  J2EE -> Spring Boot migration (correspondence table + rationale)
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix -- Technology choice: academic and market vision}
+\label{chap:migration}
+%==============================================================================
+This appendix answers the question of the \emph{why} and the \emph{how} of the
+development language. It confronts the \textbf{J2EE} foundation imposed by this
+requirements specification with the \textbf{Spring Boot} ecosystem, which has
+become the standard of enterprise Java development, and documents a
+modernisation trajectory without a change of language.
+
+\section{Positioning}
+The \textbf{Zümm} system is implemented in \textbf{J2EE (Java EE)} in accordance
+with the technical requirements (chapter~\ref{chap:conception} and grading grid):
+MVC, Servlets, JSP, EJB, JDBC, externalised internationalisation, secure web
+services (OAuth, X.509 / SSL) and an API queryable by third-party applications.
+This foundation embodies the core skills of the DSI programme: mastery of the
+layers of an information system, separation of responsibilities and
+interoperability.
+
+\begin{encadre}
+\textbf{Market observation:} the historical Java EE building blocks (JSP,
+``bare'' Servlets and EJB) are today considered \emph{legacy}. Recruitment for
+new information systems very largely favours the \textbf{Spring Boot} ecosystem.
+This appendix keeps the \textbf{Java} language and demonstrates, technology by
+technology, the modern equivalent of each requirement.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Correspondence table: technical core}
+%------------------------------------------------------------------------------
+The following table sets each imposed (and graded) technology against its Spring
+Boot equivalent, as well as the concrete nature of the change.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} p{3.4cm} X}
+\toprule
+\textbf{J2EE (imposed)} & \textbf{Spring Boot} & \textbf{What concretely changes} \\
+\midrule
+\endhead
+MVC (manual) & Spring MVC (\texttt{@Controller}, \texttt{@RequestMapping}) & The pattern remains, routing becomes declarative through annotations instead of \texttt{web.xml}. \\
+Servlet (\texttt{HttpServlet}, \texttt{doGet/doPost}) & \texttt{@RestController} / \texttt{@Controller} & No more \texttt{extends HttpServlet}: one annotated method = one endpoint. The \texttt{DispatcherServlet} orchestrates in the background. \\
+JSP (presentation) & Thymeleaf (server-side) or React / Angular (SPA) & Modern templating without Java scriptlets. For a strong market effect, REST API + decoupled front-end. \\
+EJB (\texttt{@Stateless}, EJB container) & Spring \texttt{@Service} / \texttt{@Component} & Same role (business logic, injection, transactions) without a heavy EJB container. \texttt{@Transactional} manages the transactions. \\
+JDBC (manual SQL, \texttt{ResultSet}) & Spring Data JPA / Hibernate & Object-relational mapping replaces hand-written SQL. \texttt{JpaRepository} generates the CRUD (\texttt{JdbcTemplate} remains available). \\
+i18n by XML file & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & Same principle of text externalisation, standard \texttt{.properties} format, still FR / EN / AR. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parameterisation without recompilation, injectable per profile. The thresholds and units become typed beans. \\
+Google OAuth (home-made XML WS) & Spring Security OAuth2 Client & Google login in a few lines of configuration instead of a hand-written OAuth client, and more secure. \\
+XML API web service \texttt{getZummHoneyActualQuantity} & REST JSON API (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON instead of XML, auto-generated documentation. XML remains possible via \texttt{produces = APPLICATION\_XML}. \\
+X.509 / SSL (manual) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & Declarative HTTPS activation, same X.509 certificates, trivial configuration. \\
+JavaScript (free front-end) & React / Vue / Angular (or Thymeleaf + JS) & Decoupled front-end consuming the REST API, simplified web and mobile parity. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Correspondence table: infrastructure and deployment}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} p{4.5cm} X}
+\toprule
+\textbf{J2EE} & \textbf{Spring Boot} & \textbf{Benefit} \\
+\midrule
+\endhead
+Heavy application server (WildFly, GlassFish, WebLogic) & Embedded Tomcat / Jetty & The application starts on its own: \texttt{java -jar app.jar}, no more server to install. \\
+WAR / EAR packaging & Executable JAR (fat-jar) & A single self-contained artefact, ideal for the cloud and Docker. \\
+Manual deployment on a container & Docker + \texttt{docker-compose} & Alignment with market DevOps, facilitated continuous integration. \\
+Relational DBMS via JDBC & PostgreSQL / MySQL via JPA + Flyway & Versioned schema, reproducible across environments. \\
+Manual dependency management (Ant) & Maven / Gradle + Spring Boot Starters & One dependency = one starter (\texttt{-web}, \texttt{-security}, \texttt{-data-jpa}). \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Layer correspondence}
+%------------------------------------------------------------------------------
+The loosely coupled layered view required in chapter~\ref{chap:conception}
+(figure~\ref{fig:couches}) is \textbf{fully preserved}: no layer disappears, only
+the implementation is modernised.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  j2ee/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=5.4cm,minimum height=8mm,font=\footnotesize,align=center},
+  spring/.style={draw=mielfonce,fill=miel!15,thick,minimum width=5.4cm,minimum height=8mm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+% headers
+\node[font=\small\bfseries,mielfonce] at (0,5) {J2EE (imposed)};
+\node[font=\small\bfseries,mielfonce] at (7,5) {Spring Boot (target)};
+% J2EE layers
+\node[j2ee] (p1) at (0,4) {Presentation: JSP + JavaScript};
+\node[j2ee] (c1) at (0,3) {Control: Servlets (MVC)};
+\node[j2ee] (m1) at (0,2) {Business: EJB};
+\node[j2ee] (d1) at (0,1) {Data access: JDBC};
+\node[j2ee] (b1) at (0,0) {Relational database};
+% Spring layers
+\node[spring] (p2) at (7,4) {@Controller + Thymeleaf / React};
+\node[spring] (c2) at (7,3) {@RestController (Spring MVC)};
+\node[spring] (m2) at (7,2) {@Service (Spring Beans)};
+\node[spring] (d2) at (7,1) {@Repository (Spring Data JPA)};
+\node[spring] (b2) at (7,0) {PostgreSQL / MySQL (unchanged)};
+% correspondence arrows
+\draw[fl] (p1)--(p2); \draw[fl] (c1)--(c2); \draw[fl] (m1)--(m2);
+\draw[fl] (d1)--(d2); \draw[fl] (b1)--(b2);
+\end{tikzpicture}
+\caption{Correspondence of the layers from J2EE to Spring Boot: preserved architecture, modernised implementation.}
+\label{fig:migration-couches}
+\end{figure}
+
+The cross-cutting modules follow the same logic: XML i18n \textrightarrow{}
+\texttt{MessageSource}, \texttt{ConfigZumm.ini} \textrightarrow{}
+\texttt{application.yml}, XML web service \textrightarrow{} REST API + OpenAPI.
+
+%------------------------------------------------------------------------------
+\section{Rationale: academic compliance and market vision}
+%------------------------------------------------------------------------------
+\textbf{Zümm} relies, in accordance with the requirements specification, on a
+\textbf{multi-tier, scalable and loosely coupled J2EE} architecture: MVC,
+Servlets, JSP, EJB, JDBC, internationalisation by an externalised file, secure
+web services (OAuth, X.509 / SSL) and an API queryable by third-party
+applications. This foundation was chosen and implemented \textbf{as required},
+because it constitutes the project's evaluation reference and embodies the core
+skills of the DSI programme: mastery of the layers of an information system,
+separation of responsibilities and interoperability.
+
+A \textbf{market-oriented} analysis nevertheless leads to an important
+observation. The historical Java EE building blocks (JSP, ``bare'' Servlets and
+EJB) are today considered \emph{legacy}. Recruitment for new information systems
+very largely favours the \textbf{Spring Boot} ecosystem, which has become the
+\emph{de facto} standard of enterprise Java development. Ignoring this reality
+would amount to delivering a technically compliant solution that is nevertheless
+\textbf{out of step with current professional practice}.
+
+We have therefore adopted a \textbf{two-level reading approach}, without ever
+leaving the \textbf{Java} language, which guarantees the continuity of the
+acquired skills:
+\begin{enumerate}
+  \item \textbf{Compliance level}: the deliverable fully respects the imposed
+        technologies and the grading grid. The design diagrams (Agent
+        \textrightarrow{} JSP \textrightarrow{} Servlet \textrightarrow{} EJB
+        \textrightarrow{} JDBC sequence, layers, deployment) faithfully reflect
+        this architecture.
+  \item \textbf{Modernisation level}: for each imposed technology, its Spring
+        Boot equivalent is demonstrated (Servlet \textrightarrow{}
+        \texttt{@RestController}, EJB \textrightarrow{} \texttt{@Service}, JDBC
+        \textrightarrow{} Spring Data JPA, XML i18n \textrightarrow{}
+        \texttt{MessageSource}, \texttt{ConfigZumm.ini} \textrightarrow{}
+        \texttt{application.yml}, XML WS \textrightarrow{} REST API + OpenAPI,
+        X.509 / SSL \textrightarrow{} declarative SSL configuration). This
+        correspondence proves that \textbf{the target architecture remains
+        identical}: only the implementation gains in concision, security and
+        maintainability.
+\end{enumerate}
+
+This choice presents a third advantage, in direct line with the outlets of the
+DSI programme. The requirements specification provides for a \textbf{sensor and
+predictive-analysis part} (swarming detection, acoustic processing). This module
+naturally lends itself to a \textbf{Python microservice} (pandas, scikit-learn)
+exposed to the Java back-end via REST, concretely illustrating the profession of
+\textbf{data analyst} cited in the study plan and the openness of a
+\textbf{loosely coupled architecture} to technological heterogeneity.
+
+\begin{encadre}
+\textbf{Conclusion:} the project fully satisfies the academic requirements
+(J2EE) while documenting its \textbf{modernisation trajectory} (Spring Boot and
+data microservice). This dual reading turns a pedagogical constraint into a
+professional asset: it demonstrates not only the mastery of the fundamentals of
+the information system, but also the ability to evolve an architecture towards
+the standards sought on the 2026 job market.
+\end{encadre}

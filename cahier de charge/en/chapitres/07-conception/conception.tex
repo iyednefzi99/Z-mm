@@ -1,0 +1,177 @@
+%==============================================================================
+\chapter{Design (UML models)}
+\label{chap:conception}
+%==============================================================================
+The design file comprises the following UML diagrams. Each one is described by
+its expected content in order to guide the modelling.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.8cm} X}
+\toprule
+\textbf{Diagram} & \textbf{Expected content} \\
+\midrule
+\endhead
+Use case & Actors (farmer, agent, supervisor, manager, administrator, third-party application) and main cases (see figure \ref{fig:uc}). \\
+Class & Entities of the data dictionary and their relationships (Farmer 1 to n Farm, Farm 1 to n Site, Site 1 to n Hive, Hive 1 to n Body or super, Body or super 1 to n Frame) and service methods. \\
+Object & Snapshot of a site containing three populated hives with their frames. \\
+Sequence & Course of carrying out a visit (Agent, JSP UI, Servlet, EJB, JDBC, database). \\
+Activity & Process of planning, approving, executing and closing a visit. \\
+State machine & Life cycle of a hive (created, populated, active, splitting, harvesting, closed). \\
+Interaction or collaboration & Same scenario as the sequence, in the form of a collaboration between objects. \\
+Package & Presentation, control, business, data-access, internationalisation, configuration and web-services layers. \\
+Component & Application components (web application, OAuth service, API service, i18n module, configuration module, database). \\
+Deployment & Distribution across the browser, the J2EE application server, the DBMS, the Google OAuth service and the sensors. \\
+\bottomrule
+\end{xltabular}
+
+\section{Class diagram}
+The class diagram, presented in horizontal alignment, describes the business
+entities, their attributes, the service method \texttt{getZummHoneyActualQuantity}
+and the relationships with their cardinalities.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes}
+\caption{Class diagram of the Zümm system (horizontal alignment).}
+\label{fig:classes}
+\end{figure}
+
+\section{Layered view (package)}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
+]
+\node[couche] (p) at (0,4) {Presentation: JSP and JavaScript};
+\node[couche] (c) at (0,3) {Control: Servlets (MVC)};
+\node[couche] (m) at (0,2) {Business: EJB};
+\node[couche] (d) at (0,1) {Data access: JDBC};
+\node[couche] (b) at (0,0) {Relational database};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,right=3mm of c,xshift=4.7cm] (s) {i18n XML / ConfigZumm.ini / Web services};
+\draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
+\draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
+\draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
+\draw[-{Latex[length=2mm]},mielfonce] (d)--(b);
+\end{tikzpicture}
+\caption{Multi-tier architecture in loosely coupled layers.}
+\label{fig:couches}
+\end{figure}
+
+\section{Deployment view}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  noeud/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=3cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[noeud] (nav) {Browser\\(web client)};
+\node[noeud,right=1.6cm of nav] (srv) {J2EE server\\(Servlets, EJB)};
+\node[noeud,right=1.6cm of srv] (bd) {Relational\\DBMS};
+\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,below=1cm of bd] (capt) {Sensors\\(automated part)};
+\draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (capt)--(srv);
+\end{tikzpicture}
+\caption{Deployment diagram of the system.}
+\label{fig:deploiement}
+\end{figure}
+
+\section{Sequence diagram (UC2)}
+The sequence diagram below details use case UC2, carry out a visit and fill in
+the report. It shows the passage through the layers (agent, UI, servlet, EJB,
+database) as well as the online and offline cases with deferred
+synchronisation.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.92\linewidth]{diagramme_sequence_uc2}
+\caption{Sequence diagram of use case UC2 (carry out a visit).}
+\label{fig:sequence-uc2}
+\end{figure}
+
+\section{Authentication sequence (Google OAuth)}
+The authentication flow follows the \emph{Authorization Code} flow of OAuth~2.0.
+The browser never carries the client secret: the exchange of the authorization
+code for the access token is done \textbf{server to server}, over an SSL channel
+authenticated by an X.509 certificate. The application session is then opened by
+means of a secure cookie (\texttt{HttpOnly}, \texttt{Secure}), and the profile
+returned by Google is associated with an existing \texttt{Agent} (or creates one
+pending authorisation). In the demonstration, a local authentication fallback is
+provided in case the provider is unavailable.
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\scriptsize,
+  msg/.style={-{Latex[length=1.6mm]},mielfonce,thick},
+  rmsg/.style={-{Latex[length=1.6mm]},mielfonce,thick,dashed}
+]
+% ---- lifelines ----
+\foreach \x/\name in {0/{Agent (browser)}, 6/{Zümm server}, 12/{Google OAuth}}{
+  \node[draw=mielfonce,fill=grisdoux,thick,align=center,minimum height=7mm,inner xsep=6pt] at (\x,0) {\name};
+  \draw[mielfonce,dashed] (\x,-0.45) -- (\x,-9.9);
+}
+% ---- messages ----
+\draw[msg]  (0,-1.0) -- (6,-1.0)  node[midway,above]{1. Access to a protected page};
+\draw[rmsg] (6,-1.7) -- (0,-1.7)  node[midway,above]{2. 302: redirection (client\_id, scope, state)};
+\draw[msg]  (0,-2.4) -- (12,-2.4) node[midway,above]{3. Authentication + consent};
+\draw[rmsg] (12,-3.1) -- (0,-3.1) node[midway,above]{4. 302: redirection + code + state};
+\draw[msg]  (0,-3.8) -- (6,-3.8)  node[midway,above]{5. GET /callback (code, state)};
+\draw[msg]  (6,-4.5) -- (12,-4.5) node[midway,above]{6. POST /token (code, secret) --- SSL / X.509};
+\draw[rmsg] (12,-5.2) -- (6,-5.2) node[midway,above]{7. access\_token + id\_token (JWT)};
+\draw[msg]  (6,-5.9) -- (12,-5.9) node[midway,above]{8. GET /userinfo (access\_token)};
+\draw[rmsg] (12,-6.6) -- (6,-6.6) node[midway,above]{9. Profile (email, name)};
+\node[draw=mielfonce,fill=miel!12,thick,align=center,inner sep=3pt] at (6,-7.5)
+  {10. Verify \texttt{state}, associate the Agent,\\open the session (RBAC)};
+\draw[rmsg] (6,-8.6) -- (0,-8.6) node[midway,above]{11. 302: application + secure session cookie};
+\end{tikzpicture}
+\caption{OAuth~2.0 authentication sequence (Authorization Code) with Google.}
+\label{fig:seq-oauth}
+\end{figure}
+
+\section{Object diagram}
+The object diagram presents a snapshot of a site hosting three hives, with the
+detail of the composition of a hive into body, super and frames.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_objets}
+\caption{Object diagram, snapshot of an apiary site.}
+\label{fig:objets}
+\end{figure}
+
+\section{Activity diagram}
+The activity diagram models the process of planning, approving and carrying out
+a visit, with the online and offline variants.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\linewidth]{diagramme_activite}
+\caption{Activity diagram of the visit process.}
+\label{fig:activite}
+\end{figure}
+
+\section{State-machine diagram}
+The state-machine diagram describes the life cycle of a hive, from its creation
+to its closure.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_etat}
+\caption{State machine of the life cycle of a hive.}
+\label{fig:etat}
+\end{figure}
+
+\section{Collaboration diagram}
+The collaboration diagram takes up the UC2 scenario in the form of numbered
+messages exchanged between the objects.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_collaboration}
+\caption{Collaboration diagram of use case UC2.}
+\label{fig:collaboration}
+\end{figure}
+
+\section{Component diagram}
+The component diagram shows the organisation of the application components, their
+interfaces and their dependencies, including the service interface exposing the
+honey quantity.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_composant}
+\caption{Component diagram of the Zümm system.}
+\label{fig:composant}
+\end{figure}

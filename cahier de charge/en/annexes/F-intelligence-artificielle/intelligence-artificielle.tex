@@ -1,0 +1,244 @@
+%==============================================================================
+%  APPENDIX - Artificial intelligence and predictive analysis
+%  AI integration strategy in Zümm: uses, algorithm, architecture
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix -- Artificial intelligence and predictive analysis}
+\label{chap:ia}
+%==============================================================================
+This appendix answers the questions of the \emph{why}, the \emph{how} and the
+\emph{where} of artificial intelligence in \textbf{Zümm}. It creates no new
+requirement: it extends the sensor part and the predictive analysis already
+anticipated in chapter~\ref{chap:conception} (§\,4.5) and the \emph{data}
+microservice trajectory mentioned in appendix~\ref{chap:migration}. The
+objective is to document an AI integration \textbf{consistent with the loosely
+coupled architecture}, \textbf{without betraying the constraints} of the
+requirements specification (self-deployment, free of charge, human validation).
+
+\begin{encadre}
+\textbf{Positioning:} in Zümm, AI is a \textbf{decision-support module}, never a
+control organ. It produces explainable \emph{pre-alerts}; the beekeeping agent
+keeps the \textbf{final validation} through the visit report, in accordance with
+the evaluation rule of §\,4.5.4.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Guiding principles}
+%------------------------------------------------------------------------------
+Every AI building block adopted respects four principles drawn directly from the
+project requirements:
+\begin{itemize}
+  \item \textbf{Decision support and human validation}: AI flags, it does not
+        decide. Each output is confirmed by the agent (§\,4.5.4).
+  \item \textbf{Self-deployment without a mandatory third-party service}: no
+        essential function depends on a paid cloud API. The basic processing
+        runs \textbf{locally}; cloud use remains \emph{optional} and enabled by
+        configuration.
+  \item \textbf{Decoupling and modularity}: AI is a \textbf{module enabled} via
+        \texttt{ConfigZumm.ini}, isolated from the business core by an
+        interface, in the spirit of loose coupling (appendix~\ref{chap:solid}).
+  \item \textbf{Explainability and frugality}: \textbf{interpretable} methods
+        (statistics, rules) and economical ones are favoured, rather than opaque
+        models, to remain defensible and reproducible.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Mapping of AI uses}
+%------------------------------------------------------------------------------
+The table below lists the AI uses relevant to Zümm, distinguishing what is
+\textbf{in scope} (implementable in the present foundation) from what is
+\textbf{anticipated} (interface specified, later development under the sensor
+part).
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} X C{1.7cm} C{1.7cm} C{1.9cm}}
+\toprule
+\textbf{Use} & \textbf{Description} & \textbf{Cloud dep.} & \textbf{Effort} & \textbf{Status} \\
+\midrule
+\endhead
+Adaptive anomaly detection &
+Per-hive baseline replacing the fixed threshold, to detect an unusual drift in
+production, population or temperature. &
+No & Low & \textbf{In scope} \\
+Acoustic swarming detection &
+Analysis of the sound signature for a swarming pre-alert 1 to 5 days in advance
+(precision beekeeping, §\,4.5.1). &
+No & High & Anticipated \\
+Vision: disease detection &
+Help in identification (varroa, brood) from the inspection photos attached to
+the visit report. &
+No & High & Anticipated \\
+Assisted voice entry &
+Dictation of the report, transcription feeding the report fields
+(§\,4.7, low priority). &
+Optional & Medium & Anticipated \\
+Summary assistant &
+Natural-language summary of the dashboards (ROI, alerts) for the owner. &
+Optional & Medium & Optional \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Prioritisation recommendation:} deliver the \textbf{adaptive anomaly
+detection} as a real function (feasible within the imposed foundation, without
+cloud dependency), and \textbf{specify the other uses as anticipated
+interfaces}. This is the posture already adopted by the requirements
+specification for the sensor part, which preserves the document's consistency.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Selected case: adaptive anomaly detection}
+%------------------------------------------------------------------------------
+§\,4.5.4 defines \textbf{fixed thresholds} (for example internal temperature
+$<32$\,\textdegree C or $>36$\,\textdegree C) and an anti-rebound rule. The limit
+of a fixed threshold is that it ignores the \textbf{specific behaviour of each
+hive} and its \textbf{seasonality}. The natural evolution consists in learning a
+\textbf{per-hive baseline} and measuring the deviation from this baseline, which
+detects the ``relative drop $>20$\,\% vs previous period'' adaptively.
+
+\subsection{Formalisation (without code)}
+For each (hive, indicator) pair, an \textbf{exponentially weighted moving
+average} (EWMA) $\mu_t$ and a dispersion estimate $\sigma_t$ are maintained,
+updated at each new normalised measurement $x_t$ (reference unit, §\,5.3):
+\begin{align}
+  \mu_t      &= \alpha\,x_t + (1-\alpha)\,\mu_{t-1}, \\
+  v_t        &= \alpha\,(x_t-\mu_{t-1})^2 + (1-\alpha)\,v_{t-1},
+                \qquad \sigma_t = \sqrt{v_t}.
+\end{align}
+The \textbf{anomaly score} is the normalised deviation (sliding \emph{z-score}):
+\begin{equation}
+  z_t = \frac{\lvert x_t - \mu_{t-1}\rvert}{\sigma_{t-1} + \varepsilon}.
+\end{equation}
+A \textbf{pre-alert} is raised only if $z_t > k$ (sensitivity) \textbf{persistently
+over $N$ consecutive measurements} (hysteresis, as in §\,4.5.4). This continuity
+with the existing rule is deliberate: an absolute threshold is replaced by a
+\emph{learned relative} threshold, without changing the anti-rebound logic or the
+human-validation principle.
+
+\subsection{Parameters (all configurable via ConfigZumm.ini)}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} p{2.4cm} X}
+\toprule
+\textbf{Parameter} & \textbf{Role} & \textbf{Effect of the setting} \\
+\midrule
+\endhead
+$\alpha$ (smoothing) & Weight of the recent measurement & The larger $\alpha$, the faster the baseline reacts (and the more sensitive to noise). \\
+$k$ (sensitivity) & Threshold on the z-score & The smaller $k$, the more sensitive the detection (and the more false alerts increase). \\
+$N$ (persistence) & Number of consecutive measurements & The larger $N$, the fewer false alerts (at the cost of a slight delay). \\
+Window / season & Reference history & Allows a per-season baseline (nectar flow, wintering). \\
+\bottomrule
+\end{xltabular}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\linewidth]{diagramme_activite_ia_pipeline}
+\caption{Adaptive anomaly-detection pipeline, from the raw measurement to the
+pre-alert confirmed by the agent.}
+\label{fig:ia-activite}
+\end{figure}
+
+\begin{encadre}
+\textbf{Consistency with §\,4.5.4:} the value is first \textbf{converted to the
+reference unit} (conversion Strategy, appendix~\ref{chap:solid}), then compared
+with a threshold; the alert remains subject to \textbf{anti-rebound} and remains
+a \textbf{decision-support aid}. Only the nature of the threshold changes: from
+\emph{fixed} to \emph{learned per hive}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Integration architecture}
+%------------------------------------------------------------------------------
+AI fits in without breaking anything in the layered architecture
+(figure~\ref{fig:couches}). Two decoupling mechanisms are used.
+
+\subsection{The detector as an interchangeable Strategy}
+Anomaly detection becomes a \textbf{\texttt{RegleAlerte} strategy} (Strategy
+pattern, appendix~\ref{chap:solid}), in the same way as the existing fixed
+threshold. The \texttt{GestionnaireAlertes} chooses, by configuration, between
+``fixed threshold'' and ``adaptive baseline'' without its code changing
+(open/closed principle). AI is therefore not an invasive addition, but an
+\textbf{additional implementation of an already planned interface}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_ia_detection}
+\caption{Sequence of the AI module: the ingested measurement is evaluated by the
+adaptive strategy, which raises a pre-alert confirmed by the agent.}
+\label{fig:ia-sequence}
+\end{figure}
+
+\subsection{The heavy processing as a decoupled microservice}
+The uses requiring \textbf{signal or vision} (acoustics, photos) must
+\textbf{never} run in the EJB container. They are offloaded to a \textbf{Python
+microservice} (pandas, scikit-learn / TensorFlow), exposed to the Java core by
+\textbf{REST/JSON}, exactly the \emph{data} trajectory described in
+appendix~\ref{chap:migration}. This microservice is \textbf{optional}: in its
+absence, the manual part and the basic statistical detection work fully.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  noeud/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=3.1cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  ianode/.style={draw=mielfonce,fill=miel!15,thick,minimum width=3.1cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[noeud] (capt) {Field\\gateway};
+\node[noeud,right=1.5cm of capt] (coeur) {Zümm core (J2EE)\\Servlet + EJB + JDBC};
+\node[noeud,right=1.5cm of coeur] (bd) {PostgreSQL\\time series};
+\node[ianode,below=1.1cm of coeur] (ia) {AI microservice (Python)\\pandas / scikit-learn};
+\node[noeud,above=1.0cm of coeur] (agent) {Agent\\dashboard};
+\draw[fl] (capt)--(coeur) node[midway,above,font=\scriptsize]{REST / MQTT};
+\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (coeur.south)--(ia.north) node[midway,right,font=\scriptsize]{REST/JSON};
+\draw[fl] (ia.north west) to[bend left=15] node[midway,left,font=\scriptsize]{score} (coeur.south west);
+\draw[fl] (coeur)--(agent) node[midway,right,font=\scriptsize]{pre-alert};
+\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Imposed foundation (J2EE)}] {};
+\end{tikzpicture}
+\caption{Decoupled integration: the J2EE foundation remains in control, the AI
+microservice is an optional module plugged in via a web service.}
+\label{fig:ia-archi}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Anticipated uses (specified interfaces, out of development scope)}
+%------------------------------------------------------------------------------
+In accordance with the treatment of the sensor part, the advanced uses are
+\textbf{specified as interfaces} so that the data model and the architecture
+accommodate them, without being developed in the present project.
+\begin{itemize}
+  \item \textbf{Acoustics / swarming}: the data model already accommodates a
+        \texttt{SIGNATURE\_ACOUSTIQUE} indicator (§\,4.5). The AI microservice
+        returns a verdict (swarming pattern detected, queen presence) that feeds
+        a pre-alert.
+  \item \textbf{Vision / diseases}: the \textbf{inspection photos} already
+        attached to the visit report constitute the input set; a pre-trained
+        model returns a suggestion, validated by the agent.
+  \item \textbf{Voice entry}: the transcription can rely on the \textbf{browser's
+        Web Speech API} (free, client-side, without server dependency), with an
+        \emph{optional} cloud fallback enabled by \texttt{ConfigZumm.ini}.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Ethics, limits and compliance}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.4cm} X}
+\toprule
+\textbf{Issue} & \textbf{Adopted provision} \\
+\midrule
+\endhead
+False alerts & Hysteresis over $N$ measurements and adjustable sensitivity $k$; the alert remains indicative. \\
+Over-reliance on automation & Explicit positioning as decision support; the agent keeps the final validation (§\,4.5.4). \\
+Explainability & Interpretable methods (score + threshold) preferred to opaque models; the pre-alert displays its justification. \\
+Data protection & Local processing by default, SSL / X.509 encryption of exchanges, no imposed cloud transfer. \\
+No lock-in & The AI microservice is optional and replaceable; without it, the basic management and detection remain operational. \\
+Frugality & Priority to lightweight statistical processing; heavy inference is triggered only on demand. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Conclusion:} Zümm's AI boils down to a clear rule --- \emph{learn each
+hive's normal, flag the deviation, let the human decide}. This approach adds
+predictive value while fully respecting the constraints of self-deployment,
+loose coupling and human validation of the requirements specification. It turns
+the \emph{anticipated} predictive part into a \textbf{concrete and progressive}
+implementation trajectory.
+\end{encadre}

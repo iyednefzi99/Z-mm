@@ -1,0 +1,93 @@
+%==============================================================================
+\chapter{Constraints and technical requirements}
+%==============================================================================
+
+\section{Architecture}
+A \textbf{scalable, evolvable, flexible, multi-tier and loosely coupled}
+architecture, relying on \textbf{J2EE} as the main infrastructure.
+
+\section{Imposed technical requirements}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
+\toprule
+\textbf{Requirement} & \textbf{Description} \\
+\midrule
+\endhead
+MVC              & Model / view / controller separation. \\
+Servlet          & Server-side request processing. \\
+JSP              & Presentation front-end. \\
+EJB              & Business components. \\
+JDBC             & Data access. \\
+Internationalisation & UI texts externalised in an XML file, open to offline translation with no language limit, FR, EN and AR at minimum in the demonstration. \\
+Configuration    & Parameterisation via the text file \texttt{ConfigZumm.ini}. \\
+Inter-component security & \textbf{X.509} certificates and \textbf{SSL} protocol. \\
+User authentication & \textbf{Google OAuth} via an XML web service and its API. \\
+Third-party API  & XML web service exposing \texttt{float getZummHoneyActualQuantity(int zummID)} to retrieve the honey quantity of a hive. \\
+Front-end        & JavaScript and free frameworks, respecting the imposed usability. \\
+\bottomrule
+\end{xltabular}
+
+\section{Non-functional requirements}
+\begin{itemize}
+  \item \textbf{Usability, user-friendliness and simplicity} of use, interface consistency and quality of the graphic design (of paramount importance).
+  \item \textbf{Scalability}: openness to adding languages, units and indicators.
+  \item \textbf{Interoperability}: web services queryable by third-party applications.
+  \item \textbf{Security}: encryption of exchanges and strong authentication.
+  \item \textbf{Design quality}: compliance with the \textbf{SOLID} principles and use of \textbf{design patterns} to guarantee loose coupling and scalability, as detailed in appendix~\ref{chap:solid}.
+\end{itemize}
+
+\begin{encadre}
+\textbf{Design principles adopted:} the architecture applies the five
+\textbf{SOLID} principles (single responsibility, open/closed, Liskov
+substitution, interface segregation, dependency inversion) and a set of
+\textbf{design patterns} (Composite, State, Strategy, Observer, Command, Factory
+Method, Builder, Adapter, Facade, Singleton, Proxy). Their application to the
+system, justified ``before / after'', is detailed in
+appendix~\ref{chap:solid}.
+\end{encadre}
+
+\section{Design questions to cover}
+The design must explicitly answer the following questions:
+\begin{enumerate}
+  \item What are the \textbf{inputs} (list, data dictionary and types) and \textbf{outputs} (list, dictionary, types, formulas and calculation queries) of the system?
+  \item What does the solution consist of?
+  \item Who are the typical users and their access rights to the features?
+  \item How does the system carry out the user operations?
+  \item How is the system packaged and deployed?
+  \item How do the elements interact and in what order / chronology?
+  \item Why, how and where was each technology used?
+\end{enumerate}
+
+\section{Justification of the technology choices}
+The following table answers the why, the how and the where of each imposed
+technology. The \textbf{concrete implementations} of this foundation
+(application server, DBMS, front-end libraries, web-service style) and the
+\textbf{justified comparison} of the evaluated alternatives are detailed in
+appendix~\ref{chap:technologies}.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} X p{5.4cm}}
+\toprule
+\textbf{Technology} & \textbf{Why} & \textbf{Where} \\
+\midrule
+\endhead
+MVC & Separate the responsibilities and ease maintenance & General organisation of the application \\
+Servlet & Process the requests and orchestrate the processing & Control layer \\
+JSP & Produce the dynamic pages & Presentation layer \\
+EJB & Encapsulate the business logic and make it reusable & Business layer \\
+JDBC & Access the relational database in a standard way & Data-access layer \\
+XML i18n & Externalise the texts for offline translation & Internationalisation module \\
+ConfigZumm.ini & Parameterise the system without recompilation & Configuration module \\
+Google OAuth & Authenticate users without managing passwords & Access to the system \\
+XML API web service & Expose the data to third-party applications & Interoperability interface \\
+X.509 and SSL & Encrypt and authenticate the exchanges & Inter-component communications \\
+JavaScript & Enrich the usability of the front-end & Presentation layer \\
+\bottomrule
+\end{xltabular}
+
+\section{Packaging and deployment}
+\begin{itemize}
+  \item \textbf{Packaging}: the application is packaged as a Java enterprise archive (WAR for the web part, EAR if the EJBs are grouped), including the internationalisation XML files and the \texttt{ConfigZumm.ini} file.
+  \item \textbf{Server}: deployment on a J2EE application server providing a servlet container and an EJB container.
+  \item \textbf{Database}: relational DBMS accessed via JDBC.
+  \item \textbf{Security}: installation of the X.509 certificates and activation of SSL for the exchanges, configuration of Google OAuth access.
+  \item \textbf{Configuration}: the thresholds, units and active modules are adjusted in \texttt{ConfigZumm.ini} without redeployment.
+\end{itemize}
+The physical distribution is illustrated by the deployment diagram (figure \ref{fig:deploiement}).

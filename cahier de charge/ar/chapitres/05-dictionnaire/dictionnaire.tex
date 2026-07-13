@@ -1,0 +1,88 @@
+%==============================================================================
+\chapter{قاموس المعطيات وقواعد الحساب}
+%==============================================================================
+يجيب هذا الفصل عن مسألة مُدخلات النظام ومُخرجاته. يعرّف المعطيات المُعالَجة
+وأنواعها وصيَغ حساب النتائج.
+
+\section{اصطلاحات الأنواع}
+الأنواع المستعملة هي: عدد صحيح، عدد عشري، نص، تاريخ، ساعة، تاريخ ووقت، منطقي،
+تعداد، ومرجع (مفتاح خارجي نحو كيان آخر). تُقرَن المقادير الفيزيائية بوحدة قابلة
+للضبط لإتاحة تدويل أنظمة القياس.
+
+\section{قاموس المعطيات (المُدخلات)}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} p{3.4cm} p{2.6cm} X}
+\toprule
+\textbf{الكيان} & \textbf{الخاصية} & \textbf{النوع} & \textbf{الوصف} \\
+\midrule
+\endhead
+مربّي النحل & \textenglish{id, nom, contact} & عدد صحيح، نص & المالك المستغِلّ. \\
+المزرعة & \textenglish{id, nom, fermier} & عدد صحيح، نص، مرجع & استغلال مرتبط بمربّي نحل. \\
+الموقع & \textenglish{id, nom} & عدد صحيح، نص & موضع لتربية النحل. \\
+الموقع & \textenglish{latitude, longitude} & عدد عشري (درجات) & تحديد الموقع الجغرافي. \\
+الموقع & \textenglish{altitude} & عدد عشري (وحدة قابلة للضبط) & ارتفاع الموقع. \\
+الموقع & \textenglish{dateMiseEnOeuvre, dateDemenagement, dateCloture} & تاريخ & دورة حياة الموقع، الأخيران اختياريان. \\
+الخلية & \textenglish{id, modele} & عدد صحيح، نص & خلية يستضيفها موقع. \\
+الخلية & \textenglish{nbHausses} & عدد صحيح (0 إلى 5) & عدد طوابق التمديد. \\
+الخلية & \textenglish{ferme} & مرجع & المزرعة المالكة (مختلفة عن موقع التموضع). \\
+الخلية & \textenglish{etat} & تعداد & حالة دورة الحياة (مُنشأة، مُعمَّرة، نشطة، في تقسيم، في جمع، مُغلقة)، انظر الشكل~\ref{fig:etat}. \\
+الخلية & \textenglish{agentResponsable} & مرجع & العون المسؤول في اللحظة المعطاة. \\
+المقصورة & \textenglish{id, type} & عدد صحيح، تعداد & مقصورة الخلية: جسم أو عاسلة. \\
+المقصورة & \textenglish{capaciteCadres} & عدد صحيح (1 إلى 10) & عدد مواضع الإطارات. \\
+الإطار & \textenglish{id, slot, type} & عدد صحيح، تعداد & إطار مركّب على موضع محدّد. \\
+الإطار & \textenglish{poids} & عدد عشري (وحدة قابلة للضبط) & وزن الإطار، أساس حساب كمية العسل. \\
+العون & \textenglish{id, nom, role} & عدد صحيح، نص، تعداد & مربّي نحل، مشرف، مسؤول أو مدير نظام. \\
+البرنامج & \textenglish{id, ruche, agent} & عدد صحيح، مرجع & برنامج الزيارة. \\
+البرنامج & \textenglish{datePrevue, statutApprobation} & تاريخ، تعداد & التاريخ المقرّر ومصادقة المشرف. \\
+البرنامج & \textenglish{superviseur} & مرجع & العون المشرف الذي يصادق على البرنامج. \\
+الزيارة & \textenglish{id, ruche, agent} & عدد صحيح، مرجع & زيارة مُنجَزة. \\
+الزيارة & \textenglish{planning} & مرجع & البرنامج المُصادَق عليه وراء الزيارة (اختياري). \\
+الزيارة & \textenglish{date, heure, duree} & تاريخ، ساعة، عدد صحيح (دقيقة) & الطابع الزمني والمدة. \\
+الزيارة & \textenglish{raison} & تعداد & سبب الزيارة. \\
+الزيارة & \textenglish{constatations, actionsPrevues, actionsEffectuees, recommandations} & نص & محتوى التقرير. \\
+الزيارة & \textenglish{effectifQualitatif, etatSante} & تعداد & تقييم الطرد. \\
+الزيارة & \textenglish{productivite} & عدد صحيح (1 إلى 3) & مستوى الإنتاجية. \\
+الصورة & \textenglish{id, url, visite} & عدد صحيح، نص، مرجع & صورة مرفقة بتقرير زيارة. \\
+القياس & \textenglish{id, ruche, typeIndicateur} & عدد صحيح، مرجع، تعداد & قياس مؤشّر. \\
+القياس & \textenglish{valeur, unite} & عدد عشري، نص & القيمة والوحدة القابلة للضبط. \\
+القياس & \textenglish{horodatage, latitude, longitude} & تاريخ ووقت، عدد عشري & قياس مؤرّخ ومحدّد الموقع. \\
+الحصاد & \textenglish{id, ruche, date} & عدد صحيح، مرجع، تاريخ & حصاد عسل. \\
+الحصاد & \textenglish{quantiteMiel, lotQR} & عدد عشري (وحدة قابلة للضبط)، نص & الكمية ومعرّف الدفعة. \\
+العتبة & \textenglish{id, type, valeur, unite} & عدد صحيح، تعداد، عدد عشري، نص & عتبة نظام قابلة للضبط. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{المخطّط المرجعي:} القاموس أعلاه هو الرؤية المهنية للمعطيات. تُشكّل
+ترجمتُه العلائقية المُطبَّعة (المفاتيح وأنواع \textenglish{SQL} وقيود
+\texttt{CHECK}) \textbf{النموذج المنطقي للمعطيات} (\textenglish{MLD})، وهو المرجع
+المعتمَد للتنفيذ، ويُعرَض في الملحق~\ref{chap:complements}
+(الشكل~\ref{fig:mld}). يُعطى تقابل الأسماء بين القاموس ومخطّط الأصناف والنموذج
+المنطقي في الجدول~\ref{tab:vocabulaire}.
+\end{encadre}
+
+\section{النتائج وقواعد الحساب (المُخرجات)}
+\begin{itemize}
+  \item \textbf{كمية عسل خلية}: مجموع أوزان إطارات العسل في العاسلات، مطروحًا منه وزن الفارغ.
+\end{itemize}
+\[ \text{HoneyQuantity}(h) = \sum_{f \in \text{honeyFrames}(h)} \text{weight}(f) - \text{tare}(h) \]
+تُعرَض هذه القيمة عبر خدمة الويب من خلال \texttt{getZummHoneyActualQuantity(zummID)}.
+\begin{itemize}
+  \item \textbf{العائد على الاستثمار} لموقع أو خلية:
+\end{itemize}
+\[ \text{ROI} = \frac{\text{Valued production}}{\text{Operation costs}} \]
+\begin{itemize}
+  \item \textbf{تنبيه الجمع}: يُطلَق إذا تجاوز الإنتاج العتبة القابلة للضبط.
+\end{itemize}
+\[ \text{Production}(h) > \text{ProductionThreshold} \Rightarrow \text{harvest or extension alert} \]
+\begin{itemize}
+  \item \textbf{تنبيه الانخفاض}: يُطلَق إذا تجاوز الانخفاض النسبي العتبة.
+\end{itemize}
+\[ \frac{V_{\text{prev}} - V_{\text{current}}}{V_{\text{prev}}} > \text{DropThreshold} \Rightarrow \text{inspection alert} \]
+\begin{itemize}
+  \item \textbf{تحويل الوحدات} نحو الوحدة المرجعية، لمقارنة قياسات غير متجانسة:
+\end{itemize}
+\[ V_{\text{reference}} = V_{\text{measurement}} \times \text{conversionFactor}(\text{unit}) \]
+
+\section{استعلامات نموذجية}
+تستند النتائج إلى استعلامات مُنفَّذة عبر \textenglish{JDBC}، مثلًا لكمية عسل
+خلية: \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = zummID}.

@@ -1,0 +1,126 @@
+%==============================================================================
+%  ملحق - الحزمة التقنية المفصّلة ومقارنة مُبرَّرة
+%==============================================================================
+
+%==============================================================================
+\chapter{ملحق: الحزمة التقنية ومقارنة البدائل}
+\label{chap:technologies}
+%==============================================================================
+الأساس التقني لـ \textbf{Zümm} (MVC، Servlet، JSP، EJB، JDBC، XML i18n،
+Google OAuth، X.509 / SSL، خدمة ويب XML) \textbf{مفروض} من كراس الشروط ومن شبكة
+التقييم. لذلك تنصبّ حرية الاختيار على \textbf{التنفيذات الملموسة} لهذا الأساس:
+خادم التطبيقات، ونظام إدارة قواعد المعطيات، ومكتبات الواجهة الأمامية، وأسلوب خدمة
+الويب. يُحصي هذا الملحق التقنيات المعتمَدة طبقةً طبقةً، ثم يبرّر كل خيار في مقابل
+بدائله.
+
+%------------------------------------------------------------------------------
+\section{الحزمة التقنية المعتمَدة}
+%------------------------------------------------------------------------------
+يوضّح الجدول أدناه، لكل طبقة من البنية متعددة الطبقات (الشكل~\ref{fig:couches})،
+التنفيذ الملموس المعتمَد ونسخته المرجعية. جميع اللبنات \textbf{حرة ومجانية}، وفق
+متطلب النشر الذاتي دون اشتراك.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{4.9cm} X}
+\toprule
+\textbf{الطبقة / الحاجة} & \textbf{التقنية المعتمَدة} & \textbf{الدور في Zümm} \\
+\midrule
+\endhead
+المنصّة & Jakarta EE 10 على JDK 17 LTS & أساس «J2EE» الحالي: Servlet، JSP، EJB، JAX-WS \\
+خادم التطبيقات & WildFly (حاوية Web + EJB) & يُشغّل أرشيف WAR/EAR، ويوفّر الحاويات \\
+التحكم (MVC) & Jakarta Servlets + JSP + JSTL & توجيه الطلبات، طبقة التحكم \\
+الأعمال & EJB Session (stateless) & قواعد التسيير: العائد، العتبات، كمية العسل \\
+الوصول إلى المعطيات & JDBC + مَجمع HikariCP & استعلامات SQL، إدارة الاتصالات \\
+نظام قواعد المعطيات & PostgreSQL (+ PostGIS) & استمرارية علائقية، تحديد موقع المواقع \\
+العرض & HTML5 + JavaScript + Bootstrap 5 & واجهة مُتجاوِبة، تكافؤ ويب / جوّال \\
+الرسوم البيانية & Chart.js & لوحات قيادة الإنتاج والتنبيهات والخلاصة \\
+الخرائط & Leaflet + OpenStreetMap & خريطة المواقع وأنصاف أقطار الرعي \\
+التدويل & ملفات XML + \texttt{ResourceBundle} & نصوص FR / EN / AR، دعم RTL العربي \\
+الإعداد & \texttt{ConfigZumm.ini} عبر Singleton & العتبات والوحدات دون إعادة نشر \\
+خدمة ويب خارجية & JAX-WS (SOAP / XML) & \texttt{getZummHoneyActualQuantity(int)} \\
+المصادقة & Google OAuth 2.0 & اتصال مُفوَّض دون إدارة كلمات السرّ \\
+أمان التبادلات & TLS / SSL + شهادات X.509 & التشفير والمصادقة بين المكوّنات \\
+دون اتصال & PWA (Service Worker + IndexedDB) & إدخال ميداني دون شبكة، مزامنة مؤجّلة \\
+البناء والاختبارات & Maven، JUnit 5، Mockito، Arquillian & التصريف، اختبارات وحدة وداخل الحاوية \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{ملاحظة:} الانتقال من التسمية التاريخية «J2EE» إلى \textbf{Jakarta EE 10}
+لا يغيّر لا المفاهيم ولا الواجهات المذكورة (Servlet، JSP، EJB، JDBC). إنه يعتمد
+فقط النسخة المُصانة من المنصّة. تُعالَج مسيرة التحديث نحو Spring Boot على حدة في
+الملحق~\ref{chap:migration}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{مقارنة مُبرَّرة للبدائل}
+%------------------------------------------------------------------------------
+لكل قرار مفتوح، جرى تقييم الخيارات الموثوقة. يحتفظ الجدول بالخيار، ويذكر البدائل
+المُستبعَدة، ويعطي التبرير في ضوء متطلبات المشروع (النشر الذاتي، والمجانية،
+وسهولة الاستعمال، وتحديد الموقع، والتشغيل البيني).
+
+\subsection{خادم التطبيقات}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+WildFly & GlassFish، Payara، Open~Liberty، Apache~TomEE & حاوية \textbf{EJB + Servlet} كاملة ومجانية، إقلاع سريع، توثيق وفير. يبقى TomEE أخفّ لكن أقلّ تكاملًا. يناسب Payara أيضًا (تفرّع GlassFish موجّه للإنتاج). \\
+\bottomrule
+\end{xltabular}
+
+\subsection{نظام إدارة قواعد المعطيات}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+PostgreSQL & MySQL / MariaDB، H2، Oracle XE & \textbf{تحديد موقع} أصلي (PostGIS) للمواقع وأنصاف أقطار الرعي، دعم جيّد لقيود \texttt{CHECK} (قواعد الإطارات/العاسلات)، سلاسل زمنية للقياسات. مجاني ودون احتكار مُلكي، خلافًا لـ Oracle. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{أسلوب خدمة الويب الخارجية}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+JAX-WS (SOAP / XML) & JAX-RS (REST/JSON)، gRPC & يفرض كراس الشروط \textbf{خدمة ويب XML} تعرض \texttt{float getZummHoneyActualQuantity(int zummID)}. SOAP هو ترجمتها الحرفية، بعقد WSDL قابل للاستجواب من Excel. يمكن لنقطة REST/JSON أن تُكمّل العرض في التحديث (الملحق~\ref{chap:migration}). \\
+\bottomrule
+\end{xltabular}
+
+\subsection{الخرائط وأنصاف أقطار الرعي}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+Leaflet + OSM & Google Maps JS API، Mapbox & \textbf{حرّ ودون مفتاح مدفوع} ولا حصّة مُفوترة، متّسق مع متطلب النشر الذاتي. رسم بسيط لدوائر الرعي (1، 2، 3~كم) من إحداثيات المواقع. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{مكتبة الرسوم البيانية}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+Chart.js & D3.js، ApexCharts، Highcharts & منحنى تعلّم منخفض وعرض مباشر لمدرّجات ومنحنيات لوحات القيادة (الإنتاج، العائد). D3 أقوى لكنه مفرط الحجم. Highcharts ليس حرًّا للاستعمال التجاري. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{الوصول دون اتصال والجوّال}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{الخيار} & \textbf{البدائل المُستبعَدة} & \textbf{تبرير الاختيار} \\
+\midrule
+\endhead
+PWA (Service Worker + IndexedDB) & تطبيق أصلي (Android/iOS)، Flutter، React~Native & \textbf{تكافؤ ويب / جوّال} بقاعدة شيفرة واحدة، إدخال ميداني دون شبكة ثم مزامنة مؤجّلة. يتفادى تطوير وتوزيع التطبيقات الأصلية، خارج النطاق الأكاديمي. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{الاتّساق مع القيد الأكاديمي:} جميع اللبنات المعتمَدة حرة وموثّقة
+و\emph{قابلة للتبرير} «لماذا / كيف / أين» (معيار \emph{التقنيات} في شبكة التقييم،
+فصل الآجال). لا تعتمد أيّ منها على مولّد شيفرة: تُنفَّذ يدويًا من قِبَل الفريق،
+وفق قيد الاختبار.
+\end{encadre}

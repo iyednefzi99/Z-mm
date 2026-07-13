@@ -1,0 +1,156 @@
+%==============================================================================
+\chapter{Beekeeping domain reference and good practices}
+%==============================================================================
+This chapter specifies the domain knowledge that underpins the management rules,
+the configurable thresholds and the system indicators. It constitutes the
+functional basis on which the dashboards and the alerts rely.
+
+\section{Honey production factors}
+A colony's production depends directly on the weather, pollen availability and
+nectar flow. When the nectar flow is high, the queen lays more, the population
+peaks and the yield reaches its maximum. In a period of food shortage, laying
+and population decrease. The system must therefore correlate the measured
+production with periods and seasons, which justifies the filtering of the
+dashboards by month, week, season and year.
+
+\section{Location and configuration of a site}
+The choice of a site's location determines productivity. The following reference
+values can feed the fields and the input checks of the site-management module.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.5cm} X}
+\toprule
+\textbf{Criterion} & \textbf{Reference value} \\
+\midrule
+\endhead
+Proximity to resources & Nectar and pollen sources about 1 km away. \\
+Access to water & Accessible drinking water, several litres consumed per day and per colony. \\
+Distance from dwellings & 100 m in a forest area, 200 m in a shrubland area, 300 m in an open area. \\
+Distance from treated crops & At least 3 to 4 km from conventional crops using pesticides. \\
+Elevation and inclination & Hives raised about 1.5 m off the ground and slightly tilted to drain moisture. \\
+Protection & Shelter from intense sun, wind and floods. \\
+\bottomrule
+\end{xltabular}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.48\linewidth]{hive-003}
+\caption{Example of a hive installed on a site: elevation on legs and landing board.}
+\label{fig:ruche-installee}
+\end{figure}
+
+\section{Hive types and reference yield}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.5cm} X}
+\toprule
+\textbf{Type of hive} & \textbf{Characteristics and yield} \\
+\midrule
+\endhead
+Traditional fixed-comb hive & 6 to 10 kg of comb honey per season, not recommended in organic beekeeping. \\
+Top-bar hive & Standard width of 32 to 35 cm, independent inspection of the combs. \\
+Frame hive (Langstroth, East-African) & Honey combs reusable for several seasons after harvest. \\
+\bottomrule
+\end{xltabular}
+These orders of magnitude serve as a basis for setting the production thresholds
+and estimating the return on investment per hive.
+
+\section{Classification of hive models}
+Two large families of hives are distinguished, whose modelling must remain open
+to cover local and international uses.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.5cm} X}
+\toprule
+\textbf{Family} & \textbf{Representative models} \\
+\midrule
+\endhead
+Frame hives (vertical) & Dadant, Langstroth, Voirnot, Layens, Aumônière, National (GB), WBC, Tonelli. \\
+Traditional frameless hives & Warré, Kenyan TBH, Tanzanian TBH, log, straw (skep). \\
+Other regional models & Lucitana, Oksman, Smith, CDB, Duvauchelle, Jarry, Congres, Zanders, Slovenian models. \\
+\bottomrule
+\end{xltabular}
+In France, the most common models are the Dadant, Langstroth and Voirnot hives.
+All frame hives share a common composition, with dimensions precise to the
+millimetre, which reinforces the chosen data model.
+\begin{encadre}
+\textbf{Model anchor:} the project's reference model is the Dadant hive, whose
+body holds up to 10 frames. This value grounds the maximum capacity of 10 frames
+per body or per super adopted in the management rules. The system nevertheless
+remains configurable to support other models.
+\end{encadre}
+
+\subsection{Common composition of a frame hive}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
+\toprule
+\textbf{Element} & \textbf{Role} \\
+\midrule
+\endhead
+Floor / landing board & Base of the hive and landing zone for the bees. \\
+Body (base) & Main brood compartment, holds the base frames. \\
+Super & Extension level intended for honey harvesting. \\
+Frame & Removable support of the wax combs, installed on an identified slot. \\
+Queen excluder & Separates the body from the supers and confines the queen to the body. \\
+Crown board and roof & Close and protect the hive from bad weather. \\
+Feeder & Allows the food replenishment of the colony. \\
+\bottomrule
+\end{xltabular}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{hive-001}
+\caption{Cross-section of a frame hive and role of each element (roof, feeder, crown board, super, queen excluder, body, floor).}
+\label{fig:coupe-ruche}
+\end{figure}
+
+\section{Colony inspection protocol}
+Inspections are preferably carried out on sunny days and focus on precise
+checkpoints that structure the visit report.
+\begin{itemize}
+  \item brood development (eggs, larvae, capped cells)
+  \item filling of the cells with honey and pollen
+  \item presence of parasites or diseases
+  \item collection of nectar, pollen and propolis
+\end{itemize}
+\begin{encadre}
+\textbf{Operational constraint:} a visit must not exceed 45 minutes. Beyond that,
+the colony's agitation increases and spreads to the neighbouring hives. The
+\emph{duration} field of the visit report can be checked against this reference
+limit.
+\end{encadre}
+
+\section{Swarming and colony splitting}
+An imminent swarming is signalled by the presence of queen cells on the edges of
+the combs. A few days before the emergence of a new queen, the old queen leaves
+the colony with half the workers. The system must therefore make it possible to
+anticipate the split. Three reference methods are provided as operation reasons.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.5cm} X}
+\toprule
+\textbf{Method} & \textbf{Principle} \\
+\midrule
+\endhead
+Nucleus formation & Remove 1 to 2 brood combs with bees to a new hive. \\
+Queen nucleus & Transfer the queen with a comb free of queen cells. \\
+Artificial swarming & Move the mother hive and place a new hive at the old location with 2 to 3 combs of young brood. \\
+\bottomrule
+\end{xltabular}
+
+\section{Well-being indicators and causes of decline}
+A healthy colony presents a well-developed brood nest at the various stages,
+cells filled with resources, visible foraging activity and the absence of
+parasites or diseases. These criteria feed the qualitative assessment of the
+health status and the productivity level rated from 1 to 3 in the visit report.
+
+The absconding or abandonment of a hive results from excessive disturbances or
+inadequate conditions (lack of food or water, extreme temperatures). Leaving a
+honey reserve to the colony during the harvest reduces this risk. These
+phenomena justify the alerts of sudden population or production drop and the
+associated configurable thresholds.
+
+\section{Impact on the configurable thresholds}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.5cm} X}
+\toprule
+\textbf{System parameter} & \textbf{Business anchor} \\
+\midrule
+\endhead
+Honey-harvest threshold & Reference yield per hive type and per season. \\
+Drop-alert threshold & Abnormal drop linked to absconding, disease or food shortage. \\
+Maximum visit duration & Limit of 45 minutes per inspection. \\
+Site safety distances & 100, 200 or 300 m depending on the area, 3 to 4 km from treated crops. \\
+Analysis periods & Correlation of production and season (nectar flow). \\
+\bottomrule
+\end{xltabular}

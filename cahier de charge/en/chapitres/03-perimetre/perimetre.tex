@@ -1,0 +1,105 @@
+%==============================================================================
+\chapter{Project scope}
+%==============================================================================
+
+\section{Covered domain}
+The scope of this requirements specification covers \textbf{the first part} of
+the system: the manual management of operations, their planning and monitoring,
+as well as the preparation of the architecture for the future integration of
+automated indicators.
+
+\section{Business model and management rules}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} X}
+\toprule
+\textbf{Entity} & \textbf{Management rules} \\
+\midrule
+\endhead
+Farmer   & May own several farms. \\
+Farm     & May include several apiary sites. \\
+Site     & Contains one or more hives, has a geographic location (latitude, longitude, altitude, commissioning date, possible relocation / closure dates). A site may host hives belonging to different farmers and different farms. \\
+Hive     & Made up of a base compartment (base / body) and at most \textbf{5} extension levels (supers). \\
+Body / Super & May hold wax frames installed on identified \emph{slots}. The base/body must contain \textbf{at least 1} frame; the maximum capacity of a body, as of a super, is \textbf{10 frames}. \\
+Frame    & Occupies a single slot in the body or the super. \\
+Beekeeping agent & Carries out the visits and inspections. A hive may be monitored successively by several agents, but it is under the responsibility of \textbf{a single agent} at any given time. \\
+Supervising agent & Approves the visit schedule of the hives under their charge. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}[nobreak=true]
+\textbf{Composition constraint:} 1 hive = 1 mandatory base/body + 0 to 5 supers,
+each body/super = 1 to 10 frames, one frame per slot.
+\end{encadre}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\small},
+  ent/.style={draw=mielfonce,fill=grisdoux,rounded corners=3pt,minimum height=9mm,inner xsep=7pt,thick},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[ent] (a) {Farmer};
+\node[ent,right=7mm of a] (b) {Farm};
+\node[ent,right=7mm of b] (c) {Site};
+\node[ent,right=7mm of c] (d) {Hive};
+\node[ent,below=9mm of d] (e) {Body / Super};
+\node[ent,left=7mm of e] (f) {Frame};
+\draw[fl] (a)--(b); \draw[fl] (b)--(c); \draw[fl] (c)--(d);
+\draw[fl] (d)--(e); \draw[fl] (e)--(f);
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(a)!0.5!(b)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(b)!0.5!(c)$) {1..n};
+\node[font=\scriptsize,mielfonce,above=0.5mm] at ($(c)!0.5!(d)$) {1..n};
+\end{tikzpicture}
+\caption{Hierarchy of the Zümm system's business entities.}
+\label{fig:hierarchie}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\small]
+% site boundary
+\draw[draw=mielfonce,thick,rounded corners=6pt,fill=grisdoux] (0,0) rectangle (11,4.4);
+\node[anchor=north west,mielfonce,font=\bfseries] at (0.2,4.25) {Apiary site};
+\node[anchor=north west,font=\footnotesize] at (0.2,3.7)
+  {latitude / longitude / altitude, commissioning date};
+% three hives installed on the site
+\foreach \x in {0.9,4.3,7.7}{
+  \begin{scope}[shift={(\x,0.7)}]
+    \fill[miel!30,draw=mielfonce,thick] (0,0) rectangle (1.4,0.6);
+    \fill[miel!40,draw=mielfonce,thick] (0,0.6) rectangle (1.4,1.2);
+    \fill[mielfonce] (-0.12,1.2)--(1.52,1.2)--(0.7,1.7)--cycle;
+    \draw[mielfonce,thick] (-0.1,-0.12) rectangle (1.5,0);
+  \end{scope}
+}
+\node[font=\scriptsize] at (1.6,0.45) {Hive};
+\node[font=\scriptsize] at (5.0,0.45) {Hive};
+\node[font=\scriptsize] at (8.4,0.45) {Hive};
+% external resources
+\node[anchor=west,font=\footnotesize,align=left] at (11.4,3.2)
+  {Resources\\(nectar / pollen)\\about 1 km away};
+\draw[-{Latex[length=2mm]},mielfonce,dashed] (11,3.0) -- (11.35,3.0);
+\node[anchor=west,font=\footnotesize,align=left] at (11.4,1.2)
+  {Safety distances\\100 / 200 / 300 m\\3 to 4 km from\\treated crops};
+\end{tikzpicture}
+\caption{Diagram of an apiary site: several geolocated hives and placement constraints.}
+\label{fig:site}
+\end{figure}
+
+\section{Users and access rights}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.2cm} X}
+\toprule
+\textbf{Profile} & \textbf{Role and permissions} \\
+\midrule
+\endhead
+Farmer / Owner & Views the production, profitability and summary dashboards; decides on closing a site or relocating hives. \\
+Beekeeping agent & Carries out the visits, fills in the reports, performs operations on the hives under their responsibility. \\
+Supervising agent & Approves the visit schedules of the hives they are responsible for. \\
+Manager & Monitors the alerts (production or population drop) and triggers imminent inspections. \\
+Administrator & Manages the system parameters, units of measurement, thresholds and reference data. \\
+\bottomrule
+\end{xltabular}
+
+\section{Out of scope}
+\begin{itemize}
+  \item The physical acquisition and hardware deployment of sensors (later project).
+  \item Real-time automation of indicator collection (interface planned but not implemented in this phase).
+\end{itemize}

@@ -1,0 +1,232 @@
+%==============================================================================
+%  APPENDIX - Complements: data, UI, security and tests
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix -- Complements: data, UI, security and tests}
+\label{chap:complements}
+%==============================================================================
+This appendix gathers complementary deliverables reinforcing the file: the
+logical data model, the interface mockups, the access-rights matrix, the risk
+register, data-protection compliance and the test strategy.
+
+%------------------------------------------------------------------------------
+\section{Logical data model (LDM)}
+%------------------------------------------------------------------------------
+The LDM translates the data dictionary (chapter~5) into relational tables with
+primary keys, foreign keys and management constraints (\texttt{CHECK} on the
+number of supers, the frame capacity and the productivity, as well as the
+uniqueness of the compartment/slot pair). It distinguishes the \emph{location}
+relationship (a site hosts hives) from the \emph{ownership} relationship (a farm
+owns hives), in accordance with the rule allowing a site to host hives from
+several farms.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.82\linewidth]{diagramme_mld}
+\caption{Relational logical data model of the Zümm system.}
+\label{fig:mld}
+\end{figure}
+
+\subsection{Vocabulary correspondence table}
+To guarantee consistency between the deliverables, each business entity carries
+the same concept in three forms: the \textbf{data dictionary} name (chapter~5),
+the UML diagram \textbf{class} and the LDM \textbf{table}. Attribute writing
+convention: \texttt{camelCase} in the classes (\texttt{nbHausses}),
+\texttt{snake\_case} in the tables (\texttt{nb\_hausses}).
+
+\begin{xltabular}{\textwidth}{>{\bfseries}X p{4.4cm} p{4.4cm}}
+\caption{Name correspondence between dictionary, classes and LDM.}
+\label{tab:vocabulaire}\\
+\toprule
+\textbf{Dictionary (business)} & \textbf{Class (UML)} & \textbf{Table (LDM)} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Dictionary (business)} & \textbf{Class (UML)} & \textbf{Table (LDM)} \\
+\midrule
+\endhead
+Farmer & \texttt{Fermier} & \texttt{FERMIER} \\
+Farm & \texttt{Ferme} & \texttt{FERME} \\
+Site & \texttt{Site} & \texttt{SITE} \\
+Hive & \texttt{Ruche} & \texttt{RUCHE} \\
+Compartment (body / super) & \texttt{Compartiment} & \texttt{COMPARTIMENT} \\
+Frame & \texttt{Cadre} & \texttt{CADRE} \\
+Agent & \texttt{Agent} & \texttt{AGENT} \\
+Schedule & \texttt{Planning} & \texttt{PLANNING} \\
+Visit & \texttt{Visite} & \texttt{VISITE} \\
+Photo & (visit report) & \texttt{PHOTO} \\
+Measurement & \texttt{Mesure} & \texttt{MESURE} \\
+Harvest & \texttt{Recolte} & \texttt{RECOLTE} \\
+Threshold & \texttt{Seuil} & \texttt{SEUIL} \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Interface mockups (wireframes)}
+%------------------------------------------------------------------------------
+The following low-fidelity mockups set the ergonomics of the key screens before
+development. They respect the visual identity and the required simplicity.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{wireframe_calendrier}
+\caption{Mockup: calendar / agents x hives matrix with visit pop-up.}
+\label{fig:wf-calendrier}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{wireframe_tdb_production}
+\caption{Mockup: production dashboard with configurable threshold.}
+\label{fig:wf-production}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\linewidth]{wireframe_rapport_visite}
+\caption{Mockup: visit-report form (with offline mode and photos).}
+\label{fig:wf-rapport}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{wireframe_ruche}
+\caption{Mockup: hive form and composition (body, supers, frames).}
+\label{fig:wf-ruche}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Access-rights matrix (RBAC)}
+%------------------------------------------------------------------------------
+The matrix specifies, for each function, the right granted to each profile.
+\textbf{Legend:} CRUD = create / read / update / delete, R = read, X = execute,
+A = approve, --- = no access.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}X C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm} C{1.3cm}}
+\toprule
+\textbf{Function} & \textbf{Owner} & \textbf{Beek.} & \textbf{Sup.} & \textbf{Mgr.} & \textbf{Admin} & \textbf{API} \\
+\midrule
+\endhead
+Farms and sites          & CRUD & R    & R    & R    & CRUD & --- \\
+Hives (bodies/frames)    & CRUD & R    & R    & R    & CRUD & --- \\
+Agents                   & R    & ---  & R    & R    & CRUD & --- \\
+Plan a visit             & R    & X    & X    & X    & X    & --- \\
+Approve the schedule     & ---  & ---  & A    & ---  & X    & --- \\
+Carry out visit/report   & R    & X    & X    & ---  & R    & --- \\
+Agents x hives calendar  & R    & R    & R    & R    & R    & --- \\
+Production dashboard      & R    & ---  & ---  & R    & R    & --- \\
+Alerts dashboard / handle & R   & ---  & ---  & X    & R    & --- \\
+Summary and ROI          & R    & ---  & ---  & R    & R    & --- \\
+Configure thresholds/units & --- & ---  & ---  & R    & CRUD & --- \\
+Internationalisation     & ---  & ---  & ---  & ---  & CRUD & --- \\
+CSV / TXT export         & R    & R    & R    & R    & R    & --- \\
+Backup / restore         & ---  & ---  & ---  & ---  & X    & --- \\
+Honey-quantity API       & ---  & ---  & ---  & ---  & ---  & R \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+This matrix must be applied server-side (systematic rights checking in the
+control layer), and not only by hiding the interface elements.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Risk register}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.6cm} C{1.8cm} C{1.6cm} X}
+\toprule
+\textbf{Risk} & \textbf{Prob.} & \textbf{Impact} & \textbf{Reduction measure} \\
+\midrule
+\endhead
+Development delay             & Medium & High      & Prioritise the CRUD core, with weekly milestones (W5 to W12). \\
+Scope too broad               & Medium & High      & Limit to the high-priority functions, the rest optional. \\
+Arabic i18n complexity (RTL)  & Medium & Medium    & Early end-to-end FR/EN/AR testing, \texttt{dir=rtl} handling. \\
+Loss of field data            & Medium & High      & Offline command queue + synchronisation + backup. \\
+Application vulnerabilities (injection, XSS) & Medium & High & \texttt{PreparedStatement}, JSP escaping, security review. \\
+False alerts (sensors)        & Medium & Medium    & Configurable thresholds + human validation through the report. \\
+Google OAuth unavailability   & Low    & Medium    & Local authentication fallback for the demonstration. \\
+Measurement volume            & Low    & Medium    & Archiving and aggregation per period (automated part). \\
+Use of a code generator       & Low    & Very high & In-house design and code, traceability and peer review. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Protection of personal data}
+%------------------------------------------------------------------------------
+The system handles personal data (names and contacts of the farmers and agents)
+and potentially sensitive data (precise \textbf{geolocation} of the sites). The
+following principles are adopted, in the spirit of the GDPR:
+\begin{itemize}
+  \item \textbf{Minimisation and purpose}: collect only the data useful for beekeeping monitoring.
+  \item \textbf{Security}: encryption of exchanges (SSL / X.509) and authenticated access, already planned.
+  \item \textbf{Access control}: strict application of the RBAC matrix above.
+  \item \textbf{Individuals' rights}: viewing, rectification and \textbf{erasure} of the data, \textbf{portability} ensured by the CSV / TXT export.
+  \item \textbf{Retention}: retention period defined for the measurements and visits, beyond which the data are archived or anonymised.
+  \item \textbf{Traceability}: logging of access and sensitive actions (schedule approval, site closure).
+\end{itemize}
+
+The above principles translate into the following technical measures, by data
+category. \textbf{Encryption at rest} targets, as a priority, the sensitive
+columns (contacts, geolocation). \textbf{Pseudonymisation} dissociates the
+agent's identity from the agronomic history upon anonymisation.
+
+{\small
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{3.3cm} p{2.7cm} X}
+\caption{Technical data-protection measures (spirit of the GDPR).}
+\label{tab:rgpd}\\
+\toprule
+\textbf{Data} & \textbf{Purpose} & \textbf{Retention} & \textbf{Security / erasure} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Data} & \textbf{Purpose} & \textbf{Retention} & \textbf{Security / erasure} \\
+\midrule
+\endhead
+Identity (name, contact) & Accounts and responsibilities & Relationship + 1 year & Encryption at rest, RBAC, anonymisation on request \\
+Site geolocation & Monitoring, maps, weather & Site lifetime + 1 year & Encryption at rest, reducible precision, erasure at closure \\
+Visits and reports & Health and production traceability & 5 years & Encryption at rest, pseudonymisation (agent dissociation) \\
+Inspection photos & Visual monitoring of the colony & 2 years & Encrypted storage, restricted access, deletion with the report \\
+Sensor measurements & Performance analysis & Raw 1 year, then aggregated & Encryption at rest, aggregation / anonymisation \\
+Access logs & Security and accountability & 6 to 12 months & Administrator access, automatic purge \\
+\bottomrule
+\end{xltabular}}
+
+\begin{encadre}
+\textbf{Erasure procedure:} on request from a concerned individual, the system
+first produces an export (CSV / TXT portability), then erases or anonymises the
+records according to the table above. A \textbf{record of processing activities}
+and a data-protection referent are maintained for the project.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Test strategy}
+%------------------------------------------------------------------------------
+The strategy complements the functional test plan (chapter~10) with the unit and
+integration levels. The loosely coupled design (\texttt{Repository} interfaces,
+segregated services) makes the business rules testable in isolation, by
+injecting doubles (mocks).
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.8cm} X p{4.4cm} C{2.2cm}}
+\toprule
+\textbf{Level} & \textbf{Scope} & \textbf{Examples} & \textbf{Tool} \\
+\midrule
+\endhead
+Unit         & Isolated management rules           & Frame/super constraints, honey calculation (Composite), ROI, thresholds & JUnit 5, Mockito \\
+Integration  & Data access (Repository/JDBC)       & Persisted CRUD, calculation queries                                     & JUnit + H2 database \\
+System       & End-to-end functional cases         & Cases TC01 to TC16 of chapter~10                                        & JUnit, Selenium \\
+Acceptance   & Validation by the demonstration     & Agent, farmer, manager journeys                                         & Defence \\
+\bottomrule
+\end{xltabular}
+
+\begin{itemize}
+  \item \textbf{Target coverage}: at least 70\,\% of the business layer (management rules), measured by \texttt{JaCoCo}.
+  \item \textbf{Traceability}: each requirement is linked to at least one test case (matrix of chapter~10), completed by the corresponding unit tests.
+  \item \textbf{Automation}: execution of the tests at each build (Maven), a prerequisite for delivery.
+\end{itemize}
+
+\begin{encadre}
+\textbf{Synergy with the design:} dependency inversion (DIP) makes it possible to
+substitute an in-memory \texttt{RucheRepository} for the JDBC implementations,
+which makes the tests fast, deterministic and independent of the database.
+\end{encadre}

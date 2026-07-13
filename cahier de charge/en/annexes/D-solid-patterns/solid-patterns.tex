@@ -1,0 +1,276 @@
+%==============================================================================
+%  APPENDIX - SOLID principles and design patterns
+%  Application to the Zümm system: "before / after" justification
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix -- SOLID principles and design patterns}
+\label{chap:solid}
+%==============================================================================
+This appendix answers the question of the \emph{how} of software quality. It
+documents the application of the five \textbf{SOLID} principles and a set of
+\textbf{design patterns} to the \textbf{Zümm} system, setting each decision
+against the initial design (\emph{before}) and the refactored design
+(\emph{after}). The objective is a \textbf{multi-tier, scalable and loosely
+coupled} architecture, compliant with the requirements of
+chapter~\ref{chap:conception}.
+
+\begin{encadre}
+\textbf{Methodological sources:} the definitions adopted follow the presentation
+of the SOLID principles from \emph{alexsoyes.com} and the pattern catalogue from
+\emph{refactoring.guru}, adapted to the project's beekeeping domain.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{The five SOLID principles}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.4cm} p{6cm} X}
+\toprule
+\textbf{Principle} & \textbf{Before (initial design)} & \textbf{After (refactored)} \\
+\midrule
+\endhead
+S: Single responsibility &
+The \texttt{Ruche} entity carries the calculation method
+\texttt{getZummHoneyActualQuantity()}: it mixes state (data) and business
+logic. \texttt{Visite} groups data and report fields. &
+The calculation is extracted into \texttt{ServiceMielImpl} (via the Composite)
+and the report becomes \texttt{RapportVisite}. Each class now has only a single
+reason to change. \\
+O: Open / closed &
+Alert detection and unit conversion would rely on \texttt{if / switch} on
+\texttt{typeSeuil} and \texttt{unite}: adding a rule or a unit requires
+modifying existing code. &
+\texttt{RegleAlerte} (Strategy) and \texttt{ConvertisseurUnite}: a new rule or
+unit = a new class, without touching the \texttt{GestionnaireAlertes}. Open to
+extension, closed to modification. \\
+L: Liskov substitution &
+The use-case diagram generalises the supervising agent from the beekeeping
+agent. Transposed as is into class inheritance, a restrictive subtype would
+break substitutability. &
+\texttt{Corps} and \texttt{Hausse} inherit from \texttt{Compartiment} while
+fully respecting its contract (capacity 1..10, \texttt{getPoidsMiel}). The
+agent's role goes through the \texttt{Role} enumeration + permissions
+(composition) rather than a restrictive inheritance. \\
+I: Interface segregation &
+A single ``catch-all'' service (CRUD + visits + dashboards + honey API) would
+force the third-party application to depend on unused methods. &
+Targeted interfaces: \texttt{ServiceRequeteMiel} (the third-party API sees only
+\texttt{getZummHoneyActualQuantity}), \texttt{ServiceVisite},
+\texttt{ServiceTableauDeBord}. Each client depends only on its contract. \\
+D: Dependency inversion &
+The business layer (EJB) calls JDBC directly (concrete implementation): strong
+coupling to the database and to \texttt{ResultSet}. &
+The business layer depends on abstractions \texttt{RucheRepository} /
+\texttt{VisiteRepository} (DAO pattern), implemented by
+\texttt{RucheRepositoryJdbc}. Mock testing and JDBC \textrightarrow{} Spring
+Data JPA migration facilitated (cf. appendix~\ref{chap:migration}). \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Chosen design patterns}
+%------------------------------------------------------------------------------
+The following table lists the applied patterns, their category (creational,
+structural, behavioural) and the layer concerned, with the \emph{before / after}
+justification.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{5.9cm} X}
+\toprule
+\textbf{Pattern} & \textbf{Before} & \textbf{After} \\
+\midrule
+\endhead
+Composite \newline {\small\itshape structural: business} &
+The honey calculation manually traverses the frame collections with duplicated
+summation code. &
+\texttt{ElementRuche.getPoidsMiel()} is resolved recursively
+(Ruche \textrightarrow{} Compartiment \textrightarrow{} Cadre): uniform
+processing of the tree. \\
+State \newline {\small\itshape behavioural: business} &
+The hive's status would be tested by scattered \texttt{switch} (created, active,
+harvesting, closed, \ldots). &
+\texttt{EtatRuche} and its concrete states encapsulate the allowed transitions.
+Direct alignment with the state-machine diagram. \\
+Strategy \newline {\small\itshape behavioural: business} &
+The alert rules, unit conversion and ROI would be hard-coded. &
+Families of interchangeable algorithms (\texttt{RegleAlerte},
+\texttt{ConvertisseurUnite}), injectable and testable in isolation. \\
+Observer \newline {\small\itshape behavioural: business} &
+The measurement code would call the dashboards directly (strong coupling). &
+\texttt{GestionnaireAlertes} notifies the subscribed \texttt{Observateur}
+(alerts dashboard, manager notification) when a threshold is crossed. \\
+Command \newline {\small\itshape behavioural: control} &
+The field operations (harvest, split, requeening) are direct calls, not
+replayable offline. &
+Each operation becomes a \texttt{CommandeVisite}. The
+\texttt{FileCommandesHorsLigne} replays the commands on reconnection
+(offline mode + deferred synchronisation). \\
+Factory Method \newline {\small\itshape creational: business} &
+The hives are created by scattered \texttt{new} with manual initialisation of
+the compartments. &
+\texttt{FabriqueRuche.creer(modele)} produces a preconfigured hive according to
+the model (Dadant, Langstroth\ldots) with consistent body and capacities. \\
+Builder \newline {\small\itshape creational: presentation} &
+The visit report, with its many optional fields, would require a telescoping
+constructor or scattered setters. &
+\texttt{ConstructeurRapport} builds \texttt{RapportVisite} fluently
+(findings, actions, photos, assessments). \\
+Adapter \newline {\small\itshape structural: data} &
+The heterogeneous sensors (different formats and units) would be handled case by
+case. &
+\texttt{AdaptateurCapteur} standardises each source into a \texttt{Mesure} with
+configurable units (automated part). \\
+Facade \newline {\small\itshape structural: control} &
+The Servlet orchestrates all the business services directly. &
+\texttt{FacadeApplication} offers a simplified entry point to the Servlets on
+top of the subsystems. \\
+Singleton \newline {\small\itshape creational: cross-cutting} &
+The \texttt{ConfigZumm.ini} file and the i18n labels would be re-read in several
+instances. &
+\texttt{Configuration} and \texttt{GestionnaireI18n} guarantee a single shared
+instance. \\
+Proxy \newline {\small\itshape structural: web services} &
+Access to the API would directly expose the business service. &
+A \texttt{ProxySecurite} controls OAuth authentication and SSL / X.509
+encryption before delegating to the service. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Refactored design view}
+%------------------------------------------------------------------------------
+Figure~\ref{fig:solid} summarises the main patterns in a design class diagram:
+the Composite (hive composition and honey calculation), the State (life cycle),
+the segregated services (ISP), abstraction-based persistence (DIP / Repository),
+the Strategy + Observer pair (alerts) and the Factory / Builder / Command trio.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_classes_solid}
+\caption{Refactored class diagram: application of SOLID and the design patterns
+to the Zümm system.}
+\label{fig:solid}
+\end{figure}
+
+\begin{encadre}
+\textbf{Correspondence with the layers:} the \texttt{Repository} belong to the
+data-access layer (JDBC), the \texttt{Service} and the domain (Composite, State,
+Strategy, Observer, Command) to the business layer (EJB), the \texttt{Facade}
+and the \texttt{Proxy} to the control layer (Servlets), the report
+\texttt{Builder} to the presentation (JSP). The loosely coupled layered
+architecture of chapter~\ref{chap:conception} is thus reinforced, without being
+modified.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Dynamic illustration: Observer and Command patterns}
+%------------------------------------------------------------------------------
+Two sequence diagrams detail the behaviour of the system's most structuring
+patterns.
+
+\subsection{Observer (+ Strategy): triggering an alert}
+Figure~\ref{fig:seq-observer} shows how a measurement received by the
+\texttt{GestionnaireAlertes} (subject) is evaluated by an interchangeable rule
+(\emph{Strategy}) then, in case of a breach, propagated to the subscribed
+observers (alerts dashboard, manager notification). Adding a rule or an observer
+requires no modification of the manager (open/closed principle).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_observer}
+\caption{Sequence of the Observer (+ Strategy) pattern: alert-triggering flow.}
+\label{fig:seq-observer}
+\end{figure}
+
+\subsection{Command: offline mode and deferred synchronisation}
+Figure~\ref{fig:seq-command} illustrates the entry of a field operation without
+a network: the operation is encapsulated in a \texttt{CommandeVisite} pushed
+onto the \texttt{FileCommandesHorsLigne}. When the network returns, the queue
+replays (\texttt{executer}) each command, or compensates it (\texttt{annuler})
+in case of conflict, achieving the deferred synchronisation required by the
+offline mode.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_command}
+\caption{Sequence of the Command pattern: offline mode and deferred synchronisation.}
+\label{fig:seq-command}
+\end{figure}
+
+\subsection{State: hive life cycle}
+Figure~\ref{fig:seq-state} shows the Ruche (context) delegating each operation to
+its current state. The state decides the transition (activation, harvesting,
+return to the active state) or refuses an operation forbidden in the current
+state, here a populating requested on an already active hive. The behaviour thus
+depends on the state without any \texttt{switch} on the status, consistently with
+the state-machine diagram (figure~\ref{fig:etat}).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\linewidth]{diagramme_sequence_state}
+\caption{Sequence of the State pattern: delegation of the transitions of the hive life cycle.}
+\label{fig:seq-state}
+\end{figure}
+
+\subsection{Composite: honey-quantity calculation}
+Figure~\ref{fig:seq-composite} details the recursive resolution of
+\texttt{getPoidsMiel()}: the client (\texttt{ServiceMielImpl}) queries the hive,
+which propagates the call to each compartment, then to each frame (leaf). Only
+frames of type \texttt{MIEL} contribute, and the tare is subtracted at the hive
+level. The client ignores the internal structure. This calculation implements
+the \texttt{getZummHoneyActualQuantity} method exposed by the web service.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_composite}
+\caption{Sequence of the Composite pattern: recursive calculation of a hive's honey quantity.}
+\label{fig:seq-composite}
+\end{figure}
+
+\subsection{Strategy: conversion of heterogeneous units}
+Figure~\ref{fig:seq-strategy} shows the normalisation of a measurement expressed
+in any unit: the \texttt{RegistreConvertisseurs} (context) selects the strategy
+corresponding to the unit (\texttt{ConvertisseurLbVersKg}), which brings the
+value back to the reference unit before comparison with the threshold. A new
+unit translates into a new strategy, without modifying the context.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth]{diagramme_sequence_strategy}
+\caption{Sequence of the Strategy pattern: conversion of heterogeneous units to the reference unit.}
+\label{fig:seq-strategy}
+\end{figure}
+
+\subsection{Adapter: ingestion of heterogeneous sensors}
+Figure~\ref{fig:seq-adapter} illustrates the integration of a market sensor: the
+\texttt{AdaptateurBroodMinder} translates the sensor's proprietary API into a
+standardised \texttt{Mesure} (converted units, timestamp, geolocation),
+exposing the uniform \texttt{Capteur} interface expected by the business layer.
+The heterogeneous sensors thus become interchangeable.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_adapter}
+\caption{Sequence of the Adapter pattern: ingestion of heterogeneous sensors (automated part).}
+\label{fig:seq-adapter}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Distribution of the patterns per layer}
+%------------------------------------------------------------------------------
+Figure~\ref{fig:packages-patterns} summarises the location of each pattern in the
+multi-tier architecture. The \emph{Builder} sits in presentation. The
+\emph{Facade}, the \emph{Proxy} and the \emph{Command} queue belong to control.
+The domain (\emph{Composite}, \emph{State}, \emph{Observer}, \emph{Strategy},
+\emph{Factory Method}) and the segregated services (\emph{ISP}) are placed in
+business. The \emph{Repository} (\emph{DAO / DIP}) and the \emph{Adapter} handle
+data access. Finally, the configuration and internationalisation \emph{Singleton}
+as well as the unit-conversion \emph{Strategy} occupy the cross-cutting layer.
+This view confirms that the patterns reinforce the loosely coupled layered
+architecture without altering its structure.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_packages_patterns}
+\caption{Distribution of the design patterns per layer of the multi-tier architecture.}
+\label{fig:packages-patterns}
+\end{figure}

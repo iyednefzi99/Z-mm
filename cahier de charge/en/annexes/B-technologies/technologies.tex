@@ -1,0 +1,132 @@
+%==============================================================================
+%  APPENDIX - Detailed technology stack and justified comparison
+%  Concrete implementations of the imposed foundation + evaluated alternatives
+%==============================================================================
+
+%==============================================================================
+\chapter{Appendix: Technology stack and comparison of alternatives}
+\label{chap:technologies}
+%==============================================================================
+The technical foundation of \textbf{Zümm} (MVC, Servlet, JSP, EJB, JDBC, XML
+i18n, Google OAuth, X.509 / SSL, XML web service) is \textbf{imposed} by the
+requirements specification and by the grading grid. The freedom of choice
+therefore concerns the \textbf{concrete implementations} of this foundation:
+application server, DBMS, front-end libraries, web-service style. This appendix
+lists the technologies chosen layer by layer, then justifies each choice against
+its alternatives.
+
+%------------------------------------------------------------------------------
+\section{Chosen technology stack}
+%------------------------------------------------------------------------------
+The table below specifies, for each layer of the multi-tier architecture
+(figure~\ref{fig:couches}), the concrete implementation chosen and its reference
+version. All the building blocks are \textbf{free and open source}, in line with
+the requirement of self-deployment without a subscription.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{4.9cm} X}
+\toprule
+\textbf{Layer / need} & \textbf{Chosen technology} & \textbf{Role in Zümm} \\
+\midrule
+\endhead
+Platform          & Jakarta EE 10 on JDK 17 LTS       & Current ``J2EE'' foundation: Servlet, JSP, EJB, JAX-WS \\
+Application server & WildFly (Web + EJB container)     & Runs the WAR/EAR archive, provides the containers \\
+Control (MVC)     & Jakarta Servlets + JSP + JSTL      & Request routing, control layer \\
+Business          & Session EJB (stateless)           & Management rules: ROI, thresholds, honey quantity \\
+Data access       & JDBC + HikariCP pool              & SQL queries, connection management \\
+DBMS              & PostgreSQL (+ PostGIS)            & Relational persistence, site geolocation \\
+Presentation      & HTML5 + JavaScript + Bootstrap 5  & Responsive UI, web / mobile parity \\
+Charts            & Chart.js                          & Production, alerts and summary dashboards \\
+Mapping           & Leaflet + OpenStreetMap           & Site map and foraging radii \\
+i18n              & XML files + \texttt{ResourceBundle} & FR / EN / AR texts, Arabic RTL support \\
+Configuration     & \texttt{ConfigZumm.ini} via Singleton  & Thresholds, units and modules without redeployment \\
+Third-party web service & JAX-WS (SOAP / XML)         & \texttt{getZummHoneyActualQuantity(int)} \\
+Authentication    & Google OAuth 2.0                  & Delegated login without password management \\
+Exchange security & TLS / SSL + X.509 certificates    & Encryption and inter-component authentication \\
+Offline           & PWA (Service Worker + IndexedDB)  & Field entry without a network, deferred synchronisation \\
+Build \& tests    & Maven, JUnit 5, Mockito, Arquillian & Compilation, unit and in-container tests \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Note:} moving from the historical name ``J2EE'' to \textbf{Jakarta EE 10}
+changes neither the concepts nor the APIs noted (Servlet, JSP, EJB, JDBC). It
+merely adopts the maintained version of the platform. The modernisation
+trajectory towards Spring Boot is treated separately in
+appendix~\ref{chap:migration}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Justified comparison of the alternatives}
+%------------------------------------------------------------------------------
+For each open decision, the credible options were evaluated. The table keeps the
+option, cites the discarded alternatives and gives the justification with regard
+to the project requirements (self-deployment, free of charge, usability,
+geolocation, interoperability).
+
+\subsection{Application server}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Complete and free \textbf{EJB + Servlet} container, fast startup, abundant documentation. TomEE remains lighter but less integrated. Payara also fits (production-oriented GlassFish fork). \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Database management system}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+PostgreSQL & MySQL / MariaDB, H2, Oracle XE & Native \textbf{geolocation} (PostGIS) for the sites and foraging radii, good support of \texttt{CHECK} constraints (frame/super rules), time series of measurements. Free and without proprietary lock-in, unlike Oracle. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Third-party web-service style}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & The requirements specification imposes an \textbf{XML web service} exposing \texttt{float getZummHoneyActualQuantity(int zummID)}. SOAP is its literal translation, with a WSDL contract queryable from Excel. A REST/JSON endpoint may complete the offer during modernisation (appendix~\ref{chap:migration}). \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Mapping and foraging radii}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+Leaflet + OSM & Google Maps JS API, Mapbox & \textbf{Free and without a paid key} or billed quota, consistent with the self-deployment requirement. Simple drawing of the foraging circles (1, 2, 3~km) from the site coordinates. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Charts library}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+Chart.js & D3.js, ApexCharts, Highcharts & Low learning curve and direct rendering of the histograms and curves of the dashboards (production, ROI). D3 is more powerful but oversized. Highcharts is not free for commercial use. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Offline and mobile access}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+PWA (Service Worker + IndexedDB) & Native application (Android/iOS), Flutter, React~Native & \textbf{Web / mobile parity} with a single codebase, field entry without a network then deferred synchronisation. Avoids the development and distribution of native applications, out of the academic scope. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Consistency with the academic constraint:} all the chosen building
+blocks are free, documented and \emph{justifiable} ``why / how / where''
+(\emph{Technologies} criterion of the grading grid, schedule chapter). None
+relies on a code generator: they are implemented by hand by the team, in
+compliance with the exam constraint.
+\end{encadre}
