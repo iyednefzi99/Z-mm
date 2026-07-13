@@ -25,6 +25,14 @@ la référence que tout support (web, mobile, print, slides) doit respecter.
 |---|---|
 | Dialogue / Modale (ouverture · fermeture) | [`motion/dialog.md`](./motion/dialog.md) |
 
+### 🧭 Principes
+
+| Sujet | Fichier |
+|---|---|
+| Bon designer vs mauvais designer (état d'esprit) | [`principes/good-vs-bad-designer.md`](./principes/good-vs-bad-designer.md) |
+| Éviter le noir et le blanc purs (neutres) | [`principes/eviter-noir-et-blanc-purs.md`](./principes/eviter-noir-et-blanc-purs.md) |
+| Design & confiance client (5 leviers) | [`principes/design-et-confiance-client.md`](./principes/design-et-confiance-client.md) |
+
 ---
 
 ## 🧭 Méthode / Method / المنهج
