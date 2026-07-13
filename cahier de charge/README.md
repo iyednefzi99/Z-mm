@@ -31,8 +31,10 @@ développer.
 │   │   ├── A-structure-ruche/           (📄 .tex · 🖼️ images/)
 │   │   ├── B-technologies/ · C-migration/    (📄 .tex)
 │   │   ├── D-solid-patterns/            (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   └── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   ├── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   └── F-intelligence-artificielle/ (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
 │   └── 📕 cahier_des_charges.pdf        # Document compilé (livrable)
+├── 🎨 design/                           # Charte de design (DESIGN.md FR/EN/AR + README)
 └── 🙈 .gitignore
 ```
 
@@ -48,10 +50,24 @@ développer.
   machine à états, collaboration, composants, déploiement.
 - ✨ **Qualité de conception** : principes **SOLID** et **design patterns**
   (Composite, State, Strategy, Observer, Command, Factory, Builder, Adapter,
-  Facade, Singleton, Proxy), documentés « avant / après » (annexe E).
+  Facade, Singleton, Proxy), documentés « avant / après » (annexe D).
 - 🧩 **Compléments** : modèle logique de données (MLD), maquettes d'écrans,
   matrice des droits (RBAC), registre des risques, RGPD, stratégie de tests
-  (annexe F).
+  (annexe E).
+- 🤖 **Intelligence artificielle** : stratégie d'intégration de l'IA en aide à la
+  décision — détection d'anomalie adaptative (EWMA + z-score), architecture
+  découplée (Strategy + microservice), usages anticipés (acoustique, vision,
+  saisie vocale) et éthique (annexe F).
+
+## 🎨 Charte de design
+
+📐 Le dossier [`../design/`](../design/) contient la **charte de design** de Zümm :
+la source de vérité visuelle (couleurs, typographie, espacements, composants, usage
+du logo). Elle suit le format [`DESIGN.md`](https://getdesign.md) et la méthode
+[Adobe Spectrum](https://spectrum.adobe.com), et existe en trois langues :
+🇫🇷 [`DESIGN.md`](../design/DESIGN.md) · 🇬🇧 [`DESIGN.en.md`](../design/DESIGN.en.md) ·
+🇸🇦 [`DESIGN.ar.md`](../design/DESIGN.ar.md). 🚦 C'est une **référence** pour le futur
+front-end, pas du code.
 
 ## 🛠️ Prérequis (outillage documentaire)
 

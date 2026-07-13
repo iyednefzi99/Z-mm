@@ -31,9 +31,13 @@ La charte combine deux références :
 - **[Adobe Spectrum](https://spectrum.adobe.com)** — la *méthode* : jetons en couches
   (global → alias/sémantique → composant), dimensionnement « t-shirt » (`sm`/`md`/`lg`),
   couleurs sémantiques et **accessibilité d'abord**.
+- **[Refero — Styles](https://styles.refero.design)** — l'*inspiration* : collection de
+  chartes `DESIGN.md` et de systèmes visuels de produits réels, utile pour comparer des
+  partis pris (palettes, type, composants) avant d'arbitrer.
 
-➡️ Le **format** vient de getdesign.md, la **méthode** d'Adobe Spectrum, et l'**identité
-visuelle** est propre à Zümm (dégradé miel → vert émeraude, emblème abeille/hexagone).
+➡️ Le **format** vient de getdesign.md, la **méthode** d'Adobe Spectrum, l'**inspiration**
+de Refero, et l'**identité visuelle** est propre à Zümm (dégradé miel → vert émeraude,
+emblème abeille/hexagone).
 
 ---
 
