@@ -32,7 +32,8 @@ développer.
 │   │   ├── B-technologies/ · C-migration/    (📄 .tex)
 │   │   ├── D-solid-patterns/            (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
 │   │   ├── E-complements/               (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   └── F-intelligence-artificielle/ (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   ├── F-intelligence-artificielle/ (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   │   └── G-securite/                   (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
 │   └── 📕 cahier_des_charges.pdf        # Document compilé (livrable)
 ├── 🎨 design/                           # Charte de design (DESIGN.md FR/EN/AR + README)
 └── 🙈 .gitignore
@@ -58,6 +59,9 @@ développer.
   décision — détection d'anomalie adaptative (EWMA + z-score), architecture
   découplée (Strategy + microservice), usages anticipés (acoustique, vision,
   saisie vocale) et éthique (annexe F).
+- 🔒 **Sécurité et robustesse** : défense en profondeur (WAF, TLS/X.509, RBAC,
+  anti-injection, en-têtes de sécurité), grille de durcissement, tests de
+  charge / fiabilité avec **k6** et checklist de pré-déploiement (annexe G).
 
 ## 🎨 Charte de design
 

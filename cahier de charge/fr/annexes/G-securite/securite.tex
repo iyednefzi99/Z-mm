@@ -1,0 +1,237 @@
+%==============================================================================
+%  ANNEXE - Securite et robustesse
+%  Defense en profondeur (durcissement web) + tests de charge / fiabilite (k6)
+%  A inserer via \input{annexes/G-securite/securite}
+%  (utilise la charte "Miel & noir" : miel, mielfonce, encadre, colonne C,
+%   xltabular, booktabs -- deja definis dans le preambule principal)
+%==============================================================================
+
+%==============================================================================
+\chapter{Annexe - Securite et robustesse}
+\label{chap:securite}
+%==============================================================================
+La securite est une exigence \textbf{transverse} deja presente dans le cahier
+des charges : chiffrement des echanges par \textbf{X.509 / SSL}, authentification
+deleguee par \textbf{OAuth Google}, matrice des droits \textbf{RBAC} et
+conformite \textbf{RGPD} (annexe~\ref{chap:complements}). Cette annexe la
+\textbf{consolide} en une strategie coherente de \textbf{defense en profondeur},
+puis traite la \textbf{robustesse} (resistance a la charge et aux pics), car la
+\emph{disponibilite} est l'une des trois proprietes de securite. Les bonnes
+pratiques retenues suivent les guides de reference du domaine (durcissement de
+site web) et l'outillage libre \textbf{k6} pour les tests de charge.
+
+\begin{encadre}
+\textbf{Triade CID :} la securite vise la \textbf{Confidentialite} (chiffrement,
+controle d'acces), l'\textbf{Integrite} (validation des entrees, requetes
+preparees, sauvegardes) et la \textbf{Disponibilite} (anti-DDoS, limitation de
+debit, tests de charge). Aucune brique n'est un service tiers \emph{obligatoire} :
+toutes ont un equivalent libre et autodeployable (ModSecurity, Let's Encrypt,
+k6), conformement a l'exigence d'autodeploiement.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Modele de menace synthetique}
+%------------------------------------------------------------------------------
+Le tableau met en regard les risques usuels d'une application web avec la mesure
+retenue dans Z\"umm.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
+\toprule
+\textbf{Menace} & \textbf{Mesure retenue dans Z\"umm} \\
+\midrule
+\endhead
+Interception des echanges & TLS / SSL de bout en bout, certificats X.509, redirection HTTPS et en-tete HSTS. \\
+Vol d'identifiants & OAuth Google (pas de mot de passe stocke), double authentification portee par le fournisseur. \\
+Injection SQL & Requetes preparees (\emph{PreparedStatement}) via JDBC, validation et typage des entrees. \\
+XSS (script injecte) & Echappement systematique des sorties, en-tete \texttt{Content-Security-Policy}. \\
+CSRF (requete forgee) & Jeton anti-CSRF par session, cookies \texttt{SameSite}. \\
+Detournement de session & Cookies \texttt{HttpOnly} et \texttt{Secure}, expiration et rotation de session (deja §\,7). \\
+Elevation de privileges & Controle d'acces \textbf{RBAC} et moindre privilege (annexe~\ref{chap:complements}). \\
+Deni de service (DDoS) & Limitation de debit, pare-feu applicatif (WAF), ingestion asynchrone des mesures. \\
+Exposition de donnees & Chiffrement au repos, minimisation RGPD, sauvegardes chiffrees. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Defense en profondeur}
+%------------------------------------------------------------------------------
+La securite ne repose pas sur une barriere unique mais sur des \textbf{couches
+successives} : si l'une cede, les autres tiennent. La figure~\ref{fig:secu-couches}
+projette ces couches sur l'architecture de Z\"umm.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  couche/.style={draw=mielfonce,thick,rounded corners=3pt,minimum width=12.2cm,minimum height=8mm,font=\footnotesize,align=center},
+  l1/.style={couche,fill=grisdoux},
+  l2/.style={couche,fill=miel!12},
+  l3/.style={couche,fill=miel!22},
+  l4/.style={couche,fill=miel!34},
+  l5/.style={couche,fill=miel!12}
+]
+\node[l1] (c1) at (0,4) {\textbf{Peripherie} : WAF, anti-DDoS, limitation de debit, CDN (optionnel, deployable)};
+\node[l2] (c2) at (0,3) {\textbf{Transport} : TLS / SSL, certificats X.509, redirection HTTPS, HSTS};
+\node[l3] (c3) at (0,2) {\textbf{Application} : OAuth2, RBAC, validation des entrees, en-tetes CSP, anti-CSRF};
+\node[l4] (c4) at (0,1) {\textbf{Donnees} : requetes preparees, chiffrement au repos, moindre privilege BD};
+\node[l5] (c5) at (0,0) {\textbf{Exploitation} : mises a jour, journalisation \& supervision, sauvegardes testees};
+\end{tikzpicture}
+\caption{Defense en profondeur : cinq couches de protection projetees sur
+l'architecture de Z\"umm.}
+\label{fig:secu-couches}
+\end{figure}
+
+\subsection{Peripherie et transport}
+En bordure, un \textbf{pare-feu applicatif} (WAF, par exemple ModSecurity) filtre
+les requetes malveillantes et une \textbf{limitation de debit} amortit les pics
+et les tentatives d'abus. Le chiffrement du \textbf{transport} est deja exige :
+TLS / SSL, certificats \textbf{X.509}, redirection forcee vers HTTPS et en-tete
+\texttt{Strict-Transport-Security} (HSTS) pour interdire tout repli en clair.
+
+\subsection{Application}
+La couche applicative combine l'\textbf{authentification} deleguee (OAuth Google,
+avec double facteur porte par le fournisseur), le \textbf{controle d'acces} RBAC
+au moindre privilege (annexe~\ref{chap:complements}), la \textbf{validation des
+entrees}, la \textbf{protection anti-CSRF} et les \textbf{en-tetes de securite}
+(\texttt{Content-Security-Policy}, \texttt{X-Frame-Options},
+\texttt{X-Content-Type-Options}). La gestion de session s'appuie sur des cookies
+\texttt{HttpOnly} et \texttt{Secure} deja specifies au chapitre~\ref{chap:conception}.
+
+\subsection{Donnees et exploitation}
+L'acces aux donnees passe exclusivement par des \textbf{requetes preparees}
+(anti-injection), un compte de base \textbf{au moindre privilege} et un
+\textbf{chiffrement au repos} des donnees sensibles. En exploitation, les
+\textbf{mises a jour} regulieres du serveur et des dependances, la
+\textbf{journalisation} et la \textbf{supervision}, ainsi que des
+\textbf{sauvegardes chiffrees dont la restauration est testee}, ferment la boucle.
+
+%------------------------------------------------------------------------------
+\section{Grille de durcissement}
+%------------------------------------------------------------------------------
+Le tableau recense les bonnes pratiques de durcissement d'un site web et precise,
+pour chacune, son \textbf{statut} dans Z\"umm : deja exigee par le cahier des
+charges ou ajoutee par la presente annexe.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.2cm} X C{2.2cm}}
+\toprule
+\textbf{Pratique} & \textbf{Mise en oeuvre dans Z\"umm} & \textbf{Statut} \\
+\midrule
+\endhead
+HTTPS / TLS partout & Certificats X.509, redirection HTTPS, HSTS. & Deja exige \\
+Authentification forte & OAuth Google + double facteur du fournisseur. & Deja exige \\
+Controle d'acces (RBAC) & Roles et permissions au moindre privilege. & Deja exige \\
+Requetes preparees & Acces JDBC exclusivement parametre. & Deja exige \\
+Pare-feu applicatif (WAF) & Filtrage des requetes en peripherie (ModSecurity). & \textbf{Ajoute} \\
+Limitation de debit / anti-DDoS & Amortissement des pics et des abus. & \textbf{Ajoute} \\
+En-tetes de securite & CSP, X-Frame-Options, X-Content-Type-Options. & \textbf{Ajoute} \\
+Protection anti-CSRF & Jeton par session, cookies SameSite. & \textbf{Ajoute} \\
+Mises a jour \& correctifs & Serveur d'applications et dependances a jour. & \textbf{Ajoute} \\
+Journalisation \& supervision & Traces d'acces et d'erreurs, alertes. & \textbf{Ajoute} \\
+Sauvegardes chiffrees & Sauvegarde reguliere + restauration testee. & \textbf{Ajoute} \\
+Analyse anti-maliciel & Scan periodique des depots et des televersements. & \textbf{Ajoute} \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Robustesse : tests de charge et de fiabilite (k6)}
+%------------------------------------------------------------------------------
+La \textbf{disponibilite} etant une propriete de securite, le systeme doit
+resister a la charge nominale et aux \textbf{pics}. On retient \textbf{k6}, outil
+de test de charge \textbf{libre}, scriptable, qui simule des \emph{utilisateurs
+virtuels} (VUs) et verifie des \textbf{seuils} objectifs (\emph{thresholds}).
+
+\subsection{Types de tests}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3cm} X}
+\toprule
+\textbf{Type} & \textbf{Objectif} \\
+\midrule
+\endhead
+Charge (\emph{load}) & Verifier le comportement a la charge attendue (utilisateurs et mesures nominaux). \\
+Stress & Trouver le point de rupture en augmentant la charge au-dela du nominal. \\
+Pic (\emph{spike}) & Simuler une rafale brutale, par exemple une remontee massive de mesures capteurs. \\
+Endurance (\emph{soak}) & Detecter les fuites memoire et la degradation sur une longue duree. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Scenarios propres a Z\"umm}
+\begin{itemize}
+  \item \textbf{Ingestion en rafale} : \texttt{POST /api/mesures} par lots
+        (volet capteurs, §\,4.5), pour valider la file asynchrone et l'idempotence.
+  \item \textbf{Tableaux de bord} : consultation concurrente des tableaux de bord
+        production et alertes (agregations, graphiques).
+  \item \textbf{Service web API} : appels repetes a
+        \texttt{getZummHoneyActualQuantity} par des applications tierces.
+\end{itemize}
+
+\subsection{Seuils et verdict}
+Le test echoue si les seuils objectifs ne sont pas tenus, ce qui designe un
+goulot d'etranglement a corriger (taille du pool, index, cache, mise a l'echelle).
+A titre illustratif :
+\begin{verbatim}
+seuils (thresholds) :
+  latence p95 des requetes   < 500 ms
+  taux d'erreurs HTTP        < 1 %
+  ingestion /api/mesures     debit nominal soutenu sans perte
+\end{verbatim}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_test_charge}
+\caption{Test de charge k6 : montee en charge progressive, mesure de la latence
+et du taux d'erreurs, verdict au regard des seuils.}
+\label{fig:secu-k6}
+\end{figure}
+
+\subsection{Complement au plan de tests}
+Les cas suivants prolongent le plan de tests du chapitre~\ref{chap:tests}
+(TC01--TC16) sur le volet securite et robustesse.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{1.6cm} p{4.4cm} X}
+\toprule
+\textbf{ID} & \textbf{Objet} & \textbf{Resultat attendu} \\
+\midrule
+\endhead
+TC17 & Test de charge (k6) & Seuils p95 et taux d'erreurs respectes a la charge nominale. \\
+TC18 & Test de pic (spike) & Le systeme absorbe une rafale sans perte ni erreur durable. \\
+TC19 & Injection SQL / XSS & Entrees malveillantes rejetees ou neutralisees (echappement). \\
+TC20 & Sauvegarde / restauration & Restauration complete verifiee a partir d'une sauvegarde chiffree. \\
+\bottomrule
+\end{xltabular}
+
+%------------------------------------------------------------------------------
+\section{Checklist de pre-deploiement (go-live)}
+%------------------------------------------------------------------------------
+Avant toute mise en production, les points ci-dessous sont verifies. Cette
+checklist synthetise les sections precedentes en une revue operationnelle,
+domaine par domaine.
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.4cm} X}
+\toprule
+\textbf{Domaine} & \textbf{Points a verifier avant mise en production} \\
+\midrule
+\endhead
+Secrets \& configuration & Aucun secret en clair dans le depot ; \texttt{ConfigZumm.ini}, cles et certificats hors versionnement, stockes de facon protegee. \\
+Transport & HTTPS force, redirection du trafic clair, en-tete HSTS actif, certificats X.509 valides et non expires. \\
+Authentification \& acces & OAuth Google operationnel, matrice RBAC verifiee, comptes et acces par defaut desactives. \\
+Application & En-tetes de securite (CSP, X-Frame-Options), protection anti-CSRF, validation des entrees, messages d'erreur sans fuite d'information. \\
+Donnees & Requetes preparees partout, chiffrement au repos des donnees sensibles, sauvegarde recente \textbf{et restauration testee}. \\
+Dependances & Serveur d'applications et bibliotheques a jour, scan de vulnerabilites des dependances effectue. \\
+Robustesse & Test de charge k6 \textbf{au vert} (seuils p95 et taux d'erreurs), test de pic passe, plan de montee en charge et de retour arriere (rollback) defini. \\
+Observabilite & Journalisation des acces et des erreurs, supervision et alertes en place, horodatage coherent. \\
+Conformite & RGPD respecte (minimisation, duree de retention, droits), mentions et registre a jour (annexe~\ref{chap:complements}). \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Regle de mise en production :} un point non tenu est \textbf{bloquant}
+jusqu'a correction. La checklist est rejouee a chaque livraison majeure, dans
+l'esprit de l'amelioration continue et sous \textbf{controle humain}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Conformite et coherence avec les exigences}
+%------------------------------------------------------------------------------
+\begin{encadre}
+\textbf{Conclusion :} l'annexe consolide une securite \textbf{par couches}
+(peripherie, transport, application, donnees, exploitation) et ajoute la
+\textbf{robustesse mesuree} par des tests de charge. Elle prolonge sans les
+contredire les exigences deja posees (X.509 / SSL, OAuth, RBAC, RGPD) et respecte
+l'\textbf{autodeploiement} : chaque brique retenue (WAF ModSecurity, certificats
+Let's Encrypt, k6) est \textbf{libre et gratuite}. La securite reste, comme les
+alertes, une demarche continue placee sous \textbf{controle humain}.
+\end{encadre}

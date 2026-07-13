@@ -1,0 +1,57 @@
+@startuml diagramme_sequence_test_charge
+' Diagramme de sequence - Test de charge et de robustesse avec k6
+' La disponibilite fait partie de la securite (triade CID : disponibilite).
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 16
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Test de charge et de robustesse (k6)
+
+participant "k6\n(generateur VUs)" as k6
+participant "Edge\n(WAF / reverse proxy)" as Edge
+participant "Serveur Zumm\n(J2EE)" as Srv
+participant "PostgreSQL" as BD
+
+autonumber
+
+group Montee en charge progressive (ramp-up des utilisateurs virtuels)
+  k6 -> Edge : requetes concurrentes (POST /api/mesures, GET tableaux de bord)
+  activate Edge
+  Edge -> Edge : filtrage WAF + limitation de debit (rate limiting)
+  Edge -> Srv : requetes admises (HTTPS / TLS)
+  activate Srv
+  Srv -> BD : JDBC (pool HikariCP)
+  activate BD
+  BD --> Srv : resultats
+  deactivate BD
+  Srv --> Edge : reponse
+  deactivate Srv
+  Edge --> k6 : reponse + code HTTP + latence
+  deactivate Edge
+end
+
+k6 -> k6 : agreger les metriques\n(latence p95, taux d'erreurs, debit)
+
+alt seuils respectes (p95 < cible ET erreurs < 1%)
+  note over k6 : Verdict PASS : robustesse validee
+else seuils depasses
+  note over k6 : Verdict FAIL : goulot d'etranglement a corriger\n(pool, index, cache, mise a l'echelle)
+end
+
+note over Edge, BD
+  La disponibilite est une propriete de securite (triade CID).
+  Le test verifie la resistance a la charge et aux pics (spike),
+  en complement du durcissement applicatif.
+end note
+
+@enduml
