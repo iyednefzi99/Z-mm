@@ -1,0 +1,42 @@
+@startuml diagramme_activite_ia_pipeline
+' Diagramme d'activite - Pipeline de detection d'anomalie adaptative
+' De la mesure brute a la pre-alerte confirmee par l'humain.
+skinparam shadowing false
+skinparam ParticipantPadding 14
+skinparam activity {
+  BorderColor #B8860B
+  BackgroundColor #F3F2EE
+  DiamondBorderColor #B8860B
+  DiamondBackgroundColor #D4A017
+  DiamondFontColor #1C1C1C
+  ArrowColor #B8860B
+  StartColor #B8860B
+  EndColor #B8860B
+  BarColor #B8860B
+}
+title Activite - Pipeline de detection d'anomalie adaptative
+
+start
+:Recevoir une mesure horodatee et geolocalisee\n(volet capteurs, chapitre 4.5);
+:Normaliser vers l'unite de reference\n(Strategy de conversion, annexe D);
+:Mettre a jour la ligne de base de la ruche\n(moyenne mobile exponentielle - EWMA);
+:Calculer le score d'anomalie\n(ecart normalise vs ligne de base - z-score glissant);
+
+if (score au-dela du seuil adaptatif ?) then (oui)
+  :Incrementer le compteur de persistance;
+  if (depassement sur N mesures consecutives ?) then (oui, confirme)
+    #D4A017:Lever une PRE-ALERTE (aide a la decision);
+    :Notifier l'agent via le tableau de bord d'alertes;
+    :Inspection sur site + rapport de visite\n(VALIDATION HUMAINE finale);
+    stop
+  else (non, transitoire)
+    :Conserver en observation\n(attendre la mesure suivante);
+    stop
+  endif
+else (non)
+  :Reinitialiser le compteur (anti-rebond);
+  :Aucune alerte;
+  stop
+endif
+
+@enduml

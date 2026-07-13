@@ -1,0 +1,252 @@
+%==============================================================================
+%  ANNEXE - Intelligence artificielle et analyse predictive
+%  Strategie d'integration de l'IA dans Zumm : usages, algorithme, architecture
+%  A inserer via \input{annexes/F-intelligence-artificielle/intelligence-artificielle}
+%  (utilise la charte "Miel & noir" : miel, mielfonce, encadre, colonne C,
+%   xltabular, booktabs -- deja definis dans le preambule principal)
+%==============================================================================
+
+%==============================================================================
+\chapter{Annexe - Intelligence artificielle et analyse predictive}
+\label{chap:ia}
+%==============================================================================
+Cette annexe repond aux questions du \emph{pourquoi}, du \emph{comment} et du
+\emph{ou} de l'intelligence artificielle dans \textbf{Z\"umm}. Elle ne cree
+aucune exigence nouvelle : elle prolonge le volet capteurs et l'analyse
+predictive deja anticipes au chapitre~\ref{chap:conception} (§\,4.5) et la
+trajectoire de microservice \emph{data} evoquee a l'annexe~\ref{chap:migration}.
+L'objectif est de documenter une integration de l'IA \textbf{coherente avec
+l'architecture faiblement couplee}, \textbf{sans trahir les contraintes} du
+cahier des charges (autodeploiement, gratuite, validation humaine).
+
+\begin{encadre}
+\textbf{Positionnement :} dans Z\"umm, l'IA est un \textbf{module d'aide a la
+decision}, jamais un organe de commande. Elle produit des \emph{pre-alertes}
+explicables ; l'agent apiculteur conserve la \textbf{validation finale} par le
+rapport de visite, conformement a la regle d'evaluation du §\,4.5.4.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Principes directeurs}
+%------------------------------------------------------------------------------
+Toute brique d'IA retenue respecte quatre principes issus directement des
+exigences du projet :
+\begin{itemize}
+  \item \textbf{Aide a la decision et validation humaine} : l'IA signale, elle ne
+        decide pas. Chaque sortie est confirmee par l'agent (§\,4.5.4).
+  \item \textbf{Autodeploiement sans service tiers obligatoire} : aucune
+        fonction essentielle ne depend d'une API cloud payante. Les traitements
+        de base tournent \textbf{en local} ; un recours cloud reste
+        \emph{optionnel} et activable par configuration.
+  \item \textbf{Decouplage et modularite} : l'IA est un \textbf{module
+        activable} via \texttt{ConfigZumm.ini}, isole du coeur metier par une
+        interface, dans l'esprit du couplage faible (annexe~\ref{chap:solid}).
+  \item \textbf{Explicabilite et frugalite} : on privilegie les methodes
+        \textbf{interpretables} (statistiques, regles) et economes, plutot que
+        des modeles opaques, pour rester defendables et reproductibles.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Cartographie des usages d'IA}
+%------------------------------------------------------------------------------
+Le tableau ci-dessous recense les usages d'IA pertinents pour Z\"umm, en
+distinguant ce qui est \textbf{retenu au perimetre} (implementable dans le socle
+present) de ce qui est \textbf{anticipe} (interface specifiee, developpement
+ulterieur au titre du volet capteurs).
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} X C{1.7cm} C{1.7cm} C{1.9cm}}
+\toprule
+\textbf{Usage} & \textbf{Description} & \textbf{Dep.\ cloud} & \textbf{Effort} & \textbf{Statut} \\
+\midrule
+\endhead
+Detection d'anomalie adaptative &
+Ligne de base par ruche remplacant le seuil fixe, pour detecter une derive
+inhabituelle de production, d'effectif ou de temperature. &
+Non & Faible & \textbf{Retenu} \\
+Detection acoustique d'essaimage &
+Analyse de la signature sonore pour une pre-alerte d'essaimage 1 a 5 jours a
+l'avance (precision beekeeping, §\,4.5.1). &
+Non & Eleve & Anticipe \\
+Vision : detection de maladies &
+Aide a l'identification (varroa, couvain) a partir des photos d'inspection
+attachees au rapport de visite. &
+Non & Eleve & Anticipe \\
+Saisie vocale assistee &
+Dictee du compte rendu, transcription alimentant les champs du rapport
+(§\,4.7, priorite basse). &
+Optionnel & Moyen & Anticipe \\
+Assistant de synthese &
+Resume en langage naturel des tableaux de bord (ROI, alertes) pour le
+proprietaire. &
+Optionnel & Moyen & Optionnel \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Recommandation de priorisation :} livrer la \textbf{detection d'anomalie
+adaptative} comme fonction reelle (faisable dans le socle impose, sans
+dependance cloud), et \textbf{specifier les autres usages comme interfaces
+anticipees}. C'est la posture deja adoptee par le cahier des charges pour le
+volet capteurs, ce qui preserve la coherence du document.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Cas retenu : detection d'anomalie adaptative}
+%------------------------------------------------------------------------------
+Le §\,4.5.4 definit des \textbf{seuils fixes} (par exemple temperature interne
+$<32$\,\textdegree C ou $>36$\,\textdegree C) et une regle d'anti-rebond. La
+limite d'un seuil fixe est qu'il ignore le \textbf{comportement propre de chaque
+ruche} et sa \textbf{saisonnalite}. L'evolution naturelle consiste a apprendre
+une \textbf{ligne de base par ruche} et a mesurer l'ecart a cette ligne, ce qui
+detecte la \og baisse relative $>20$\,\% vs periode precedente \fg{} de facon
+adaptative.
+
+\subsection{Formalisation (sans code)}
+Pour chaque couple (ruche, indicateur), on entretient une \textbf{moyenne mobile
+exponentielle} (EWMA) $\mu_t$ et une estimation de dispersion $\sigma_t$, mises
+a jour a chaque nouvelle mesure normalisee $x_t$ (unite de reference,
+§\,5.3) :
+\begin{align}
+  \mu_t      &= \alpha\,x_t + (1-\alpha)\,\mu_{t-1}, \\
+  v_t        &= \alpha\,(x_t-\mu_{t-1})^2 + (1-\alpha)\,v_{t-1},
+                \qquad \sigma_t = \sqrt{v_t}.
+\end{align}
+Le \textbf{score d'anomalie} est l'ecart normalise (\emph{z-score} glissant) :
+\begin{equation}
+  z_t = \frac{\lvert x_t - \mu_{t-1}\rvert}{\sigma_{t-1} + \varepsilon}.
+\end{equation}
+Une \textbf{pre-alerte} n'est levee que si $z_t > k$ (sensibilite) \textbf{de
+maniere persistante sur $N$ mesures consecutives} (hysteresis, comme au
+§\,4.5.4). Cette continuite avec la regle existante est volontaire : on remplace
+un seuil absolu par un seuil \emph{relatif appris}, sans changer la logique
+d'anti-rebond ni le principe de validation humaine.
+
+\subsection{Parametres (tous parametrables via ConfigZumm.ini)}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} p{2.4cm} X}
+\toprule
+\textbf{Parametre} & \textbf{Role} & \textbf{Effet du reglage} \\
+\midrule
+\endhead
+$\alpha$ (lissage) & Poids de la mesure recente & Plus $\alpha$ est grand, plus la ligne de base reagit vite (et plus elle est sensible au bruit). \\
+$k$ (sensibilite) & Seuil sur le z-score & Plus $k$ est petit, plus la detection est sensible (et plus les fausses alertes augmentent). \\
+$N$ (persistance) & Nombre de mesures consecutives & Plus $N$ est grand, moins il y a de fausses alertes (au prix d'un leger delai). \\
+Fenetre / saison & Historique de reference & Permet une ligne de base par saison (miellee, hivernage). \\
+\bottomrule
+\end{xltabular}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.72\linewidth]{diagramme_activite_ia_pipeline}
+\caption{Pipeline de detection d'anomalie adaptative, de la mesure brute a la
+pre-alerte confirmee par l'agent.}
+\label{fig:ia-activite}
+\end{figure}
+
+\begin{encadre}
+\textbf{Coherence avec le §\,4.5.4 :} la valeur est d'abord \textbf{convertie
+vers l'unite de reference} (Strategy de conversion, annexe~\ref{chap:solid}),
+puis comparee a un seuil ; l'alerte reste soumise a l'\textbf{anti-rebond} et
+demeure une \textbf{aide a la decision}. Seule la nature du seuil change : de
+\emph{fixe} a \emph{appris par ruche}.
+\end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Architecture d'integration}
+%------------------------------------------------------------------------------
+L'IA s'insere sans rien casser de l'architecture en couches
+(figure~\ref{fig:couches}). Deux mecanismes de decouplage sont mobilises.
+
+\subsection{Le detecteur comme Strategy interchangeable}
+La detection d'anomalie devient une \textbf{strategie de \texttt{RegleAlerte}}
+(pattern Strategy, annexe~\ref{chap:solid}), au meme titre que le seuil fixe
+existant. Le \texttt{GestionnaireAlertes} choisit, par configuration, entre
+\og seuil fixe \fg{} et \og ligne de base adaptative \fg{} sans que son code
+change (principe ouvert/ferme). L'IA n'est donc pas un ajout invasif, mais une
+\textbf{implementation supplementaire d'une interface deja prevue}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{diagramme_sequence_ia_detection}
+\caption{Sequence du module IA : la mesure ingeree est evaluee par la strategie
+adaptative, qui leve une pre-alerte confirmee par l'agent.}
+\label{fig:ia-sequence}
+\end{figure}
+
+\subsection{Les traitements lourds comme microservice decouple}
+Les usages exigeant du \textbf{signal ou de la vision} (acoustique, photos) ne
+doivent \textbf{jamais} s'executer dans le conteneur EJB. Ils sont deportes dans
+un \textbf{microservice Python} (pandas, scikit-learn / TensorFlow), expose au
+coeur Java par \textbf{REST/JSON}, exactement la trajectoire \emph{data} decrite
+a l'annexe~\ref{chap:migration}. Ce microservice est \textbf{optionnel} : en son
+absence, le volet manuel et la detection statistique de base fonctionnent
+integralement.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  noeud/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=3.1cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  ianode/.style={draw=mielfonce,fill=miel!15,thick,minimum width=3.1cm,minimum height=1.1cm,font=\footnotesize,align=center},
+  fl/.style={-{Latex[length=2mm]},mielfonce,thick}
+]
+\node[noeud] (capt) {Passerelle\\terrain};
+\node[noeud,right=1.5cm of capt] (coeur) {Coeur Z\"umm (J2EE)\\Servlet + EJB + JDBC};
+\node[noeud,right=1.5cm of coeur] (bd) {PostgreSQL\\series temporelles};
+\node[ianode,below=1.1cm of coeur] (ia) {Microservice IA (Python)\\pandas / scikit-learn};
+\node[noeud,above=1.0cm of coeur] (agent) {Agent\\tableau de bord};
+\draw[fl] (capt)--(coeur) node[midway,above,font=\scriptsize]{REST / MQTT};
+\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (coeur.south)--(ia.north) node[midway,right,font=\scriptsize]{REST/JSON};
+\draw[fl] (ia.north west) to[bend left=15] node[midway,left,font=\scriptsize]{score} (coeur.south west);
+\draw[fl] (coeur)--(agent) node[midway,right,font=\scriptsize]{pre-alerte};
+\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Socle impose (J2EE)}] {};
+\end{tikzpicture}
+\caption{Integration decouplee : le socle J2EE reste maitre, le microservice IA
+est un module optionnel branche par service web.}
+\label{fig:ia-archi}
+\end{figure}
+
+%------------------------------------------------------------------------------
+\section{Usages anticipes (interfaces specifiees, hors perimetre de developpement)}
+%------------------------------------------------------------------------------
+Conformement au traitement du volet capteurs, les usages avances sont
+\textbf{specifies comme interfaces} pour que le modele de donnees et
+l'architecture les accueillent, sans etre developpes dans le present projet.
+\begin{itemize}
+  \item \textbf{Acoustique / essaimage} : le modele de donnees accueille deja un
+        indicateur \texttt{SIGNATURE\_ACOUSTIQUE} (§\,4.5). Le microservice IA
+        renvoie un verdict (motif d'essaimage detecte, presence de la reine) qui
+        alimente une pre-alerte.
+  \item \textbf{Vision / maladies} : les \textbf{photos d'inspection} deja
+        attachees au rapport de visite constituent le jeu d'entree ; un modele
+        pre-entraine renvoie une suggestion, validee par l'agent.
+  \item \textbf{Saisie vocale} : la transcription peut s'appuyer sur la
+        \textbf{Web Speech API du navigateur} (gratuite, cote client, sans
+        dependance serveur), avec repli cloud \emph{optionnel} active par
+        \texttt{ConfigZumm.ini}.
+\end{itemize}
+
+%------------------------------------------------------------------------------
+\section{Ethique, limites et conformite}
+%------------------------------------------------------------------------------
+\begin{xltabular}{\textwidth}{>{\bfseries}p{4.4cm} X}
+\toprule
+\textbf{Enjeu} & \textbf{Disposition retenue} \\
+\midrule
+\endhead
+Fausses alertes & Hysteresis sur $N$ mesures et sensibilite $k$ reglables ; l'alerte reste indicative. \\
+Surconfiance dans l'automatisation & Positionnement explicite en aide a la decision ; l'agent conserve la validation finale (§\,4.5.4). \\
+Explicabilite & Methodes interpretables (score + seuil) preferees aux modeles opaques ; la pre-alerte affiche sa justification. \\
+Protection des donnees & Traitement local par defaut, chiffrement SSL / X.509 des echanges, pas de transfert cloud impose. \\
+Absence de verrouillage & Le microservice IA est optionnel et remplacable ; sans lui, la gestion et la detection de base restent operationnelles. \\
+Frugalite & Priorite aux traitements statistiques legers ; l'inference lourde n'est declenchee qu'a la demande. \\
+\bottomrule
+\end{xltabular}
+
+\begin{encadre}
+\textbf{Conclusion :} l'IA de Z\"umm se resume a une regle claire --- \emph{apprendre
+la normale de chaque ruche, signaler l'ecart, laisser l'humain trancher}. Cette
+approche ajoute de la valeur predictive tout en respectant integralement les
+contraintes d'autodeploiement, de couplage faible et de validation humaine du
+cahier des charges. Elle transforme le volet predictif \emph{anticipe} en une
+trajectoire d'implementation \textbf{concrete et progressive}.
+\end{encadre}

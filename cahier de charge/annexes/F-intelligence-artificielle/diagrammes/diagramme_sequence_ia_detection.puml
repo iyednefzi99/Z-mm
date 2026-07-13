@@ -1,0 +1,61 @@
+@startuml diagramme_sequence_ia_detection
+' Diagramme de sequence - Module IA : detection d'anomalie en aide a la decision
+' L'IA produit une pre-alerte ; l'agent conserve la validation finale.
+skinparam shadowing false
+skinparam sequenceMessageAlign center
+skinparam ParticipantPadding 14
+skinparam BoxPadding 12
+skinparam sequence {
+  ArrowColor #B8860B
+  LifeLineBorderColor #B8860B
+  LifeLineBackgroundColor #F3F2EE
+  ParticipantBorderColor #B8860B
+  ParticipantBackgroundColor #D4A017
+  ParticipantFontColor #1C1C1C
+  ActorBorderColor #B8860B
+  ActorBackgroundColor #F3F2EE
+}
+title Sequence - Module IA : detection d'anomalie (aide a la decision)
+
+actor "Agent\napiculteur" as Agent
+participant "Passerelle\nterrain" as Passerelle
+participant "API /mesures\n(Servlet)" as API
+participant "File\nasynchrone" as File
+participant "ContexteDetection\n(Context)" as Contexte
+participant "StrategieIA\n(baseline adaptative)" as IA
+participant "GestionnaireAlertes" as Alertes
+
+autonumber
+
+Passerelle -> API : POST /api/mesures (JSON horodate + geolocalise)
+activate API
+API -> File : enfiler(mesure)\nidempotence (ruche, indicateur, horodatage)
+deactivate API
+
+File -> Contexte : consommer(mesure)
+activate Contexte
+Contexte -> Contexte : normaliser vers l'unite de reference\n(Strategy de conversion, annexe D)
+Contexte -> IA : evaluer(mesure normalisee, historique de la ruche)
+activate IA
+IA -> IA : mettre a jour la ligne de base (EWMA)\npuis calculer le score d'anomalie
+IA --> Contexte : score + verdict provisoire
+deactivate IA
+
+alt depassement persistant sur N mesures (anti-rebond / hysteresis)
+  Contexte -> Alertes : lever une PRE-ALERTE
+  activate Alertes
+  Alertes --> Agent : notification (tableau de bord alertes)
+  deactivate Alertes
+  Agent -> Agent : inspection + rapport de visite\n(VALIDATION HUMAINE finale)
+else depassement non confirme
+  Contexte -> Contexte : ignorer (reduction des fausses alertes)
+end
+deactivate Contexte
+
+note over IA, Alertes
+  L'IA reste une AIDE A LA DECISION : elle produit une
+  pre-alerte explicable (score + seuil), jamais une action.
+  L'agent apiculteur conserve la validation finale.
+end note
+
+@enduml
