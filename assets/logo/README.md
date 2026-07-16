@@ -13,28 +13,34 @@ assets/logo/
 ├── zumm-icon-mono.png     # Emblème monochrome (1024×1024) — export historique, conservé
 ├── zumm-brandsheet.png    # Planche de marque (1024×1024)
 ├── svg/                   # ⭐ Masters vectoriels (source de vérité)
+│   ├── zumm-logo.svg          ✅ logo vertical (dégradé signature en <linearGradient>)
+│   ├── zumm-icon.svg          ✅ emblème couleur seul
 │   ├── zumm-icon-mono.svg     ✅ emblème monochrome (fill="currentColor", recolorable)
-│   ├── zumm-logo.svg          ⬜ logo vertical (dégradé signature en <linearGradient>)
-│   ├── zumm-icon.svg          ⬜ emblème couleur seul
 │   └── zumm-logo-light.svg    ⬜ variante claire pour fond --z-slate-900
-├── png/                   # Exports raster transparents
+├── png/                   # Exports raster transparents (rendus depuis les SVG)
+│   ├── zumm-logo-2048.png     ✅
+│   ├── zumm-icon-1024.png     ✅
 │   └── zumm-icon-mono-1024.png ✅ mono corrigé (encre #2C4A42, fond transparent)
 ├── favicon/               ✅ favicon.svg (clair/sombre auto) · favicon.ico (16+32+48)
-│                          # favicon-16/32/48.png · apple-touch-icon 180 px · icon-192.png
-│                          ⬜ icon-512.png (PWA — attend le master SVG couleur)
-└── print/                 ⬜ zumm-logo.pdf / .eps vectoriel (CMJN pour l'imprimeur)
+│                          # favicon-16/32/48.png · apple-touch-icon 180 px
+│                          # icon-192.png · icon-512.png (PWA)
+└── print/                 ✅ zumm-logo.pdf (vectoriel, 200×200 mm, RVB)
 ```
 
 > **Statut** :
-> - `zumm-icon-mono.svg` a été vectorisé (potrace) depuis le PNG mono **nettoyé** : le
->   fichier racine `zumm-icon-mono.png` a un défaut — son damier de « transparence » est
+> - Les 3 masters SVG ont été vectorisés (potrace, 2 couches pour la couleur : forme
+>   ardoise `#2C4A42` dessous, zones colorées par-dessus). Le dégradé est un
+>   `<linearGradient>` **normalisé sur les tokens de la charte** (`#D9A521 → #2E9E3F`,
+>   axe 120°), avec la répartition spatiale mesurée sur le PNG original (miel maintenu
+>   jusqu'à ~45 %, bascule 45–75 %).
+> - Défaut du fichier racine `zumm-icon-mono.png` : son damier de « transparence » est
 >   **incrusté dans les pixels** (alpha opaque partout). Utiliser les versions corrigées
 >   (`svg/` ou `png/zumm-icon-mono-1024.png`) ; la racine est conservée pour compatibilité.
-> - Les masters **couleur** (`zumm-logo.svg`, `zumm-icon.svg`, variante claire) restent à
->   produire par vectorisation manuelle (Figma / Inkscape / Illustrator — éviter le tracé
->   automatique sur un logo à dégradé). Les exports ⬜ en découleront.
-> - Amélioration possible : une variante simplifiée de l'emblème pour les très petites
->   tailles (16–24 px), le motif circuit étant dense à cette échelle.
+> - `print/zumm-logo.pdf` est vectoriel mais **RVB** — pour un imprimeur exigeant le
+>   CMJN, convertir (Ghostscript/Acrobat) ou réexporter depuis Inkscape/Scribus.
+> - Restent en option : la variante claire `zumm-logo-light.svg` (fond `--z-slate-900`),
+>   et une variante simplifiée de l'emblème pour les très petites tailles (16–24 px),
+>   le motif circuit étant dense à cette échelle.
 
 ## Règles d'export (qualité)
 
