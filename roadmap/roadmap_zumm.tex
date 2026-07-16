@@ -88,6 +88,8 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric,fit}
 \usepackage{pgfgantt}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage{caption}
 \captionsetup{font=small,labelfont={bf,color=mielfonce},labelsep=period}
 
@@ -125,7 +127,7 @@ Cadence       & 8 sprints de 14 jours --- 14/07/2026 $\rightarrow$ 02/11/2026\\
 \vfill
 {\large\bfseries 10 epics --- 40 user stories --- 304 story points}\\[0.3cm]
 {\small Document conforme au plan : Méthodologie / Product Backlog / Sprints /\\
-Pipeline DevOps / Plan de releases / Monitoring \& observabilité}
+Risques \& charge / Pipeline DevOps / Plan de releases / Monitoring \& observabilité}
 \vspace{1cm}
 \end{titlepage}
 
@@ -157,8 +159,9 @@ releases et monitoring. Correction des totaux de points des sprints 5, 7 et 8. \
 \input{chapitres/01-methodologie}
 \input{chapitres/02-backlog}
 \input{chapitres/03-sprints}
-\input{chapitres/04-devops}
-\input{chapitres/05-releases}
-\input{chapitres/06-monitoring}
+\input{chapitres/04-risques}
+\input{chapitres/05-devops}
+\input{chapitres/06-releases}
+\input{chapitres/07-monitoring}
 
 \end{document}

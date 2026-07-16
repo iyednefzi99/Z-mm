@@ -1,0 +1,177 @@
+%==============================================================================
+%  CHAPITRE 4 - Gestion des risques et de la charge
+%==============================================================================
+\chapter{Gestion des risques et de la charge}
+\label{chap:risques}
+
+Ce chapitre consolide les risques identifiés sprint par sprint
+(chapitre~\ref{chap:sprints}) dans un \textbf{registre unique}, coté en
+probabilité $\times$ impact, et synthétise la charge estimée des plans
+d'exécution. Le registre est revu à chaque rétrospective
+(cf.~§\ref{sec:reco-transversales}).
+
+\section{Registre des risques}
+
+Cotation : probabilité et impact sur 3 niveaux (1 = faible, 2 = moyen,
+3 = fort) ; criticité $=$ probabilité $\times$ impact. Les risques de
+criticité $\geq 6$ appellent une parade \emph{préventive} (engagée avant le
+sprint concerné), les autres une parade \emph{corrective} (déclenchée si le
+risque se matérialise).
+
+{\small
+\setlength{\tabcolsep}{4pt}%
+\begin{longtable}{lp{4.9cm}ccccp{5.1cm}}
+\toprule
+\textbf{ID} & \textbf{Risque} & \textbf{Sprint} & \textbf{P} & \textbf{I} & \textbf{C} & \textbf{Parade} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Risque} & \textbf{Sprint} & \textbf{P} & \textbf{I} & \textbf{C} & \textbf{Parade} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+R-01 & Intégration PostGIS/WildFly plus complexe que prévu
+     & S1 & 2 & 3 & \textbf{6}
+     & Spike jours 1--2 ; repli : lat/long \texttt{NUMERIC}, PostGIS différé en S5. \\
+\addlinespace
+R-02 & Mapping JPA du patron \emph{Composite} (ruche)
+     & S2 & 2 & 2 & 4
+     & Hiérarchie à trois tables + compteurs contraints si blocage. \\
+\addlinespace
+R-03 & Rétrofit RTL arabe coûteux sur écrans existants
+     & S2+ & 2 & 2 & 4
+     & Test RTL dès S2 sur tous les écrans livrés ; gabarit RTL de référence. \\
+\addlinespace
+R-04 & Service Worker / IndexedDB / synchronisation différée
+     & S4 & 3 & 3 & \textbf{9}
+     & Spike en S3 ; périmètre limité à la saisie ; conflits dégradables en signalement manuel. \\
+\addlinespace
+R-05 & Configuration OAuth (console Google, redirections, secrets)
+     & S4 & 2 & 2 & 4
+     & Repli auth locale (US-021) livré dans le même sprint ; secrets en place avant S4. \\
+\addlinespace
+R-06 & Performance des agrégations SQL des dashboards
+     & S5 & 2 & 2 & 4
+     & Vues matérialisées ; index posés avec les vues ; test k6 léger en S5. \\
+\addlinespace
+R-07 & Surcharge des sprints 5 (50 pts) et 7 (57 pts)
+     & S5/S7 & 3 & 2 & \textbf{6}
+     & Options A--D (§\ref{sec:recommandations}) ; fusibles désignés : US-015, US-029, US-033. \\
+\addlinespace
+R-08 & Broker MQTT et idempotence de l'ingestion
+     & S6 & 2 & 2 & 4
+     & Voie REST livrée d'abord ; MQTT en adaptateur ; idempotence testée avant source réelle. \\
+\addlinespace
+R-09 & Microservice IA Python (EWMA) non prêt à temps
+     & S7 & 2 & 2 & 4
+     & Découplage par contrat REST ; l'application retombe sur le seuil simple de S5. \\
+\addlinespace
+R-10 & Couverture de tests insuffisante en fin de projet
+     & S8 & 2 & 3 & \textbf{6}
+     & Quality gate progressif (50\,\% $\rightarrow$ 70\,\%) ; couverture $\approx 65\,\%$ exigée fin S7. \\
+\addlinespace
+R-11 & Documentation/UML concentrés sur le sprint final
+     & S8 & 3 & 2 & \textbf{6}
+     & UML au fil de l'eau dès S2 ; ADR réutilisés dans le rapport ; \emph{feature freeze} J10. \\
+\addlinespace
+R-12 & Dérive de périmètre (fonctions « inspiration marché »)
+     & S7 & 2 & 2 & 4
+     & Priorités MoSCoW gelées au sprint planning ; tout ajout passe par le Product Owner. \\
+\addlinespace
+R-13 & Indisponibilité ponctuelle de l'équipe (période académique)
+     & tous & 2 & 2 & 4
+     & Capacité planifiée à 90\,\% (option D) ; stories fusibles par sprint. \\
+\end{longtable}
+}
+
+\begin{encadre}
+\textbf{Lecture.} Trois risques dominent le projet : \textbf{R-04}
+(hors-ligne, criticité 9), \textbf{R-07} (surcharge S5/S7) et le couple
+\textbf{R-10/R-11} (qualité et documentation de fin de projet). Les trois
+sont traités \emph{en amont} : spike S3, options d'équilibrage, quality gate
+progressif et UML au fil de l'eau.
+\end{encadre}
+
+\section{Charge estimée par sprint}
+
+Synthèse des plans d'exécution du chapitre~\ref{chap:sprints}, en
+jours-homme (j-h) pour 10 jours ouvrés par sprint :
+
+\begin{center}
+\begin{tabular}{clcc}
+\toprule
+\textbf{\#} & \textbf{Sprint} & \textbf{Points} & \textbf{Charge (j-h)} \\
+\midrule
+1 & Fondation --- CRUD Core       & 31 & 14 \\
+2 & Ruche \& composition          & 26 & 12,5 \\
+3 & Visites \& rapports           & 31 & 14,5 \\
+4 & Hors-ligne \& synchronisation & 26 & 12 \\
+5 & Tableaux de bord              & 50 & 13 \\
+6 & Capteurs \& API               & 39 & 11,5 \\
+7 & Fonctions avancées            & 57 & 13 \\
+8 & Qualité \& livraison          & 44 & 14 \\
+\midrule
+  & \textbf{Total}                & \textbf{304} & \textbf{104,5} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=13.5cm, height=6.2cm,
+    ybar,
+    bar width=16pt,
+    ymin=0, ymax=62,
+    ylabel={Story points},
+    xlabel={Sprint},
+    xtick=data,
+    xticklabels={S1,S2,S3,S4,S5,S6,S7,S8},
+    axis lines*=left,
+    ymajorgrids,
+    grid style={draw=grisdoux!80!gray, line width=.4pt},
+    nodes near coords,
+    every node near coord/.append style={font=\scriptsize, color=bleunuit},
+    legend style={draw=none, fill=none, font=\small, at={(0.02,0.98)}, anchor=north west},
+  ]
+  \addplot[ybar, fill=miel, draw=mielfonce]
+    coordinates {(1,31) (2,26) (3,31) (4,26) (5,50) (6,39) (7,57) (8,44)};
+  \addlegendentry{Points planifiés}
+  \addplot[sharp plot, no marks, draw=vertsauge, line width=1.2pt,
+           forget plot, nodes near coords={}]
+    coordinates {(0.4,38) (8.6,38)};
+  \node[font=\scriptsize\bfseries, color=vertsauge, anchor=south west]
+    at (axis cs:0.45,38.5) {vélocité cible : 38 pts};
+\end{axis}
+\end{tikzpicture}
+\caption{Points planifiés par sprint face à la vélocité cible : les sprints 5
+et 7 dépassent la capacité (cf. registre R-07).}
+\label{fig:charge-sprints}
+\end{figure}
+
+\begin{encadre}
+\textbf{Dimensionnement de l'équipe.} La charge nominale ($\approx 13$ j-h
+par sprint de 10 jours ouvrés) suppose \textbf{au moins deux développeurs à
+temps plein} ; une équipe de trois personnes offre la marge nécessaire aux
+cérémonies Scrum, aux revues de code et aux imprévus du registre
+(R-13). La divergence points/charge des sprints 5 et 7 (beaucoup de points,
+charge nominale contenue) reflète l'hypothèse de réutilisation --- module
+photo, seuils, config --- qui doit se vérifier dès S3.
+\end{encadre}
+
+\section{Suivi de la vélocité}
+
+\begin{itemize}
+  \item \textbf{Après chaque sprint}, reporter la vélocité réelle (points
+        terminés au sens de la DoD, pas « presque finis ») dans
+        \path{zumm_scrum_devops_roadmap/02_sprints/sprints.json} ;
+  \item \textbf{Après S2}, recalculer la capacité des sprints restants sur
+        la moyenne glissante des deux derniers sprints, et arbitrer les
+        options A/B du §\ref{sec:recommandations} ;
+  \item \textbf{Signal d'alerte} : deux sprints consécutifs sous 80\,\% de
+        l'engagement déclenchent une replanification des releases
+        (chapitre~\ref{chap:releases}) avec le Product Owner, plutôt qu'une
+        accumulation silencieuse de reste-à-faire.
+\end{itemize}
