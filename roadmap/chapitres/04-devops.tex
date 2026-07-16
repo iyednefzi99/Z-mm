@@ -116,6 +116,25 @@ Déploiement production & Déploiement \textbf{manuel} (\emph{approval gate})
         \texttt{configmap.yml}.
 \end{itemize}
 
+\section{Mise en place progressive}
+
+Le pipeline complet décrit ci-dessus est la cible ; sa mise en place suit
+la montée en puissance du projet :
+
+\begin{itemize}
+  \item \textbf{CI dès le sprint 1} (build + tests + Sonar), mais CD staging
+        seulement à partir du sprint 2 : inutile de maintenir quatre
+        environnements avant d'avoir un WAR stable ;
+  \item \textbf{Quality gate progressif} : exiger $70\,\%$ de couverture dès
+        le sprint 1 est irréaliste sur du code d'infrastructure --- commencer
+        à $50\,\%$ et monter de 5 points par sprint jusqu'à la cible ;
+  \item \textbf{Gestion des secrets} (GitHub Secrets / vault) intégrée au
+        pipeline avant le sprint 4 : l'authentification OAuth (US-020) en
+        dépend ;
+  \item \textbf{Tests E2E et de charge} activés à partir du sprint 5, quand
+        les parcours utilisateur sont stabilisés.
+\end{itemize}
+
 \section{Stratégie de branches Git}
 
 \begin{center}

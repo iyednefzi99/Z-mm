@@ -6,7 +6,10 @@
 
 Le développement est découpé en \textbf{8 sprints de 14 jours} (16 semaines),
 du 14 juillet au 2 novembre 2026, avec une capacité de référence de
-38 points par sprint.
+38 points par sprint. Chaque sprint est décrit ci-dessous avec son
+\emph{plan d'exécution} : décomposition en tâches techniques, estimation en
+jours-homme (j-h, base 10 jours ouvrés par sprint), livrables et parades aux
+risques.
 
 \section{Calendrier général}
 
@@ -75,10 +78,103 @@ sprints 2 et 4 (26 pts) est recommandé lors des sprint plannings.}
 \begin{encadre}
 \textbf{Alerte de charge.} Les sprints 5 (50 pts) et 7 (57 pts) excèdent la
 vélocité cible de 38 points, tandis que les sprints 2 et 4 sont
-sous-chargés (26 pts). Candidats au déplacement : US-015 (13 pts,
-priorité moyenne) du sprint 5 vers le sprint 4, et US-029/US-030/US-033
-(21 pts, priorité moyenne) du sprint 7 vers les sprints 2 et 6.
+sous-chargés (26 pts). Les options d'équilibrage sont analysées en
+section~\ref{sec:recommandations}.
 \end{encadre}
+
+\section{Recommandations d'équilibrage et de pilotage}
+\label{sec:recommandations}
+
+\subsection{Options d'équilibrage de la charge}
+
+\begin{center}
+\small
+\begin{tabular}{p{2.6cm}p{7.2cm}p{5.2cm}}
+\toprule
+\textbf{Option} & \textbf{Principe} & \textbf{Effet} \\
+\midrule
+A. Descoper (MoSCoW) &
+  Marquer US-015 (ROI, 13 pts) et US-034 (EWMA, 13 pts) \emph{Could have} :
+  livrées seulement si la vélocité réelle le permet. &
+  S5 $\rightarrow$ 37 pts, S7 $\rightarrow$ 44 pts, calendrier inchangé. \\
+\addlinespace
+B. Lisser sur les sprints creux &
+  S2 et S4 sont à 26 pts : avancer US-028 (photos, dépend du rapport
+  $\rightarrow$ S3/S4) et US-031/US-032 (rappels, reine --- 10 pts) vers S4. &
+  S7 $\rightarrow$ 42 pts, S4 $\rightarrow$ 36 pts. \\
+\addlinespace
+C. Scinder les US lourdes &
+  US-012 (calendrier, 13 pts) $\rightarrow$ « affichage matrice » (8) +
+  « filtres/pop-up » (5) ; idem US-034. &
+  Risque d'échec de sprint réduit, burndown plus lisse. \\
+\addlinespace
+D. Buffer explicite &
+  Ne planifier que $\approx 90\,\%$ de la capacité (34 pts) et réserver le
+  reste aux bugs et à la dette technique. &
+  Planification plus réaliste qu'une capacité pleine. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Ordre des dépendances}
+
+L'ordre de réalisation compte davantage que la charge :
+
+\begin{itemize}
+  \item \textbf{US-022 (RBAC) est trop tardive en S5} : le workflow
+        d'approbation superviseur (US-008, S3) suppose déjà des rôles.
+        Recommandation : avancer le RBAC en S3, quitte à repousser US-010
+        (photos) ;
+  \item \textbf{US-024 (i18n RTL arabe) en S2} : bien placée, mais le rendu
+        RTL doit être testé dès la première maquette --- le rétrofit RTL est
+        le piège classique ;
+  \item \textbf{Spike technique en début de S1} (2--3 jours) sur PostGIS +
+        WildFly : c'est le risque identifié du sprint, autant le neutraliser
+        tôt. De même, prototyper Service Worker/IndexedDB pendant S3 pour
+        dérisquer S4.
+\end{itemize}
+
+\subsection{Pilotage}
+
+\begin{itemize}
+  \item \textbf{Recalibrer après S2} : la vélocité de 38 pts est une
+        hypothèse ; après deux sprints mesurés, replanifier S5--S8 avec la
+        vélocité réelle (c'est là que le choix entre les options A et B se
+        décide) ;
+  \item \textbf{Release interne à chaque sprint} (tag
+        \texttt{v0.x.y-sprintN}) même si seules les 4 releases publiques
+        comptent : cela teste le pipeline de release avant la v1.0.0 ;
+  \item \textbf{Calendrier} : si le projet ne démarre pas réellement le
+        14/07, décaler toutes les dates de deux semaines est préférable à un
+        sprint 1 amputé.
+\end{itemize}
+
+\subsection{Recommandations techniques transversales}
+\label{sec:reco-transversales}
+
+\begin{itemize}
+  \item \textbf{Migrations de schéma dès S1} (Flyway ou Liquibase) : chaque
+        évolution du modèle est un script versionné --- indispensable avec
+        4 environnements et des contraintes CHECK qui évoluent ;
+  \item \textbf{Décisions d'architecture tracées} (ADR --- \emph{Architecture
+        Decision Records}) : un fichier court par choix structurant
+        (JSF vs REST+SPA, stockage des photos, stratégie de synchronisation)
+        --- réutilisable tel quel dans le rapport de soutenance ;
+  \item \textbf{Stockage des photos} : système de fichiers (ou S3/MinIO) +
+        chemin en base, jamais de BLOB en base --- avec limite de taille et
+        génération de miniatures dès l'upload ;
+  \item \textbf{Revue de code systématique} : chaque PR relue par un pair
+        avant merge sur \texttt{develop} (exigence déjà présente dans la
+        DoD, à outiller par une \emph{branch protection rule}) ;
+  \item \textbf{Registre des risques} tenu à jour à chaque rétrospective :
+        les risques par sprint listés ci-dessous en sont l'état initial ;
+  \item \textbf{UML au fil de l'eau} : commencer les diagrammes dès S2 et
+        les maintenir à chaque sprint plutôt que de tout produire en S8
+        (US-039, 13 pts, est la plus grosse story du sprint final) ;
+  \item \textbf{Gel des fonctionnalités} (\emph{feature freeze}) au jour 10
+        du sprint 8 : les 4 derniers jours sont réservés aux corrections,
+        aux répétitions de soutenance et à l'empaquetage des livrables.
+\end{itemize}
 
 % ---------------------------------------------------------------------------
 \section{Sprint 1 --- Fondation : CRUD Core}
@@ -109,6 +205,33 @@ US-006 & Contraintes de composition (règles métier)  & 8 \\
 \end{tabular}
 \end{center}
 
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Spike PostGIS + WildFly : datasource, dialecte spatial, requête
+lat/long de bout en bout & US-003 & 2 & Note technique + config
+\texttt{standalone.xml} versionnée \\
+Squelette Maven multi-modules (ejb/web/ear) + CI GitHub Actions
+(build + tests) & --- & 1,5 & Dépôt buildable, pipeline vert \\
+Modèle JPA (Fermier, Ferme, Site, Agent) + migrations Flyway & US-001/002/003/005 & 2 & Schéma V1 reproductible \\
+Couche DAO/Service + Bean Validation & US-001/002/003/005 & 2 & Services testables \\
+Écrans CRUD des 4 entités & US-001/002/003/005 & 3 & 4 CRUD démontrables \\
+Contraintes de composition : CHECK SQL + validateurs Java & US-006 & 2 & Règles métier vérifiées aux deux niveaux \\
+Tests unitaires des services + jeu de données de démonstration & toutes & 1,5 & Couverture initiale $\geq 50\,\%$, seed SQL \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} le spike PostGIS occupe les jours 1--2 ; si
+l'intégration spatiale bloque, solution de repli : colonnes
+\texttt{lat}/\texttt{long} simples en \texttt{NUMERIC} et migration PostGIS
+différée au sprint 5 (les dashboards n'en dépendent pas avant).
+
 % ---------------------------------------------------------------------------
 \section{Sprint 2 --- Ruche \& composition}
 
@@ -135,6 +258,36 @@ US-025 & Configuration \texttt{ConfigZumm.ini}  & 5 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Modèle \emph{Composite} ruche/corps/hausse/cadre + contraintes
+(1 corps, 0--5 hausses, 1--10 cadres/élément) & US-004 & 3 & Migration V2 + entités JPA \\
+Interface de composition (vue arborescente, ajout/retrait
+d'éléments avec validation immédiate) & US-004 & 2,5 & Écran composition démontrable \\
+Lecteur \texttt{ConfigZumm.ini} + rechargement sans redéploiement & US-025 & 1,5 & Module de configuration \\
+i18n XML FR/EN/AR : externalisation des libellés, bascule de langue,
+gabarit RTL & US-024 & 2,5 & Application trilingue \\
+Test de rendu RTL sur les écrans existants (S1 + composition) & US-024 & 0,5 & Rapport d'écarts RTL \\
+Socle de tests d'intégration Arquillian (déploiement in-container + H2) & --- & 1,5 & Premier test d'intégration vert en CI \\
+Déploiement continu staging (docker-compose) & --- & 1 & Environnement staging alimenté à chaque merge \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} implémenter les règles de composition
+d'abord en Java (testable rapidement), puis répliquer en CHECK SQL ; si le
+patron \emph{Composite} complique le mapping JPA, se limiter à une
+hiérarchie à trois tables avec clés étrangères et compteurs contraints.
+
+\textbf{Marge disponible} (26 pts $<$ 38) : absorber ici US-031/US-032
+(10 pts) si l'option B d'équilibrage est retenue.
 
 % ---------------------------------------------------------------------------
 \section{Sprint 3 --- Visites \& rapports}
@@ -165,6 +318,33 @@ US-010 & Ajouter des photos au rapport               & 5 \\
 \end{tabular}
 \end{center}
 
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Modèle Visite/Planning/Rapport + machine à états
+(planifiée $\rightarrow$ approuvée $\rightarrow$ réalisée / refusée) & US-007/008/009 & 2,5 & Migration V3 + diagramme d'états \\
+RBAC minimal : rôles portés par Agent + garde d'accès sur le workflow
+(anticipation d'US-022, cf. §\ref{sec:recommandations}) & US-008 & 2 & Approbation réservée au superviseur \\
+Écrans de planification (date, raison, actions prévues) & US-007 & 2 & Formulaire de planification \\
+File d'approbation du superviseur (accepter/refuser + motif) & US-008 & 1,5 & Écran d'approbation \\
+Formulaire de rapport : date, heure, durée, constatations,
+évaluations 1--3 & US-009 & 2,5 & Rapport complet saisissable \\
+Upload multi-photos : stockage fichiers + miniatures + limite de taille & US-010 & 2 & Photos attachées au rapport \\
+Spike Service Worker + IndexedDB (préparation S4) & --- & 1 & Prototype de mise en cache \\
+Tests unitaires du workflow (transitions interdites) & US-007/008/009 & 1 & Machine à états couverte \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} le report du mode hors-ligne est déjà acté
+(S4) ; le spike Service Worker de fin de sprint sécurise cette échéance.
+Verrouiller la machine à états par des tests avant de brancher l'interface.
+
 % ---------------------------------------------------------------------------
 \section{Sprint 4 --- Hors-ligne \& synchronisation}
 
@@ -192,6 +372,34 @@ US-021 & Authentification locale (repli)             & 5 \\
 \end{tabular}
 \end{center}
 
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+PWA : manifest + Service Worker (cache de l'app shell) & US-011 & 2 & Application installable \\
+File d'attente IndexedDB des saisies hors-ligne (visites, rapports) & US-011 & 2,5 & Saisie sans réseau fonctionnelle \\
+Synchronisation différée : rejeu à la reconnexion, idempotence,
+résolution de conflits (\emph{last-write-wins} + journal) & US-011 & 2,5 & Démo « mode avion » \\
+OAuth 2.0 Google : flot \emph{Authorization Code} + émission JWT & US-020 & 2 & Connexion Google opérationnelle \\
+Authentification locale de repli (hachage BCrypt/Argon2) & US-021 & 1 & Repli fonctionnel hors OAuth \\
+Gestion des secrets dans le pipeline (GitHub Secrets) & US-020 & 0,5 & Aucun secret en clair dans le dépôt \\
+Tests E2E du parcours hors-ligne (Cypress, réseau coupé) & US-011 & 1,5 & Scénario automatisé en CI \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} limiter le périmètre hors-ligne à la
+\emph{saisie de visite/rapport} (pas de consultation complète) ; en cas de
+blocage sur la résolution de conflits, dégrader en « premier arrivé,
+premier servi » avec signalement manuel des collisions.
+
+\textbf{Marge disponible} (26 pts $<$ 38) : absorber ici US-015 (13 pts)
+ou US-028 selon l'option d'équilibrage retenue.
+
 % ---------------------------------------------------------------------------
 \section{Sprint 5 --- Tableaux de bord}
 
@@ -200,7 +408,7 @@ US-021 & Authentification locale (repli)             & 5 \\
 \toprule
 Objectif  & Calendrier, production, alertes, synthèse. \\
 Période   & 08/09/2026 $\rightarrow$ 21/09/2026 (14 jours) --- 50 pts / capacité 38
-            (\textbf{surcharge}, cf. alerte ci-dessus). \\
+            (\textbf{surcharge}, cf. §\ref{sec:recommandations}). \\
 Démo      & Démonstration des dashboards avec filtres et graphiques. \\
 Risques   & Performance des agrégations SQL, Chart.js. \\
 Burndown idéal & J1 : 50 --- J4 : 38 --- J7 : 25 --- J10 : 13 --- J14 : 0. \\
@@ -221,6 +429,34 @@ US-022 & Contrôle d'accès RBAC                     & 8 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Vues SQL agrégées + index (production, visites par période) & US-012/013 & 2 & Requêtes $<$ 200 ms sur données de test \\
+Calendrier matrice agents $\times$ ruches : affichage + pop-up de détail & US-012 & 2 & Matrice navigable \\
+Filtres mois/semaine/saison/année du calendrier & US-012 & 1 & Filtres opérationnels \\
+Dashboard production (Chart.js) + seuils paramétrables via
+\texttt{ConfigZumm.ini} & US-013 & 2 & Graphiques de production \\
+Dashboard alertes sanitaires : règle de baisse anormale (seuil simple,
+l'EWMA arrive en S7) & US-014 & 2 & Liste d'alertes + statut inspection \\
+Généralisation RBAC : matrice 6 profils $\times$ 15 fonctions
+(extension du RBAC minimal de S3) & US-022 & 1,5 & Matrice appliquée à tous les écrans \\
+\emph{(Could have)} Synthèse ROI : production, interventions, coûts & US-015 & 2 & Page de synthèse \\
+Test de charge léger des dashboards (k6, requêtes agrégées) & --- & 0,5 & Rapport p95 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} matérialiser les agrégations coûteuses
+(vues matérialisées rafraîchies à la demande) plutôt que d'optimiser des
+requêtes à chaud ; US-015 est le fusible du sprint --- descopée en premier
+si le burndown dérive (option A).
 
 % ---------------------------------------------------------------------------
 \section{Sprint 6 --- Capteurs \& API}
@@ -252,6 +488,32 @@ US-027 & Export CSV/TXT                                        & 5 \\
 \end{tabular}
 \end{center}
 
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Entité Mesure (horodatage, géolocalisation, unité, source) +
+migration & US-016 & 1,5 & Modèle extensible capteurs \\
+API REST d'ingestion \texttt{POST /api/mesures} idempotente
+(clé d'unicité source + horodatage) & US-017 & 2 & Endpoint documenté (OpenAPI) \\
+Broker MQTT (Mosquitto en docker-compose) + consommateur & US-017 & 2 & Ingestion par topic démontrable \\
+Seuils paramétrables + hystérésis/anti-rebond & US-018 & 1,5 & Alertes sans battement \\
+Conversion d'unités (patron \emph{Strategy}) & US-019 & 1 & Conversions couvertes par tests \\
+Service SOAP JAX-WS \texttt{getZummHoneyActualQuantity} + WSDL & US-026 & 1,5 & WSDL consommable par client tiers \\
+Export CSV/TXT des données maîtrisées par l'utilisateur & US-027 & 1 & Export téléchargeable \\
+Tests de contrat des API (REST + SOAP) & US-017/026 & 1 & Suites de contrat en CI \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} si MQTT dérape, livrer d'abord la voie REST
+(même modèle de données) et brancher MQTT en simple adaptateur ;
+l'idempotence est testée avant tout branchement de source réelle.
+
 % ---------------------------------------------------------------------------
 \section{Sprint 7 --- Fonctions avancées}
 
@@ -260,7 +522,7 @@ US-027 & Export CSV/TXT                                        & 5 \\
 \toprule
 Objectif  & Différenciation par rapport aux solutions existantes. \\
 Période   & 06/10/2026 $\rightarrow$ 19/10/2026 (14 jours) --- 57 pts / capacité 38
-            (\textbf{surcharge}, cf. alerte ci-dessus). \\
+            (\textbf{surcharge}, cf. §\ref{sec:recommandations}). \\
 Démo      & Démonstration carte, météo, QR code, détection d'anomalie. \\
 Risques   & Microservice Python, intégration REST. \\
 Burndown idéal & J1 : 57 --- J4 : 43 --- J7 : 29 --- J10 : 14 --- J14 : 0. \\
@@ -284,6 +546,34 @@ US-035 & Interface microservice IA Python           & 8 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+Photos d'inspection : réutilisation du module photo de S3
+attaché à l'inspection & US-028 & 1 & Photos liées à l'inspection \\
+Carte Leaflet + OpenStreetMap : sites + cercles de butinage 1/2/3 km & US-030 & 2 & Carte interactive \\
+API météo par géolocalisation + cache local (quota d'appels) & US-029 & 1,5 & Contexte météo sur la visite \\
+Liste de tâches et rappels (calendrier) & US-031 & 1,5 & Rappels démontrables \\
+Suivi de la reine : historique de statut & US-032 & 1 & Chronologie reine \\
+Récolte : lot + QR code + page publique de traçabilité & US-033 & 2 & QR scannable de bout en bout \\
+Microservice Python EWMA : ligne de base par ruche + z-score,
+API REST/JSON & US-034/035 & 3 & Conteneur IA dans docker-compose \\
+Intégration EWMA $\rightarrow$ alertes sanitaires (remplace le seuil
+simple de S5) & US-034 & 1 & Alerte adaptative en démo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} le microservice IA est découplé par contrat
+REST : s'il n'est pas prêt, l'application reste sur le seuil simple de S5
+sans autre impact. US-029/US-033 sont les fusibles du sprint (priorité
+moyenne, aucune dépendance descendante).
 
 % ---------------------------------------------------------------------------
 \section{Sprint 8 --- Qualité \& livraison}
@@ -314,6 +604,33 @@ US-040 & Rapport + poster + présentation     & 8 \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\subsection{Plan d'exécution}
+
+\begin{center}
+\small
+\begin{tabular}{p{7.2cm}lcp{4.6cm}}
+\toprule
+\textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
+\midrule
+SSL/TLS : certificats X.509, HTTPS forcé, redirection 80 $\rightarrow$ 443 & US-023 & 1,5 & Chaîne TLS validée \\
+Campagne de tests unitaires : combler les trous jusqu'à
+$70\,\%$ de couverture métier & US-036 & 3 & Rapport JaCoCo $\geq 70\,\%$ \\
+Compléter les tests d'intégration Arquillian (workflow, sync, API) & US-037 & 2 & Suite d'intégration complète \\
+Tests de charge k6 + corrections de performance & US-038 & 2 & p95 $<$ 500 ms, erreurs $<$ 1\,\% \\
+Finalisation des 10 diagrammes UML (maintenus depuis S2,
+cf. §\ref{sec:reco-transversales}) & US-039 & 2,5 & Dossier UML complet \\
+Rapport, poster, présentation + répétition de soutenance & US-040 & 3 & Livrables de soutenance \\
+\emph{Feature freeze} au jour 10 : corrections et empaquetage uniquement & --- & --- & v1.0.0 taguée et déployée \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} la couverture de tests ne se rattrape pas en
+un sprint --- d'où le quality gate progressif (chapitre~\ref{chap:devops})
+qui doit amener la couverture à $\approx 65\,\%$ dès la fin de S7 ; les
+diagrammes UML maintenus au fil de l'eau réduisent US-039 à une passe de
+mise en cohérence.
 
 \section{Suivi en cours de sprint}
 

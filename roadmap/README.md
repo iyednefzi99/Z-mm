@@ -9,12 +9,12 @@ charte que le cahier des charges (palette « miel & noir élégant »).
 ```
 roadmap/
 ├── roadmap_zumm.tex          # Document maître
-├── roadmap_zumm.pdf          # PDF compilé (22 pages)
+├── roadmap_zumm.pdf          # PDF compilé (28 pages)
 └── chapitres/
     ├── 01-methodologie.tex   # Scrum + DevOps, DoR, DoD
     ├── 02-backlog.tex        # 10 epics, 40 US, 304 points
-    ├── 03-sprints.tex        # Gantt + 8 sprints détaillés
-    ├── 04-devops.tex         # Environnements, pipeline CI/CD, IaC
+    ├── 03-sprints.tex        # Gantt + recommandations + plan d'exécution détaillé par sprint
+    ├── 04-devops.tex         # Environnements, pipeline CI/CD, IaC, mise en place progressive
     ├── 05-releases.tex       # Plan SemVer v0.1.0 → v1.0.0
     └── 06-monitoring.tex     # Dashboards Grafana, alertes, logs
 ```
