@@ -1,0 +1,66 @@
+name: Build PDFs
+
+# Compile les trois cahiers des charges (fr/en via pdflatex, ar via XeLaTeX) et
+# vérifie que les trois masters restent synchronisés. Un oubli de \input ou une
+# erreur LaTeX fait échouer le workflow.
+
+on:
+  push:
+    paths:
+      - 'cahier de charge/**'
+      - 'scripts/check-sync.sh'
+      - '.github/workflows/build-pdfs.yml'
+  pull_request:
+    paths:
+      - 'cahier de charge/**'
+      - 'scripts/check-sync.sh'
+      - '.github/workflows/build-pdfs.yml'
+  workflow_dispatch:
+
+jobs:
+  sync-check:
+    name: Cohérence trilingue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier la synchro des \input (fr/en/ar)
+        run: bash scripts/check-sync.sh
+
+  build:
+    name: Compiler ${{ matrix.lang }}
+    needs: sync-check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - lang: fr
+            dir: cahier de charge/fr
+            root: cahier_des_charges_fr.tex
+            xelatex: false
+          - lang: en
+            dir: cahier de charge/en
+            root: cahier_des_charges_en.tex
+            xelatex: false
+          - lang: ar
+            dir: cahier de charge/ar
+            root: cahier_des_charges_ar.tex
+            xelatex: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler (${{ matrix.lang }})
+        uses: xu-cheng/latex-action@v3
+        with:
+          working_directory: ${{ matrix.dir }}
+          root_file: ${{ matrix.root }}
+          latexmk_use_xelatex: ${{ matrix.xelatex }}
+          # texlive-full inclut TikZ, xltabular, polyglossia et la police Amiri
+          # (repli automatique pour l'arabe, cf. \IfFontExistsTF dans le master).
+
+      - name: Publier le PDF (${{ matrix.lang }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: cahier-des-charges-${{ matrix.lang }}
+          path: ${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf
+          if-no-files-found: error

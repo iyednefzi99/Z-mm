@@ -54,7 +54,7 @@
 \fancyhead[R]{\small\textcolor{mielfonce}{Requirements Specification}}
 \fancyfoot[L]{\small\textcolor{bleunuit}{J2EE mini-project}}
 \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}
-\fancyfoot[R]{\small\textcolor{bleunuit}{\today}}
+\fancyfoot[R]{\small\textcolor{bleunuit}{\zummdate}}
 \renewcommand{\headrulewidth}{0.6pt}
 \renewcommand{\footrulewidth}{0.4pt}
 \renewcommand{\headrule}{\hbox to\headwidth{\color{miel}\leaders\hrule height \headrulewidth\hfill}}
@@ -63,7 +63,7 @@
   \fancyhf{}%
   \fancyfoot[L]{\small\textcolor{bleunuit}{J2EE mini-project}}%
   \fancyfoot[C]{\small\textcolor{bleunuit}{\thepage}}%
-  \fancyfoot[R]{\small\textcolor{bleunuit}{\today}}%
+  \fancyfoot[R]{\small\textcolor{bleunuit}{\zummdate}}%
   \renewcommand{\headrulewidth}{0pt}%
   \renewcommand{\footrulewidth}{0.4pt}%
 }
@@ -102,6 +102,12 @@
 % Fixed-width centred column
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
+% ---------- Document metadata (frozen date/version) --------------------------
+% Frozen for a reproducible build: the PDF date no longer changes on every
+% build, and the version history stays consistent.
+\newcommand{\zummdate}{July 13, 2026}
+\newcommand{\zummversion}{1.0}
+
 %==============================================================================
 \begin{document}
 
@@ -120,8 +126,8 @@
 \begin{tabular}{@{}>{\bfseries\color{mielfonce}}r l@{}}
 Project & Beekeeping management application (J2EE mini-project)\\[4pt]
 Type    & Functional and technical requirements specification\\[4pt]
-Version & 1.0\\[4pt]
-Date    & \today\\[4pt]
+Version & \zummversion\\[4pt]
+Date    & \zummdate\\[4pt]
 Method  & Manager-GO -- Drawing up a requirements specification\\
 \end{tabular}
 
@@ -146,9 +152,9 @@ Functional description of needs / Budget envelope / Schedule}
 \toprule
 \textbf{Version} & \textbf{Date} & \textbf{Author} & \textbf{Changes} \\
 \midrule
-0.1 & \today & Project team & Initial structure and transcription of the brief. \\
-0.5 & \today & Project team & Beekeeping domain reference and illustrations. \\
-1.0 & \today & Project team & Market features, defect-prevention requirements, data dictionary, use cases, UML design and test plan. \\
+0.1 & July 9, 2026 & Project team & Initial structure and transcription of the brief. \\
+0.5 & July 11, 2026 & Project team & Beekeeping domain reference and illustrations. \\
+1.0 & July 13, 2026 & Project team & Market features, defect-prevention requirements, data dictionary, use cases, UML design and test plan. \\
 \bottomrule
 \end{tabular}
 \end{center}

@@ -1,0 +1,14 @@
+# Normalisation des fins de ligne
+* text=auto
+
+# Scripts shell : toujours en LF (exécutés par bash en CI Linux)
+*.sh text eol=lf
+
+# Sources LaTeX / Markdown : LF pour un diff stable multi-plateforme
+*.tex text eol=lf
+*.md  text eol=lf
+*.yml text eol=lf
+
+# Binaires : jamais de normalisation
+*.pdf binary
+*.png binary
