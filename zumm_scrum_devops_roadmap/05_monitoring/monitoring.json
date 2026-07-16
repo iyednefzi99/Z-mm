@@ -1,0 +1,118 @@
+{
+  "dashboards": [
+    {
+      "nom": "Zümm - Vue d'ensemble",
+      "description": "Métriques clés: utilisateurs actifs, visites, production",
+      "widgets": [
+        {
+          "type": "stat",
+          "titre": "Ruches actives",
+          "query": "count(ruche_status{status='active'})"
+        },
+        {
+          "type": "stat",
+          "titre": "Visites aujourd'hui",
+          "query": "sum(visites_total{date='today'})"
+        },
+        {
+          "type": "graph",
+          "titre": "Production miel (kg)",
+          "query": "sum(production_miel_kg) by (site)"
+        },
+        {
+          "type": "graph",
+          "titre": "Alertes actives",
+          "query": "count(alertes_status{status='active'})"
+        },
+        {
+          "type": "heatmap",
+          "titre": "Latence API (p95)",
+          "query": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+        }
+      ]
+    },
+    {
+      "nom": "Zümm - Performance",
+      "description": "Métriques techniques: JVM, DB, HTTP",
+      "widgets": [
+        {
+          "type": "graph",
+          "titre": "CPU JVM",
+          "query": "jvm_cpu_usage_percent"
+        },
+        {
+          "type": "graph",
+          "titre": "Mémoire heap",
+          "query": "jvm_memory_heap_used_bytes"
+        },
+        {
+          "type": "graph",
+          "titre": "Connexions DB",
+          "query": "jdbc_connections_active"
+        },
+        {
+          "type": "graph",
+          "titre": "Requêtes HTTP/s",
+          "query": "rate(http_requests_total[1m])"
+        }
+      ]
+    },
+    {
+      "nom": "Zümm - Sécurité",
+      "description": "Métriques sécurité: auth, erreurs, anomalies",
+      "widgets": [
+        {
+          "type": "stat",
+          "titre": "Tentatives échouées",
+          "query": "sum(auth_failures_total[1h])"
+        },
+        {
+          "type": "graph",
+          "titre": "Erreurs 4xx/5xx",
+          "query": "sum(rate(http_errors_total[5m])) by (status)"
+        },
+        {
+          "type": "table",
+          "titre": "Top 10 IPs suspectes",
+          "query": "topk(10, rate(requests_by_ip[5m]))"
+        }
+      ]
+    }
+  ],
+  "alertes": [
+    {
+      "nom": "API Latence élevée",
+      "condition": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5",
+      "sevérité": "warning",
+      "action": "Notifier Slack + escalade si persistant"
+    },
+    {
+      "nom": "Taux d'erreurs > 1%",
+      "condition": "rate(http_errors_total[5m]) / rate(http_requests_total[5m]) > 0.01",
+      "sevérité": "critical",
+      "action": "PagerDuty + rollback automatique"
+    },
+    {
+      "nom": "DB connexions épuisées",
+      "condition": "jdbc_connections_active / jdbc_connections_max > 0.9",
+      "sevérité": "critical",
+      "action": "Scaler pool + alerte ops"
+    },
+    {
+      "nom": "JVM Heap > 85%",
+      "condition": "jvm_memory_heap_used_bytes / jvm_memory_heap_max_bytes > 0.85",
+      "sevérité": "warning",
+      "action": "Analyse mémoire + restart planifié"
+    }
+  ],
+  "logs": {
+    "niveaux": [
+      "ERROR",
+      "WARN",
+      "INFO",
+      "DEBUG"
+    ],
+    "correlation_id": "X-Request-ID pour tracing distribué",
+    "retention": "30 jours hot, 1 an cold (S3)"
+  }
+}

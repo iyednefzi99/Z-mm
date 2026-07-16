@@ -1,0 +1,84 @@
+{
+  "strategie_versioning": "Semantic Versioning (SemVer) - MAJOR.MINOR.PATCH",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "nom": "MVP - Fondation",
+      "date_prevue": "2026-08-11",
+      "sprints": [
+        "SPRINT-01",
+        "SPRINT-02"
+      ],
+      "features": [
+        "CRUD complet entités métier",
+        "Architecture J2EE multi-niveaux",
+        "Composition ruche (corps/hausse/cadre)",
+        "Configuration ConfigZumm.ini",
+        "i18n FR/EN/AR"
+      ],
+      "critere_acceptation": "Application déployable avec données de test",
+      "status": "Planifiée"
+    },
+    {
+      "version": "0.2.0",
+      "nom": "Visites & Collaboration",
+      "date_prevue": "2026-09-08",
+      "sprints": [
+        "SPRINT-03",
+        "SPRINT-04"
+      ],
+      "features": [
+        "Workflow planification/approbation visite",
+        "Rapport de visite complet",
+        "Mode hors-ligne PWA",
+        "Authentification OAuth 2.0",
+        "Sécurité SSL/X.509"
+      ],
+      "critere_acceptation": "Parcours utilisateur complet en ligne et hors-ligne",
+      "status": "Planifiée"
+    },
+    {
+      "version": "0.3.0",
+      "nom": "Analytics & Dashboards",
+      "date_prevue": "2026-10-06",
+      "sprints": [
+        "SPRINT-05",
+        "SPRINT-06"
+      ],
+      "features": [
+        "Calendrier agents × ruches",
+        "Tableaux de bord production & alertes",
+        "Synthèse ROI",
+        "Ingestion mesures capteurs",
+        "Service web API (SOAP/XML)"
+      ],
+      "critere_acceptation": "Dashboards fonctionnels avec données réelles",
+      "status": "Planifiée"
+    },
+    {
+      "version": "1.0.0",
+      "nom": "Release Candidate",
+      "date_prevue": "2026-11-02",
+      "sprints": [
+        "SPRINT-07",
+        "SPRINT-08"
+      ],
+      "features": [
+        "Fonctionnalités avancées (carte, météo, QR)",
+        "Détection anomalie adaptative (IA)",
+        "Tests complets (unitaire/intégration/charge)",
+        "Documentation & soutenance",
+        "Monitoring & alerting"
+      ],
+      "critere_acceptation": "Solution complète prête pour production",
+      "status": "Planifiée"
+    }
+  ],
+  "branches_git": {
+    "main": "Production stable",
+    "develop": "Intégration continue",
+    "release/*": "Stabilisation release",
+    "feature/*": "Développement feature",
+    "hotfix/*": "Correction urgente production"
+  }
+}

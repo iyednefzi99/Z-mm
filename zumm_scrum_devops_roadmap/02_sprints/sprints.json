@@ -1,0 +1,366 @@
+{
+  "sprints": [
+    {
+      "id": "SPRINT-01",
+      "nom": "Fondation - CRUD Core",
+      "theme": "Architecture + Entités métier de base",
+      "objectif": "Avoir un socle technique fonctionnel avec les entités principales",
+      "numero": 1,
+      "date_debut": "2026-07-14",
+      "date_fin": "2026-07-27",
+      "duree_jours": 14,
+      "story_points": 31,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-001",
+        "US-002",
+        "US-003",
+        "US-005",
+        "US-006"
+      ],
+      "review_demo": "Démonstration CRUD Fermier/Ferme/Site/Agent",
+      "risques": "Complexité PostGIS, configuration WildFly",
+      "ceremonies": {
+        "sprint_planning": "2026-07-14 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-07-27 14:00-16:00",
+        "sprint_retrospective": "2026-07-27 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          31,
+          23.25,
+          15.5,
+          7.75,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-02",
+      "nom": "Ruche & Composition",
+      "theme": "Gestion complète des ruches et composition",
+      "objectif": "Modéliser la hiérarchie ruche/corps/hausse/cadre avec contraintes",
+      "numero": 2,
+      "date_debut": "2026-07-28",
+      "date_fin": "2026-08-10",
+      "duree_jours": 14,
+      "story_points": 26,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-004",
+        "US-025",
+        "US-024"
+      ],
+      "review_demo": "Démonstration composition ruche avec règles métier",
+      "risques": "Contraintes SQL CHECK, Pattern Composite",
+      "ceremonies": {
+        "sprint_planning": "2026-07-28 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-08-10 14:00-16:00",
+        "sprint_retrospective": "2026-08-10 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          26,
+          19.5,
+          13.0,
+          6.5,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-03",
+      "nom": "Visites & Rapports",
+      "theme": "Planification et suivi des visites",
+      "objectif": "Workflow complet: planification → approbation → réalisation → rapport",
+      "numero": 3,
+      "date_debut": "2026-08-11",
+      "date_fin": "2026-08-24",
+      "duree_jours": 14,
+      "story_points": 31,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-007",
+        "US-008",
+        "US-009",
+        "US-010"
+      ],
+      "review_demo": "Démonstration workflow visite avec rapport complet",
+      "risques": "Mode hors-ligne (reporté au sprint 4)",
+      "ceremonies": {
+        "sprint_planning": "2026-08-11 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-08-24 14:00-16:00",
+        "sprint_retrospective": "2026-08-24 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          31,
+          23.25,
+          15.5,
+          7.75,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-04",
+      "nom": "Hors-ligne & Sync",
+      "theme": "Mode hors-ligne et synchronisation",
+      "objectif": "Permettre la saisie terrain sans réseau",
+      "numero": 4,
+      "date_debut": "2026-08-25",
+      "date_fin": "2026-09-07",
+      "duree_jours": 14,
+      "story_points": 26,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-011",
+        "US-020",
+        "US-021"
+      ],
+      "review_demo": "Démonstration PWA hors-ligne + OAuth",
+      "risques": "Service Workers, IndexedDB, sync différée",
+      "ceremonies": {
+        "sprint_planning": "2026-08-25 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-09-07 14:00-16:00",
+        "sprint_retrospective": "2026-09-07 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          26,
+          19.5,
+          13.0,
+          6.5,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-05",
+      "nom": "Tableaux de Bord",
+      "theme": "Visualisation et analytics",
+      "objectif": "Calendrier, production, alertes, synthèse",
+      "numero": 5,
+      "date_debut": "2026-09-08",
+      "date_fin": "2026-09-21",
+      "duree_jours": 14,
+      "story_points": 42,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-012",
+        "US-013",
+        "US-014",
+        "US-015",
+        "US-022"
+      ],
+      "review_demo": "Démonstration dashboards avec filtres et graphiques",
+      "risques": "Performance agrégations SQL, Chart.js",
+      "ceremonies": {
+        "sprint_planning": "2026-09-08 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-09-21 14:00-16:00",
+        "sprint_retrospective": "2026-09-21 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          42,
+          31.5,
+          21.0,
+          10.5,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-06",
+      "nom": "Capteurs & API",
+      "theme": "Préparation volet automatisé",
+      "objectif": "Architecture ouverte pour capteurs et API tierce",
+      "numero": 6,
+      "date_debut": "2026-09-22",
+      "date_fin": "2026-10-05",
+      "duree_jours": 14,
+      "story_points": 39,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-016",
+        "US-017",
+        "US-018",
+        "US-019",
+        "US-026",
+        "US-027"
+      ],
+      "review_demo": "Démonstration ingestion mesures + API SOAP",
+      "risques": "MQTT, conversion unités, idempotence",
+      "ceremonies": {
+        "sprint_planning": "2026-09-22 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-10-05 14:00-16:00",
+        "sprint_retrospective": "2026-10-05 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          39,
+          29.25,
+          19.5,
+          9.75,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-07",
+      "nom": "Fonctions Avancées",
+      "theme": "Fonctionnalités marché + IA",
+      "objectif": "Différenciation par rapport aux solutions existantes",
+      "numero": 7,
+      "date_debut": "2026-10-06",
+      "date_fin": "2026-10-19",
+      "duree_jours": 14,
+      "story_points": 47,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-028",
+        "US-029",
+        "US-030",
+        "US-031",
+        "US-032",
+        "US-033",
+        "US-034",
+        "US-035"
+      ],
+      "review_demo": "Démonstration carte, météo, QR code, détection anomalie",
+      "risques": "Microservice Python, intégration REST",
+      "ceremonies": {
+        "sprint_planning": "2026-10-06 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-10-19 14:00-16:00",
+        "sprint_retrospective": "2026-10-19 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          47,
+          35.25,
+          23.5,
+          11.75,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-08",
+      "nom": "Qualité & Livraison",
+      "theme": "Tests, documentation, soutenance",
+      "objectif": "Livrer une solution complète et documentée",
+      "numero": 8,
+      "date_debut": "2026-10-20",
+      "date_fin": "2026-11-02",
+      "duree_jours": 14,
+      "story_points": 42,
+      "velocity": 38,
+      "capacity": 38,
+      "stories": [
+        "US-023",
+        "US-036",
+        "US-037",
+        "US-038",
+        "US-039",
+        "US-040"
+      ],
+      "review_demo": "Démonstration finale complète + soutenance",
+      "risques": "Couverture tests, délais documentation",
+      "ceremonies": {
+        "sprint_planning": "2026-10-20 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-11-02 14:00-16:00",
+        "sprint_retrospective": "2026-11-02 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          42,
+          31.5,
+          21.0,
+          10.5,
+          0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    }
+  ],
+  "total_sprints": 8,
+  "total_points": 284
+}

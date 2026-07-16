@@ -1,0 +1,276 @@
+name: Zümm CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'release/**', 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  JAVA_VERSION: '17'
+  MAVEN_VERSION: '3.9.6'
+  WILDFLY_VERSION: '30.0.0.Final'
+
+jobs:
+  # ═══════════════════════════════════════════════
+  # JOB 1: BUILD
+  # ═══════════════════════════════════════════════
+  build:
+    name: 🔨 Build & Compile
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Compile
+        run: mvn clean compile -B
+
+      - name: Package WAR
+        run: mvn package -DskipTests -B
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zumm-war
+          path: target/*.war
+
+  # ═══════════════════════════════════════════════
+  # JOB 2: TESTS UNITAIRES
+  # ═══════════════════════════════════════════════
+  unit-tests:
+    name: 🧪 Tests Unitaires
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run unit tests
+        run: mvn test -B
+
+      - name: Generate JaCoCo report
+        run: mvn jacoco:report -B
+
+      - name: Check coverage (min 70%)
+        run: |
+          COVERAGE=$(cat target/site/jacoco/index.html | grep -oP 'Total[^%]+%' | head -1)
+          echo "Coverage: $COVERAGE"
+          # Script de vérification ici
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports/
+
+  # ═══════════════════════════════════════════════
+  # JOB 3: TESTS INTÉGRATION
+  # ═══════════════════════════════════════════════
+  integration-tests:
+    name: 🔗 Tests Intégration
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4
+        env:
+          POSTGRES_USER: zumm
+          POSTGRES_PASSWORD: zumm_test
+          POSTGRES_DB: zumm_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Run integration tests
+        run: mvn verify -P integration-tests -B
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/zumm_test
+          DB_USER: zumm
+          DB_PASSWORD: zumm_test
+
+  # ═══════════════════════════════════════════════
+  # JOB 4: ANALYSE QUALITÉ (SonarQube)
+  # ═══════════════════════════════════════════════
+  quality:
+    name: 📊 Analyse Qualité
+    needs: [unit-tests, integration-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Pour l'analyse complète
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: SonarQube Scan
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn sonar:sonar -Dsonar.projectKey=zumm -Dsonar.host.url=${{ secrets.SONAR_HOST }}
+
+      - name: SpotBugs
+        run: mvn spotbugs:check -B
+
+  # ═══════════════════════════════════════════════
+  # JOB 5: SÉCURITÉ (OWASP)
+  # ═══════════════════════════════════════════════
+  security:
+    name: 🔒 Scan Sécurité
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: OWASP Dependency Check
+        run: mvn dependency-check:check -B
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: target/dependency-check-report.html
+
+  # ═══════════════════════════════════════════════
+  # JOB 6: BUILD DOCKER
+  # ═══════════════════════════════════════════════
+  docker-build:
+    name: 🐳 Build Docker Image
+    needs: [quality, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: zumm-war
+          path: target/
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t zumm:${{ github.sha }} -t zumm:latest .
+          docker save zumm:latest > zumm-image.tar
+
+      - name: Upload Docker image
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: zumm-image.tar
+
+  # ═══════════════════════════════════════════════
+  # JOB 7: DÉPLOIEMENT STAGING
+  # ═══════════════════════════════════════════════
+  deploy-staging:
+    name: 🚀 Déploiement Staging
+    needs: docker-build
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.zumm.local
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Deploy to staging
+        run: |
+          docker load < zumm-image.tar
+          docker-compose -f docker-compose.staging.yml up -d
+
+  # ═══════════════════════════════════════════════
+  # JOB 8: TESTS E2E + CHARGE
+  # ═══════════════════════════════════════════════
+  e2e-tests:
+    name: 🎭 Tests E2E & Charge
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js (pour k6)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install k6
+        run: |
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E34145
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run E2E tests (Selenium)
+        run: mvn test -P e2e -B
+
+      - name: Run load tests (k6)
+        run: |
+          k6 run --env TARGET=https://staging.zumm.local                  --env VUS=50                  --env DURATION=5m                  tests/k6/load_test.js
+
+  # ═══════════════════════════════════════════════
+  # JOB 9: DÉPLOIEMENT PRODUCTION (MANUEL)
+  # ═══════════════════════════════════════════════
+  deploy-production:
+    name: 🏭 Déploiement Production
+    needs: e2e-tests
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://zumm.local
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Approval Gate
+        run: echo "⏳ En attente d'approbation manuelle..."
+
+      - uses: actions/checkout@v4
+
+      - name: Download Docker image
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+
+      - name: Deploy to production
+        run: |
+          docker load < zumm-image.tar
+          docker-compose -f docker-compose.prod.yml up -d
+
+      - name: Smoke tests
+        run: |
+          curl -f https://zumm.local/api/health || exit 1
+          echo "✅ Déploiement production réussi!"

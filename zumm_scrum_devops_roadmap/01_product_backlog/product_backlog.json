@@ -1,0 +1,404 @@
+{
+  "projet": "Zümm - Système de gestion apicole",
+  "date_creation": "2026-07-13",
+  "methode": "Scrum + DevOps",
+  "product_owner": "À définir",
+  "epics": [
+    {
+      "id": "EPIC-001",
+      "titre": "Gestion des entités métier (CRUD)",
+      "description": "Opérations CRUD sur fermiers, fermes, sites, ruches, corps/hausses, cadres, agents",
+      "priorite": "Haute",
+      "source_cdc": "§4.1, §5.2, §7.1",
+      "stories": [
+        {
+          "id": "US-001",
+          "titre": "CRUD Fermier",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "CRUD complet avec validation"
+        },
+        {
+          "id": "US-002",
+          "titre": "CRUD Ferme",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Liaison fermier-ferme"
+        },
+        {
+          "id": "US-003",
+          "titre": "CRUD Site (avec géolocalisation)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Lat/long/altitude + PostGIS"
+        },
+        {
+          "id": "US-004",
+          "titre": "CRUD Ruche avec composition",
+          "points": 13,
+          "priorite": "Haute",
+          "critere_acceptation": "1 corps + 0-5 hausses + 1-10 cadres"
+        },
+        {
+          "id": "US-005",
+          "titre": "CRUD Agent avec rôles",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Rôles: apiculteur, superviseur, responsable, admin"
+        },
+        {
+          "id": "US-006",
+          "titre": "Contraintes de composition (règles métier)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "CHECK constraints SQL + validation Java"
+        }
+      ],
+      "total_points": 44
+    },
+    {
+      "id": "EPIC-002",
+      "titre": "Planification et suivi des visites",
+      "description": "Planification, approbation, réalisation et rapport de visite",
+      "priorite": "Haute",
+      "source_cdc": "§4.2, §4.2.1, §6.1, §6.2",
+      "stories": [
+        {
+          "id": "US-007",
+          "titre": "Planifier une visite",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Date, raison, actions prévues"
+        },
+        {
+          "id": "US-008",
+          "titre": "Approuver/Refuser un planning",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Workflow approbation superviseur"
+        },
+        {
+          "id": "US-009",
+          "titre": "Réaliser une visite et remplir le rapport",
+          "points": 13,
+          "priorite": "Haute",
+          "critere_acceptation": "Date, heure, durée, constatations, évaluations 1-3"
+        },
+        {
+          "id": "US-010",
+          "titre": "Ajouter des photos au rapport",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Upload multi-photos"
+        },
+        {
+          "id": "US-011",
+          "titre": "Mode hors-ligne et synchronisation différée",
+          "points": 13,
+          "priorite": "Haute",
+          "critere_acceptation": "PWA + Service Worker + IndexedDB"
+        }
+      ],
+      "total_points": 44
+    },
+    {
+      "id": "EPIC-003",
+      "titre": "Tableaux de bord et visualisation",
+      "description": "Calendrier, production, alertes, synthèse ROI",
+      "priorite": "Haute",
+      "source_cdc": "§4.3, §4.3.1-4.3.4",
+      "stories": [
+        {
+          "id": "US-012",
+          "titre": "Calendrier matrice agents × ruches",
+          "points": 13,
+          "priorite": "Haute",
+          "critere_acceptation": "Filtres mois/semaine/saison/année + pop-up"
+        },
+        {
+          "id": "US-013",
+          "titre": "Tableau de bord production",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Seuils paramétrables + collecte/extension"
+        },
+        {
+          "id": "US-014",
+          "titre": "Tableau de bord alertes sanitaires",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Baisse anormale détectée + inspection"
+        },
+        {
+          "id": "US-015",
+          "titre": "Tableau de bord synthèse et ROI",
+          "points": 13,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Graphiques production, interventions, ROI"
+        }
+      ],
+      "total_points": 42
+    },
+    {
+      "id": "EPIC-004",
+      "titre": "Indicateurs et capteurs (préparation)",
+      "description": "Modèle de données ouvert pour intégration future des capteurs",
+      "priorite": "Moyenne",
+      "source_cdc": "§4.4, §4.4.1-4.4.3",
+      "stories": [
+        {
+          "id": "US-016",
+          "titre": "Modèle de données Mesure",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Horodatage, géolocalisation, unités paramétrables"
+        },
+        {
+          "id": "US-017",
+          "titre": "Interface ingestion REST/MQTT",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "POST /api/mesures + topic MQTT"
+        },
+        {
+          "id": "US-018",
+          "titre": "Seuils paramétrables et logique d'alerte",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Anti-rebond/hystérésis"
+        },
+        {
+          "id": "US-019",
+          "titre": "Conversion d'unités hétérogènes",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Strategy pattern"
+        }
+      ],
+      "total_points": 29
+    },
+    {
+      "id": "EPIC-005",
+      "titre": "Authentification et sécurité",
+      "description": "OAuth Google, RBAC, SSL/X.509",
+      "priorite": "Haute",
+      "source_cdc": "§8.2, §8.3, Annexe I",
+      "stories": [
+        {
+          "id": "US-020",
+          "titre": "Authentification OAuth 2.0 Google",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Flot Authorization Code + JWT"
+        },
+        {
+          "id": "US-021",
+          "titre": "Authentification locale (fallback)",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Repli si OAuth indisponible"
+        },
+        {
+          "id": "US-022",
+          "titre": "Contrôle d'accès RBAC",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Matrice 6 profils × 15 fonctions"
+        },
+        {
+          "id": "US-023",
+          "titre": "Chiffrement SSL/TLS X.509",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "HTTPS forcé + certificats"
+        }
+      ],
+      "total_points": 26
+    },
+    {
+      "id": "EPIC-006",
+      "titre": "Internationalisation et configuration",
+      "description": "i18n FR/EN/AR, ConfigZumm.ini",
+      "priorite": "Haute",
+      "source_cdc": "§8.2, §8.3",
+      "stories": [
+        {
+          "id": "US-024",
+          "titre": "Internationalisation XML (FR/EN/AR)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "RTL arabe + extensible"
+        },
+        {
+          "id": "US-025",
+          "titre": "Configuration ConfigZumm.ini",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Seuils, unités, modules sans recompilation"
+        }
+      ],
+      "total_points": 13
+    },
+    {
+      "id": "EPIC-007",
+      "titre": "Service web API tierce",
+      "description": "Exposition API pour applications externes",
+      "priorite": "Moyenne",
+      "source_cdc": "§6.5, §8.2",
+      "stories": [
+        {
+          "id": "US-026",
+          "titre": "Service web XML getZummHoneyActualQuantity",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "JAX-WS SOAP + WSDL"
+        },
+        {
+          "id": "US-027",
+          "titre": "Export CSV/TXT",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Données maîtrisées par l'utilisateur"
+        }
+      ],
+      "total_points": 10
+    },
+    {
+      "id": "EPIC-008",
+      "titre": "Fonctionnalités avancées (inspiration marché)",
+      "description": "Fonctions complémentaires HiveTracks, Apiary Book, BeePlus",
+      "priorite": "Moyenne",
+      "source_cdc": "§4.6, §4.7",
+      "stories": [
+        {
+          "id": "US-028",
+          "titre": "Photos d'inspection",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Attachées au rapport"
+        },
+        {
+          "id": "US-029",
+          "titre": "Contexte météo local",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "API météo par géolocalisation"
+        },
+        {
+          "id": "US-030",
+          "titre": "Carte et rayons de butinage",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Leaflet + OpenStreetMap + cercles 1/2/3km"
+        },
+        {
+          "id": "US-031",
+          "titre": "Liste de tâches et rappels",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Calendrier rappels"
+        },
+        {
+          "id": "US-032",
+          "titre": "Suivi de la reine",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Historique statut reine"
+        },
+        {
+          "id": "US-033",
+          "titre": "Récolte et QR code",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "QR par lot + traçabilité"
+        }
+      ],
+      "total_points": 36
+    },
+    {
+      "id": "EPIC-009",
+      "titre": "Intelligence Artificielle (préparation)",
+      "description": "Détection d'anomalie adaptative, pipeline IA",
+      "priorite": "Moyenne",
+      "source_cdc": "Annexe H",
+      "stories": [
+        {
+          "id": "US-034",
+          "titre": "Détection d'anomalie adaptative (EWMA)",
+          "points": 13,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Ligne de base par ruche + z-score"
+        },
+        {
+          "id": "US-035",
+          "titre": "Interface microservice IA Python",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "REST/JSON découplé"
+        }
+      ],
+      "total_points": 21
+    },
+    {
+      "id": "EPIC-010",
+      "titre": "Tests, qualité et documentation",
+      "description": "Plan de tests, UML, rapport, poster",
+      "priorite": "Haute",
+      "source_cdc": "Chapitre 10, 11, Annexe F",
+      "stories": [
+        {
+          "id": "US-036",
+          "titre": "Tests unitaires JUnit 5 + Mockito",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "70% couverture métier"
+        },
+        {
+          "id": "US-037",
+          "titre": "Tests d'intégration (Arquillian)",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "In-container testing"
+        },
+        {
+          "id": "US-038",
+          "titre": "Tests de charge k6",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "p95 < 500ms, erreurs < 1%"
+        },
+        {
+          "id": "US-039",
+          "titre": "Diagrammes UML complets",
+          "points": 13,
+          "priorite": "Haute",
+          "critere_acceptation": "10 diagrammes requis"
+        },
+        {
+          "id": "US-040",
+          "titre": "Rapport + Poster + Présentation",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Livrables soutenance"
+        }
+      ],
+      "total_points": 39
+    }
+  ],
+  "total_story_points": 304,
+  "definition_of_ready": [
+    "La story a un titre clair et une description",
+    "Les critères d'acceptation sont définis",
+    "Les dépendances sont identifiées",
+    "La story est estimée en points",
+    "Le Product Owner a validé la priorité"
+  ],
+  "definition_of_done": [
+    "Code développé et revu (peer review)",
+    "Tests unitaires passent (coverage ≥ 70%)",
+    "Tests d'intégration passent",
+    "Documentation mise à jour",
+    "Déployé sur l'environnement de staging",
+    "Validé par le Product Owner"
+  ]
+}

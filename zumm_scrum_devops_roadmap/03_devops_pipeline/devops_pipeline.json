@@ -1,0 +1,169 @@
+{
+  "projet": "Zümm",
+  "plateforme_ci_cd": "GitHub Actions / GitLab CI (au choix)",
+  "environnements": [
+    {
+      "nom": "Local",
+      "branche": "feature/*",
+      "url": "http://localhost:8080/zumm",
+      "description": "Développement local sur WildFly"
+    },
+    {
+      "nom": "Dev",
+      "branche": "develop",
+      "url": "https://dev.zumm.local",
+      "description": "Intégration continue, tests automatisés"
+    },
+    {
+      "nom": "Staging",
+      "branche": "release/*",
+      "url": "https://staging.zumm.local",
+      "description": "Recette fonctionnelle, démo sprint review"
+    },
+    {
+      "nom": "Production",
+      "branche": "main",
+      "url": "https://zumm.local",
+      "description": "Production déployée manuellement post-validation"
+    }
+  ],
+  "pipeline": {
+    "declencheur": "Push sur branche ou Pull Request",
+    "stages": [
+      {
+        "nom": "Build",
+        "description": "Compilation Maven + packaging WAR/EAR",
+        "commandes": [
+          "mvn clean compile",
+          "mvn package -DskipTests"
+        ],
+        "outils": [
+          "Maven 3.9+",
+          "JDK 17",
+          "WildFly"
+        ],
+        "duree_estimee": "3 min"
+      },
+      {
+        "nom": "Tests Unitaires",
+        "description": "JUnit 5 + Mockito + JaCoCo coverage",
+        "commandes": [
+          "mvn test",
+          "mvn jacoco:report"
+        ],
+        "seuils": {
+          "coverage_min": "70%",
+          "tests_fail_max": "0"
+        },
+        "duree_estimee": "5 min"
+      },
+      {
+        "nom": "Tests d'Intégration",
+        "description": "Arquillian in-container + H2",
+        "commandes": [
+          "mvn verify -P integration-tests"
+        ],
+        "duree_estimee": "8 min"
+      },
+      {
+        "nom": "Analyse Qualité",
+        "description": "SonarQube + SpotBugs + Checkstyle",
+        "commandes": [
+          "mvn sonar:sonar",
+          "mvn spotbugs:check",
+          "mvn checkstyle:check"
+        ],
+        "seuils": {
+          "bugs": "0",
+          "vulnerabilities": "0",
+          "code_smells": "< 50"
+        },
+        "duree_estimee": "5 min"
+      },
+      {
+        "nom": "Sécurité",
+        "description": "Scan dépendances + OWASP dependency-check",
+        "commandes": [
+          "mvn dependency-check:check"
+        ],
+        "duree_estimee": "4 min"
+      },
+      {
+        "nom": "Build Docker",
+        "description": "Image Docker WildFly + Zümm WAR",
+        "commandes": [
+          "docker build -t zumm:${VERSION} .",
+          "docker tag zumm:${VERSION} zumm:latest"
+        ],
+        "duree_estimee": "6 min"
+      },
+      {
+        "nom": "Déploiement Staging",
+        "description": "Déploiement auto sur staging",
+        "commandes": [
+          "docker-compose -f docker-compose.staging.yml up -d"
+        ],
+        "conditions": [
+          "branche == release/*",
+          "branche == main"
+        ],
+        "duree_estimee": "2 min"
+      },
+      {
+        "nom": "Tests E2E",
+        "description": "Selenium / Cypress sur staging",
+        "commandes": [
+          "mvn test -P e2e"
+        ],
+        "duree_estimee": "10 min"
+      },
+      {
+        "nom": "Tests de Charge",
+        "description": "k6 - Performance et robustesse",
+        "commandes": [
+          "k6 run --env TARGET=https://staging.zumm.local tests/load/"
+        ],
+        "seuils": {
+          "p95_latency": "< 500ms",
+          "error_rate": "< 1%"
+        },
+        "duree_estimee": "15 min"
+      },
+      {
+        "nom": "Déploiement Production",
+        "description": "Déploiement manuel (approval gate)",
+        "commandes": [
+          "docker-compose -f docker-compose.prod.yml up -d"
+        ],
+        "conditions": [
+          "branche == main",
+          "approval requis"
+        ],
+        "duree_estimee": "2 min",
+        "manuel": true
+      }
+    ]
+  },
+  "infrastructure_as_code": {
+    "docker": {
+      "dockerfile_app": "Dockerfile de l'application WildFly + WAR",
+      "dockerfile_db": "Dockerfile PostgreSQL + PostGIS",
+      "docker_compose": "docker-compose.yml pour stack complète"
+    },
+    "kubernetes": {
+      "status": "Optionnel - pour scaling futur",
+      "manifests": [
+        "deployment.yml",
+        "service.yml",
+        "ingress.yml",
+        "configmap.yml"
+      ]
+    }
+  },
+  "monitoring": {
+    "logs": "ELK Stack (Elasticsearch + Logstash + Kibana) ou Loki",
+    "metrics": "Prometheus + Grafana",
+    "alerting": "AlertManager pour alerts techniques",
+    "apm": "Jaeger pour tracing distribué"
+  }
+}
