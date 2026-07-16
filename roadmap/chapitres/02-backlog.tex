@@ -1,0 +1,203 @@
+%==============================================================================
+%  CHAPITRE 2 - Product Backlog
+%==============================================================================
+\chapter{Product Backlog}
+\label{chap:backlog}
+
+Le backlog est structuré en \textbf{10 epics} couvrant l'intégralité du
+périmètre du cahier des charges, pour un total de \textbf{40 user stories}
+et \textbf{304 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
+
+\section{Vue d'ensemble des epics}
+
+\begin{center}
+\begin{tabular}{lp{6.2cm}llc}
+\toprule
+\textbf{Epic} & \textbf{Intitulé} & \textbf{Priorité} & \textbf{Source CdC} & \textbf{Points} \\
+\midrule
+EPIC-001 & Gestion des entités métier (CRUD)        & Haute   & \S4.1, \S5.2, \S7.1   & 44 \\
+EPIC-002 & Planification et suivi des visites       & Haute   & \S4.2, \S6.1, \S6.2   & 44 \\
+EPIC-003 & Tableaux de bord et visualisation        & Haute   & \S4.3                 & 42 \\
+EPIC-004 & Indicateurs et capteurs (préparation)    & Moyenne & \S4.4                 & 29 \\
+EPIC-005 & Authentification et sécurité             & Haute   & \S8.2, \S8.3, Ann.~I  & 26 \\
+EPIC-006 & Internationalisation et configuration    & Haute   & \S8.2, \S8.3          & 13 \\
+EPIC-007 & Service web API tierce                   & Moyenne & \S6.5, \S8.2          & 10 \\
+EPIC-008 & Fonctionnalités avancées (marché)        & Moyenne & \S4.6, \S4.7          & 36 \\
+EPIC-009 & Intelligence artificielle (préparation)  & Moyenne & Annexe~H              & 21 \\
+EPIC-010 & Tests, qualité et documentation          & Haute   & Chap.~10, 11, Ann.~F  & 39 \\
+\midrule
+\multicolumn{4}{r}{\textbf{Total}} & \textbf{304} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-001 --- Gestion des entités métier (CRUD)}
+
+Opérations CRUD sur fermiers, fermes, sites, ruches, corps/hausses, cadres
+et agents.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-001 & CRUD Fermier                          & 5  & Haute & CRUD complet avec validation \\
+US-002 & CRUD Ferme                            & 5  & Haute & Liaison fermier--ferme \\
+US-003 & CRUD Site (avec géolocalisation)      & 8  & Haute & Lat/long/altitude + PostGIS \\
+US-004 & CRUD Ruche avec composition           & 13 & Haute & 1 corps + 0--5 hausses + 1--10 cadres \\
+US-005 & CRUD Agent avec rôles                 & 5  & Haute & Rôles : apiculteur, superviseur, responsable, admin \\
+US-006 & Contraintes de composition (métier)   & 8  & Haute & Contraintes CHECK SQL + validation Java \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-002 --- Planification et suivi des visites}
+
+Planification, approbation, réalisation et rapport de visite.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-007 & Planifier une visite                    & 8  & Haute & Date, raison, actions prévues \\
+US-008 & Approuver/refuser un planning           & 5  & Haute & Workflow d'approbation superviseur \\
+US-009 & Réaliser une visite et remplir le rapport & 13 & Haute & Date, heure, durée, constatations, évaluations 1--3 \\
+US-010 & Ajouter des photos au rapport           & 5  & Haute & Upload multi-photos \\
+US-011 & Mode hors-ligne et synchronisation différée & 13 & Haute & PWA + Service Worker + IndexedDB \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-003 --- Tableaux de bord et visualisation}
+
+Calendrier, production, alertes, synthèse ROI.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-012 & Calendrier matrice agents $\times$ ruches & 13 & Haute   & Filtres mois/semaine/saison/année + pop-up \\
+US-013 & Tableau de bord production                & 8  & Haute   & Seuils paramétrables + collecte/extension \\
+US-014 & Tableau de bord alertes sanitaires        & 8  & Haute   & Baisse anormale détectée + inspection \\
+US-015 & Tableau de bord synthèse et ROI           & 13 & Moyenne & Graphiques production, interventions, ROI \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-004 --- Indicateurs et capteurs (préparation)}
+
+Modèle de données ouvert pour l'intégration future des capteurs.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-016 & Modèle de données Mesure              & 8 & Moyenne & Horodatage, géolocalisation, unités paramétrables \\
+US-017 & Interface ingestion REST/MQTT         & 8 & Moyenne & POST \texttt{/api/mesures} + topic MQTT \\
+US-018 & Seuils paramétrables et logique d'alerte & 8 & Moyenne & Anti-rebond / hystérésis \\
+US-019 & Conversion d'unités hétérogènes       & 5 & Moyenne & Patron \emph{Strategy} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-005 --- Authentification et sécurité}
+
+OAuth Google, RBAC, SSL/X.509.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-020 & Authentification OAuth 2.0 Google & 8 & Haute & Flot \emph{Authorization Code} + JWT \\
+US-021 & Authentification locale (repli)   & 5 & Haute & Repli si OAuth indisponible \\
+US-022 & Contrôle d'accès RBAC             & 8 & Haute & Matrice 6 profils $\times$ 15 fonctions \\
+US-023 & Chiffrement SSL/TLS X.509         & 5 & Haute & HTTPS forcé + certificats \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-006 --- Internationalisation et configuration}
+
+i18n FR/EN/AR, \texttt{ConfigZumm.ini}.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-024 & Internationalisation XML (FR/EN/AR) & 8 & Haute & RTL arabe + extensible \\
+US-025 & Configuration \texttt{ConfigZumm.ini} & 5 & Haute & Seuils, unités, modules sans recompilation \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-007 --- Service web API tierce}
+
+Exposition d'une API pour applications externes.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-026 & Service web XML \texttt{getZummHoneyActualQuantity} & 5 & Moyenne & JAX-WS SOAP + WSDL \\
+US-027 & Export CSV/TXT & 5 & Moyenne & Données maîtrisées par l'utilisateur \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-008 --- Fonctionnalités avancées (inspiration marché)}
+
+Fonctions complémentaires inspirées de HiveTracks, Apiary Book et BeePlus.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-028 & Photos d'inspection            & 5 & Haute   & Attachées au rapport \\
+US-029 & Contexte météo local           & 5 & Moyenne & API météo par géolocalisation \\
+US-030 & Carte et rayons de butinage    & 8 & Moyenne & Leaflet + OpenStreetMap + cercles 1/2/3 km \\
+US-031 & Liste de tâches et rappels     & 5 & Haute   & Calendrier de rappels \\
+US-032 & Suivi de la reine              & 5 & Haute   & Historique du statut de la reine \\
+US-033 & Récolte et QR code             & 8 & Moyenne & QR par lot + traçabilité \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-009 --- Intelligence artificielle (préparation)}
+
+Détection d'anomalie adaptative, pipeline IA.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-034 & Détection d'anomalie adaptative (EWMA) & 13 & Moyenne & Ligne de base par ruche + z-score \\
+US-035 & Interface microservice IA Python       & 8  & Moyenne & REST/JSON découplé \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-010 --- Tests, qualité et documentation}
+
+Plan de tests, UML, rapport, poster.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-036 & Tests unitaires JUnit 5 + Mockito   & 8  & Haute   & 70\,\% de couverture métier \\
+US-037 & Tests d'intégration (Arquillian)    & 5  & Haute   & Tests \emph{in-container} \\
+US-038 & Tests de charge k6                  & 5  & Moyenne & p95 $<$ 500 ms, erreurs $<$ 1\,\% \\
+US-039 & Diagrammes UML complets             & 13 & Haute   & 10 diagrammes requis \\
+US-040 & Rapport + poster + présentation     & 8  & Haute   & Livrables de soutenance \\
+\bottomrule
+\end{tabular}
+\end{center}

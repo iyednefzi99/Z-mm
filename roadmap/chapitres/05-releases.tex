@@ -1,0 +1,99 @@
+%==============================================================================
+%  CHAPITRE 5 - Plan de releases
+%==============================================================================
+\chapter{Plan de releases}
+\label{chap:releases}
+
+Le versionnage suit \textbf{Semantic Versioning} (SemVer :
+MAJOR.MINOR.PATCH). Quatre releases jalonnent le projet, une à l'issue de
+chaque paire de sprints.
+
+\section{Synthèse}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Version} & \textbf{Nom} & \textbf{Date prévue} & \textbf{Sprints} \\
+\midrule
+v0.1.0 & MVP --- Fondation          & 11/08/2026 & S1, S2 \\
+v0.2.0 & Visites \& collaboration   & 08/09/2026 & S3, S4 \\
+v0.3.0 & Analytics \& dashboards    & 06/10/2026 & S5, S6 \\
+v1.0.0 & Release Candidate          & 02/11/2026 & S7, S8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{v0.1.0 --- MVP : Fondation}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Contenu &
+  CRUD complet des entités métier ;
+  architecture J2EE multi-niveaux ;
+  composition de la ruche (corps/hausse/cadre) ;
+  configuration \texttt{ConfigZumm.ini} ;
+  i18n FR/EN/AR. \\
+Critère d'acceptation & Application déployable avec données de test. \\
+Statut & Planifiée. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{v0.2.0 --- Visites \& collaboration}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Contenu &
+  Workflow planification/approbation de visite ;
+  rapport de visite complet ;
+  mode hors-ligne PWA ;
+  authentification OAuth 2.0 ;
+  sécurité SSL/X.509. \\
+Critère d'acceptation & Parcours utilisateur complet en ligne et hors-ligne. \\
+Statut & Planifiée. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{v0.3.0 --- Analytics \& dashboards}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Contenu &
+  Calendrier agents $\times$ ruches ;
+  tableaux de bord production \& alertes ;
+  synthèse ROI ;
+  ingestion des mesures capteurs ;
+  service web API (SOAP/XML). \\
+Critère d'acceptation & Dashboards fonctionnels avec données réelles. \\
+Statut & Planifiée. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{v1.0.0 --- Release Candidate}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Contenu &
+  Fonctionnalités avancées (carte, météo, QR code) ;
+  détection d'anomalie adaptative (IA) ;
+  tests complets (unitaires/intégration/charge) ;
+  documentation \& soutenance ;
+  monitoring \& alerting. \\
+Critère d'acceptation & Solution complète prête pour la production. \\
+Statut & Planifiée. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{encadre}
+\textbf{Règle de livraison.} Une release n'est publiée que si tous les
+critères de la Definition of Done (\S1.2.4) sont satisfaits pour l'ensemble
+des stories concernées, et si le pipeline CI/CD (chapitre~\ref{chap:devops})
+est intégralement vert sur la branche \texttt{release/*} correspondante.
+\end{encadre}

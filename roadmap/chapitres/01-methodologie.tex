@@ -1,0 +1,107 @@
+%==============================================================================
+%  CHAPITRE 1 - Méthodologie : Scrum + DevOps
+%==============================================================================
+\chapter{Méthodologie : Scrum + DevOps}
+\label{chap:methodologie}
+
+\section{Objet du document}
+
+Ce document constitue la \textbf{roadmap de développement} du projet Zümm.
+Il traduit le cahier des charges (v1.0, 13 juillet 2026) en un plan
+d'exécution opérationnel : un \emph{product backlog} priorisé, une
+planification en \textbf{8 sprints} de deux semaines, une chaîne
+d'intégration et de déploiement continus (CI/CD), un plan de releases
+sémantiques et un dispositif de monitoring.
+
+\begin{encadre}
+\textbf{Chiffres clés.} 10 epics --- 40 user stories --- 304 story points ---
+8 sprints de 14 jours --- 4 releases (v0.1.0 $\rightarrow$ v1.0.0) ---
+période : 14 juillet $\rightarrow$ 2 novembre 2026.
+\end{encadre}
+
+\section{Cadre Scrum}
+
+\subsection{Rôles}
+
+\begin{center}
+\begin{tabular}{lp{10.5cm}}
+\toprule
+\textbf{Rôle} & \textbf{Responsabilité} \\
+\midrule
+Product Owner & Priorise le backlog, valide les critères d'acceptation,
+                accepte les livrables en sprint review. \\
+Scrum Master  & Garant du cadre, lève les obstacles, anime les cérémonies. \\
+Équipe de développement & Conçoit, développe, teste et livre l'incrément
+                de chaque sprint. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Cérémonies}
+
+Chaque sprint suit le même rythme de cérémonies :
+
+\begin{center}
+\begin{tabular}{llp{7cm}}
+\toprule
+\textbf{Cérémonie} & \textbf{Cadence / durée} & \textbf{Objectif} \\
+\midrule
+Sprint Planning       & Jour 1, 09h00--13h00 (4 h) & Sélection des stories et
+                        engagement de l'équipe. \\
+Daily Scrum           & Tous les jours, 09h15 (15 min) & Synchronisation,
+                        détection des blocages. \\
+Sprint Review         & Dernier jour, 14h00--16h00 (2 h) & Démonstration de
+                        l'incrément au Product Owner. \\
+Sprint Retrospective  & Dernier jour, 16h00--17h00 (1 h) & Amélioration
+                        continue du processus. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Definition of Ready (DoR)}
+
+Une story ne peut entrer dans un sprint que si :
+\begin{enumerate}
+  \item elle a un titre clair et une description ;
+  \item ses critères d'acceptation sont définis ;
+  \item ses dépendances sont identifiées ;
+  \item elle est estimée en points ;
+  \item le Product Owner a validé sa priorité.
+\end{enumerate}
+
+\subsection{Definition of Done (DoD)}
+
+Une story n'est terminée que si :
+\begin{enumerate}
+  \item le code est développé et revu (\emph{peer review}) ;
+  \item les tests unitaires passent (couverture $\geq 70\,\%$) ;
+  \item les tests d'intégration passent ;
+  \item la documentation est mise à jour ;
+  \item l'incrément est déployé sur l'environnement de staging ;
+  \item le Product Owner a validé la story.
+\end{enumerate}
+
+\section{Principes DevOps}
+
+La démarche DevOps complète Scrum sur l'axe technique :
+
+\begin{itemize}
+  \item \textbf{Intégration continue} : chaque \emph{push} déclenche build,
+        tests et analyse qualité (chapitre~\ref{chap:devops}) ;
+  \item \textbf{Déploiement continu} : livraison automatique en staging,
+        déploiement en production sur validation manuelle (\emph{approval gate}) ;
+  \item \textbf{Infrastructure as Code} : Docker, docker-compose,
+        manifestes Kubernetes optionnels ;
+  \item \textbf{Observabilité} : logs centralisés, métriques Prometheus,
+        dashboards Grafana, alerting (chapitre~\ref{chap:monitoring}) ;
+  \item \textbf{Boucle de rétroaction} : les métriques de production
+        alimentent la priorisation du backlog.
+\end{itemize}
+
+\begin{encadre}
+\textbf{Note de cohérence.} Les fichiers source \texttt{sprints.json} et
+\texttt{releases.json} annonçaient 284 points planifiés ; la somme réelle des
+stories affectées aux sprints est de \textbf{304 points} (écarts sur les
+sprints 5, 7 et 8). Ce document retient les valeurs recalculées, cohérentes
+avec le product backlog.
+\end{encadre}

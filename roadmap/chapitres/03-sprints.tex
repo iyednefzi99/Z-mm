@@ -1,0 +1,327 @@
+%==============================================================================
+%  CHAPITRE 3 - Planification des sprints
+%==============================================================================
+\chapter{Planification des sprints}
+\label{chap:sprints}
+
+Le développement est découpé en \textbf{8 sprints de 14 jours} (16 semaines),
+du 14 juillet au 2 novembre 2026, avec une capacité de référence de
+38 points par sprint.
+
+\section{Calendrier général}
+
+\begin{figure}[ht]
+\centering
+\begin{ganttchart}[
+    x unit=0.10cm,
+    y unit title=0.7cm,
+    y unit chart=0.62cm,
+    title/.append style={fill=grisdoux, draw=miel},
+    title label font=\scriptsize\bfseries\color{bleunuit},
+    bar/.append style={fill=miel, draw=mielfonce, rounded corners=1pt},
+    bar label font=\scriptsize\color{bleunuit},
+    milestone/.append style={fill=vertsauge, draw=bleunuit},
+    milestone label font=\scriptsize\bfseries\color{vertsauge},
+    vgrid={*6{draw=none}, *1{draw=grisdoux!80!gray, line width=.4pt}},
+    time slot format=isodate
+  ]{2026-07-14}{2026-11-03}
+  % Titres de mois en français (juil. : 18 j, nov. : 3 j)
+  \gantttitle{juillet}{18}
+  \gantttitle{août}{31}
+  \gantttitle{septembre}{30}
+  \gantttitle{octobre}{31}
+  \gantttitle{nov.}{3} \\
+  \ganttbar{S1 -- Fondation CRUD (31 pts)}{2026-07-14}{2026-07-27} \\
+  \ganttbar{S2 -- Ruche \& composition (26 pts)}{2026-07-28}{2026-08-10} \\
+  \ganttmilestone{v0.1.0}{2026-08-11} \\
+  \ganttbar{S3 -- Visites \& rapports (31 pts)}{2026-08-11}{2026-08-24} \\
+  \ganttbar{S4 -- Hors-ligne \& sync (26 pts)}{2026-08-25}{2026-09-07} \\
+  \ganttmilestone{v0.2.0}{2026-09-08} \\
+  \ganttbar{S5 -- Tableaux de bord (50 pts)}{2026-09-08}{2026-09-21} \\
+  \ganttbar{S6 -- Capteurs \& API (39 pts)}{2026-09-22}{2026-10-05} \\
+  \ganttmilestone{v0.3.0}{2026-10-06} \\
+  \ganttbar{S7 -- Fonctions avancées (57 pts)}{2026-10-06}{2026-10-19} \\
+  \ganttbar{S8 -- Qualité \& livraison (44 pts)}{2026-10-20}{2026-11-02} \\
+  \ganttmilestone{v1.0.0}{2026-11-02}
+\end{ganttchart}
+\caption{Diagramme de Gantt des 8 sprints et des 4 jalons de release.}
+\label{fig:gantt-sprints}
+\end{figure}
+
+\section{Synthèse des sprints}
+
+\begin{center}
+\begin{tabular}{clp{4.6cm}cc}
+\toprule
+\textbf{\#} & \textbf{Période} & \textbf{Thème} & \textbf{Points\footnotemark} & \textbf{Stories} \\
+\midrule
+1 & 14/07 $\rightarrow$ 27/07 & Fondation --- CRUD Core          & 31 & US-001/002/003/005/006 \\
+2 & 28/07 $\rightarrow$ 10/08 & Ruche \& composition             & 26 & US-004/024/025 \\
+3 & 11/08 $\rightarrow$ 24/08 & Visites \& rapports              & 31 & US-007/008/009/010 \\
+4 & 25/08 $\rightarrow$ 07/09 & Hors-ligne \& synchronisation    & 26 & US-011/020/021 \\
+5 & 08/09 $\rightarrow$ 21/09 & Tableaux de bord                 & 50 & US-012 à 015, US-022 \\
+6 & 22/09 $\rightarrow$ 05/10 & Capteurs \& API                  & 39 & US-016 à 019, US-026/027 \\
+7 & 06/10 $\rightarrow$ 19/10 & Fonctions avancées               & 57 & US-028 à 035 \\
+8 & 20/10 $\rightarrow$ 02/11 & Qualité \& livraison             & 44 & US-023, US-036 à 040 \\
+\midrule
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{304} & \textbf{40 stories} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\footnotetext{Points recalculés depuis le backlog. Les sprints 5 et 7
+dépassent la capacité de référence (38 pts) : un rééquilibrage vers les
+sprints 2 et 4 (26 pts) est recommandé lors des sprint plannings.}
+
+\begin{encadre}
+\textbf{Alerte de charge.} Les sprints 5 (50 pts) et 7 (57 pts) excèdent la
+vélocité cible de 38 points, tandis que les sprints 2 et 4 sont
+sous-chargés (26 pts). Candidats au déplacement : US-015 (13 pts,
+priorité moyenne) du sprint 5 vers le sprint 4, et US-029/US-030/US-033
+(21 pts, priorité moyenne) du sprint 7 vers les sprints 2 et 6.
+\end{encadre}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 1 --- Fondation : CRUD Core}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Avoir un socle technique fonctionnel avec les entités principales. \\
+Période   & 14/07/2026 $\rightarrow$ 27/07/2026 (14 jours) --- 31 pts / capacité 38. \\
+Démo      & Démonstration CRUD Fermier/Ferme/Site/Agent. \\
+Risques   & Complexité PostGIS, configuration WildFly. \\
+Burndown idéal & J1 : 31 --- J4 : 23 --- J7 : 15 --- J10 : 8 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-001 & CRUD Fermier                                & 5 \\
+US-002 & CRUD Ferme                                  & 5 \\
+US-003 & CRUD Site (avec géolocalisation)            & 8 \\
+US-005 & CRUD Agent avec rôles                       & 5 \\
+US-006 & Contraintes de composition (règles métier)  & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 2 --- Ruche \& composition}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Modéliser la hiérarchie ruche/corps/hausse/cadre avec contraintes. \\
+Période   & 28/07/2026 $\rightarrow$ 10/08/2026 (14 jours) --- 26 pts / capacité 38. \\
+Démo      & Démonstration de la composition d'une ruche avec règles métier. \\
+Risques   & Contraintes SQL CHECK, patron \emph{Composite}. \\
+Burndown idéal & J1 : 26 --- J4 : 20 --- J7 : 13 --- J10 : 7 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-004 & CRUD Ruche avec composition            & 13 \\
+US-024 & Internationalisation XML (FR/EN/AR)    & 8 \\
+US-025 & Configuration \texttt{ConfigZumm.ini}  & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 3 --- Visites \& rapports}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Workflow complet : planification $\rightarrow$ approbation
+            $\rightarrow$ réalisation $\rightarrow$ rapport. \\
+Période   & 11/08/2026 $\rightarrow$ 24/08/2026 (14 jours) --- 31 pts / capacité 38. \\
+Démo      & Démonstration du workflow de visite avec rapport complet. \\
+Risques   & Mode hors-ligne (reporté au sprint 4). \\
+Burndown idéal & J1 : 31 --- J4 : 23 --- J7 : 15 --- J10 : 8 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-007 & Planifier une visite                        & 8 \\
+US-008 & Approuver/refuser un planning               & 5 \\
+US-009 & Réaliser une visite et remplir le rapport   & 13 \\
+US-010 & Ajouter des photos au rapport               & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 4 --- Hors-ligne \& synchronisation}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Permettre la saisie terrain sans réseau. \\
+Période   & 25/08/2026 $\rightarrow$ 07/09/2026 (14 jours) --- 26 pts / capacité 38. \\
+Démo      & Démonstration PWA hors-ligne + OAuth. \\
+Risques   & Service Workers, IndexedDB, synchronisation différée. \\
+Burndown idéal & J1 : 26 --- J4 : 20 --- J7 : 13 --- J10 : 7 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-011 & Mode hors-ligne et synchronisation différée & 13 \\
+US-020 & Authentification OAuth 2.0 Google           & 8 \\
+US-021 & Authentification locale (repli)             & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 5 --- Tableaux de bord}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Calendrier, production, alertes, synthèse. \\
+Période   & 08/09/2026 $\rightarrow$ 21/09/2026 (14 jours) --- 50 pts / capacité 38
+            (\textbf{surcharge}, cf. alerte ci-dessus). \\
+Démo      & Démonstration des dashboards avec filtres et graphiques. \\
+Risques   & Performance des agrégations SQL, Chart.js. \\
+Burndown idéal & J1 : 50 --- J4 : 38 --- J7 : 25 --- J10 : 13 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-012 & Calendrier matrice agents $\times$ ruches & 13 \\
+US-013 & Tableau de bord production                & 8 \\
+US-014 & Tableau de bord alertes sanitaires        & 8 \\
+US-015 & Tableau de bord synthèse et ROI           & 13 \\
+US-022 & Contrôle d'accès RBAC                     & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 6 --- Capteurs \& API}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Architecture ouverte pour capteurs et API tierce. \\
+Période   & 22/09/2026 $\rightarrow$ 05/10/2026 (14 jours) --- 39 pts / capacité 38. \\
+Démo      & Démonstration de l'ingestion de mesures + API SOAP. \\
+Risques   & MQTT, conversion d'unités, idempotence. \\
+Burndown idéal & J1 : 39 --- J4 : 29 --- J7 : 20 --- J10 : 10 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-016 & Modèle de données Mesure                              & 8 \\
+US-017 & Interface ingestion REST/MQTT                         & 8 \\
+US-018 & Seuils paramétrables et logique d'alerte              & 8 \\
+US-019 & Conversion d'unités hétérogènes                       & 5 \\
+US-026 & Service web XML \texttt{getZummHoneyActualQuantity}   & 5 \\
+US-027 & Export CSV/TXT                                        & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 7 --- Fonctions avancées}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Différenciation par rapport aux solutions existantes. \\
+Période   & 06/10/2026 $\rightarrow$ 19/10/2026 (14 jours) --- 57 pts / capacité 38
+            (\textbf{surcharge}, cf. alerte ci-dessus). \\
+Démo      & Démonstration carte, météo, QR code, détection d'anomalie. \\
+Risques   & Microservice Python, intégration REST. \\
+Burndown idéal & J1 : 57 --- J4 : 43 --- J7 : 29 --- J10 : 14 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-028 & Photos d'inspection                        & 5 \\
+US-029 & Contexte météo local                       & 5 \\
+US-030 & Carte et rayons de butinage                & 8 \\
+US-031 & Liste de tâches et rappels                 & 5 \\
+US-032 & Suivi de la reine                          & 5 \\
+US-033 & Récolte et QR code                         & 8 \\
+US-034 & Détection d'anomalie adaptative (EWMA)     & 13 \\
+US-035 & Interface microservice IA Python           & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% ---------------------------------------------------------------------------
+\section{Sprint 8 --- Qualité \& livraison}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Livrer une solution complète et documentée. \\
+Période   & 20/10/2026 $\rightarrow$ 02/11/2026 (14 jours) --- 44 pts / capacité 38. \\
+Démo      & Démonstration finale complète + soutenance. \\
+Risques   & Couverture de tests, délais de documentation. \\
+Burndown idéal & J1 : 44 --- J4 : 33 --- J7 : 22 --- J10 : 11 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-023 & Chiffrement SSL/TLS X.509           & 5 \\
+US-036 & Tests unitaires JUnit 5 + Mockito   & 8 \\
+US-037 & Tests d'intégration (Arquillian)    & 5 \\
+US-038 & Tests de charge k6                  & 5 \\
+US-039 & Diagrammes UML complets             & 13 \\
+US-040 & Rapport + poster + présentation     & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Suivi en cours de sprint}
+
+\begin{encadre}
+\textbf{Modalités de suivi.} Le \emph{burndown} réel est mis à jour
+quotidiennement au daily scrum. En fin de sprint, la rétrospective consigne :
+ce qui a bien fonctionné, ce qui peut être amélioré, et les actions pour le
+sprint suivant. Les fichiers éditables \texttt{SPRINT-0X.md} du dossier
+\path{zumm_scrum_devops_roadmap/02_sprints/} servent de support
+opérationnel ; ce document en est la vue consolidée.
+\end{encadre}

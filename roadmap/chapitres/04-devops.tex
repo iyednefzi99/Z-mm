@@ -1,0 +1,142 @@
+%==============================================================================
+%  CHAPITRE 4 - Pipeline DevOps (CI/CD)
+%==============================================================================
+\chapter{Pipeline DevOps (CI/CD)}
+\label{chap:devops}
+
+La chaîne CI/CD s'appuie sur \textbf{GitHub Actions} (ou GitLab CI au choix)
+et se déclenche à chaque \emph{push} ou \emph{pull request}.
+
+\section{Environnements}
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Environnement} & \textbf{Branche} & \textbf{URL} & \textbf{Usage} \\
+\midrule
+Local      & \texttt{feature/*}  & \texttt{http://localhost:8080/zumm} & Développement local (WildFly) \\
+Dev        & \texttt{develop}    & \texttt{https://dev.zumm.local}     & Intégration continue, tests \\
+Staging    & \texttt{release/*}  & \texttt{https://staging.zumm.local} & Recette, démo sprint review \\
+Production & \texttt{main}       & \texttt{https://zumm.local}         & Déploiement manuel validé \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Vue d'ensemble du pipeline}
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  node distance=4mm and 5mm,
+  stage/.style={draw=mielfonce, fill=grisdoux, rounded corners=2pt,
+    minimum width=2.45cm, minimum height=1.15cm, align=center,
+    font=\scriptsize\bfseries, text=bleunuit},
+  manual/.style={stage, draw=vertsauge, dashed},
+  fleche/.style={-{Stealth[length=2.4mm]}, thick, color=miel}
+]
+\node[stage] (build)   {BUILD\\ \scriptsize Maven (3 min)};
+\node[stage, right=of build] (test)    {TESTS\\ \scriptsize JUnit + Arquillian\\ \scriptsize (13 min)};
+\node[stage, right=of test] (qualite) {QUALITÉ\\ \scriptsize Sonar + OWASP\\ \scriptsize (9 min)};
+\node[stage, right=of qualite] (docker)  {DOCKER\\ \scriptsize Image (6 min)};
+\node[stage, below=of docker] (staging) {STAGING\\ \scriptsize Auto (2 min)};
+\node[stage, left=of staging] (e2e)     {E2E + k6\\ \scriptsize (25 min)};
+\node[manual, left=of e2e] (prod)    {PRODUCTION\\ \scriptsize Manuel\\ \scriptsize (approval gate)};
+\draw[fleche] (build) -- (test);
+\draw[fleche] (test) -- (qualite);
+\draw[fleche] (qualite) -- (docker);
+\draw[fleche] (docker) -- (staging);
+\draw[fleche] (staging) -- (e2e);
+\draw[fleche] (e2e) -- (prod);
+\end{tikzpicture}
+\caption{Enchaînement des étapes du pipeline CI/CD (durée totale $\approx$ 1 h).}
+\label{fig:pipeline}
+\end{figure}
+
+\section{Détail des étapes}
+
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}%
+\begin{tabular}{p{2.3cm}p{4.4cm}p{4.7cm}p{3.0cm}c}
+\toprule
+\textbf{Étape} & \textbf{Description} & \textbf{Commandes} & \textbf{Seuils / conditions} & \textbf{Durée} \\
+\midrule
+Build & Compilation Maven + packaging WAR/EAR (JDK 17, Maven 3.9+, WildFly)
+  & \texttt{mvn clean compile}\newline \texttt{mvn package -DskipTests}
+  & --- & 3 min \\
+\addlinespace
+Tests unitaires & JUnit 5 + Mockito + JaCoCo
+  & \texttt{mvn test}\newline \texttt{mvn jacoco:report}
+  & couverture $\geq 70\,\%$, 0 échec & 5 min \\
+\addlinespace
+Tests d'intégration & Arquillian \emph{in-container} + H2
+  & \texttt{mvn verify -P integration-tests}
+  & --- & 8 min \\
+\addlinespace
+Analyse qualité & SonarQube + SpotBugs + Checkstyle
+  & \texttt{mvn sonar:sonar}\newline \texttt{mvn spotbugs:check}\newline \texttt{mvn checkstyle:check}
+  & 0 bug, 0 vulnérabilité, $<50$ \emph{code smells} & 5 min \\
+\addlinespace
+Sécurité & Scan des dépendances OWASP
+  & \texttt{mvn dependency-check:check}
+  & --- & 4 min \\
+\addlinespace
+Build Docker & Image WildFly + WAR Zümm
+  & \texttt{docker build -t zumm:\$\{VERSION\} .}
+  & --- & 6 min \\
+\addlinespace
+Déploiement staging & Déploiement automatique
+  & \texttt{docker-compose -f docker-compose.staging.yml up -d}
+  & branches \texttt{release/*}, \texttt{main} & 2 min \\
+\addlinespace
+Tests E2E & Selenium / Cypress sur staging
+  & \texttt{mvn test -P e2e}
+  & --- & 10 min \\
+\addlinespace
+Tests de charge & k6, performance et robustesse
+  & \texttt{k6 run tests/load/}
+  & p95 $<$ 500 ms, erreurs $<1\,\%$ & 15 min \\
+\addlinespace
+Déploiement production & Déploiement \textbf{manuel} (\emph{approval gate})
+  & \texttt{docker-compose -f docker-compose.prod.yml up -d}
+  & branche \texttt{main} + approbation & 2 min \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Infrastructure as Code}
+
+\begin{itemize}
+  \item \textbf{Docker} : \texttt{Dockerfile} applicatif (WildFly + WAR),
+        \texttt{Dockerfile} base de données (PostgreSQL + PostGIS),
+        \texttt{docker-compose.yml} pour la stack complète
+        (application + PostgreSQL + Nginx + monitoring) ;
+  \item \textbf{Kubernetes} (optionnel, scaling futur) : manifestes
+        \texttt{deployment.yml}, \texttt{service.yml}, \texttt{ingress.yml},
+        \texttt{configmap.yml}.
+\end{itemize}
+
+\section{Stratégie de branches Git}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Branche} & \textbf{Rôle} \\
+\midrule
+\texttt{main}       & Production stable \\
+\texttt{develop}    & Intégration continue \\
+\texttt{release/*}  & Stabilisation d'une release \\
+\texttt{feature/*}  & Développement d'une fonctionnalité \\
+\texttt{hotfix/*}   & Correction urgente en production \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{encadre}
+\textbf{Fichiers opérationnels.} Les fichiers exécutables du pipeline
+(\texttt{github-actions.yml}, \texttt{Dockerfile},
+\texttt{docker-compose.yml}) sont maintenus dans
+\path{zumm_scrum_devops_roadmap/03_devops_pipeline/} ;
+ce chapitre en
+décrit le contrat (étapes, seuils, conditions).
+\end{encadre}

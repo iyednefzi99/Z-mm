@@ -1,0 +1,107 @@
+%==============================================================================
+%  CHAPITRE 6 - Monitoring & observabilité
+%==============================================================================
+\chapter{Monitoring \& observabilité}
+\label{chap:monitoring}
+
+L'observabilité repose sur \textbf{Prometheus + Grafana} (métriques),
+\textbf{ELK ou Loki} (logs), \textbf{AlertManager} (alertes) et
+\textbf{Jaeger} (tracing distribué).
+
+\section{Dashboards Grafana}
+
+\subsection{Zümm --- Vue d'ensemble (métier)}
+
+\begin{center}
+\small
+\begin{tabular}{llp{7.6cm}}
+\toprule
+\textbf{Widget} & \textbf{Type} & \textbf{Requête PromQL} \\
+\midrule
+Ruches actives        & stat    & \texttt{count(ruche\_status\{status='active'\})} \\
+Visites aujourd'hui   & stat    & \texttt{sum(visites\_total\{date='today'\})} \\
+Production miel (kg)  & graph   & \texttt{sum(production\_miel\_kg) by (site)} \\
+Alertes actives       & graph   & \texttt{count(alertes\_status\{status='active'\})} \\
+Latence API (p95)     & heatmap & {\scriptsize\texttt{histogram\_quantile(0.95,}\newline\texttt{rate(http\_request\_duration\_seconds\_bucket[5m]))}} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Zümm --- Performance (technique)}
+
+\begin{center}
+\small
+\begin{tabular}{llp{7.6cm}}
+\toprule
+\textbf{Widget} & \textbf{Type} & \textbf{Requête PromQL} \\
+\midrule
+CPU JVM          & graph & \texttt{jvm\_cpu\_usage\_percent} \\
+Mémoire heap     & graph & \texttt{jvm\_memory\_heap\_used\_bytes} \\
+Connexions DB    & graph & \texttt{jdbc\_connections\_active} \\
+Requêtes HTTP/s  & graph & \texttt{rate(http\_requests\_total[1m])} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Zümm --- Sécurité}
+
+\begin{center}
+\small
+\begin{tabular}{llp{7.6cm}}
+\toprule
+\textbf{Widget} & \textbf{Type} & \textbf{Requête PromQL} \\
+\midrule
+Tentatives échouées   & stat  & \texttt{sum(auth\_failures\_total[1h])} \\
+Erreurs 4xx/5xx       & graph & \texttt{sum(rate(http\_errors\_total[5m])) by (status)} \\
+Top 10 IP suspectes   & table & \texttt{topk(10, rate(requests\_by\_ip[5m]))} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Règles d'alerte}
+
+\begin{center}
+\small
+\begin{tabular}{lp{5.6cm}lp{4.4cm}}
+\toprule
+\textbf{Alerte} & \textbf{Condition} & \textbf{Sévérité} & \textbf{Action} \\
+\midrule
+Latence API élevée &
+  p95 sur 5 min $> 500$ ms &
+  \textcolor{miel}{\textbf{Warning}} &
+  Notifier Slack + escalade si persistant \\
+\addlinespace
+Taux d'erreurs $> 1\,\%$ &
+  \texttt{http\_errors} / \texttt{http\_requests} $> 0{,}01$ &
+  \textcolor{red!70!black}{\textbf{Critical}} &
+  PagerDuty + rollback automatique \\
+\addlinespace
+Connexions DB épuisées &
+  actives / max $> 0{,}9$ &
+  \textcolor{red!70!black}{\textbf{Critical}} &
+  Scaler le pool + alerte ops \\
+\addlinespace
+JVM heap $> 85\,\%$ &
+  heap utilisé / heap max $> 0{,}85$ &
+  \textcolor{miel}{\textbf{Warning}} &
+  Analyse mémoire + redémarrage planifié \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Gestion des logs}
+
+\begin{itemize}
+  \item \textbf{Niveaux} : ERROR, WARN, INFO, DEBUG ;
+  \item \textbf{Corrélation} : en-tête \texttt{X-Request-ID} propagé pour le
+        tracing distribué ;
+  \item \textbf{Rétention} : 30 jours en stockage chaud, 1 an en stockage
+        froid (S3).
+\end{itemize}
+
+\begin{encadre}
+\textbf{Boucle DevOps.} Les métriques métier (production, visites, alertes
+sanitaires) sont exposées par l'application elle-même : les dashboards de
+supervision technique et les tableaux de bord fonctionnels du cahier des
+charges (\S4.3) partagent ainsi la même source de vérité.
+\end{encadre}
