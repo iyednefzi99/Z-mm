@@ -174,6 +174,16 @@ Système sobre et lisible ; le logo utilise une grotesque humaniste (formes rond
 - Fichiers de référence dans `../assets/logo/` :
   `zumm-logo.png` (vertical), `zumm-icon.png` (emblème), `zumm-icon-mono.png` (monochrome),
   `zumm-brandsheet.png` (planche de marque).
+- **Source de vérité vectorielle** : les masters SVG dans `../assets/logo/svg/`
+  (`zumm-logo.svg`, `zumm-icon.svg`, `zumm-icon-mono.svg`, `zumm-logo-light.svg`).
+  Les PNG sont des **exports dérivés** — ne jamais retoucher un raster, toujours
+  ré-exporter depuis le SVG. Arborescence et statut : `../assets/logo/README.md`.
+- **Règles d'export** :
+  - *Écran* : SVG partout où c'est possible ; sinon PNG transparent ≥ 2× la taille
+    d'affichage (Retina).
+  - *Print* : PDF/EPS vectoriel uniquement (dossier `print/`), ou PNG ≥ 300 dpi à la
+    taille d'impression.
+  - *Interdit* : JPEG pour le logo (compression destructive, pas de transparence).
 - **Zone de protection** : marge libre ≥ hauteur du « Z » tout autour.
 - **Taille mini** de l'emblème : `24 px` (favicon `48×48` = version fournie).
 - **Fonds autorisés** : blanc cassé (`--z-bg`), `--z-surface`, ou `--z-slate-900` (utiliser

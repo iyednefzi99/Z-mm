@@ -172,6 +172,15 @@ Spacing scale on a **4 px** base (multiples):
 - Reference files in `../assets/logo/`:
   `zumm-logo.png` (vertical), `zumm-icon.png` (emblem), `zumm-icon-mono.png` (monochrome),
   `zumm-brandsheet.png` (brand sheet).
+- **Vector source of truth**: the SVG masters in `../assets/logo/svg/`
+  (`zumm-logo.svg`, `zumm-icon.svg`, `zumm-icon-mono.svg`, `zumm-logo-light.svg`).
+  PNGs are **derived exports** — never retouch a raster; always re-export from the SVG.
+  Folder layout and status: `../assets/logo/README.md`.
+- **Export rules**:
+  - *Screen*: SVG wherever possible; otherwise transparent PNG ≥ 2× the display size
+    (Retina).
+  - *Print*: vector PDF/EPS only (`print/` folder), or PNG ≥ 300 dpi at print size.
+  - *Forbidden*: JPEG for the logo (lossy compression, no transparency).
 - **Clear space**: free margin ≥ the height of the "Z" on all sides.
 - **Minimum size** of the emblem: `24 px` (favicon `48×48` = provided version).
 - **Allowed backgrounds**: off-white (`--z-bg`), `--z-surface`, or `--z-slate-900` (then use
