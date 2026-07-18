@@ -29,7 +29,12 @@
   \newfontfamily\arabicfonttt[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
   \newfontfamily\arabicfontsf[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
 }
-\newfontfamily\englishfont{Latin Modern Roman}
+% Idem pour le latin : « Latin Modern Roman » par nom de famille echouait en CI
+% (« The font Latin Modern Roman cannot be found »), fontconfig ne connaissant
+% pas les .otf de texmf-dist. Resolution par nom de fichier, via kpathsea.
+\newfontfamily\englishfont[Extension=.otf,UprightFont=lmroman10-regular,%
+  BoldFont=lmroman10-bold,ItalicFont=lmroman10-italic,%
+  BoldItalicFont=lmroman10-bolditalic]{Latin Modern Roman}
 \usepackage{amsmath}
 
 % ---------- تنسيق الصفحة ------------------------------------------------------
