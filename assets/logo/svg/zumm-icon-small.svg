@@ -1,9 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Zümm">
-  <style>.ring{stroke:#2C4A42}@media(prefers-color-scheme:dark){.ring{stroke:#FCFDFC}}</style>
+  <!-- Zümm : embleme SIMPLIFIE, reserve aux petites tailles (jusqu'a 32 px inclus :
+       favicon, barre d'onglets, listes denses). L'embleme complet (zumm-icon.svg) devient
+       illisible a cette echelle ; cette reduction garde l'alveole hexagonale, les 6 noeuds
+       du reseau et le degrade signature. Au-dela de 32 px, utiliser zumm-icon.svg. -->
   <defs><linearGradient id="zg" x1="0" y1="0" x2="0.866" y2="0.5"><stop offset="0" stop-color="#D9A521"/><stop offset="0.45" stop-color="#D9A521"/><stop offset="0.75" stop-color="#2E9E3F"/><stop offset="1" stop-color="#2E9E3F"/></linearGradient></defs>
   <g fill="none" stroke="url(#zg)" stroke-width="7" stroke-linejoin="round">
     <path d="M50.0,20.0L76.0,35.0L76.0,65.0L50.0,80.0L24.0,65.0L24.0,35.0Z"/>
   </g>
   <g fill="url(#zg)"><circle cx="50.0" cy="20.0" r="6"/><circle cx="76.0" cy="35.0" r="6"/><circle cx="76.0" cy="65.0" r="6"/><circle cx="50.0" cy="80.0" r="6"/><circle cx="24.0" cy="65.0" r="6"/><circle cx="24.0" cy="35.0" r="6"/></g>
-  <path class="ring" fill="none" stroke="#2C4A42" stroke-width="5" stroke-linejoin="round" d="M50.0,37.0L61.3,43.5L61.3,56.5L50.0,63.0L38.7,56.5L38.7,43.5Z"/>
+  <path fill="none" stroke="#2C4A42" stroke-width="5" stroke-linejoin="round" d="M50.0,37.0L61.3,43.5L61.3,56.5L50.0,63.0L38.7,56.5L38.7,43.5Z"/>
 </svg>

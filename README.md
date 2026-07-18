@@ -26,7 +26,8 @@ applicatif reste à développer.
 |---|---|
 | 📂 [`cahier de charge/`](cahier%20de%20charge/) | Cahier des charges **trilingue** (🇫🇷 source · 🇬🇧 · 🇸🇦), LaTeX modulaire + diagrammes UML → 3 PDF. Voir son [README](cahier%20de%20charge/README.md). |
 | 🎨 [`design/`](design/) | **Charte de design** (palette, typographie, composants, motion, tokens) en FR/EN/AR. Voir son [README](design/README.md). |
-| 🖼️ [`assets/logo/`](assets/logo/) | Logos Zümm (principal, icône, monochrome, brandsheet). |
+| 🗺️ [`roadmap/`](roadmap/) | **Roadmap Scrum/DevOps** : document LaTeX → PDF + sources opérationnelles (`operationnel/` : backlog, sprints, pipeline CI/CD, releases, monitoring). Voir son [README](roadmap/README.md). |
+| 🖼️ [`assets/logo/`](assets/logo/) | Logos Zümm (SVG masters, PNG, favicons, PDF print). Voir son [README](assets/logo/README.md). |
 
 ## 🚀 Démarrage rapide
 
