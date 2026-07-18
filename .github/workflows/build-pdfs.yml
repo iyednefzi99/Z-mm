@@ -66,8 +66,10 @@ jobs:
           working_directory: ${{ matrix.dir }}
           root_file: ${{ matrix.root }}
           latexmk_use_xelatex: ${{ matrix.xelatex }}
-          # texlive-full inclut TikZ, xltabular, polyglossia et la police Amiri
-          # (repli automatique pour l'arabe, cf. \IfFontExistsTF dans le master).
+          # « Traditional Arabic » n'existe pas ici : le master bascule sur son
+          # repli Amiri, que l'on installe explicitement plutôt que de le
+          # supposer présent dans l'image (cf. \IfFontExistsTF dans le master).
+          pre_compile: tlmgr install amiri
 
       - name: Installer poppler-utils
         run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
