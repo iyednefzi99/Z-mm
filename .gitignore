@@ -39,6 +39,7 @@ graphviz*.zip
 # ===== Outillage skills (non versionne) =====
 .agents/
 .claude/
+CLAUDE.md
 skills-lock.json
 
 # ===== IDE / OS =====
