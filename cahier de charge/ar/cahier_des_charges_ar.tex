@@ -15,14 +15,19 @@
 % du PDF versionné. En son absence (ex. CI Linux / TeX Live), repli automatique
 % sur « Amiri » (fournie par texlive-lang-arabic) pour que le build reste
 % vérifiable partout. Le PDF committé est celui produit avec Traditional Arabic.
+%
+% Le repli désigne Amiri par NOM DE FICHIER (Extension + UprightFont/BoldFont)
+% et non par nom de famille : les .ttf de texlive-lang-arabic vivent dans
+% texmf-dist, où XeTeX les trouve via kpathsea, alors qu'une recherche par
+% famille passe par fontconfig — qui ne les connaît pas dans l'image CI.
 \IfFontExistsTF{Traditional Arabic}{%
   \newfontfamily\arabicfont[Script=Arabic,ItalicFont={Traditional Arabic},BoldItalicFont={Traditional Arabic},AutoFakeSlant=0]{Traditional Arabic}%
   \newfontfamily\arabicfonttt[Script=Arabic]{Traditional Arabic}%
   \newfontfamily\arabicfontsf[Script=Arabic]{Traditional Arabic}%
 }{%
-  \newfontfamily\arabicfont[Script=Arabic]{Amiri}%
-  \newfontfamily\arabicfonttt[Script=Arabic]{Amiri}%
-  \newfontfamily\arabicfontsf[Script=Arabic]{Amiri}%
+  \newfontfamily\arabicfont[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
+  \newfontfamily\arabicfonttt[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
+  \newfontfamily\arabicfontsf[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
 }
 \newfontfamily\englishfont{Latin Modern Roman}
 \usepackage{amsmath}
