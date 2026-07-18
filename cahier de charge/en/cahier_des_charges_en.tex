@@ -18,6 +18,8 @@
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{parskip}
+\usepackage{microtype} % micro-typography: reduces line overflows
+\setlength{\emergencystretch}{2em} % avoids overfull boxes on unbreakable words
 
 % ---------- Tables & lists ----------------------------------------------------
 \usepackage{array}
@@ -39,8 +41,8 @@
 % ---------- Headings ----------------------------------------------------------
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{mielfonce}}
-  {\filright\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
+  {\normalfont\huge\bfseries\color{mielfonce}\filright}
+  {\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{bleunuit}}{\thesection}{1em}{}
 \titleformat{\subsection}
@@ -70,6 +72,7 @@
 
 % ---------- Links -------------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
+\usepackage{xurl} % line breaks inside long URLs
 
 % ---------- Framed environment (constraints/notes) ----------------------------
 \usepackage{mdframed}

@@ -32,6 +32,7 @@
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{parskip}
+\setlength{\emergencystretch}{2em} % لتفادي تجاوز الأسطر مع الكلمات غير القابلة للقطع
 
 % ---------- الجداول والقوائم --------------------------------------------------
 \usepackage{array}
@@ -52,8 +53,8 @@
 % ---------- العناوين ----------------------------------------------------------
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{mielfonce}}
-  {\filright\Large\color{miel}\chaptertitlename\ \thechapter}{10pt}{\Huge}
+  {\normalfont\huge\bfseries\color{mielfonce}\filright}
+  {\Large\color{miel}\chaptertitlename\ \thechapter}{10pt}{\Huge}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{bleunuit}}{\thesection}{1em}{}
 \titleformat{\subsection}
@@ -83,6 +84,7 @@
 
 % ---------- الروابط -----------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
+\usepackage{xurl} % سماح بقطع الأسطر داخل الروابط الطويلة
 
 % ---------- الإطار (القيود / الملاحظات) ---------------------------------------
 \usepackage{mdframed}

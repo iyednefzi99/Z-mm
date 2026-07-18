@@ -50,10 +50,10 @@ Servlet (\texttt{HttpServlet}, \texttt{doGet/doPost}) & \texttt{@RestController}
 JSP (presentation) & Thymeleaf (server-side) ou React / Angular (SPA) & Templating moderne sans scriptlets Java. Pour un effet marche fort, API REST + front decouple. \\
 EJB (\texttt{@Stateless}, conteneur EJB) & Spring \texttt{@Service} / \texttt{@Component} & Meme role (logique metier, injection, transactions) sans conteneur EJB lourd. \texttt{@Transactional} gere les transactions. \\
 JDBC (SQL manuel, \texttt{ResultSet}) & Spring Data JPA / Hibernate & Le mapping objet-relationnel remplace le SQL a la main. \texttt{JpaRepository} genere les CRUD (\texttt{JdbcTemplate} reste disponible). \\
-i18n par fichier XML & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & Meme principe d'externalisation des textes, format \texttt{.properties} standard, toujours FR / EN / AR. \\
-\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & Parametrage sans recompilation, injectable par profil. Les seuils et unites deviennent des beans types. \\
+i18n par fichier XML & \texttt{messages\_fr/\allowbreak en/\allowbreak ar\allowbreak .properties} + \texttt{MessageSource} & Meme principe d'externalisation des textes, format \texttt{.properties} standard, toujours FR / EN / AR. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@Configuration\allowbreak Properties} & Parametrage sans recompilation, injectable par profil. Les seuils et unites deviennent des beans types. \\
 OAuth Google (WS XML maison) & Spring Security OAuth2 Client & Login Google en quelques lignes de configuration au lieu d'un client OAuth ecrit a la main, et plus sur. \\
-Web service API XML \texttt{getZummHoneyActualQuantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee. XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
+Web service API XML \texttt{getZumm\allowbreak Honey\allowbreak Actual\allowbreak Quantity} & API REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON au lieu de XML, documentation auto-generee. XML reste possible via \texttt{produces = APPLICATION\_XML}. \\
 X.509 / SSL (manuel) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & Activation HTTPS declarative, memes certificats X.509, configuration triviale. \\
 JavaScript (front libre) & React / Vue / Angular (ou Thymeleaf + JS) & Front decouple consommant l'API REST, parite web et mobile simplifiee. \\
 \bottomrule

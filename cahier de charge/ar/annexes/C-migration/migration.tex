@@ -40,10 +40,10 @@ Servlet (\texttt{HttpServlet}، \texttt{doGet/doPost}) & \texttt{@RestController
 JSP (العرض) & Thymeleaf (خادمي) أو React / Angular (SPA) & قوْلبة حديثة دون scriptlets من Java. لأثر سوق قوي، واجهة REST + أمامية مفصولة. \\
 EJB (\texttt{@Stateless}، حاوية EJB) & Spring \texttt{@Service} / \texttt{@Component} & الدور نفسه (منطق الأعمال، الحقن، المعاملات) دون حاوية EJB ثقيلة. يدير \texttt{@Transactional} المعاملات. \\
 JDBC (SQL يدوي، \texttt{ResultSet}) & Spring Data JPA / Hibernate & يحلّ الربط الكائني-العلائقي محلّ SQL اليدوي. يولّد \texttt{JpaRepository} عمليات CRUD (يبقى \texttt{JdbcTemplate} متاحًا). \\
-i18n بملف XML & \texttt{messages\_fr/en/ar.properties} + \texttt{MessageSource} & المبدأ نفسه لإخراج النصوص، صيغة \texttt{.properties} معيارية، دائمًا FR / EN / AR. \\
-\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@ConfigurationProperties} & ضبط دون إعادة تصريف، قابل للحقن حسب الملف الشخصي. تصبح العتبات والوحدات كائنات مُنمَّطة. \\
+i18n بملف XML & \texttt{messages\_fr/\allowbreak en/\allowbreak ar\allowbreak .properties} + \texttt{MessageSource} & المبدأ نفسه لإخراج النصوص، صيغة \texttt{.properties} معيارية، دائمًا FR / EN / AR. \\
+\texttt{ConfigZumm.ini} & \texttt{application.yml} + \texttt{@Configuration\allowbreak Properties} & ضبط دون إعادة تصريف، قابل للحقن حسب الملف الشخصي. تصبح العتبات والوحدات كائنات مُنمَّطة. \\
 OAuth Google (خدمة ويب XML يدوية) & Spring Security OAuth2 Client & دخول Google بأسطر إعداد قليلة بدل عميل OAuth مكتوب يدويًا، وأكثر أمانًا. \\
-خدمة ويب API XML \texttt{getZummHoneyActualQuantity} & واجهة REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON بدل XML، توثيق مُولَّد تلقائيًا. يبقى XML ممكنًا عبر \texttt{produces = APPLICATION\_XML}. \\
+خدمة ويب API XML \texttt{getZumm\allowbreak Honey\allowbreak Actual\allowbreak Quantity} & واجهة REST JSON (\texttt{@GetMapping}) + OpenAPI / Swagger & JSON بدل XML، توثيق مُولَّد تلقائيًا. يبقى XML ممكنًا عبر \texttt{produces = APPLICATION\_XML}. \\
 X.509 / SSL (يدوي) & Spring Boot SSL (\texttt{server.ssl.*}) + Keystore & تفعيل HTTPS تصريحي، الشهادات X.509 نفسها، إعداد بسيط. \\
 JavaScript (واجهة حرة) & React / Vue / Angular (أو Thymeleaf + JS) & واجهة أمامية مفصولة تستهلك REST، تكافؤ ويب وجوّال مُبسَّط. \\
 \bottomrule

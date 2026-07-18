@@ -18,6 +18,8 @@
 \usepackage{setspace}
 \onehalfspacing
 \usepackage{parskip}
+\usepackage{microtype} % micro-typographie : réduit les débordements de ligne
+\setlength{\emergencystretch}{2em} % évite les overfull sur mots insécables
 
 % ---------- Tableaux & listes -------------------------------------------------
 \usepackage{array}
@@ -39,8 +41,8 @@
 % ---------- Titres ------------------------------------------------------------
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{mielfonce}}
-  {\filright\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
+  {\normalfont\huge\bfseries\color{mielfonce}\filright}
+  {\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{bleunuit}}{\thesection}{1em}{}
 \titleformat{\subsection}
@@ -70,6 +72,7 @@
 
 % ---------- Liens -------------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
+\usepackage{xurl} % coupures de ligne dans les URL longues
 
 % ---------- Environnement encadré (contraintes/notes) -------------------------
 \usepackage{mdframed}
