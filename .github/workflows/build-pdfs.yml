@@ -1,19 +1,22 @@
 name: Build PDFs
 
-# Compile les trois cahiers des charges (fr/en via pdflatex, ar via XeLaTeX) et
-# vérifie que les trois masters restent synchronisés. Un oubli de \input ou une
-# erreur LaTeX fait échouer le workflow.
+# Compile les trois cahiers des charges (fr/en via pdflatex, ar via XeLaTeX),
+# vérifie que les trois masters restent synchronisés, et que les PDF versionnés
+# correspondent bien à leurs sources. Un oubli de \input, une erreur LaTeX ou un
+# PDF non régénéré après modification fait échouer le workflow.
 
 on:
   push:
     paths:
       - 'cahier de charge/**'
       - 'scripts/check-sync.sh'
+      - 'scripts/check-pdf-current.sh'
       - '.github/workflows/build-pdfs.yml'
   pull_request:
     paths:
       - 'cahier de charge/**'
       - 'scripts/check-sync.sh'
+      - 'scripts/check-pdf-current.sh'
       - '.github/workflows/build-pdfs.yml'
   workflow_dispatch:
 
@@ -49,6 +52,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Le PDF versionné doit être mis de côté AVANT la compilation : latex-action
+      # écrit son résultat dans le répertoire de travail et l'écraserait.
+      - name: Mettre de côté le PDF versionné (${{ matrix.lang }})
+        run: |
+          mkdir -p /tmp/committed
+          cp "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf" \
+             "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf"
+
       - name: Compiler (${{ matrix.lang }})
         uses: xu-cheng/latex-action@v3
         with:
@@ -57,6 +68,15 @@ jobs:
           latexmk_use_xelatex: ${{ matrix.xelatex }}
           # texlive-full inclut TikZ, xltabular, polyglossia et la police Amiri
           # (repli automatique pour l'arabe, cf. \IfFontExistsTF dans le master).
+
+      - name: Installer poppler-utils
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
+      - name: Vérifier que le PDF versionné est à jour (${{ matrix.lang }})
+        run: |
+          bash scripts/check-pdf-current.sh \
+            "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf" \
+            "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf"
 
       - name: Publier le PDF (${{ matrix.lang }})
         uses: actions/upload-artifact@v4
