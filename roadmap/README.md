@@ -1,6 +1,6 @@
 # Roadmap de développement Zümm (LaTeX)
 
-Version LaTeX consolidée du dossier `zumm_scrum_devops_roadmap/`
+Version LaTeX consolidée du dossier `roadmap/operationnel/`
 (backlog, sprints, pipeline CI/CD, releases, monitoring), dans la même
 charte que le cahier des charges (palette « miel & noir élégant »).
 
@@ -10,6 +10,12 @@ charte que le cahier des charges (palette « miel & noir élégant »).
 roadmap/
 ├── roadmap_zumm.tex          # Document maître
 ├── roadmap_zumm.pdf          # PDF compilé (31 pages)
+├── operationnel/             # Sources opérationnelles (JSON/MD/CI) — voir GUIDE_MODIFICATION.md
+│   ├── 01_product_backlog/   # product_backlog.json | .md
+│   ├── 02_sprints/           # SPRINT-01…08.md + sprints.json
+│   ├── 03_devops_pipeline/   # Dockerfile, docker-compose.yml, github-actions.yml
+│   ├── 04_releases/          # releases.json
+│   └── 05_monitoring/        # monitoring.json
 └── chapitres/
     ├── 01-methodologie.tex   # Scrum + DevOps, DoR, DoD
     ├── 02-backlog.tex        # 10 epics, 40 US, 304 points
@@ -36,6 +42,8 @@ depuis `../assets/logo/zumm-logo.png`.
 
 Les fichiers JSON source annonçaient 284 points planifiés ; la somme réelle
 des stories affectées aux sprints est de **304 points** (écarts corrigés sur
-les sprints 5, 7 et 8 : 50, 57 et 44 points). Le document signale la
-surcharge des sprints 5 et 7 par rapport à la vélocité cible (38 pts) et
-propose un rééquilibrage.
+les sprints 5, 7 et 8). Les sprints 5 et 7 étaient en surcharge (50 et
+57 points) tandis que les sprints 2 et 4 restaient à 26 : la charge a été
+**rééquilibrée** dans une fourchette de **36 à 39 points**, sous une capacité
+de référence portée à **40 points**, sans retirer de story ni décaler de
+date. Le détail des mouvements figure au chapitre 3 du document.

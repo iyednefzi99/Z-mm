@@ -14,9 +14,11 @@
         "Architecture J2EE multi-niveaux",
         "Composition ruche (corps/hausse/cadre)",
         "Configuration ConfigZumm.ini",
-        "i18n FR/EN/AR"
+        "i18n FR/EN/AR",
+        "Sécurité SSL/X.509",
+        "Harnais de tests d'intégration Arquillian"
       ],
-      "critere_acceptation": "Application déployable avec données de test",
+      "critere_acceptation": "Application déployable en HTTPS avec données de test",
       "status": "Planifiée"
     },
     {
@@ -29,10 +31,10 @@
       ],
       "features": [
         "Workflow planification/approbation visite",
-        "Rapport de visite complet",
+        "Rapport de visite complet avec photos",
         "Mode hors-ligne PWA",
-        "Authentification OAuth 2.0",
-        "Sécurité SSL/X.509"
+        "Authentification OAuth 2.0 et repli local",
+        "Contrôle d'accès RBAC complet"
       ],
       "critere_acceptation": "Parcours utilisateur complet en ligne et hors-ligne",
       "status": "Planifiée"
@@ -49,7 +51,9 @@
         "Calendrier agents × ruches",
         "Tableaux de bord production & alertes",
         "Synthèse ROI",
+        "Rappels et export CSV/TXT",
         "Ingestion mesures capteurs",
+        "Contexte météo local",
         "Service web API (SOAP/XML)"
       ],
       "critere_acceptation": "Dashboards fonctionnels avec données réelles",
@@ -64,7 +68,7 @@
         "SPRINT-08"
       ],
       "features": [
-        "Fonctionnalités avancées (carte, météo, QR)",
+        "Fonctionnalités avancées (carte et rayons de butinage, suivi de reine, QR code)",
         "Détection anomalie adaptative (IA)",
         "Tests complets (unitaire/intégration/charge)",
         "Documentation & soutenance",

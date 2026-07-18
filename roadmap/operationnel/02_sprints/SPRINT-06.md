@@ -1,9 +1,9 @@
-# 🏃 SPRINT-06: Capteurs & API
+# 🏃 SPRINT-06: Synthèse, capteurs & API
 
-**Thème:** Préparation volet automatisé  
-**Objectif:** Architecture ouverte pour capteurs et API tierce  
+**Thème:** ROI, ingestion de mesures et interopérabilité  
+**Objectif:** Compléter les tableaux de bord par la synthèse ROI et ouvrir le système aux capteurs et aux tiers  
 **Période:** 2026-09-22 → 2026-10-05 (14 jours)  
-**Story Points:** 39 / Capacity: 38  
+**Story Points:** 39 / Capacity: 40  
 
 ---
 
@@ -22,12 +22,11 @@
 
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
-| US-016 | Modèle de données Mesure | 8 | ⬜ À faire | - |
+| US-015 | Tableau de bord synthèse et ROI | 13 | ⬜ À faire | - |
 | US-017 | Interface ingestion REST/MQTT | 8 | ⬜ À faire | - |
 | US-018 | Seuils paramétrables et logique d'alerte | 8 | ⬜ À faire | - |
-| US-019 | Conversion d'unités hétérogènes | 5 | ⬜ À faire | - |
 | US-026 | Service web XML getZummHoneyActualQuantity | 5 | ⬜ À faire | - |
-| US-027 | Export CSV/TXT | 5 | ⬜ À faire | - |
+| US-029 | Contexte météo local | 5 | ⬜ À faire | - |
 
 ---
 
@@ -35,13 +34,13 @@
 
 **Date:** 2026-10-05 14:00-16:00
 
-Démonstration ingestion mesures + API SOAP
+Démonstration synthèse ROI, ingestion REST/MQTT d'une mesure, appel WSDL depuis un client externe
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-MQTT, conversion unités, idempotence
+Anti-rebond/hystérésis des seuils, génération du WSDL JAX-WS
 
 ---
 
@@ -51,8 +50,8 @@ MQTT, conversion unités, idempotence
 |:---|:---:|:---:|:---|
 | Jour 1 | 39 | | |
 | Jour 4 | 29 | | |
-| Jour 7 | 19 | | |
-| Jour 10 | 9 | | |
+| Jour 7 | 20 | | |
+| Jour 10 | 10 | | |
 | Jour 14 | 0 | | |
 
 ---
@@ -60,13 +59,13 @@ MQTT, conversion unités, idempotence
 ## 📝 Rétrospective (à compléter en fin de sprint)
 
 ### Ce qui a bien fonctionné
-- 
+-
 
 ### Ce qui peut être amélioré
-- 
+-
 
 ### Actions pour le prochain sprint
-- 
+-
 
 ---
 

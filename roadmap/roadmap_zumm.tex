@@ -1,7 +1,7 @@
 %==============================================================================
 %  ROADMAP DE DÉVELOPPEMENT - Zümm
 %  Planification Scrum + DevOps dérivée du cahier des charges
-%  Source : zumm_scrum_devops_roadmap/ (backlog, sprints, pipeline, releases,
+%  Source : roadmap/operationnel/ (backlog, sprints, pipeline, releases,
 %  monitoring) consolidé en un document LaTeX unique.
 %==============================================================================
 \documentclass[11pt,a4paper]{report}
@@ -16,6 +16,8 @@
 % ---------- Mise en page ------------------------------------------------------
 \usepackage[a4paper,margin=2cm,headheight=26pt,headsep=12pt,footskip=26pt]{geometry}
 \usepackage{setspace}
+\usepackage{microtype} % micro-typographie : réduit les débordements de ligne
+\setlength{\emergencystretch}{2em} % évite les overfull sur mots insécables
 \onehalfspacing
 \usepackage{parskip}
 
@@ -40,8 +42,8 @@
 % ---------- Titres ------------------------------------------------------------
 \usepackage{titlesec}
 \titleformat{\chapter}[display]
-  {\normalfont\huge\bfseries\color{mielfonce}}
-  {\filright\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
+  {\normalfont\huge\bfseries\color{mielfonce}\filright}
+  {\Large\color{miel}\MakeUppercase{\chaptertitlename}\ \thechapter}{10pt}{\Huge}
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{bleunuit}}{\thesection}{1em}{}
 \titleformat{\subsection}
@@ -71,6 +73,7 @@
 
 % ---------- Liens -------------------------------------------------------------
 \usepackage[hidelinks,colorlinks=true,linkcolor=mielfonce,urlcolor=miel,plainpages=false,pdfpagelabels]{hyperref}
+\usepackage{xurl} % coupures de ligne dans les URL longues
 
 % ---------- Environnement encadré (notes/règles) ------------------------------
 \usepackage{mdframed}

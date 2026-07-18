@@ -1,9 +1,9 @@
-# 🏃 SPRINT-05: Tableaux de Bord
+# 🏃 SPRINT-05: Tableaux de bord & pilotage
 
-**Thème:** Visualisation et analytics  
-**Objectif:** Calendrier, production, alertes, synthèse  
+**Thème:** Calendrier, production, alertes sanitaires  
+**Objectif:** Donner à l'apiculteur ses trois vues de pilotage quotidien  
 **Période:** 2026-09-08 → 2026-09-21 (14 jours)  
-**Story Points:** 42 / Capacity: 38  
+**Story Points:** 39 / Capacity: 40  
 
 ---
 
@@ -25,8 +25,8 @@
 | US-012 | Calendrier matrice agents × ruches | 13 | ⬜ À faire | - |
 | US-013 | Tableau de bord production | 8 | ⬜ À faire | - |
 | US-014 | Tableau de bord alertes sanitaires | 8 | ⬜ À faire | - |
-| US-015 | Tableau de bord synthèse et ROI | 13 | ⬜ À faire | - |
-| US-022 | Contrôle d'accès RBAC | 8 | ⬜ À faire | - |
+| US-031 | Liste de tâches et rappels | 5 | ⬜ À faire | - |
+| US-027 | Export CSV/TXT | 5 | ⬜ À faire | - |
 
 ---
 
@@ -34,13 +34,13 @@
 
 **Date:** 2026-09-21 14:00-16:00
 
-Démonstration dashboards avec filtres et graphiques
+Démonstration calendrier matriciel, tableaux production et alertes, export CSV
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-Performance agrégations SQL, Chart.js
+Performance des agrégations SQL, rendu Chart.js — scinder US-012 (matrice / filtres) si le burndown décroche
 
 ---
 
@@ -48,9 +48,9 @@ Performance agrégations SQL, Chart.js
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 42 | | |
-| Jour 4 | 31 | | |
-| Jour 7 | 21 | | |
+| Jour 1 | 39 | | |
+| Jour 4 | 29 | | |
+| Jour 7 | 20 | | |
 | Jour 10 | 10 | | |
 | Jour 14 | 0 | | |
 
@@ -59,13 +59,13 @@ Performance agrégations SQL, Chart.js
 ## 📝 Rétrospective (à compléter en fin de sprint)
 
 ### Ce qui a bien fonctionné
-- 
+-
 
 ### Ce qui peut être amélioré
-- 
+-
 
 ### Actions pour le prochain sprint
-- 
+-
 
 ---
 

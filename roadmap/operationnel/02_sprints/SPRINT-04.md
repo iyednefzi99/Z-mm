@@ -1,9 +1,9 @@
-# 🏃 SPRINT-04: Hors-ligne & Sync
+# 🏃 SPRINT-04: Hors-ligne, authentification & RBAC
 
-**Thème:** Mode hors-ligne et synchronisation  
-**Objectif:** Permettre la saisie terrain sans réseau  
+**Thème:** Saisie terrain déconnectée et contrôle d'accès  
+**Objectif:** Permettre la saisie terrain sans réseau et verrouiller les accès par rôle  
 **Période:** 2026-08-25 → 2026-09-07 (14 jours)  
-**Story Points:** 26 / Capacity: 38  
+**Story Points:** 39 / Capacity: 40  
 
 ---
 
@@ -25,6 +25,8 @@
 | US-011 | Mode hors-ligne et synchronisation différée | 13 | ⬜ À faire | - |
 | US-020 | Authentification OAuth 2.0 Google | 8 | ⬜ À faire | - |
 | US-021 | Authentification locale (fallback) | 5 | ⬜ À faire | - |
+| US-022 | Contrôle d'accès RBAC | 8 | ⬜ À faire | - |
+| US-019 | Conversion d'unités hétérogènes | 5 | ⬜ À faire | - |
 
 ---
 
@@ -32,13 +34,13 @@
 
 **Date:** 2026-09-07 14:00-16:00
 
-Démonstration PWA hors-ligne + OAuth
+Démonstration PWA hors-ligne, OAuth Google + repli local, matrice RBAC appliquée
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-Service Workers, IndexedDB, sync différée
+Service Workers, IndexedDB, synchronisation différée et résolution de conflits
 
 ---
 
@@ -46,10 +48,10 @@ Service Workers, IndexedDB, sync différée
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 26 | | |
-| Jour 4 | 19 | | |
-| Jour 7 | 13 | | |
-| Jour 10 | 6 | | |
+| Jour 1 | 39 | | |
+| Jour 4 | 29 | | |
+| Jour 7 | 20 | | |
+| Jour 10 | 10 | | |
 | Jour 14 | 0 | | |
 
 ---
@@ -57,13 +59,13 @@ Service Workers, IndexedDB, sync différée
 ## 📝 Rétrospective (à compléter en fin de sprint)
 
 ### Ce qui a bien fonctionné
-- 
+-
 
 ### Ce qui peut être amélioré
-- 
+-
 
 ### Actions pour le prochain sprint
-- 
+-
 
 ---
 

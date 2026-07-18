@@ -1,9 +1,9 @@
-# 🏃 SPRINT-03: Visites & Rapports
+# 🏃 SPRINT-03: Visites & rapports
 
 **Thème:** Planification et suivi des visites  
-**Objectif:** Workflow complet: planification → approbation → réalisation → rapport  
+**Objectif:** Workflow complet : planification → approbation → réalisation → rapport photo  
 **Période:** 2026-08-11 → 2026-08-24 (14 jours)  
-**Story Points:** 31 / Capacity: 38  
+**Story Points:** 36 / Capacity: 40  
 
 ---
 
@@ -26,6 +26,7 @@
 | US-008 | Approuver/Refuser un planning | 5 | ⬜ À faire | - |
 | US-009 | Réaliser une visite et remplir le rapport | 13 | ⬜ À faire | - |
 | US-010 | Ajouter des photos au rapport | 5 | ⬜ À faire | - |
+| US-028 | Photos d'inspection | 5 | ⬜ À faire | - |
 
 ---
 
@@ -33,13 +34,13 @@
 
 **Date:** 2026-08-24 14:00-16:00
 
-Démonstration workflow visite avec rapport complet
+Démonstration workflow visite avec rapport complet et photos d'inspection
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-Mode hors-ligne (reporté au sprint 4)
+Volumétrie des photos (stockage fichier + chemin en base, jamais de BLOB) ; prototyper Service Worker/IndexedDB en fin de sprint pour dérisquer S4
 
 ---
 
@@ -47,10 +48,10 @@ Mode hors-ligne (reporté au sprint 4)
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 31 | | |
-| Jour 4 | 23 | | |
-| Jour 7 | 15 | | |
-| Jour 10 | 7 | | |
+| Jour 1 | 36 | | |
+| Jour 4 | 27 | | |
+| Jour 7 | 18 | | |
+| Jour 10 | 9 | | |
 | Jour 14 | 0 | | |
 
 ---
@@ -58,13 +59,13 @@ Mode hors-ligne (reporté au sprint 4)
 ## 📝 Rétrospective (à compléter en fin de sprint)
 
 ### Ce qui a bien fonctionné
-- 
+-
 
 ### Ce qui peut être amélioré
-- 
+-
 
 ### Actions pour le prochain sprint
-- 
+-
 
 ---
 

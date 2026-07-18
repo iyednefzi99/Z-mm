@@ -33,8 +33,10 @@ Contenu &
   architecture J2EE multi-niveaux ;
   composition de la ruche (corps/hausse/cadre) ;
   configuration \texttt{ConfigZumm.ini} ;
-  i18n FR/EN/AR. \\
-Critère d'acceptation & Application déployable avec données de test. \\
+  i18n FR/EN/AR ;
+  sécurité SSL/X.509 ;
+  harnais de tests d'intégration Arquillian. \\
+Critère d'acceptation & Application déployable en HTTPS avec données de test. \\
 Statut & Planifiée. \\
 \bottomrule
 \end{tabular}
@@ -47,10 +49,10 @@ Statut & Planifiée. \\
 \toprule
 Contenu &
   Workflow planification/approbation de visite ;
-  rapport de visite complet ;
+  rapport de visite complet avec photos ;
   mode hors-ligne PWA ;
-  authentification OAuth 2.0 ;
-  sécurité SSL/X.509. \\
+  authentification OAuth 2.0 et repli local ;
+  contrôle d'accès RBAC complet. \\
 Critère d'acceptation & Parcours utilisateur complet en ligne et hors-ligne. \\
 Statut & Planifiée. \\
 \bottomrule
@@ -66,7 +68,9 @@ Contenu &
   Calendrier agents $\times$ ruches ;
   tableaux de bord production \& alertes ;
   synthèse ROI ;
+  rappels et export CSV/TXT ;
   ingestion des mesures capteurs ;
+  contexte météo local ;
   service web API (SOAP/XML). \\
 Critère d'acceptation & Dashboards fonctionnels avec données réelles. \\
 Statut & Planifiée. \\
@@ -80,7 +84,8 @@ Statut & Planifiée. \\
 \begin{tabular}{lp{11cm}}
 \toprule
 Contenu &
-  Fonctionnalités avancées (carte, météo, QR code) ;
+  Fonctionnalités avancées (carte et rayons de butinage, suivi de reine,
+  QR code de traçabilité) ;
   détection d'anomalie adaptative (IA) ;
   tests complets (unitaires/intégration/charge) ;
   documentation \& soutenance ;

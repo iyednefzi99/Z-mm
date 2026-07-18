@@ -1,9 +1,9 @@
-# 🏃 SPRINT-08: Qualité & Livraison
+# 🏃 SPRINT-08: Qualité & livraison
 
-**Thème:** Tests, documentation, soutenance  
-**Objectif:** Livrer une solution complète et documentée  
+**Thème:** Couverture de tests, documentation et soutenance  
+**Objectif:** Atteindre les critères de la DoD sur l'ensemble du produit et préparer les livrables de soutenance  
 **Période:** 2026-10-20 → 2026-11-02 (14 jours)  
-**Story Points:** 42 / Capacity: 38  
+**Story Points:** 37 / Capacity: 40  
 
 ---
 
@@ -22,10 +22,8 @@
 
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
-| US-023 | Chiffrement SSL/TLS X.509 | 5 | ⬜ À faire | - |
+| US-035 | Interface microservice IA Python | 8 | ⬜ À faire | - |
 | US-036 | Tests unitaires JUnit 5 + Mockito | 8 | ⬜ À faire | - |
-| US-037 | Tests d'intégration (Arquillian) | 5 | ⬜ À faire | - |
-| US-038 | Tests de charge k6 | 5 | ⬜ À faire | - |
 | US-039 | Diagrammes UML complets | 13 | ⬜ À faire | - |
 | US-040 | Rapport + Poster + Présentation | 8 | ⬜ À faire | - |
 
@@ -35,13 +33,13 @@
 
 **Date:** 2026-11-02 14:00-16:00
 
-Démonstration finale complète + soutenance
+Soutenance blanche : démonstration complète, rapport, poster
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-Couverture tests, délais documentation
+Concentration documentaire — US-039 (UML) doit être menée au fil de l'eau depuis S2 ; gel des fonctionnalités au jour 10
 
 ---
 
@@ -49,10 +47,10 @@ Couverture tests, délais documentation
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 42 | | |
-| Jour 4 | 31 | | |
-| Jour 7 | 21 | | |
-| Jour 10 | 10 | | |
+| Jour 1 | 37 | | |
+| Jour 4 | 28 | | |
+| Jour 7 | 18 | | |
+| Jour 10 | 9 | | |
 | Jour 14 | 0 | | |
 
 ---
@@ -60,13 +58,13 @@ Couverture tests, délais documentation
 ## 📝 Rétrospective (à compléter en fin de sprint)
 
 ### Ce qui a bien fonctionné
-- 
+-
 
 ### Ce qui peut être amélioré
-- 
+-
 
 ### Actions pour le prochain sprint
-- 
+-
 
 ---
 

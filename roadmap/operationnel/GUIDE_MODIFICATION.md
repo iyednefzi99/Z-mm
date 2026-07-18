@@ -55,7 +55,7 @@ python scripts/generate_md.py
 - Rétrospective (en fin de sprint)
 
 **Règles:**
-- La somme des points ne doit pas dépasser la velocity (38)
+- La somme des points ne doit pas dépasser la capacité de référence (40)
 - Les dates sont calculées automatiquement
 
 ---
