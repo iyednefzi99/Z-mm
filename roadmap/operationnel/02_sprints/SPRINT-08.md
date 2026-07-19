@@ -2,7 +2,7 @@
 
 **Thème:** Couverture de tests, documentation et soutenance  
 **Objectif:** Atteindre les critères de la DoD sur l'ensemble du produit et préparer les livrables de soutenance  
-**Période:** 2026-10-20 → 2026-11-02 (14 jours)  
+**Période:** 2026-11-03 → 2026-11-16 (14 jours)  
 **Story Points:** 37 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-10-20 09:00-13:00 | 4h |
+| Sprint Planning | 2026-11-03 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-11-02 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-11-02 16:00-17:00 | 1h |
+| Sprint Review | 2026-11-16 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-11-16 16:00-17:00 | 1h |
 
 ---
 
@@ -31,7 +31,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-11-02 14:00-16:00
+**Date:** 2026-11-16 14:00-16:00
 
 Soutenance blanche : démonstration complète, rapport, poster
 

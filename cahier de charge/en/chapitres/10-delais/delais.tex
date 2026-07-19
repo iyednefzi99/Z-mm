@@ -1,5 +1,6 @@
 %==============================================================================
 \chapter{Schedule and deliverables}
+\label{chap:delais}
 %==============================================================================
 
 \section{Expected deliverables}
@@ -10,35 +11,46 @@
   \item Project report, poster and oral presentation.
 \end{itemize}
 
-\section{Grading grid (scale)}
-\begin{xltabular}{\textwidth}{X C{2.5cm}}
+\section{Acceptance criteria}
+Acceptance is pronounced when \textbf{all} the following criteria are satisfied
+and jointly verified. Every criterion is measurable: a criterion that cannot be
+measured is not an acceptance criterion.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.2cm} X p{3.4cm}}
 \toprule
-\textbf{Criterion} & \textbf{Points} \\
+\textbf{Area} & \textbf{Criterion} & \textbf{Means of proof} \\
 \midrule
 \endhead
-Usability & 4 \\
-Tested features (test plan + execution) & 4 \\
-\textbf{Technologies} & \textbf{4} \\
-\quad MVC & 0.5 \\
-\quad Servlet & 0.5 \\
-\quad JSP front-end & 0.25 \\
-\quad XML file and internationalisation & 0.5 \\
-\quad Configuration text file & 0.25 \\
-\quad OAuth client web service & 0.5 \\
-\quad XML API web service & 0.5 \\
-\quad JDBC & 0.5 \\
-\quad X.509 / SSL & 0.25 \\
-\quad EJB & 0.25 \\
-\textbf{Design} (UC, classes, objects, sequence, activity, state, & \\
-\quad interaction/collaboration, package, component, deployment) & 4 \\
-\textbf{Documentation} & \textbf{4} \\
-\quad Report (structure, consistency, format) & 2 \\
-\quad Poster & 1 \\
-\quad Presentation & 1 \\
-\midrule
-\textbf{Total} & \textbf{20} \\
+Functional & The use cases of chapter~\ref{chap:cas-utilisation} are implemented and demonstrated on real data. & Acceptance report \\
+\addlinespace
+Code quality & Business-layer test coverage $\geq$ 70~\%, no untreated critical or high vulnerability. & JaCoCo report, dependency scan \\
+\addlinespace
+Security & External penetration test carried out; no critical or high vulnerability open at delivery. & Pentest report and remediation plan \\
+\addlinespace
+Data protection & Geolocation coordinates inaccessible outside an authorised role, absent from default exports and from logs. & Authorisation tests, log review \\
+\addlinespace
+Performance & p95 $<$ 500~ms and error rate $<$ 1~\% under the nominal load defined in appendix~\ref{chap:exploitation}. & k6 load-test report \\
+\addlinespace
+Availability & The service (SLO), recovery (RTO) and maximum loss (RPO) objectives of appendix~\ref{chap:exploitation} are met. & Monitoring, restoration test \\
+\addlinespace
+Backup & A full restoration has been carried out successfully under real conditions. & Restoration test report \\
+\addlinespace
+Accessibility and usability & Interface operable by keyboard, contrasts compliant with the design system, journey validated by a business user. & Accessibility audit, user acceptance \\
+\addlinespace
+Internationalisation & The three languages (FR, EN, AR) are complete, Arabic RTL rendering verified on every screen. & Linguistic review \\
+\addlinespace
+Operability & Runbook delivered, knowledge transfer completed, system redeployable from the repository. & Transfer session, dry-run redeployment \\
+\addlinespace
+Reversibility & Data exportable in an open, documented format; source code and documentation handed over. & Demonstration export \\
 \bottomrule
 \end{xltabular}
+
+\begin{encadre}
+\textbf{Reservations.} A minor reservation does not prevent acceptance but is
+subject to an agreed clearance deadline. A \textbf{blocking} reservation ---
+any critical vulnerability, any restoration failure, any data leak between
+holdings --- suspends acceptance until correction and re-verification.
+\end{encadre}
 
 \section{UML diagrams to produce}
 Diagrams of: use case, classes, objects, sequence, activity, state machine,

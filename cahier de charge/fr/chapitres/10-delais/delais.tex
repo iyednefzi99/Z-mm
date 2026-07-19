@@ -1,5 +1,6 @@
 %==============================================================================
 \chapter{Délais et livrables}
+\label{chap:delais}
 %==============================================================================
 
 \section{Livrables attendus}
@@ -10,35 +11,46 @@
   \item Rapport de projet, poster et présentation orale.
 \end{itemize}
 
-\section{Grille d'évaluation (barème)}
-\begin{xltabular}{\textwidth}{X C{2.5cm}}
+\section{Critères de recette}
+La recette est prononcée lorsque \textbf{l'ensemble} des critères suivants est
+satisfait et constaté contradictoirement. Chaque critère est vérifiable :
+un critère qu'on ne sait pas mesurer n'est pas un critère de recette.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{3.2cm} X p{3.4cm}}
 \toprule
-\textbf{Critère} & \textbf{Points} \\
+\textbf{Domaine} & \textbf{Critère} & \textbf{Moyen de preuve} \\
 \midrule
 \endhead
-Ergonomie & 4 \\
-Fonctionnalités testées (plan de tests + exécution) & 4 \\
-\textbf{Technologies} & \textbf{4} \\
-\quad MVC & 0,5 \\
-\quad Servlet & 0,5 \\
-\quad JSP front-end & 0,25 \\
-\quad Fichier XML et internationalisation & 0,5 \\
-\quad Fichier texte de configuration & 0,25 \\
-\quad Web service client OAuth & 0,5 \\
-\quad Web service API XML & 0,5 \\
-\quad JDBC & 0,5 \\
-\quad X.509 / SSL & 0,25 \\
-\quad EJB & 0,25 \\
-\textbf{Conception} (UC, classes, objets, séquence, activité, état, & \\
-\quad interaction/collaboration, package, composant, déploiement) & 4 \\
-\textbf{Documentation} & \textbf{4} \\
-\quad Rapport (structure, consistance, format) & 2 \\
-\quad Poster & 1 \\
-\quad Présentation & 1 \\
-\midrule
-\textbf{Total} & \textbf{20} \\
+Fonctionnel & Les cas d'utilisation du chapitre~\ref{chap:cas-utilisation} sont réalisés et démontrés sur données réelles. & Procès-verbal de recette \\
+\addlinespace
+Qualité de code & Couverture de tests de la couche métier $\geq$ 70~\%, aucune vulnérabilité critique ou haute non traitée. & Rapport JaCoCo, scan de dépendances \\
+\addlinespace
+Sécurité & Test d'intrusion externe réalisé ; aucune vulnérabilité critique ou haute ouverte à la livraison. & Rapport de pentest et plan de remédiation \\
+\addlinespace
+Protection des données & Coordonnées de géolocalisation inaccessibles hors rôle autorisé, absentes des exports par défaut et des journaux. & Tests d'autorisation, revue des journaux \\
+\addlinespace
+Performance & p95 $<$ 500~ms et taux d'erreur $<$ 1~\% sous la charge nominale définie à l'annexe~\ref{chap:exploitation}. & Rapport de tests de charge k6 \\
+\addlinespace
+Disponibilité & Les objectifs de service (SLO), de reprise (RTO) et de perte maximale (RPO) de l'annexe~\ref{chap:exploitation} sont tenus. & Supervision, test de restauration \\
+\addlinespace
+Sauvegarde & Une restauration complète a été réalisée avec succès en conditions réelles. & Compte rendu de test de restauration \\
+\addlinespace
+Accessibilité et ergonomie & Interface utilisable au clavier, contrastes conformes à la charte, parcours validé par un utilisateur métier. & Audit d'accessibilité, recette utilisateur \\
+\addlinespace
+Internationalisation & Les trois langues (FR, EN, AR) sont complètes, le rendu RTL arabe est vérifié sur tous les écrans. & Revue linguistique \\
+\addlinespace
+Exploitabilité & Runbook livré, transfert de compétences effectué, système redéployable depuis le dépôt. & Séance de transfert, redéploiement à blanc \\
+\addlinespace
+Réversibilité & Données exportables dans un format ouvert et documenté ; code source et documentation remis. & Export de démonstration \\
 \bottomrule
 \end{xltabular}
+
+\begin{encadre}
+\textbf{Réserves.} Une réserve mineure n'empêche pas la recette mais fait
+l'objet d'un délai de levée convenu. Une réserve \textbf{bloquante} --- toute
+vulnérabilité critique, tout échec de restauration, toute fuite de données entre
+exploitations --- suspend la recette jusqu'à correction et nouvelle vérification.
+\end{encadre}
 
 \section{Diagrammes UML à produire}
 Diagrammes de : cas d'utilisation, classes, objets, séquence, activité, machine

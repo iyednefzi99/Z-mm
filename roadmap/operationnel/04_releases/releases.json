@@ -4,7 +4,7 @@
     {
       "version": "0.1.0",
       "nom": "MVP - Fondation",
-      "date_prevue": "2026-08-11",
+      "date_prevue": "2026-08-25",
       "sprints": [
         "SPRINT-01",
         "SPRINT-02"
@@ -24,7 +24,7 @@
     {
       "version": "0.2.0",
       "nom": "Visites & Collaboration",
-      "date_prevue": "2026-09-08",
+      "date_prevue": "2026-09-22",
       "sprints": [
         "SPRINT-03",
         "SPRINT-04"
@@ -42,7 +42,7 @@
     {
       "version": "0.3.0",
       "nom": "Analytics & Dashboards",
-      "date_prevue": "2026-10-06",
+      "date_prevue": "2026-10-20",
       "sprints": [
         "SPRINT-05",
         "SPRINT-06"
@@ -62,7 +62,7 @@
     {
       "version": "1.0.0",
       "nom": "Release Candidate",
-      "date_prevue": "2026-11-02",
+      "date_prevue": "2026-11-16",
       "sprints": [
         "SPRINT-07",
         "SPRINT-08"

@@ -2,7 +2,7 @@
 
 **Thème:** ROI, ingestion de mesures et interopérabilité  
 **Objectif:** Compléter les tableaux de bord par la synthèse ROI et ouvrir le système aux capteurs et aux tiers  
-**Période:** 2026-09-22 → 2026-10-05 (14 jours)  
+**Période:** 2026-10-06 → 2026-10-19 (14 jours)  
 **Story Points:** 39 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-09-22 09:00-13:00 | 4h |
+| Sprint Planning | 2026-10-06 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-10-05 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-10-05 16:00-17:00 | 1h |
+| Sprint Review | 2026-10-19 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-10-19 16:00-17:00 | 1h |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-10-05 14:00-16:00
+**Date:** 2026-10-19 14:00-16:00
 
 Démonstration synthèse ROI, ingestion REST/MQTT d'une mesure, appel REST depuis un client externe généré depuis OpenAPI
 

@@ -2,7 +2,7 @@
 
 **Thème:** Saisie terrain déconnectée et contrôle d'accès  
 **Objectif:** Permettre la saisie terrain sans réseau et verrouiller les accès par rôle  
-**Période:** 2026-08-25 → 2026-09-07 (14 jours)  
+**Période:** 2026-09-08 → 2026-09-21 (14 jours)  
 **Story Points:** 39 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-08-25 09:00-13:00 | 4h |
+| Sprint Planning | 2026-09-08 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-09-07 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-09-07 16:00-17:00 | 1h |
+| Sprint Review | 2026-09-21 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-09-21 16:00-17:00 | 1h |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-09-07 14:00-16:00
+**Date:** 2026-09-21 14:00-16:00
 
 Démonstration PWA hors-ligne, OAuth Google + repli local, matrice RBAC appliquée
 

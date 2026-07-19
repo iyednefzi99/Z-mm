@@ -4,11 +4,22 @@
 \chapter{Planification des sprints}
 \label{chap:sprints}
 
-Le développement est découpé en \textbf{8 sprints de 14 jours} (16 semaines),
-du 14 juillet au 2 novembre 2026, avec une capacité de référence de
+Le projet est découpé en un \textbf{sprint de cadrage} (S0) suivi de
+\textbf{8 sprints de construction de 14 jours} (18 semaines au total), du
+14 juillet au 16 novembre 2026, avec une capacité de référence de
 40 points par sprint. Chaque sprint est décrit ci-dessous avec son
 \emph{plan d'exécution} : décomposition en tâches techniques, estimation en
 jours-homme (j-h), livrables et parades aux risques.
+
+\begin{encadre}
+\textbf{Le sprint 0 ne livre aucune fonctionnalité métier} et reste hors du
+calcul de vélocité. Son objet est de lever les quatre décisions structurantes
+(ADR-001 à ADR-004) et de prouver que la chaîne technique tient de bout en bout
+\emph{en production} --- Spring Boot, PostgreSQL/PostGIS/TimescaleDB, Keycloak,
+TLS, CI/CD et observabilité assemblés. Sa règle de sortie est stricte : si ce
+socle n'est pas déployé au terme des deux semaines, le planning est
+renégocié plutôt qu'absorbé en heures supplémentaires.
+\end{encadre}
 
 \begin{encadre}
 \textbf{Base de chiffrage.} Un sprint de 14 jours compte 10 jours ouvrés.
@@ -37,27 +48,29 @@ $\approx \textbf{0,79 j-h par story point}$.
     milestone label font=\scriptsize\bfseries\color{vertsauge},
     vgrid={*6{draw=none}, *1{draw=grisdoux!80!gray, line width=.4pt}},
     time slot format=isodate
-  ]{2026-07-14}{2026-11-03}
-  % Titres de mois en français (juil. : 18 j, nov. : 3 j)
+  ]{2026-07-14}{2026-11-17}
+  % Titres de mois en français (juil. : 18 j, nov. : 17 j)
   \gantttitle{juillet}{18}
   \gantttitle{août}{31}
   \gantttitle{septembre}{30}
   \gantttitle{octobre}{31}
-  \gantttitle{nov.}{3} \\
-  \ganttbar{S1 -- Fondation \& configuration (36 pts)}{2026-07-14}{2026-07-27} \\
-  \ganttbar{S2 -- Ruche, i18n \& qualité (39 pts)}{2026-07-28}{2026-08-10} \\
-  \ganttmilestone{v0.1.0}{2026-08-11} \\
-  \ganttbar{S3 -- Visites \& rapports (36 pts)}{2026-08-11}{2026-08-24} \\
-  \ganttbar{S4 -- Hors-ligne, auth \& RBAC (39 pts)}{2026-08-25}{2026-09-07} \\
-  \ganttmilestone{v0.2.0}{2026-09-08} \\
-  \ganttbar{S5 -- Tableaux de bord (39 pts)}{2026-09-08}{2026-09-21} \\
-  \ganttbar{S6 -- Synthèse, capteurs \& API (39 pts)}{2026-09-22}{2026-10-05} \\
-  \ganttmilestone{v0.3.0}{2026-10-06} \\
-  \ganttbar{S7 -- Fonctions avancées \& IA (39 pts)}{2026-10-06}{2026-10-19} \\
-  \ganttbar{S8 -- Qualité \& livraison (37 pts)}{2026-10-20}{2026-11-02} \\
-  \ganttmilestone{v1.0.0}{2026-11-02}
+  \gantttitle{novembre}{17} \\
+  \ganttbar[bar/.append style={fill=vertsauge!40}]{S0 -- Cadrage \& walking skeleton (hors vélocité)}{2026-07-14}{2026-07-27} \\
+  \ganttbar{S1 -- Fondation \& configuration (36 pts)}{2026-07-28}{2026-08-10} \\
+  \ganttbar{S2 -- Ruche, i18n \& qualité (39 pts)}{2026-08-11}{2026-08-24} \\
+  \ganttmilestone{v0.1.0}{2026-08-25} \\
+  \ganttbar{S3 -- Visites \& rapports (36 pts)}{2026-08-25}{2026-09-07} \\
+  \ganttbar{S4 -- Hors-ligne, auth \& RBAC (39 pts)}{2026-09-08}{2026-09-21} \\
+  \ganttmilestone{v0.2.0}{2026-09-22} \\
+  \ganttbar{S5 -- Tableaux de bord (39 pts)}{2026-09-22}{2026-10-05} \\
+  \ganttbar{S6 -- Synthèse, capteurs \& API (39 pts)}{2026-10-06}{2026-10-19} \\
+  \ganttmilestone{v0.3.0}{2026-10-20} \\
+  \ganttbar{S7 -- Fonctions avancées \& IA (39 pts)}{2026-10-20}{2026-11-02} \\
+  \ganttbar{S8 -- Qualité \& livraison (37 pts)}{2026-11-03}{2026-11-16} \\
+  \ganttmilestone{v1.0.0}{2026-11-16}
 \end{ganttchart}
-\caption{Diagramme de Gantt des 8 sprints et des 4 jalons de release.}
+\caption{Diagramme de Gantt du sprint de cadrage, des 8 sprints de
+construction et des 4 jalons de release.}
 \label{fig:gantt-sprints}
 \end{figure}
 
@@ -68,14 +81,15 @@ $\approx \textbf{0,79 j-h par story point}$.
 \toprule
 \textbf{\#} & \textbf{Période} & \textbf{Thème} & \textbf{Points\footnotemark} & \textbf{Stories} \\
 \midrule
-1 & 14/07 $\rightarrow$ 27/07 & Fondation --- CRUD \& configuration & 36 & US-001/002/003/005/006/025 \\
-2 & 28/07 $\rightarrow$ 10/08 & Ruche, i18n \& socle qualité      & 39 & US-004/016/023/024/037 \\
-3 & 11/08 $\rightarrow$ 24/08 & Visites \& rapports              & 36 & US-007/008/009/010/028 \\
-4 & 25/08 $\rightarrow$ 07/09 & Hors-ligne, auth. \& RBAC        & 39 & US-011/019/020/021/022 \\
-5 & 08/09 $\rightarrow$ 21/09 & Tableaux de bord \& pilotage     & 39 & US-012/013/014/027/031 \\
-6 & 22/09 $\rightarrow$ 05/10 & Synthèse, capteurs \& API        & 39 & US-015/017/018/026/029 \\
-7 & 06/10 $\rightarrow$ 19/10 & Fonctions avancées \& IA         & 39 & US-030/032/033/034/038 \\
-8 & 20/10 $\rightarrow$ 02/11 & Qualité \& livraison             & 37 & US-035/036/039/040 \\
+0 & 14/07 $\rightarrow$ 27/07 & Cadrage --- décisions \& walking skeleton & --- & ADR-001 à 004 \\
+1 & 28/07 $\rightarrow$ 10/08 & Fondation --- CRUD \& configuration & 36 & US-001/002/003/005/006/025 \\
+2 & 11/08 $\rightarrow$ 24/08 & Ruche, i18n \& socle qualité      & 39 & US-004/016/023/024/037 \\
+3 & 25/08 $\rightarrow$ 07/09 & Visites \& rapports              & 36 & US-007/008/009/010/028 \\
+4 & 08/09 $\rightarrow$ 21/09 & Hors-ligne, auth. \& RBAC        & 39 & US-011/019/020/021/022 \\
+5 & 22/09 $\rightarrow$ 05/10 & Tableaux de bord \& pilotage     & 39 & US-012/013/014/027/031 \\
+6 & 06/10 $\rightarrow$ 19/10 & Synthèse, capteurs \& API        & 39 & US-015/017/018/026/029 \\
+7 & 20/10 $\rightarrow$ 02/11 & Fonctions avancées \& IA         & 39 & US-030/032/033/034/038 \\
+8 & 03/11 $\rightarrow$ 16/11 & Qualité \& livraison             & 37 & US-035/036/039/040 \\
 \midrule
 \multicolumn{3}{r}{\textbf{Total}} & \textbf{304} & \textbf{40 stories} \\
 \bottomrule
@@ -212,9 +226,9 @@ ont guidé l'arbitrage ci-dessus :
   \item \textbf{Release interne à chaque sprint} (tag
         \texttt{v0.x.y-sprintN}) même si seules les 4 releases publiques
         comptent : cela teste le pipeline de release avant la v1.0.0 ;
-  \item \textbf{Calendrier} : si le projet ne démarre pas réellement le
-        14/07, décaler toutes les dates de deux semaines est préférable à un
-        sprint 1 amputé.
+  \item \textbf{Calendrier} : si le cadrage ne démarre pas réellement le
+        14/07, décaler toutes les dates est préférable à un sprint~0 amputé ---
+        c'est le sprint dont dépendent toutes les décisions suivantes.
 \end{itemize}
 
 \subsection{Recommandations techniques transversales}
@@ -252,7 +266,7 @@ ont guidé l'arbitrage ci-dessus :
 \toprule
 Objectif  & Avoir un socle technique fonctionnel avec les entités
             principales et la configuration externalisée. \\
-Période   & 14/07/2026 $\rightarrow$ 27/07/2026 (14 jours) --- 36 pts / capacité 40. \\
+Période   & 28/07/2026 $\rightarrow$ 10/08/2026 (14 jours) --- 36 pts / capacité 40. \\
 Démo      & CRUD Fermier/Ferme/Site/Agent + seuils lus depuis
             \texttt{ConfigZumm.ini}. \\
 Risques   & Complexité PostGIS, configuration Spring Boot / Docker. \\
@@ -322,7 +336,7 @@ puis de les extraire ensuite.
 \toprule
 Objectif  & Modéliser la hiérarchie ruche/corps/hausse/cadre avec
             contraintes et outiller la qualité dès le début. \\
-Période   & 28/07/2026 $\rightarrow$ 10/08/2026 (14 jours) --- 39 pts / capacité 40. \\
+Période   & 11/08/2026 $\rightarrow$ 24/08/2026 (14 jours) --- 39 pts / capacité 40. \\
 Démo      & Composition d'une ruche avec règles métier, bascule FR/EN/AR
             (RTL) et HTTPS actif. \\
 Risques   & Contraintes SQL CHECK, patron \emph{Composite}, rétrofit RTL. \\
@@ -395,7 +409,7 @@ intermédiaires. US-016 n'est qu'une entité et ne dépend pas de l'ingestion
 \toprule
 Objectif  & Workflow complet : planification $\rightarrow$ approbation
             $\rightarrow$ réalisation $\rightarrow$ rapport. \\
-Période   & 11/08/2026 $\rightarrow$ 24/08/2026 (14 jours) --- 36 pts / capacité 40. \\
+Période   & 25/08/2026 $\rightarrow$ 07/09/2026 (14 jours) --- 36 pts / capacité 40. \\
 Démo      & Workflow de visite avec rapport complet et photos d'inspection. \\
 Risques   & Volumétrie des photos ; mode hors-ligne (reporté au sprint 4). \\
 Burndown idéal & J1 : 36 --- J4 : 27 --- J7 : 18 --- J10 : 9 --- J14 : 0. \\
@@ -465,7 +479,7 @@ de rouvrir le sujet quatre sprints plus tard pour 1 j-h de travail.
 \toprule
 Objectif  & Permettre la saisie terrain sans réseau et verrouiller les
             accès par rôle. \\
-Période   & 25/08/2026 $\rightarrow$ 07/09/2026 (14 jours) --- 39 pts / capacité 40. \\
+Période   & 08/09/2026 $\rightarrow$ 21/09/2026 (14 jours) --- 39 pts / capacité 40. \\
 Démo      & PWA hors-ligne, OAuth Google + repli local, matrice RBAC
             appliquée. \\
 Risques   & Service Workers, IndexedDB, synchronisation différée. \\
@@ -534,7 +548,7 @@ fusible du sprint si le hors-ligne dérive.
 \begin{tabular}{lp{11cm}}
 \toprule
 Objectif  & Donner à l'apiculteur ses trois vues de pilotage quotidien. \\
-Période   & 08/09/2026 $\rightarrow$ 21/09/2026 (14 jours) --- 39 pts / capacité 40. \\
+Période   & 22/09/2026 $\rightarrow$ 05/10/2026 (14 jours) --- 39 pts / capacité 40. \\
 Démo      & Calendrier matriciel, tableaux production et alertes,
             export CSV. \\
 Risques   & Performance des agrégations SQL, Chart.js. \\
@@ -601,7 +615,7 @@ s'adossent respectivement au calendrier et aux tableaux qu'ils exportent.
 \toprule
 Objectif  & Compléter les tableaux de bord par la synthèse ROI et ouvrir le
             système aux capteurs et aux tiers. \\
-Période   & 22/09/2026 $\rightarrow$ 05/10/2026 (14 jours) --- 39 pts / capacité 40. \\
+Période   & 06/10/2026 $\rightarrow$ 19/10/2026 (14 jours) --- 39 pts / capacité 40. \\
 Démo      & Synthèse ROI, ingestion REST/MQTT d'une mesure, appel REST
             depuis un client externe généré depuis OpenAPI. \\
 Risques   & MQTT, idempotence, quota d'appels météo. \\
@@ -667,7 +681,7 @@ S5, US-019 remonte en S4.
 \toprule
 Objectif  & Livrer les fonctions différenciantes et la détection d'anomalie
             sur les mesures. \\
-Période   & 06/10/2026 $\rightarrow$ 19/10/2026 (14 jours) --- 39 pts / capacité 40. \\
+Période   & 20/10/2026 $\rightarrow$ 02/11/2026 (14 jours) --- 39 pts / capacité 40. \\
 Démo      & Carte et rayons de butinage, suivi de reine, QR code de lot,
             alerte EWMA. \\
 Risques   & Calibrage de la ligne de base EWMA sans historique réel. \\
@@ -738,7 +752,7 @@ l'est là.
 \toprule
 Objectif  & Atteindre les critères de la DoD sur l'ensemble du produit et
             préparer les livrables de soutenance. \\
-Période   & 20/10/2026 $\rightarrow$ 02/11/2026 (14 jours) --- 37 pts / capacité 40. \\
+Période   & 03/11/2026 $\rightarrow$ 16/11/2026 (14 jours) --- 37 pts / capacité 40. \\
 Démo      & Soutenance blanche : démonstration complète, rapport, poster. \\
 Risques   & Couverture de tests, concentration documentaire. \\
 Burndown idéal & J1 : 37 --- J4 : 28 --- J7 : 19 --- J10 : 9 --- J14 : 0. \\

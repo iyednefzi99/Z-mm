@@ -2,7 +2,7 @@
 
 **Thème:** Composition des ruches, internationalisation et harnais de test  
 **Objectif:** Modéliser la hiérarchie ruche/corps/hausse/cadre et outiller la qualité dès le début  
-**Période:** 2026-07-28 → 2026-08-10 (14 jours)  
+**Période:** 2026-08-11 → 2026-08-24 (14 jours)  
 **Story Points:** 39 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-07-28 09:00-13:00 | 4h |
+| Sprint Planning | 2026-08-11 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-08-10 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-08-10 16:00-17:00 | 1h |
+| Sprint Review | 2026-08-24 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-08-24 16:00-17:00 | 1h |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-08-10 14:00-16:00
+**Date:** 2026-08-24 14:00-16:00
 
 Démonstration composition ruche avec règles métier, bascule FR/EN/AR (RTL) et HTTPS actif
 

@@ -2,7 +2,7 @@
 
 **Thème:** Architecture, entités métier de base et paramétrage  
 **Objectif:** Avoir un socle technique fonctionnel avec les entités principales et la configuration externalisée  
-**Période:** 2026-07-14 → 2026-07-27 (14 jours)  
+**Période:** 2026-07-28 → 2026-08-10 (14 jours)  
 **Story Points:** 36 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-07-14 09:00-13:00 | 4h |
+| Sprint Planning | 2026-07-28 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-07-27 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-07-27 16:00-17:00 | 1h |
+| Sprint Review | 2026-08-10 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-08-10 16:00-17:00 | 1h |
 
 ---
 
@@ -33,7 +33,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-07-27 14:00-16:00
+**Date:** 2026-08-10 14:00-16:00
 
 Démonstration CRUD Fermier/Ferme/Site/Agent + seuils lus depuis ConfigZumm.ini
 

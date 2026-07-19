@@ -2,7 +2,7 @@
 
 **Thème:** Cartographie, traçabilité et détection adaptative  
 **Objectif:** Livrer les fonctions différenciantes et la détection d'anomalie sur les mesures  
-**Période:** 2026-10-06 → 2026-10-19 (14 jours)  
+**Période:** 2026-10-20 → 2026-11-02 (14 jours)  
 **Story Points:** 39 / Capacity: 40  
 
 ---
@@ -11,10 +11,10 @@
 
 | Cérémonie | Date/Heure | Durée |
 |:---|:---|:---|
-| Sprint Planning | 2026-10-06 09:00-13:00 | 4h |
+| Sprint Planning | 2026-10-20 09:00-13:00 | 4h |
 | Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
-| Sprint Review | 2026-10-19 14:00-16:00 | 2h |
-| Sprint Retrospective | 2026-10-19 16:00-17:00 | 1h |
+| Sprint Review | 2026-11-02 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-11-02 16:00-17:00 | 1h |
 
 ---
 
@@ -32,7 +32,7 @@
 
 ## 🎯 Sprint Review - Démonstration
 
-**Date:** 2026-10-19 14:00-16:00
+**Date:** 2026-11-02 14:00-16:00
 
 Démonstration carte et rayons de butinage, suivi de reine, QR code de lot, alerte EWMA
 
