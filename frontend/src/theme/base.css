@@ -1,0 +1,25 @@
+/* Remise a zero minimale. Les couleurs viennent exclusivement de tokens.css. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--z-bg);
+  color: var(--z-text);
+  font-family: var(--z-font-ui);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+:where(button, input, select, textarea) {
+  font-family: inherit;
+}

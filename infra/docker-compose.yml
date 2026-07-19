@@ -1,0 +1,63 @@
+# ═══════════════════════════════════════════════════════════
+# Stack Zümm — etat au SPRINT-00
+#
+# Ce fichier grandit tranche par tranche, au rythme du walking skeleton.
+# Present : PostgreSQL/PostGIS/TimescaleDB + application Spring Boot.
+# A venir  : Keycloak (tranche 3), Nginx/TLS (tranche 4), Prometheus +
+#            Grafana (tranche 6). La cible complete est decrite dans
+#            roadmap/operationnel/03_devops_pipeline/docker-compose.yml ;
+#            les services n'y sont repris ici qu'une fois reellement verifies.
+# ═══════════════════════════════════════════════════════════
+
+services:
+  # ─── Base de donnees PostgreSQL + PostGIS + TimescaleDB ───
+  postgres:
+    image: timescale/timescaledb-ha:pg16-ts2.14
+    container_name: zumm-postgres
+    environment:
+      POSTGRES_DB: zumm
+      POSTGRES_USER: zumm
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (cf. .env.example)}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Aucun port publie sur l'hote : la base n'est joignable que par le reseau
+    # interne. Acces ponctuel via `docker compose exec postgres psql`.
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zumm -d zumm"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - zumm-network
+
+  # ─── Application Spring Boot ───
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../infra/backend.Dockerfile
+    container_name: zumm-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zumm
+      SPRING_DATASOURCE_USERNAME: zumm
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
+    volumes:
+      - ../config/ConfigZumm.ini:/app/config/ConfigZumm.ini:ro
+    # Publie uniquement tant qu'il n'y a pas de proxy inverse (tranche 4).
+    # A retirer des que Nginx assure la terminaison TLS.
+    ports:
+      - "8080:8080"
+    networks:
+      - zumm-network
+
+volumes:
+  postgres_data:
+
+networks:
+  zumm-network:
+    driver: bridge

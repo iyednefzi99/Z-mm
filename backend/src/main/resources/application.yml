@@ -1,0 +1,71 @@
+spring:
+  application:
+    name: zumm-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/zumm}
+    username: ${SPRING_DATASOURCE_USERNAME:zumm}
+    password: ${SPRING_DATASOURCE_PASSWORD:zumm_secure}
+  jpa:
+    # Flyway est seul proprietaire du schema : Hibernate ne le modifie jamais.
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+  web:
+    locale: fr
+    locale-resolver: accept-header
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Sprint 0 : sante et information. Les metriques Prometheus seront
+        # ajoutees avec l'observabilite (tranche 6).
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+zumm:
+  nom: Zumm
+  version: 0.1.0-SNAPSHOT
+  # Le francais est la langue source ; en/ar en sont des traductions.
+  langues-actives:
+    - fr
+    - en
+    - ar
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    com.zumm: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+management:
+  endpoint:
+    health:
+      show-details: never

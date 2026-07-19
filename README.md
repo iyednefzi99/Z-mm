@@ -28,8 +28,25 @@ applicatif reste à développer.
 | 🎨 [`design/`](design/) | **Charte de design** (palette, typographie, composants, motion, tokens) en FR/EN/AR. Voir son [README](design/README.md). |
 | 🗺️ [`roadmap/`](roadmap/) | **Roadmap Scrum/DevOps** : document LaTeX → PDF + sources opérationnelles (`operationnel/` : backlog, sprints, pipeline CI/CD, releases, monitoring). Voir son [README](roadmap/README.md). |
 | 🖼️ [`assets/logo/`](assets/logo/) | Logos Zümm (SVG masters, PNG, favicons, PDF print). Voir son [README](assets/logo/README.md). |
+| ☕ [`backend/`](backend/) | API **Spring Boot 3** (JDK 17, Maven). Wrapper embarqué : pas d'installation de Maven requise. |
+| ⚛️ [`frontend/`](frontend/) | Client **React 19 + TypeScript** (Vite), PWA à venir. |
+| 🐳 [`infra/`](infra/) | `docker-compose.yml` et image de l'application. |
+| ⚙️ [`config/`](config/) | Gabarit `ConfigZumm.example.ini` (configuration métier). |
 
-## 🚀 Démarrage rapide
+## 💻 Lancer l'application
+
+Procédure complète — prérequis, commandes, base de données — dans
+**[`docs/README.md`](docs/README.md)**.
+
+```bash
+cd backend && ./mvnw test          # tests unitaires (Docker non requis)
+cd frontend && npm install && npm run dev
+
+cp .env.example .env               # puis renseigner DB_PASSWORD
+docker compose -f infra/docker-compose.yml up --build
+```
+
+## 🚀 Compiler les documents
 
 Les PDF compilés sont **déjà versionnés** — inutile d'installer LaTeX pour lire le
 dossier. Pour (re)compiler, voir la procédure détaillée dans le

@@ -42,6 +42,28 @@ graphviz*.zip
 CLAUDE.md
 skills-lock.json
 
+# ===== Code applicatif =====
+# Backend (Maven)
+target/
+# Le wrapper Maven est versionne volontairement : il rend le depot buildable
+# sans installation prealable de Maven. La negation doit venir apres la regle
+# `*.jar` plus haut dans ce fichier, sinon le jar reste ignore et `./mvnw`
+# echoue sur un clone neuf.
+!backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend (Node)
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# Secrets et configuration locale : seuls les gabarits *.example.* sont versionnes.
+.env
+.env.*
+!.env.example
+config/ConfigZumm.ini
+
 # ===== IDE / OS =====
 .idea/
 *.iml

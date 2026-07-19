@@ -1,0 +1,152 @@
+/* Ecran du walking skeleton. Uniquement des jetons de la charte : aucune
+   couleur ni duree en dur. Proprietes logiques partout, pour que le passage
+   en arabe (RTL) soit un miroir reel et non un rustine. */
+
+.z-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem 1.25rem;
+  background: var(--z-bg);
+  color: var(--z-text);
+  font-family: var(--z-font-ui);
+}
+
+.z-entete {
+  text-align: center;
+}
+
+.z-titre {
+  margin: 0;
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  /* Degrade signature : reserve aux surfaces d'emphase, jamais au texte courant. */
+  background: var(--z-gradient-signature);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.z-sous-titre {
+  margin: 0.5rem 0 0;
+  color: var(--z-text-muted);
+  font-size: 1rem;
+  max-inline-size: 42ch;
+}
+
+.z-carte {
+  inline-size: min(100%, 34rem);
+  padding: 1.5rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-2);
+}
+
+.z-carte__titre {
+  margin: 0 0 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--z-text-muted);
+}
+
+.z-etat {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0;
+  font-size: 1.0625rem;
+}
+
+.z-pastille {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: var(--z-radius-pill);
+  flex: none;
+  transition: background-color var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-pastille--ok {
+  background: var(--z-success);
+}
+
+.z-pastille--erreur {
+  background: var(--z-danger);
+}
+
+.z-pastille--attente {
+  background: var(--z-text-muted);
+  animation: z-pulsation 1.2s var(--z-ease-inout) infinite;
+}
+
+@keyframes z-pulsation {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.z-details {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  margin: 1.25rem 0 0;
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--z-line);
+  font-size: 0.9375rem;
+}
+
+.z-details dt {
+  color: var(--z-text-muted);
+}
+
+.z-details dd {
+  margin: 0;
+}
+
+.z-details code {
+  font-family: var(--z-font-mono);
+  font-size: 0.875em;
+}
+
+.z-langues {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.z-langue {
+  padding: 0.4rem 0.85rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--z-text-muted);
+  background: transparent;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-pill);
+  cursor: pointer;
+  transition:
+    color var(--z-duration-fast) var(--z-ease-out),
+    border-color var(--z-duration-fast) var(--z-ease-out),
+    background-color var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-langue:hover {
+  color: var(--z-text);
+  border-color: var(--z-honey-500);
+}
+
+.z-langue[aria-current='true'] {
+  color: var(--z-slate-900);
+  background: var(--z-honey-300);
+  border-color: var(--z-honey-500);
+}
+
+.z-langue:focus-visible {
+  outline: 2px solid var(--z-honey-600);
+  outline-offset: 2px;
+}

@@ -1,0 +1,102 @@
+/* ==========================================================================
+   Jetons Zümm — traduction CSS de design/tokens.json (v1.1.0).
+   Source de verite : design/DESIGN.md (FR). Ne pas inventer de valeur ici :
+   toute evolution part de la charte, puis est repercutee dans ce fichier.
+   ========================================================================== */
+
+:root {
+  /* --- Marque --- */
+  --z-honey-300: #ebc55b;
+  --z-honey-500: #d9a521;
+  --z-honey-600: #b8860b;
+  --z-green-300: #6fc46b;
+  --z-green-500: #2e9e3f;
+  --z-green-600: #1f7a2e;
+  --z-slate-800: #2c4a42;
+  --z-slate-900: #1e3a34;
+
+  --z-gradient-signature: linear-gradient(120deg, #d9a521 0%, #2e9e3f 100%);
+
+  /* --- Semantique --- */
+  --z-success: #2e9e3f;
+  --z-warning: #d9a521;
+  --z-danger: #c0392b;
+  --z-info: #2c7a7b;
+
+  /* --- Rayons, ombres --- */
+  --z-radius-sm: 6px;
+  --z-radius-md: 12px;
+  --z-radius-lg: 20px;
+  --z-radius-pill: 999px;
+
+  --z-shadow-1: 0 1px 2px rgba(28, 74, 66, 0.08);
+  --z-shadow-2: 0 4px 12px rgba(28, 74, 66, 0.1);
+  --z-shadow-3: 0 12px 32px rgba(28, 74, 66, 0.14);
+
+  /* --- Motion --- */
+  --z-duration-fast: 120ms;
+  --z-duration-base: 200ms;
+  --z-duration-slow: 320ms;
+  --z-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --z-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --z-ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* --- Typographie --- */
+  --z-font-ui: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --z-font-ui-arabic: 'Cairo', 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
+  --z-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- Jetons semantiques de surface (mode clair par defaut) ---
+     Jamais #FFFFFF ni #000000 purs : neutres teintes vert. */
+  --z-bg: #fcfdfc;
+  --z-surface: #f5f7f5;
+  --z-text: #1b2320;
+  --z-text-muted: #5b6b65;
+  --z-line: #dce4e0;
+}
+
+/* Mode sombre : bascule sur les memes jetons semantiques, jamais sur les
+   couleurs de marque directement. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --z-bg: #1e3a34;
+    --z-surface: #25423b;
+    --z-text: #eaf1ee;
+    --z-text-muted: #a9bdb6;
+    --z-line: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* La preference explicite de l'utilisateur prime sur celle du systeme. */
+:root[data-theme='dark'] {
+  --z-bg: #1e3a34;
+  --z-surface: #25423b;
+  --z-text: #eaf1ee;
+  --z-text-muted: #a9bdb6;
+  --z-line: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme='light'] {
+  --z-bg: #fcfdfc;
+  --z-surface: #f5f7f5;
+  --z-text: #1b2320;
+  --z-text-muted: #5b6b65;
+  --z-line: #dce4e0;
+}
+
+/* Police arabe des que le document passe en arabe. */
+:root:lang(ar),
+[lang='ar'] {
+  --z-font-ui: var(--z-font-ui-arabic);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
