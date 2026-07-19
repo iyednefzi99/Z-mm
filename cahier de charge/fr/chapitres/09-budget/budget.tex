@@ -26,3 +26,72 @@ Externes   & Compte OAuth Google, certificats X.509 (auto-signés en démonstrat
 à l'épreuve d'examen.
 \end{encadre}
 
+%------------------------------------------------------------------------------
+\section{Valorisation économique : hypothèse d'industrialisation}
+%------------------------------------------------------------------------------
+La section précédente décrit le coût \emph{réel} du projet, nul en dépenses
+directes. Par exercice de valorisation, cette section estime ce que coûterait le
+même produit \textbf{s'il était réalisé par une société de services}. Les
+montants sont des \textbf{hypothèses de travail}, non des dépenses engagées.
+
+\subsection{Charge de référence}
+Le plan de charge du chapitre des délais retient \textbf{304 story points} sur
+8~sprints. À $0{,}79$~j-h par point, la charge s'établit à $\approx 240$~j-h ;
+à $1$~j-h par point --- hypothèse prudente pour une équipe qui découvre la pile
+--- elle atteint $\approx 304$~j-h. C'est cette fourchette qui sert de base au
+chiffrage.
+
+\subsection{Répartition d'une enveloppe de référence}
+Pour une enveloppe de \textbf{200\,000~USD}, la ventilation suivante reflète les
+usages du marché. La part de développement n'est pas majoritaire : c'est une
+erreur classique de chiffrage que de l'assimiler au coût total.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.2cm} r r X}
+\toprule
+\textbf{Poste} & \textbf{\%} & \textbf{USD} & \textbf{Justification} \\
+\midrule
+\endhead
+Développement & 45 & 90\,000 & Back-end, front-end, intégration \\
+Gestion de projet / analyse & 12 & 24\,000 & Poste le plus souvent sous-estimé \\
+Qualité et tests & 10 & 20\,000 & Couverture $\geq 70\,\%$, tests d'intégration et de charge \\
+Design UX/UI et accessibilité & 8 & 16\,000 & Coût réduit : la charte existe déjà \\
+Infrastructure et outillage (an 1) & 6 & 12\,000 & Hébergement, sauvegardes, supervision \\
+Audit de sécurité externe & 5 & 10\,000 & Données de géolocalisation sensibles \\
+Provision pour aléas & 14 & 28\,000 & Sans réserve, une enveloppe de cette taille dérape \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Sensibilité au taux journalier}
+Le facteur dominant n'est pas technique mais géographique. À un taux moyen de
+600--900~USD par jour-homme, l'enveloppe finance $\approx 220$--$280$~j-h :
+elle couvre tout juste la charge de référence, \textbf{sans marge}. À un taux de
+250--400~USD, elle finance $\approx 500$--$700$~j-h et autorise une équipe de
+cinq à six personnes ainsi qu'une provision saine.
+
+\subsection{Périmètre ajustable}
+Si l'enveloppe se tend, l'ordre de retrait suivant préserve le c\oe ur du
+produit : d'abord les fonctions avancées (annexe~: suivi de reine, QR code de
+lot), puis la détection d'anomalie adaptative --- dont le calibrage sans
+historique réel constitue un risque identifié ---, enfin l'ingestion réelle des
+capteurs, le modèle de données suffisant en première version. Restent
+incompressibles les entités métier, les visites, l'authentification et le
+contrôle d'accès, le mode hors-ligne et les tableaux de bord.
+
+\subsection{Coût total de possession}
+Le coût de construction ne représente qu'une part du coût de vie du produit. La
+maintenance corrective et évolutive se chiffre usuellement à
+\textbf{15--20\,\% par an} de l'enveloppe de construction, soit
+30\,000--40\,000~USD annuels. Sur trois ans, le coût total de possession
+approche donc \textbf{300\,000~USD}. S'y ajoutent les postes régulièrement omis
+d'un chiffrage initial : reprise des données existantes de l'exploitant,
+formation et conduite du changement auprès d'utilisateurs de terrain,
+traduction professionnelle relue pour les trois langues, et mise en conformité
+relative aux données à caractère personnel.
+
+\begin{encadre}
+\textbf{Portée de cette section :} il s'agit d'une \emph{valorisation}
+pédagogique destinée à situer l'effort du projet dans les ordres de grandeur du
+marché. Elle n'engage aucune dépense et ne modifie pas le cadre académique
+défini en début de chapitre.
+\end{encadre}
+

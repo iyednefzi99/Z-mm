@@ -4,7 +4,7 @@
 
 <h1 align="center">🐝 Zümm</h1>
 
-<p align="center"><em>Système de gestion et de suivi apicole — mini-projet J2EE</em></p>
+<p align="center"><em>Système d'information de gestion et de suivi apicole</em></p>
 
 <p align="center">
   🇫🇷 Français · 🇬🇧 English · 🇸🇦 العربية

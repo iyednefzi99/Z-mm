@@ -4,7 +4,7 @@
 
 <h1 align="center">🐝 Zümm : Système de gestion et de suivi apicole</h1>
 
-🍯 Mini-projet **J2EE** : application multi-niveaux de gestion et de suivi de ruches
+🍯 Application **multi-niveaux** de gestion et de suivi de ruches
 (🐝 gestion manuelle des opérations, 📅 planification des visites, 📊 tableaux de bord,
 🔔 alertes) avec préparation d'un volet capteurs / supervision automatisée. 📡
 
@@ -111,9 +111,10 @@ done
 - 🔑 L'identifiant d'API `getZummHoneyActualQuantity(int zummID)` et le fichier de
   configuration `ConfigZumm.ini` portent le nom du produit **Zümm** (forme ASCII
   « Zumm » pour les identifiants de code et noms de fichiers).
-- 🏗️ Architecture cible : MVC, Servlets, JSP, EJB, JDBC, internationalisation XML,
-  services web sécurisés (OAuth Google, X.509 / SSL). Une trajectoire de
-  modernisation vers Spring Boot est documentée en annexe.
+- 🏗️ Architecture cible (annexe B « technologies ») : back-end **Spring Boot 3**
+  (JDK 17, Docker) avec Spring MVC, Spring Data JPA + jOOQ ; **PostgreSQL + PostGIS
+  + TimescaleDB** ; front **React 19 + TypeScript** en PWA ; API REST + OpenAPI 3 ;
+  **Keycloak** (OIDC + fédération Google), JWT et RBAC ; échanges TLS 1.3 / X.509.
 
 ## 🎓 Contrainte académique
 

@@ -25,3 +25,71 @@ External & Google OAuth account, X.509 certificates (self-signed in the demonstr
 DeepSeek and derivatives) is prohibited and will be considered fraud in the
 examination.
 \end{encadre}
+
+%------------------------------------------------------------------------------
+\section{Economic valuation: industrialisation hypothesis}
+%------------------------------------------------------------------------------
+The previous section describes the \emph{actual} cost of the project, nil in
+direct spending. As a valuation exercise, this section estimates what the same
+product would cost \textbf{if delivered by a software services company}. The
+amounts are \textbf{working hypotheses}, not committed expenditure.
+
+\subsection{Reference workload}
+The workload plan in the schedule chapter retains \textbf{304 story points}
+across 8~sprints. At $0.79$~person-days per point, the workload amounts to
+$\approx 240$~person-days; at $1$~person-day per point --- a prudent assumption
+for a team new to the stack --- it reaches $\approx 304$~person-days. This range
+forms the basis of the costing.
+
+\subsection{Breakdown of a reference envelope}
+For an envelope of \textbf{USD 200,000}, the following breakdown reflects market
+practice. Development is not the majority share: equating it with the total cost
+is a classic costing mistake.
+
+\begin{xltabular}{\textwidth}{>{\bfseries}p{5.2cm} r r X}
+\toprule
+\textbf{Item} & \textbf{\%} & \textbf{USD} & \textbf{Rationale} \\
+\midrule
+\endhead
+Development & 45 & 90,000 & Back-end, front-end, integration \\
+Project management / analysis & 12 & 24,000 & The most frequently underestimated item \\
+Quality and testing & 10 & 20,000 & Coverage $\geq 70\,\%$, integration and load testing \\
+UX/UI design and accessibility & 8 & 16,000 & Reduced cost: the design system already exists \\
+Infrastructure and tooling (year 1) & 6 & 12,000 & Hosting, backups, monitoring \\
+External security audit & 5 & 10,000 & Sensitive geolocation data \\
+Contingency reserve & 14 & 28,000 & Without a reserve, an envelope of this size overruns \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Sensitivity to the daily rate}
+The dominant factor is geographic rather than technical. At an average rate of
+USD 600--900 per person-day, the envelope funds $\approx 220$--$280$~person-days:
+it barely covers the reference workload, \textbf{with no margin}. At a rate of
+USD 250--400, it funds $\approx 500$--$700$~person-days and allows a team of five
+to six people together with a sound contingency reserve.
+
+\subsection{Adjustable scope}
+Should the envelope tighten, the following order of removal preserves the core of
+the product: first the advanced features (annex: queen tracking, batch QR code),
+then adaptive anomaly detection --- whose calibration without real historical
+data is an identified risk --- and finally live sensor ingestion, the data model
+being sufficient for a first version. The business entities, visits,
+authentication and access control, offline mode and dashboards remain
+incompressible.
+
+\subsection{Total cost of ownership}
+Build cost represents only part of the product's lifetime cost. Corrective and
+evolutionary maintenance is usually costed at \textbf{15--20\,\% per year} of the
+build envelope, i.e.\ USD 30,000--40,000 annually. Over three years, the total
+cost of ownership therefore approaches \textbf{USD 300,000}. To this must be
+added the items regularly omitted from an initial costing: migration of the
+operator's existing data, training and change management for field users,
+professionally reviewed translation for the three languages, and compliance work
+relating to personal data.
+
+\begin{encadre}
+\textbf{Scope of this section:} this is an educational \emph{valuation} intended
+to situate the project's effort within market orders of magnitude. It commits no
+expenditure and does not alter the academic framework defined at the beginning of
+this chapter.
+\end{encadre}

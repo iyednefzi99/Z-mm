@@ -9,7 +9,6 @@ on:
 env:
   JAVA_VERSION: '17'
   MAVEN_VERSION: '3.9.6'
-  WILDFLY_VERSION: '30.0.0.Final'
 
 jobs:
   # ═══════════════════════════════════════════════
@@ -32,14 +31,14 @@ jobs:
       - name: Compile
         run: mvn clean compile -B
 
-      - name: Package WAR
+      - name: Package JAR
         run: mvn package -DskipTests -B
 
-      - name: Upload WAR artifact
+      - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
         with:
-          name: zumm-war
-          path: target/*.war
+          name: zumm-jar
+          path: target/*.jar
 
   # ═══════════════════════════════════════════════
   # JOB 2: TESTS UNITAIRES
@@ -171,10 +170,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download WAR artifact
+      - name: Download JAR artifact
         uses: actions/download-artifact@v4
         with:
-          name: zumm-war
+          name: zumm-jar
           path: target/
 
       - name: Set up Docker Buildx
