@@ -36,8 +36,21 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers(disabledWithoutDocker = true)
 class WalkingSkeletonIT {
 
+    /**
+     * Image de test PostGIS + TimescaleDB, a construire au prealable :
+     *
+     * <pre>docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/</pre>
+     *
+     * <p>Elle n'est volontairement pas construite par Testcontainers : le Dockerfile
+     * utilise des montages de cache APT, indispensables sur liaison lente, que seul
+     * BuildKit comprend — or Testcontainers passe par le builder historique de l'API
+     * Docker et echoue sur {@code --mount}.
+     *
+     * <p>La cible d'execution reste {@code timescale/timescaledb-ha}
+     * (cf. {@code infra/docker-compose.yml}) : seule la base de test differe.
+     */
     private static final DockerImageName IMAGE = DockerImageName
-            .parse("timescale/timescaledb-ha:pg16-ts2.14")
+            .parse("zumm/test-postgres:16")
             .asCompatibleSubstituteFor("postgres");
 
     @Container
@@ -45,7 +58,9 @@ class WalkingSkeletonIT {
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(IMAGE)
             .withDatabaseName("zumm")
             .withUsername("zumm")
-            .withPassword("zumm_secure");
+            .withPassword("zumm_secure")
+            // TimescaleDB doit etre precharge pour que CREATE EXTENSION reussisse.
+            .withCommand("postgres", "-c", "shared_preload_libraries=timescaledb");
 
     @Autowired
     private MockMvc mockMvc;

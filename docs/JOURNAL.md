@@ -33,13 +33,37 @@ relire tout le dépôt.
 | `./mvnw test` | ✅ **8 tests verts** (3 web + 5 parité i18n) |
 | `npm run build` | ✅ build Vite réussi (197 kB JS, 62 kB gzip) |
 | `scripts/check-sync.sh` | ✅ 3 masters synchronisés |
-| `./mvnw verify` (Testcontainers) | ⏭️ **3 tests ignorés — Docker arrêté** |
+| `./mvnw verify` (Testcontainers) | ✅ **3 tests verts, Skipped: 0** (44 s) |
 
-### Non vérifié — à faire dès que Docker tourne
+Le `verify` prouve, sur une base PostgreSQL réelle : migrations Flyway
+appliquées, extensions **PostGIS et TimescaleDB toutes deux actives**, entité
+persistée puis relue, `/actuator/health` à `UP` base comprise.
 
-`docker compose up`, migration Flyway sur une vraie base, extensions PostGIS et
-TimescaleDB, persistance de bout en bout. **Rien de tout cela n'est prouvé à ce
-jour** : `WalkingSkeletonIT` couvre ces points mais n'a pas encore pu s'exécuter.
+### Non vérifié
+
+`docker compose up` (la stack complète) n'a pas encore été lancé. Keycloak,
+Nginx/TLS, l'observabilité et la sauvegarde/restauration restent à faire
+(tranches 3 à 7).
+
+### Chemin parcouru pour y arriver — à ne pas refaire
+
+1. **Testcontainers 1.20.4** (version imposée par Spring Boot 3.4.1) est
+   incompatible avec **Docker Engine 29** (API minimale 1.40) : découverte du
+   démon en `HTTP 400`, tests d'intégration **ignorés en silence, build vert**.
+   Ni `DOCKER_HOST` ni `DOCKER_API_VERSION` n'y changent rien → version forcée
+   à **1.21.4** dans le `pom.xml`.
+2. Le dépôt **`timescale/*`** est impraticable depuis ce réseau (~64 Ko/s
+   mesurés, couches qui ne démarrent pas). Quota Docker Hub vérifié : 100/100,
+   donc hors de cause. → image de test reconstruite sur base `postgis/postgis`.
+3. Le paquet TimescaleDB (~65 Mo) est servi par une **URL signée qui expire**
+   avant la fin du téléchargement sur liaison lente → `Acquire::Retries "10"`
+   plus cache APT persistant.
+4. **Testcontainers ne peut pas construire ce Dockerfile** : les montages de
+   cache exigent BuildKit, l'API Docker utilise le builder historique. →
+   l'image est construite manuellement et référencée par son nom.
+
+**Règle retenue :** un `BUILD SUCCESS` ne prouve rien tant qu'on n'a pas lu
+`Skipped: 0` sur la ligne des tests d'intégration.
 
 ### Décisions
 

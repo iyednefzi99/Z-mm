@@ -43,12 +43,30 @@ l'appui. Le `pom.xml` force donc `testcontainers.version` à **1.21.4**.
 Ni `DOCKER_HOST` ni `DOCKER_API_VERSION` ne corrigent ce cas : seule la montée
 de version fonctionne.
 
-La première exécution télécharge l'image `timescale/timescaledb-ha` (~1,5 Go) ;
-prévoir du temps. Pour la mettre en cache à l'avance :
+### Image de test PostGIS + TimescaleDB — à construire une fois
+
+Les tests d'intégration utilisent une image locale, à construire **avant le
+premier `mvn verify`** :
 
 ```bash
-docker pull timescale/timescaledb-ha:pg16-ts2.14
+docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/
 ```
+
+Pourquoi une image maison plutôt que `timescale/timescaledb-ha` (l'image de la
+roadmap, qui embarque les deux extensions) : son dépôt s'est révélé
+impraticable depuis certains réseaux — les couches ne démarrent pas, et 1,5 Go
+sur une liaison lente dépasse l'heure. On repart donc de `postgis/postgis`, qui
+se télécharge de façon fiable, en y ajoutant TimescaleDB via APT.
+
+**La cible d'exécution reste `timescale/timescaledb-ha`** (cf.
+`infra/docker-compose.yml`) : seule la base de *test* diffère.
+
+Le Dockerfile utilise des montages de cache APT (`RUN --mount=type=cache`), qui
+exigent **BuildKit** — d'où la construction manuelle plutôt que par
+Testcontainers, qui passe par le builder historique de l'API Docker et échoue
+sur `--mount`. Le paquet TimescaleDB (~65 Mo) étant servi par une URL signée à
+durée limitée, `Acquire::Retries` est indispensable sur liaison lente : chaque
+reprise obtient une signature fraîche.
 
 L'API répond alors sur `http://localhost:8080` :
 
