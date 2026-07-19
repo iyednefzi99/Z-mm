@@ -90,3 +90,51 @@ Nginx/TLS, l'observabilité et la sauvegarde/restauration restent à faire
 
 Démarrer Docker, lancer `./mvnw verify` et `docker compose up` pour prouver la
 chaîne, puis enchaîner sur Keycloak (tranche 3).
+
+---
+
+## 2026-07-19 (suite) — SPRINT-00 mené jusqu'à la rétrospective
+
+**Branche :** `sprint00-ossature`. **Résultat : 16 tests verts, `Skipped: 0`**
+(8 unitaires + 8 d'intégration).
+
+### Livré et prouvé
+
+- **Sécurité** : serveur de ressources OAuth2/Keycloak, API **fermée par défaut**.
+  `SecuriteApiIT` prouve qu'un endpoint non déclaré répond 401 en anonyme, 404 une
+  fois authentifié — le refus par défaut s'applique bien.
+- **Realm Keycloak** (`infra/keycloak/realm-zumm.json`) : 4 rôles métier, client
+  PWA public (PKCE), API `bearer-only`.
+- **Proxy Nginx + TLS** : redirection HTTP→HTTPS, HSTS, limitation de débit,
+  Actuator masqué sauf `/health`. Certificat de dev via script (non versionné).
+- **Observabilité** : Micrometer/Prometheus, tag `application=zumm`, tableau de
+  bord Grafana provisionné. `WalkingSkeletonIT` vérifie que les séries du
+  dashboard existent réellement.
+- **Sauvegarde/restauration** : `tester-restauration.sh` exécuté avec succès
+  (témoin détruit puis retrouvé).
+- **CI applicative** (`.github/workflows/ci.yml`) : build backend+frontend,
+  garde-fou anti-`Skipped`, gitleaks, Dependency-Check, détection AGPL.
+- **Maquettes** des 3 écrans (`docs/maquettes/`), aux jetons de la charte,
+  marquées « en attente de validation apiculteur ».
+- **ADR d'implémentation** (`docs/ADR/`).
+
+### Non fait / dégradé
+
+- **`docker compose up` complet non exécuté** : images Keycloak et Grafana non
+  téléchargeables sur ce réseau (~64 Ko/s, `short read`/EOF, puis `no such host`
+  sur quay.io). Chaque brique est prouvée isolément ; l'assemblage reste à lancer
+  sur un lien correct.
+- **4 ADR toujours « Proposé »** → SPRINT-01 reste fermé.
+- **Pas de production réelle**, **maquettes non validées** : hors périmètre
+  technique. Consigné dans la rétrospective de `SPRINT-00.md`.
+
+### Nouveaux pièges consignés
+
+5. Bloc `management` YAML correct mais endpoint Prometheus **404 sous MockMvc**
+   (handler de scrape non monté en `@SpringBootTest` MOCK) alors qu'il existe en
+   HTTP réel (401 anonyme). → test via la `MeterRegistry`, pas via l'endpoint.
+6. `PrometheusMeterRegistry` non exposé comme bean en test → injecter la
+   `MeterRegistry` générique.
+7. `openssl -subj` réécrit par MSYS sous Git Bash → `MSYS_NO_PATHCONV=1`.
+8. `.env` à la racine ⇒ `docker compose --env-file .env` obligatoire ; corrigé
+   aussi dans les scripts de sauvegarde/restauration.
