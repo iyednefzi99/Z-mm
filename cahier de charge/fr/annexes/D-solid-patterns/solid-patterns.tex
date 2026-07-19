@@ -61,12 +61,12 @@ Interfaces ciblees : \texttt{ServiceRequeteMiel} (l'API tierce ne voit que
 \texttt{getZummHoneyActualQuantity}), \texttt{ServiceVisite},
 \texttt{ServiceTableauDeBord}. Chaque client ne depend que de son contrat. \\
 D : Inversion de dependance &
-La couche metier (EJB) appelle directement JDBC (implementation concrete) :
-couplage fort a la base et aux \texttt{ResultSet}. &
+La couche metier appelle directement le SQL (implementation concrete) :
+couplage fort a la base et aux jeux de resultats. &
 La couche metier depend d'abstractions \texttt{RucheRepository} /
-\texttt{VisiteRepository} (pattern DAO), implementees par
-\texttt{RucheRepositoryJdbc}. Tests par mock et migration JDBC \textrightarrow{}
-Spring Data JPA facilites (cf. annexe~\ref{chap:migration}). \\
+\texttt{VisiteRepository} (pattern DAO), implementees par Spring Data JPA et,
+pour les requetes analytiques, par jOOQ. Tests par mock et substitution de
+l'implementation facilites (cf. annexe~\ref{chap:technologies}). \\
 \bottomrule
 \end{xltabular}
 
@@ -123,8 +123,8 @@ par cas. &
 \texttt{AdaptateurCapteur} uniformise chaque source en \texttt{Mesure} avec
 unites parametrables (volet automatise). \\
 Facade \newline {\small\itshape structurel : controle} &
-Le Servlet orchestre directement tous les services metier. &
-\texttt{FacadeApplication} offre un point d'entree simplifie aux Servlets
+Le controleur orchestre directement tous les services metier. &
+\texttt{FacadeApplication} offre un point d'entree simplifie aux controleurs
 par-dessus les sous-systemes. \\
 Singleton \newline {\small\itshape creationnel : transverse} &
 Le fichier \texttt{ConfigZumm.ini} et les libelles i18n seraient relus en
@@ -157,10 +157,11 @@ patterns au systeme Z\"umm.}
 
 \begin{encadre}
 \textbf{Correspondance avec les couches :} les \texttt{Repository} appartiennent
-a la couche d'acces aux donnees (JDBC), les \texttt{Service} et le domaine
-(Composite, State, Strategy, Observer, Command) a la couche metier (EJB), la
-\texttt{Facade} et le \texttt{Proxy} a la couche de controle (Servlets), le
-\texttt{Builder} de rapport a la presentation (JSP). L'architecture en couches
+a la couche de persistance (JPA / jOOQ), les \texttt{Service} et le domaine
+(Composite, State, Strategy, Observer, Command) a la couche metier (services
+Spring), la \texttt{Facade} et le \texttt{Proxy} a la couche de controle
+(Spring MVC), le \texttt{Builder} de rapport a la presentation (React).
+L'architecture en couches
 faiblement couplees du chapitre~\ref{chap:conception} est ainsi renforcee, sans
 etre modifiee.
 \end{encadre}

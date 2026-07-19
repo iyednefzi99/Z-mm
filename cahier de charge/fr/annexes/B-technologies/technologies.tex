@@ -1,6 +1,6 @@
 %==============================================================================
 %  ANNEXE - Pile technologique detaillee et comparatif justifie
-%  Implementations concretes du socle impose + alternatives evaluees
+%  Implementations concretes du socle retenu + alternatives evaluees
 %  A inserer via \input{annexe_technologies} dans cahier_des_charges.tex
 %  (utilise la charte "Miel & noir" : miel, mielfonce, encadre, colonne C,
 %   longtable, booktabs -- deja definis dans le preambule principal)
@@ -10,11 +10,9 @@
 \chapter{Annexe : Pile technologique et comparatif des alternatives}
 \label{chap:technologies}
 %==============================================================================
-Le socle technique de \textbf{Zümm} (MVC, Servlet, JSP, EJB, JDBC, i18n XML,
-OAuth Google, X.509 / SSL, service web XML) est \textbf{imposé} par le cahier des
-charges et par la grille d'évaluation. La liberté de choix porte donc sur les
-\textbf{implémentations concrètes} de ce socle : serveur d'applications, SGBD,
-bibliothèques front-end, style de service web. Cette annexe recense les
+Le socle technique de \textbf{Zümm} vise l'\textbf{alignement sur les pratiques
+du marché} : API REST documentée, client découplé, identité fédérée, données
+géospatiales et séries temporelles dans un SGBD unique. Cette annexe recense les
 technologies retenues couche par couche, puis justifie chaque choix face à ses
 alternatives.
 
@@ -31,31 +29,32 @@ conformément à l'exigence d'autodéploiement sans abonnement.
 \textbf{Couche / besoin} & \textbf{Technologie retenue} & \textbf{Rôle dans Zümm} \\
 \midrule
 \endhead
-Plateforme        & Jakarta EE 10 sur JDK 17 LTS      & Socle « J2EE » actuel : Servlet, JSP, EJB, JAX-WS \\
-Serveur d'applis  & WildFly (conteneur Web + EJB)     & Exécute l'archive WAR/EAR, fournit les conteneurs \\
-Contrôle (MVC)    & Servlets Jakarta + JSP + JSTL     & Aiguillage des requêtes, couche de contrôle \\
-Métier            & EJB Session (stateless)           & Règles de gestion : ROI, seuils, quantité de miel \\
-Accès données     & JDBC + pool HikariCP              & Requêtes SQL, gestion des connexions \\
-SGBD              & PostgreSQL (+ PostGIS)            & Persistance relationnelle, géolocalisation des sites \\
-Présentation      & HTML5 + JavaScript + Bootstrap 5 surchargé par les tokens Zümm & IHM responsive, parité web / mobile, identité visuelle de la charte \\
+Plateforme        & Spring Boot 3 sur JDK 17 LTS      & Socle applicatif : conteneur IoC, autoconfiguration, Tomcat embarqué \\
+Exécution         & Image conteneur (Docker)          & Artefact unique déployable, sans serveur d'applications à administrer \\
+Contrôle          & Spring MVC + Bean Validation      & Aiguillage des requêtes, validation des entrées \\
+Métier            & Composants Spring \texttt{@Service} & Règles de gestion : ROI, seuils, quantité de miel \\
+Accès données     & Spring Data JPA (CRUD) + jOOQ (SQL typé) & Persistance des entités, requêtes analytiques et géospatiales \\
+SGBD              & PostgreSQL + PostGIS + TimescaleDB & Persistance relationnelle, géolocalisation des sites, séries de mesures \\
+Présentation      & React 19 + TypeScript, jetons Zümm & IHM responsive, parité web / mobile, identité visuelle de la charte \\
 Graphiques        & Chart.js                          & Tableaux de bord production, alertes, synthèse \\
-Cartographie      & Leaflet + OpenStreetMap           & Carte des sites et rayons de butinage \\
-i18n              & Fichiers XML + \texttt{ResourceBundle} & Textes FR / EN / AR, support du RTL arabe \\
-Configuration     & \texttt{ConfigZumm.ini} via Singleton  & Seuils, unités et modules sans redéploiement \\
-Service web tiers & JAX-WS (SOAP / XML)               & \texttt{getZummHoneyActualQuantity(int)} \\
-Authentification  & OAuth 2.0 Google                  & Connexion déléguée sans gestion de mots de passe \\
-Sécurité échanges & TLS / SSL + certificats X.509     & Chiffrement et authentification inter-composants \\
-Hors-ligne        & PWA (Service Worker + IndexedDB)  & Saisie terrain sans réseau, synchronisation différée \\
-Build \& tests    & Maven, JUnit 5, Mockito, Arquillian & Compilation, tests unitaires et in-container \\
+Cartographie      & MapLibre GL JS + tuiles OpenStreetMap & Carte des sites et rayons de butinage \\
+i18n              & Fichiers de ressources par locale & Textes FR / EN / AR, support du RTL arabe \\
+Configuration     & Profils Spring (technique) + \texttt{ConfigZumm.ini} via \texttt{PropertySource} dédié (métier) & Infrastructure par environnement ; seuils, unités et modules sans redéploiement \\
+API tierce        & REST + contrat OpenAPI 3          & \texttt{getZummHoneyActualQuantity(int)} \\
+Authentification  & Keycloak (OpenID Connect) + fédération Google & Connexion déléguée, RBAC et jetons JWT \\
+Sécurité échanges & TLS 1.3 + certificats X.509       & Chiffrement et authentification inter-composants \\
+Hors-ligne        & PWA (Service Worker) + moteur de synchronisation & Saisie terrain sans réseau, résolution de conflits au retour du réseau \\
+Ingestion capteurs & MQTT (courtier EMQX)             & Réception des mesures des ruches connectées \\
+Observabilité     & OpenTelemetry vers Prometheus / Grafana & Traces, métriques et tableaux de bord d'exploitation \\
+Build \& tests    & Maven, JUnit 5, Mockito, Testcontainers & Compilation, tests unitaires et d'intégration sur base réelle \\
 \bottomrule
 \end{xltabular}
 
 \begin{encadre}
-\textbf{Note :} le passage de l'appellation historique « J2EE » à
-\textbf{Jakarta EE 10} ne change ni les concepts ni les API notées (Servlet,
-JSP, EJB, JDBC). Il ne fait qu'adopter la version maintenue de la plateforme.
-La trajectoire de modernisation vers Spring Boot est traitée séparément à
-l'annexe~\ref{chap:migration}.
+\textbf{Note :} le domaine métier et les identifiants publics sont indépendants
+du socle technique. Les noms de classes, de tables et d'opérations --- dont
+\texttt{getZummHoneyActualQuantity} --- restent inchangés quelle que soit la
+technologie qui les porte.
 \end{encadre}
 
 %------------------------------------------------------------------------------
@@ -66,13 +65,23 @@ retient l'option, cite les alternatives écartées et donne la justification au
 regard des exigences du projet (autodéploiement, gratuité, ergonomie,
 géolocalisation, interopérabilité).
 
-\subsection{Serveur d'applications}
+\subsection{Socle applicatif}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Conteneur \textbf{EJB + Servlet} complet et gratuit, démarrage rapide, documentation abondante. TomEE reste plus léger mais moins intégré. Payara convient aussi (fork de GlassFish orienté production). \\
+Spring Boot 3 & Jakarta EE / WildFly, Quarkus, Micronaut, Node.js (NestJS) & \textbf{Écosystème le plus répandu} du marché Java : documentation, bibliothèques et vivier de développeurs abondants, donc coût de maintenance maîtrisé. Quarkus démarre plus vite et consomme moins, mais son écosystème est plus étroit. Jakarta EE impose un serveur d'applications à administrer pour un bénéfice nul à cette échelle. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Accès aux données}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+JPA + jOOQ & JDBC manuel, MyBatis, JPA seul & Approche \textbf{mixte} : JPA supprime le code répétitif du CRUD sur la quinzaine d'entités du domaine, tandis que jOOQ exprime en SQL typé et vérifié à la compilation les requêtes analytiques et les appels PostGIS que JPA rend illisibles. Le JDBC manuel donnerait le même résultat pour un coût de développement bien supérieur. \\
 \bottomrule
 \end{xltabular}
 
@@ -82,17 +91,47 @@ WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Conteneur \textbf{EJB 
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-PostgreSQL & MySQL / MariaDB, H2, Oracle XE & \textbf{Géolocalisation} native (PostGIS) pour les sites et rayons de butinage, bon support des contraintes \texttt{CHECK} (règles cadres/hausses), séries temporelles de mesures. Gratuit et sans verrouillage propriétaire, contrairement à Oracle. \\
+PostgreSQL & MySQL / MariaDB, H2, Oracle XE & \textbf{Géolocalisation} native (PostGIS) pour les sites et rayons de butinage et \textbf{séries temporelles} (TimescaleDB) pour les mesures de capteurs, dans une \emph{seule} instance : ni base spécialisée supplémentaire ni synchronisation entre deux systèmes. Bon support des contraintes \texttt{CHECK} (règles cadres/hausses). Gratuit et sans verrouillage propriétaire, contrairement à Oracle. \\
 \bottomrule
 \end{xltabular}
 
-\subsection{Style du service web tiers}
+\subsection{Style de l'API tierce}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & Le cahier des charges impose un \textbf{service web XML} exposant \texttt{float getZummHoneyActualQuantity(int zummID)}. SOAP en est la traduction littérale, avec contrat WSDL interrogeable depuis Excel. Un endpoint REST/JSON pourra compléter l'offre en modernisation (annexe~\ref{chap:migration}). \\
+REST + OpenAPI 3 & SOAP (JAX-WS), GraphQL, gRPC & Standard \textbf{de fait} pour l'intégration tierce : contrat lisible par l'humain et par la machine, génération automatique de clients dans la plupart des langages, outillage de test universel. SOAP n'aurait de sens que pour s'intégrer à un existant qui l'impose. GraphQL répond à des besoins de requêtage client que Zümm n'a pas. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Interface utilisateur}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+React + TypeScript & JSP / Thymeleaf, Vue, Angular, Svelte & \textbf{Découplage} complet du client et du serveur, indispensable au fonctionnement hors-ligne : la même application sert de PWA sur le terrain. TypeScript sécurise les contrats de données générés depuis OpenAPI. Le rendu serveur (JSP, Thymeleaf) interdirait le mode déconnecté. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Authentification et contrôle d'accès}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+Keycloak (OIDC) & OAuth Google câblé à la main, Auth0, Spring Security seul & Fournit \textbf{nativement} les trois besoins du projet : fédération Google, comptes locaux de repli et matrice de rôles. Recoder ce triplet représenterait plusieurs semaines pour un résultat moins sûr. Auth0 est équivalent mais payant au-delà d'un quota, ce qui contredit l'autodéploiement. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Externalisation de la configuration}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+Approche mixte & Profils Spring seuls, \texttt{ConfigZumm.ini} seul & Les deux configurations n'ont ni le même public ni le même cycle de vie. L'\textbf{infrastructure} (sources de données, points d'accès, secrets) change par environnement et relève de l'exploitation technique : profils Spring et variables d'environnement. Les \textbf{seuils métier} (production, alertes, unités) sont réglés par l'apiculteur lui-même, en cours de saison : ils restent dans \texttt{ConfigZumm.ini}, fichier texte lisible, monté en volume et relu à chaud par un \texttt{PropertySource} dédié. Tout confondre dans \texttt{application.yml} obligerait l'utilisateur métier à passer par un technicien. \\
 \bottomrule
 \end{xltabular}
 
@@ -102,7 +141,7 @@ JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & Le cahier des charges impose un
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-Leaflet + OSM & Google Maps JS API, Mapbox & \textbf{Libre et sans clé payante} ni quota facturé, cohérent avec l'exigence d'autodéploiement. Tracé simple des cercles de butinage (1, 2, 3~km) à partir des coordonnées des sites. \\
+MapLibre GL + OSM & Leaflet, Google Maps JS API, Mapbox & \textbf{Libre et sans clé payante} ni quota facturé, cohérent avec l'exigence d'autodéploiement. Tuiles vectorielles : rendu net à tout niveau de zoom et style dérivable des couleurs de la charte, ce que le raster de Leaflet ne permet pas. \\
 \bottomrule
 \end{xltabular}
 
@@ -122,12 +161,22 @@ Chart.js & D3.js, ApexCharts, Highcharts & Courbe d'apprentissage faible et rend
 \textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
 \midrule
 \endhead
-PWA (Service Worker + IndexedDB) & Application native (Android/iOS), Flutter, React~Native & \textbf{Parité web / mobile} avec une seule base de code, saisie terrain sans réseau puis synchronisation différée. Évite le développement et la distribution d'applications natives, hors périmètre académique. \\
+PWA + moteur de synchronisation & Application native (Android/iOS), Flutter, React~Native, IndexedDB nu & \textbf{Parité web / mobile} avec une seule base de code, saisie terrain sans réseau puis synchronisation différée. Un moteur de synchronisation dédié apporte une \textbf{politique de résolution de conflits} éprouvée --- deux agents éditant la même visite hors réseau est le cas nominal du métier, non un cas limite. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Tests d'intégration}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives écartées} & \textbf{Justification du choix} \\
+\midrule
+\endhead
+Testcontainers & Arquillian, base H2 en mémoire & Les tests s'exécutent sur un \textbf{PostgreSQL réel} muni de PostGIS et TimescaleDB, donc sur les mêmes extensions qu'en production --- ce qu'une base H2 en mémoire ne sait pas simuler. Arquillian suppose un serveur d'applications, que l'architecture retenue n'utilise plus. \\
 \bottomrule
 \end{xltabular}
 
 \begin{encadre}
-\textbf{Cohérence avec la contrainte académique :} toutes les briques retenues
+\textbf{Cohérence avec les contraintes du projet :} toutes les briques retenues
 sont libres, documentées et \emph{justifiables} « pourquoi / comment / où »
 (critère \emph{Technologies} de la grille d'évaluation, chapitre des délais).
 Aucune ne repose sur un générateur de code : elles sont mises en \oe uvre à la

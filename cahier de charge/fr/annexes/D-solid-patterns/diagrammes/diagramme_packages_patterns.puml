@@ -14,18 +14,18 @@ skinparam package {
 }
 title Repartition des design patterns par couche (architecture multi-niveaux)
 
-package "Presentation  (JSP / JavaScript)" as P {
-  [Vues JSP]
+package "Presentation  (React / TypeScript)" as P {
+  [Composants React]
   [ConstructeurRapport  <<Builder>>]
 }
 
-package "Controle  (Servlets / MVC)" as C {
+package "Controle  (Spring MVC / API REST)" as C {
   [FacadeApplication  <<Facade>>]
   [ProxySecurite  <<Proxy>>]
   [FileCommandesHorsLigne  <<Command>>]
 }
 
-package "Metier  (EJB)" as M {
+package "Metier  (services Spring)" as M {
   [Ruche / ElementRuche  <<Composite>>]
   [EtatRuche  <<State>>]
   [GestionnaireAlertes  <<Observer>>]
@@ -34,7 +34,7 @@ package "Metier  (EJB)" as M {
   [Services segreges  <<ISP>>]
 }
 
-package "Acces aux donnees  (JDBC)" as D {
+package "Persistance  (Spring Data JPA / jOOQ)" as D {
   [RucheRepository  <<DAO / DIP>>]
   [AdaptateurCapteur  <<Adapter>>]
 }
@@ -45,7 +45,7 @@ package "Transverse  (i18n / config / unites)" as T {
   [ConvertisseurUnite  <<Strategy>>]
 }
 
-database "SGBD relationnel" as DB
+database "PostgreSQL\n(PostGIS, TimescaleDB)" as DB
 
 P --> C
 C --> M

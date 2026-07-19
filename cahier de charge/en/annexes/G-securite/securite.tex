@@ -38,7 +38,7 @@ in Zümm.
 \endhead
 Interception of exchanges & End-to-end TLS / SSL, X.509 certificates, HTTPS redirection and HSTS header. \\
 Credential theft & Google OAuth (no stored password), two-factor authentication handled by the provider. \\
-SQL injection & Prepared statements (\emph{PreparedStatement}) via JDBC, input validation and typing. \\
+SQL injection & Parameterised queries (JPA and jOOQ, never concatenation), input validation and typing. \\
 XSS (injected script) & Systematic output escaping, \texttt{Content-Security-Policy} header. \\
 CSRF (forged request) & Per-session anti-CSRF token, \texttt{SameSite} cookies. \\
 Session hijacking & \texttt{HttpOnly} and \texttt{Secure} cookies, session expiry and rotation (already §\,7). \\
@@ -114,7 +114,7 @@ added by this appendix.
 HTTPS / TLS everywhere & X.509 certificates, HTTPS redirection, HSTS. & Already required \\
 Strong authentication & Google OAuth + provider two-factor. & Already required \\
 Access control (RBAC) & Least-privilege roles and permissions. & Already required \\
-Prepared statements & Exclusively parameterised JDBC access. & Already required \\
+Parameterised queries & Exclusively parameterised data access (JPA / jOOQ). & Already required \\
 Web application firewall (WAF) & Edge request filtering (ModSecurity). & \textbf{Added} \\
 Rate limiting / anti-DDoS & Absorption of peaks and abuse. & \textbf{Added} \\
 Security headers & CSP, X-Frame-Options, X-Content-Type-Options. & \textbf{Added} \\

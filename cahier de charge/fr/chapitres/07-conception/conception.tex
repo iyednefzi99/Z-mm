@@ -12,13 +12,13 @@ par son contenu attendu afin de guider la modélisation.
 Cas d'utilisation & Acteurs (fermier, agent, superviseur, responsable, administrateur, application tierce) et cas principaux (voir figure \ref{fig:uc}). \\
 Classes & Entités du dictionnaire de données et leurs relations (Fermier 1 vers n Ferme, Ferme 1 vers n Site, Site 1 vers n Ruche, Ruche 1 vers n Corps ou hausse, Corps ou hausse 1 vers n Cadre) et méthodes de service. \\
 Objets & Instantané d'un site contenant trois ruches peuplées avec leurs cadres. \\
-Séquence & Déroulé de la réalisation d'une visite (Agent, IHM JSP, Servlet, EJB, JDBC, base de données). \\
+Séquence & Déroulé de la réalisation d'une visite (Agent, client React, contrôleur REST, service métier, repository, base de données). \\
 Activité & Processus de planification, approbation, exécution et clôture d'une visite. \\
 Machine à états & Cycle de vie d'une ruche (créée, peuplée, active, en division, en collecte, clôturée). \\
 Interaction ou collaboration & Même scénario que la séquence sous forme de collaboration entre objets. \\
 Package & Couches présentation, contrôle, métier, accès aux données, internationalisation, configuration et services web. \\
 Composant & Composants applicatifs (application web, service OAuth, service API, module i18n, module configuration, base de données). \\
-Déploiement & Répartition sur le navigateur, le serveur d'applications J2EE, le SGBD, le service Google OAuth et les capteurs. \\
+Déploiement & Répartition sur le navigateur, le proxy inverse, le conteneur applicatif, le SGBD, le fournisseur d'identité Keycloak et les capteurs. \\
 \bottomrule
 \end{xltabular}
 
@@ -39,12 +39,12 @@ et les relations avec leurs cardinalités.
 \begin{tikzpicture}[
   couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
 ]
-\node[couche] (p) at (0,4) {Présentation : JSP et JavaScript};
-\node[couche] (c) at (0,3) {Contrôle : Servlets (MVC)};
-\node[couche] (m) at (0,2) {Métier : EJB};
-\node[couche] (d) at (0,1) {Accès aux données : JDBC};
-\node[couche] (b) at (0,0) {Base de données relationnelle};
-\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,align=center,text width=3.1cm,right=4mm of c] (s) {i18n XML\\ConfigZumm.ini\\Services web};
+\node[couche] (p) at (0,4) {Présentation : React et TypeScript};
+\node[couche] (c) at (0,3) {Contrôle : Spring MVC (API REST)};
+\node[couche] (m) at (0,2) {Métier : services Spring};
+\node[couche] (d) at (0,1) {Persistance : Spring Data JPA et jOOQ};
+\node[couche] (b) at (0,0) {PostgreSQL (PostGIS, TimescaleDB)};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,align=center,text width=3.1cm,right=4mm of c] (s) {Ressources i18n\\ConfigZumm.ini\\Contrat OpenAPI};
 \draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
 \draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
 \draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
@@ -62,13 +62,13 @@ et les relations avec leurs cardinalités.
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (nav) {Navigateur\\(client web)};
-\node[noeud,right=1.6cm of nav] (srv) {Serveur J2EE\\(Servlets, EJB)};
-\node[noeud,right=1.6cm of srv] (bd) {SGBD\\relationnel};
-\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,right=1.6cm of nav] (srv) {Conteneur Zümm\\(Spring Boot)};
+\node[noeud,right=1.6cm of srv] (bd) {PostgreSQL\\PostGIS + TimescaleDB};
+\node[noeud,below=1cm of srv] (oauth) {Keycloak\\(fédération Google)};
 \node[noeud,below=1cm of bd] (capt) {Capteurs\\(volet automatisé)};
 \draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
-\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
-\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC / pool};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{OIDC};
 \draw[fl] (capt)--(srv);
 \end{tikzpicture}
 \caption{Diagramme de déploiement du système.}
@@ -78,7 +78,7 @@ et les relations avec leurs cardinalités.
 \section{Diagramme de séquence (UC2)}
 Le diagramme de séquence ci-dessous détaille le cas d'utilisation UC2, réaliser
 une visite et remplir le rapport. Il montre le passage à travers les couches
-(agent, IHM, servlet, EJB, base de données) ainsi que les cas en ligne et
+(agent, client React, contrôleur REST, service métier, base de données) ainsi que les cas en ligne et
 hors-ligne avec synchronisation différée.
 \begin{figure}[htbp]
 \centering

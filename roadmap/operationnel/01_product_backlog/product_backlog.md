@@ -54,7 +54,7 @@ Planification, approbation, réalisation et rapport de visite
 | US-008 | Approuver/Refuser un planning | 5 | Haute | Workflow approbation superviseur |
 | US-009 | Réaliser une visite et remplir le rapport | 13 | Haute | Date, heure, durée, constatations, évaluations 1-3 |
 | US-010 | Ajouter des photos au rapport | 5 | Haute | Upload multi-photos |
-| US-011 | Mode hors-ligne et synchronisation différée | 13 | Haute | PWA + Service Worker + IndexedDB |
+| US-011 | Mode hors-ligne et synchronisation différée | 13 | Haute | PWA + Service Worker + moteur de synchronisation (résolution de conflits) |
 
 ### EPIC-003: Tableaux de bord et visualisation
 **Priorité:** Haute | **Source CdC:** §4.3, §4.3.1-4.3.4 | **Total Points:** 42
@@ -83,14 +83,14 @@ Modèle de données ouvert pour intégration future des capteurs
 ### EPIC-005: Authentification et sécurité
 **Priorité:** Haute | **Source CdC:** §8.2, §8.3, Annexe I | **Total Points:** 26
 
-OAuth Google, RBAC, SSL/X.509
+Keycloak (OIDC, fédération Google), RBAC, TLS/X.509
 
 | ID | Story | Points | Priorité | Critères d'Acceptation |
 |:---|:---|:---:|:---|:---|
-| US-020 | Authentification OAuth 2.0 Google | 8 | Haute | Flot Authorization Code + JWT |
-| US-021 | Authentification locale (fallback) | 5 | Haute | Repli si OAuth indisponible |
+| US-020 | Authentification OIDC (Keycloak, fédération Google) | 8 | Haute | Authorization Code Flow + JWT |
+| US-021 | Authentification locale (fallback) | 5 | Haute | Comptes locaux Keycloak si fédération indisponible |
 | US-022 | Contrôle d'accès RBAC | 8 | Haute | Matrice 6 profils × 15 fonctions |
-| US-023 | Chiffrement SSL/TLS X.509 | 5 | Haute | HTTPS forcé + certificats |
+| US-023 | Chiffrement TLS 1.3 / X.509 | 5 | Haute | HTTPS forcé + certificats |
 
 ### EPIC-006: Internationalisation et configuration
 **Priorité:** Haute | **Source CdC:** §8.2, §8.3 | **Total Points:** 13
@@ -99,7 +99,7 @@ i18n FR/EN/AR, ConfigZumm.ini
 
 | ID | Story | Points | Priorité | Critères d'Acceptation |
 |:---|:---|:---:|:---|:---|
-| US-024 | Internationalisation XML (FR/EN/AR) | 8 | Haute | RTL arabe + extensible |
+| US-024 | Internationalisation (FR/EN/AR) | 8 | Haute | RTL arabe + extensible |
 | US-025 | Configuration ConfigZumm.ini | 5 | Haute | Seuils, unités, modules sans recompilation |
 
 ### EPIC-007: Service web API tierce
@@ -109,7 +109,7 @@ Exposition API pour applications externes
 
 | ID | Story | Points | Priorité | Critères d'Acceptation |
 |:---|:---|:---:|:---|:---|
-| US-026 | Service web XML getZummHoneyActualQuantity | 5 | Moyenne | JAX-WS SOAP + WSDL |
+| US-026 | Service web REST getZummHoneyActualQuantity | 5 | Moyenne | REST + contrat OpenAPI 3 |
 | US-027 | Export CSV/TXT | 5 | Moyenne | Données maîtrisées par l'utilisateur |
 
 ### EPIC-008: Fonctionnalités avancées (inspiration marché)
@@ -121,7 +121,7 @@ Fonctions complémentaires HiveTracks, Apiary Book, BeePlus
 |:---|:---|:---:|:---|:---|
 | US-028 | Photos d'inspection | 5 | Haute | Attachées au rapport |
 | US-029 | Contexte météo local | 5 | Moyenne | API météo par géolocalisation |
-| US-030 | Carte et rayons de butinage | 8 | Moyenne | Leaflet + OpenStreetMap + cercles 1/2/3km |
+| US-030 | Carte et rayons de butinage | 8 | Moyenne | MapLibre GL + OpenStreetMap + cercles 1/2/3km |
 | US-031 | Liste de tâches et rappels | 5 | Haute | Calendrier rappels |
 | US-032 | Suivi de la reine | 5 | Haute | Historique statut reine |
 | US-033 | Récolte et QR code | 8 | Moyenne | QR par lot + traçabilité |
@@ -144,7 +144,7 @@ Plan de tests, UML, rapport, poster
 | ID | Story | Points | Priorité | Critères d'Acceptation |
 |:---|:---|:---:|:---|:---|
 | US-036 | Tests unitaires JUnit 5 + Mockito | 8 | Haute | 70% couverture métier |
-| US-037 | Tests d'intégration (Arquillian) | 5 | Haute | In-container testing |
+| US-037 | Tests d'intégration (Testcontainers) | 5 | Haute | Tests sur PostgreSQL réel (PostGIS + TimescaleDB) |
 | US-038 | Tests de charge k6 | 5 | Moyenne | p95 < 500ms, erreurs < 1% |
 | US-039 | Diagrammes UML complets | 13 | Haute | 10 diagrammes requis |
 | US-040 | Rapport + Poster + Présentation | 8 | Haute | Livrables soutenance |

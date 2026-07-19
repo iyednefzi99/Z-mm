@@ -123,10 +123,10 @@ externalisés avant d'être consommés par les écrans. & S2 & S1 \\
 US-016 & Modèle Mesure : simple entité, sans dépendance à l'ingestion ---
 déplacée pour dégager S6. & S6 & S2 \\
 \addlinespace
-US-023 & SSL/TLS X.509 : livrer le chiffrement au dernier sprint est un
+US-023 & TLS 1.3 / X.509 : livrer le chiffrement au dernier sprint est un
 contresens de sécurité ; HTTPS doit être actif dès les premiers écrans. & S8 & S2 \\
 \addlinespace
-US-037 & Tests d'intégration Arquillian : le harnais in-container doit
+US-037 & Tests d'intégration Testcontainers : le harnais doit
 exister \emph{avant} d'accumuler 40 stories, pas après. & S8 & S2 \\
 \addlinespace
 US-028 & Photos d'inspection : quasi-doublon technique d'US-010 (photos de
@@ -190,14 +190,14 @@ ont guidé l'arbitrage ci-dessus :
         d'approbation superviseur (US-008, S3) suppose déjà des rôles. Le
         RBAC minimal reste amorcé en S3 (rôles portés par Agent) et la
         matrice complète est traitée en S4 ;
-  \item \textbf{US-023 (SSL/TLS) était en S8} : livrer le chiffrement des
+  \item \textbf{US-023 (TLS) était en S8} : livrer le chiffrement des
         échanges au tout dernier sprint expose l'ensemble des
         environnements intermédiaires. Remontée en S2 ;
   \item \textbf{US-024 (i18n RTL arabe) en S2} : bien placée, mais le rendu
         RTL doit être testé dès la première maquette --- le rétrofit RTL est
         le piège classique ;
   \item \textbf{Spike technique en début de S1} (2--3 jours) sur PostGIS +
-        WildFly : c'est le risque identifié du sprint, autant le neutraliser
+        Spring Boot : c'est le risque identifié du sprint, autant le neutraliser
         tôt. De même, prototyper Service Worker/IndexedDB pendant S3 pour
         dérisquer S4.
 \end{itemize}
@@ -255,7 +255,7 @@ Objectif  & Avoir un socle technique fonctionnel avec les entités
 Période   & 14/07/2026 $\rightarrow$ 27/07/2026 (14 jours) --- 36 pts / capacité 40. \\
 Démo      & CRUD Fermier/Ferme/Site/Agent + seuils lus depuis
             \texttt{ConfigZumm.ini}. \\
-Risques   & Complexité PostGIS, configuration WildFly. \\
+Risques   & Complexité PostGIS, configuration Spring Boot / Docker. \\
 Burndown idéal & J1 : 36 --- J4 : 27 --- J7 : 18 --- J10 : 9 --- J14 : 0. \\
 \bottomrule
 \end{tabular}
@@ -284,7 +284,7 @@ US-025 & Configuration \texttt{ConfigZumm.ini}       & 5 \\
 \toprule
 \textbf{Tâche} & \textbf{Stories} & \textbf{j-h} & \textbf{Livrable} \\
 \midrule
-Spike PostGIS + WildFly : datasource, dialecte spatial, requête
+Spike PostGIS + Spring Boot : datasource, dialecte spatial, requête
 lat/long de bout en bout & US-003 & 3 & Note technique + config
 \texttt{standalone.xml} versionnée \\
 Squelette Maven multi-modules (ejb/web/ear) + CI GitHub Actions
@@ -337,10 +337,10 @@ Burndown idéal & J1 : 39 --- J4 : 29 --- J7 : 20 --- J10 : 10 --- J14 : 0. \\
 \textbf{ID} & \textbf{Story} & \textbf{Pts} \\
 \midrule
 US-004 & CRUD Ruche avec composition            & 13 \\
-US-024 & Internationalisation XML (FR/EN/AR)    & 8 \\
+US-024 & Internationalisation (FR/EN/AR)    & 8 \\
 US-016 & Modèle de données Mesure               & 8 \\
-US-023 & Chiffrement SSL/TLS X.509              & 5 \\
-US-037 & Tests d'intégration (Arquillian)       & 5 \\
+US-023 & Chiffrement TLS 1.3 / X.509              & 5 \\
+US-037 & Tests d'intégration (Testcontainers)       & 5 \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -357,14 +357,14 @@ Modèle \emph{Composite} ruche/corps/hausse/cadre + contraintes
 (1 corps, 0--5 hausses, 1--10 cadres/élément) & US-004 & 4 & Migration V2 + entités JPA \\
 Interface de composition (vue arborescente, ajout/retrait
 d'éléments avec validation immédiate) & US-004 & 4 & Écran composition démontrable \\
-i18n XML FR/EN/AR : externalisation des libellés, bascule de langue,
+i18n FR/EN/AR : externalisation des libellés en ressources de locale, bascule de langue,
 gabarit RTL & US-024 & 4 & Application trilingue \\
 Test de rendu RTL sur les écrans existants (S1 + composition) & US-024 & 1,5 & Rapport d'écarts RTL \\
 Entité Mesure (horodatage, géolocalisation, unité, source) +
 migration & US-016 & 2,5 & Modèle extensible capteurs \\
-SSL/TLS : certificats X.509, HTTPS forcé, redirection 80 $\rightarrow$ 443
+TLS 1.3 : certificats X.509, HTTPS forcé, redirection 80 $\rightarrow$ 443
 sur staging & US-023 & 3 & Chaîne TLS validée dès S2 \\
-Socle de tests d'intégration Arquillian (déploiement in-container + H2) & US-037 & 4 & Premier test d'intégration vert en CI \\
+Socle de tests d'intégration Testcontainers (PostgreSQL réel, PostGIS + TimescaleDB) & US-037 & 4 & Premier test d'intégration vert en CI \\
 Déploiement continu staging (docker-compose) & --- & 3,5 & Environnement staging alimenté à chaque merge \\
 \addlinespace
 Cérémonies Scrum (planning, dailies, review, rétrospective) et
@@ -381,7 +381,7 @@ patron \emph{Composite} complique le mapping JPA, se limiter à une
 hiérarchie à trois tables avec clés étrangères et compteurs contraints.
 
 \textbf{Note d'ordonnancement :} ce sprint absorbe US-016, US-023 et US-037.
-Le harnais Arquillian et la chaîne TLS sont des prérequis d'infrastructure :
+Le harnais Testcontainers et la chaîne TLS sont des prérequis d'infrastructure :
 les placer en S8, comme le faisait la répartition initiale, revenait à
 valider tardivement des choix qui conditionnent tous les sprints
 intermédiaires. US-016 n'est qu'une entité et ne dépend pas de l'ingestion
@@ -602,8 +602,8 @@ s'adossent respectivement au calendrier et aux tableaux qu'ils exportent.
 Objectif  & Compléter les tableaux de bord par la synthèse ROI et ouvrir le
             système aux capteurs et aux tiers. \\
 Période   & 22/09/2026 $\rightarrow$ 05/10/2026 (14 jours) --- 39 pts / capacité 40. \\
-Démo      & Synthèse ROI, ingestion REST/MQTT d'une mesure, appel WSDL
-            depuis un client externe. \\
+Démo      & Synthèse ROI, ingestion REST/MQTT d'une mesure, appel REST
+            depuis un client externe généré depuis OpenAPI. \\
 Risques   & MQTT, idempotence, quota d'appels météo. \\
 Burndown idéal & J1 : 39 --- J4 : 29 --- J7 : 20 --- J10 : 10 --- J14 : 0. \\
 \bottomrule
@@ -618,7 +618,7 @@ Burndown idéal & J1 : 39 --- J4 : 29 --- J7 : 20 --- J10 : 10 --- J14 : 0. \\
 US-015 & Tableau de bord synthèse et ROI                       & 13 \\
 US-017 & Interface ingestion REST/MQTT                         & 8 \\
 US-018 & Seuils paramétrables et logique d'alerte              & 8 \\
-US-026 & Service web XML \texttt{getZummHoneyActualQuantity}   & 5 \\
+US-026 & Service web REST \texttt{getZummHoneyActualQuantity}   & 5 \\
 US-029 & Contexte météo local                                  & 5 \\
 \bottomrule
 \end{tabular}
@@ -638,9 +638,9 @@ API REST d'ingestion \texttt{POST /api/mesures} idempotente
 (clé d'unicité source + horodatage) & US-017 & 4 & Endpoint documenté (OpenAPI) \\
 Broker MQTT (Mosquitto en docker-compose) + consommateur & US-017 & 4 & Ingestion par topic démontrable \\
 Seuils paramétrables + hystérésis/anti-rebond & US-018 & 3,5 & Alertes sans battement \\
-Service SOAP JAX-WS \texttt{getZummHoneyActualQuantity} + WSDL & US-026 & 3,5 & WSDL consommable par client tiers \\
+Endpoint REST \texttt{getZummHoneyActualQuantity} + contrat OpenAPI 3 & US-026 & 3,5 & Client tiers généré depuis le contrat \\
 API météo par géolocalisation + cache local (quota d'appels) & US-029 & 3 & Contexte météo sur la visite \\
-Tests de contrat des API (REST + SOAP) & US-017/026 & 3,5 & Suites de contrat en CI \\
+Tests de contrat des API (REST, validation OpenAPI) & US-017/026 & 3,5 & Suites de contrat en CI \\
 \addlinespace
 Cérémonies Scrum (planning, dailies, review, rétrospective) et
 revues de code & --- & 3,5 & Rituels tenus, PR relues avant merge \\
@@ -702,7 +702,7 @@ Algorithme EWMA : ligne de base par ruche + z-score, jeu de données
 simulé pour calibrage & US-034 & 5,5 & Détection validée sur données de test \\
 Intégration EWMA $\rightarrow$ alertes sanitaires (remplace le seuil
 simple de S5) & US-034 & 3 & Alerte adaptative en démo \\
-Carte Leaflet + OpenStreetMap : sites + cercles de butinage 1/2/3 km & US-030 & 5 & Carte interactive \\
+Carte MapLibre GL + OpenStreetMap : sites + cercles de butinage 1/2/3 km & US-030 & 5 & Carte interactive \\
 Suivi de la reine : historique de statut & US-032 & 3 & Chronologie reine \\
 Récolte : lot + QR code + page publique de traçabilité & US-033 & 5 & QR scannable de bout en bout \\
 Tests de charge k6 sur les parcours critiques + corrections
@@ -791,7 +791,7 @@ diagrammes UML maintenus au fil de l'eau réduisent US-039 à une passe de
 mise en cohérence.
 
 \textbf{Note d'ordonnancement :} ce sprint perd US-023 (TLS, $\rightarrow$
-S2), US-037 (Arquillian, $\rightarrow$ S2) et US-038 (k6, $\rightarrow$ S7).
+S2), US-037 (Testcontainers, $\rightarrow$ S2) et US-038 (k6, $\rightarrow$ S7).
 Le sprint final ne conserve ainsi que ce qui ne peut pas être anticipé --- la
 campagne de couverture, la mise en cohérence documentaire et la soutenance
 --- au lieu de cumuler infrastructure de sécurité, harnais de test et

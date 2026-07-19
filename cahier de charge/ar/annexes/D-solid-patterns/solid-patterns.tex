@@ -52,12 +52,12 @@ I: فصل الواجهات &
 \texttt{getZummHoneyActualQuantity})، \texttt{ServiceVisite}،
 \texttt{ServiceTableauDeBord}. يعتمد كل عميل على عقده فقط. \\
 D: عكس التبعية &
-تستدعي طبقة الأعمال (EJB) JDBC مباشرةً (تنفيذ ملموس): اقتران قوي بالقاعدة وبـ
-\texttt{ResultSet}. &
+تستدعي طبقة الأعمال SQL مباشرةً (تنفيذ ملموس): اقتران قوي بالقاعدة وبمجموعات
+النتائج. &
 تعتمد طبقة الأعمال على تجريدات \texttt{RucheRepository} /
-\texttt{VisiteRepository} (نمط DAO)، مُنفَّذة بـ \texttt{RucheRepositoryJdbc}.
-اختبار بالمحاكاة وترحيل JDBC \textrightarrow{} Spring Data JPA مُيسَّران (انظر
-الملحق~\ref{chap:migration}). \\
+\texttt{VisiteRepository} (نمط DAO)، مُنفَّذة بـ Spring Data JPA، وللاستعلامات
+التحليلية بـ jOOQ. اختبار بالمحاكاة واستبدال التنفيذ مُيسَّران (انظر
+الملحق~\ref{chap:technologies}). \\
 \bottomrule
 \end{xltabular}
 
@@ -108,8 +108,8 @@ Adapter \newline {\small\itshape بنيوي: المعطيات} &
 يُوحّد \texttt{AdaptateurCapteur} كل مصدر في \texttt{Mesure} بوحدات قابلة للضبط
 (الشقّ الآلي). \\
 Facade \newline {\small\itshape بنيوي: التحكم} &
-يُنسّق Servlet جميع خدمات الأعمال مباشرةً. &
-يوفّر \texttt{FacadeApplication} نقطة دخول مُبسَّطة للـ Servlets فوق الأنظمة
+يُنسّق المتحكّم جميع خدمات الأعمال مباشرةً. &
+يوفّر \texttt{FacadeApplication} نقطة دخول مُبسَّطة للمتحكّمات فوق الأنظمة
 الفرعية. \\
 Singleton \newline {\small\itshape إنشائي: مُستعرِض} &
 يُعاد قراءة ملف \texttt{ConfigZumm.ini} وعناوين i18n في عدة نُسخ. &
@@ -137,10 +137,11 @@ Proxy \newline {\small\itshape بنيوي: خدمات الويب} &
 \end{figure}
 
 \begin{encadre}
-\textbf{التقابل مع الطبقات:} تنتمي \texttt{Repository} إلى طبقة الوصول إلى
-المعطيات (JDBC)، و\texttt{Service} والمجال (Composite، State، Strategy،
-Observer، Command) إلى طبقة الأعمال (EJB)، و\texttt{Facade} و\texttt{Proxy} إلى
-طبقة التحكم (Servlets)، و\texttt{Builder} التقرير إلى العرض (JSP). تتعزّز بذلك
+\textbf{التقابل مع الطبقات:} تنتمي \texttt{Repository} إلى طبقة الاستمرارية
+(JPA / jOOQ)، و\texttt{Service} والمجال (Composite، State، Strategy،
+Observer، Command) إلى طبقة الأعمال (خدمات Spring)، و\texttt{Facade}
+و\texttt{Proxy} إلى طبقة التحكم (Spring MVC)، و\texttt{Builder} التقرير إلى
+العرض (React). تتعزّز بذلك
 البنية الطبقية ضعيفة الاقتران للفصل~\ref{chap:conception}، دون تعديلها.
 \end{encadre}
 

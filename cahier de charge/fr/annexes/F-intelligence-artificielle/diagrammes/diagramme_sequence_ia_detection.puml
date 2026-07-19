@@ -19,7 +19,7 @@ title Sequence - Module IA : detection d'anomalie (aide a la decision)
 
 actor "Agent\napiculteur" as Agent
 participant "Passerelle\nterrain" as Passerelle
-participant "API /mesures\n(Servlet)" as API
+participant "API /mesures\n(controleur REST)" as API
 participant "File\nasynchrone" as File
 participant "ContexteDetection\n(Context)" as Contexte
 participant "StrategieIA\n(baseline adaptative)" as IA

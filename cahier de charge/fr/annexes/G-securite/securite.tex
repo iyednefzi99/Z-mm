@@ -41,7 +41,7 @@ retenue dans Z\"umm.
 \endhead
 Interception des echanges & TLS / SSL de bout en bout, certificats X.509, redirection HTTPS et en-tete HSTS. \\
 Vol d'identifiants & OAuth Google (pas de mot de passe stocke), double authentification portee par le fournisseur. \\
-Injection SQL & Requetes preparees (\emph{PreparedStatement}) via JDBC, validation et typage des entrees. \\
+Injection SQL & Requetes parametrees (JPA et jOOQ, jamais de concatenation), validation et typage des entrees. \\
 XSS (script injecte) & Echappement systematique des sorties, en-tete \texttt{Content-Security-Policy}. \\
 CSRF (requete forgee) & Jeton anti-CSRF par session, cookies \texttt{SameSite}. \\
 Detournement de session & Cookies \texttt{HttpOnly} et \texttt{Secure}, expiration et rotation de session (deja §\,7). \\
@@ -117,7 +117,7 @@ charges ou ajoutee par la presente annexe.
 HTTPS / TLS partout & Certificats X.509, redirection HTTPS, HSTS. & Deja exige \\
 Authentification forte & OAuth Google + double facteur du fournisseur. & Deja exige \\
 Controle d'acces (RBAC) & Roles et permissions au moindre privilege. & Deja exige \\
-Requetes preparees & Acces JDBC exclusivement parametre. & Deja exige \\
+Requetes parametrees & Acces aux donnees exclusivement parametre (JPA / jOOQ). & Deja exige \\
 Pare-feu applicatif (WAF) & Filtrage des requetes en peripherie (ModSecurity). & \textbf{Ajoute} \\
 Limitation de debit / anti-DDoS & Amortissement des pics et des abus. & \textbf{Ajoute} \\
 En-tetes de securite & CSP, X-Frame-Options, X-Content-Type-Options. & \textbf{Ajoute} \\

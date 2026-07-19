@@ -8,8 +8,8 @@
 %==============================================================================
 يجيب هذا الملحق عن أسئلة \emph{لماذا} و\emph{كيف} و\emph{أين} الذكاء الاصطناعي
 في \textbf{Zümm}. لا يُنشئ أي متطلب جديد: يُمدّد شقّ المستشعرات والتحليل التنبّئي
-المُستبَقَين في الفصل~\ref{chap:conception} (§\,4.5) ومسيرة الخدمة المصغّرة
-\emph{للمعطيات} المذكورة في الملحق~\ref{chap:migration}. الهدف توثيق دمج للذكاء
+المُستبَقَين في الفصل~\ref{chap:conception} (§\,4.5) ويستند إلى الحزمة التقنية
+المعتمَدة في الملحق~\ref{chap:technologies}. الهدف توثيق دمج للذكاء
 الاصطناعي \textbf{متّسق مع البنية ضعيفة الاقتران}، \textbf{دون خيانة قيود} كراس
 الشروط (النشر الذاتي، المجانية، التحقّق البشري).
 
@@ -148,9 +148,10 @@ $N$ (الاستمرار) & عدد القياسات المتتالية & كلما
 
 \subsection{المعالجات الثقيلة كخدمة مصغّرة مفصولة}
 الاستعمالات التي تتطلّب \textbf{إشارة أو رؤية} (صوت، صور) يجب \textbf{ألا}
-تُنفَّذ أبدًا في حاوية EJB. تُرحَّل إلى \textbf{خدمة مصغّرة بلغة Python} (pandas،
-scikit-learn / TensorFlow)، مكشوفة للنواة Java عبر \textbf{REST/JSON}، وهي
-بالضبط مسيرة \emph{المعطيات} الموصوفة في الملحق~\ref{chap:migration}. هذه الخدمة
+تُنفَّذ أبدًا في العملية التطبيقية الرئيسية. تُرحَّل إلى \textbf{خدمة مصغّرة بلغة
+Python} (pandas، scikit-learn / TensorFlow)، مكشوفة للنواة Java عبر
+\textbf{REST/JSON}، انسجامًا مع أسلوب الواجهة البرمجية المعتمَد في
+الملحق~\ref{chap:technologies}. هذه الخدمة
 المصغّرة \textbf{اختيارية}: في غيابها، يعمل الشقّ اليدوي والكشف الإحصائي الأساسي
 بالكامل.
 
@@ -162,18 +163,18 @@ scikit-learn / TensorFlow)، مكشوفة للنواة Java عبر \textbf{REST/
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (capt) {بوّابة\\ميدانية};
-\node[noeud,right=1.5cm of capt] (coeur) {نواة Zümm (J2EE)\\Servlet + EJB + JDBC};
+\node[noeud,right=1.5cm of capt] (coeur) {نواة Zümm (Spring Boot)\\واجهة REST + خدمات + JPA};
 \node[noeud,right=1.5cm of coeur] (bd) {PostgreSQL\\سلاسل زمنية};
 \node[ianode,below=1.1cm of coeur] (ia) {خدمة مصغّرة للذكاء الاصطناعي (Python)\\pandas / scikit-learn};
 \node[noeud,above=1.0cm of coeur] (agent) {عون\\لوحة قيادة};
 \draw[fl] (capt)--(coeur) node[midway,above,font=\scriptsize]{REST / MQTT};
-\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JPA};
 \draw[fl] (coeur.south)--(ia.north) node[midway,right,font=\scriptsize]{REST/JSON};
 \draw[fl] (ia.north west) to[bend left=15] node[midway,left,font=\scriptsize]{score} (coeur.south west);
 \draw[fl] (coeur)--(agent) node[midway,right,font=\scriptsize]{تنبيه مسبق};
-\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:الأساس المفروض (J2EE)}] {};
+\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:الأساس التطبيقي (Spring Boot)}] {};
 \end{tikzpicture}
-\caption{دمج مفصول: يبقى الأساس J2EE مُتحكّمًا، والخدمة المصغّرة للذكاء الاصطناعي
+\caption{دمج مفصول: يبقى الأساس Spring Boot مُتحكّمًا، والخدمة المصغّرة للذكاء الاصطناعي
 وحدة اختيارية مُوصَّلة عبر خدمة ويب.}
 \label{fig:ia-archi}
 \end{figure}

@@ -13,26 +13,28 @@ skinparam database {
 }
 title Diagramme de composants - Zümm
 
-component "Application web\n(JSP, Servlets, MVC)" as Web
-component "Module metier\n(EJB)" as Metier
-component "Module i18n\n(fichiers XML)" as I18n
-component "Module configuration\n(ConfigZumm.ini)" as Config
-component "Client OAuth\n(service web XML)" as OAuthC
-component "Service web API\n(XML)" as API
-database "SGBD relationnel" as DB
+component "Client React\n(PWA, TypeScript)" as Web
+component "Controleurs REST\n(Spring MVC)" as Ctrl
+component "Module metier\n(services Spring)" as Metier
+component "Module i18n\n(ressources par locale)" as I18n
+component "Module configuration\n(ConfigZumm.ini + profils)" as Config
+component "Adaptateur d'identite\n(OpenID Connect)" as OAuthC
+database "PostgreSQL\n(PostGIS, TimescaleDB)" as DB
 
 interface "getZummHoneyActualQuantity" as IHoney
-interface "JDBC" as IJdbc
+interface "JPA / jOOQ" as IJpa
+interface "API REST (OpenAPI 3)" as IRest
 
-Web ..> Metier : utilise
-Web ..> I18n : utilise
-Web ..> Config : utilise
-Web ..> OAuthC : utilise
-API ..> Metier : utilise
-Metier - IJdbc
-IJdbc - DB
-API - IHoney
+Web ..> IRest : consomme
+IRest - Ctrl
+Ctrl ..> Metier : utilise
+Ctrl ..> I18n : utilise
+Ctrl ..> Config : utilise
+Ctrl ..> OAuthC : utilise
+Metier - IJpa
+IJpa - DB
+Ctrl - IHoney
 
-OAuthC ..> [Google OAuth] : SSL / X.509
+OAuthC ..> [Keycloak] : TLS 1.3 / X.509
 
 @enduml

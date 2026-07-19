@@ -4,34 +4,44 @@
 
 \section{Architecture}
 Architecture \textbf{scalable, évolutive, flexible, multi-niveaux et faiblement
-couplée}, s'appuyant sur \textbf{J2EE} comme infrastructure principale.
+couplée}, s'appuyant sur \textbf{Spring Boot 3} (Java 17 LTS) comme
+infrastructure principale, avec une séparation stricte entre l'API de service et
+le client de présentation.
 
-\section{Exigences techniques imposées}
+\section{Exigences techniques retenues}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{4cm} X}
 \toprule
 \textbf{Exigence} & \textbf{Description} \\
 \midrule
 \endhead
-MVC              & Séparation modèle / vue / contrôleur. \\
-Servlet          & Traitement des requêtes côté serveur. \\
-JSP              & Front-end de présentation. \\
-EJB              & Composants métier. \\
-JDBC             & Accès aux données. \\
-Internationalisation & Textes de l'IHM externalisés dans un fichier XML, ouverture à la traduction hors-ligne sans limite de langues, FR, EN et AR au minimum en démonstration. \\
-Configuration    & Paramétrage par fichier texte \texttt{ConfigZumm.ini}. \\
-Sécurité inter-composants & Certificats \textbf{X.509} et protocole \textbf{SSL}. \\
-Authentification utilisateur & \textbf{OAuth Google} via un service web XML et son API. \\
-API tierce       & Service web XML exposant \texttt{float getZummHoneyActualQuantity(int zummID)} pour récupérer la quantité de miel d'une ruche. \\
-Front-end        & JavaScript et frameworks libres, dans le respect de l'ergonomie imposée. \\
+Architecture en couches & Séparation contrôleur / service / persistance, inversion de dépendance assurée par le conteneur Spring. \\
+API REST & Contrôleurs Spring MVC exposant une API versionnée, décrite par un contrat \textbf{OpenAPI 3}. \\
+Présentation & Client \textbf{React} en \textbf{TypeScript}, découplé du serveur et consommant l'API REST. \\
+Services métier & Composants Spring (\texttt{@Service}) encapsulant les règles de gestion. \\
+Persistance & \textbf{Spring Data JPA} pour le CRUD, \textbf{jOOQ} pour les requêtes analytiques et géospatiales. \\
+Internationalisation & Textes de l'IHM externalisés en fichiers de ressources par locale, ouverture à la traduction hors-ligne sans limite de langues, FR, EN et AR au minimum en démonstration. \\
+Configuration technique & Paramétrage par profils Spring (\texttt{application.yml}) et variables d'environnement : sources de données, points d'accès, secrets. \\
+Configuration métier & Seuils, unités et modules actifs dans le fichier texte \texttt{ConfigZumm.ini}, ajustable par l'exploitant sans recompilation ni redéploiement. \\
+Sécurité inter-composants & Certificats \textbf{X.509} et protocole \textbf{TLS 1.3}. \\
+Authentification utilisateur & \textbf{OpenID Connect} via \textbf{Keycloak}, avec fédération d'identité Google et jetons \textbf{JWT}. \\
+API tierce       & Point d'entrée REST exposant l'opération \texttt{getZummHoneyActualQuantity(int zummID)} pour récupérer la quantité de miel d'une ruche, publiée au contrat OpenAPI. \\
+Front-end        & JavaScript / TypeScript et bibliothèques libres, dans le respect de l'ergonomie imposée. \\
 \bottomrule
 \end{xltabular}
+
+\begin{encadre}
+\textbf{Stabilité des identifiants :} le changement de socle technique ne
+modifie ni le domaine métier ni les identifiants publics. L'opération
+\texttt{getZummHoneyActualQuantity} conserve son nom et sa signature, quelle que
+soit la technologie de transport retenue pour l'exposer.
+\end{encadre}
 
 \section{Exigences non fonctionnelles}
 \begin{itemize}
   \item \textbf{Ergonomie, convivialité et simplicité} d'utilisation, consistance de l'interface et qualité du design infographique (importance capitale).
   \item \textbf{Évolutivité} : ouverture à l'ajout de langues, d'unités et d'indicateurs.
-  \item \textbf{Interopérabilité} : services web interrogeables par des applications tierces.
-  \item \textbf{Sécurité} : chiffrement des échanges et authentification forte.
+  \item \textbf{Interopérabilité} : API interrogeable par des applications tierces à partir d'un contrat publié.
+  \item \textbf{Sécurité} : chiffrement des échanges et authentification forte déléguée à un fournisseur d'identité.
   \item \textbf{Qualité de conception} : respect des principes \textbf{SOLID} et recours aux \textbf{design patterns} (patrons de conception) pour garantir un couplage faible et l'évolutivité, comme détaillé en annexe~\ref{chap:solid}.
 \end{itemize}
 
@@ -59,36 +69,34 @@ La conception devra répondre explicitement aux questions suivantes :
 
 \section{Justification des choix technologiques}
 Le tableau suivant répond au pourquoi, au comment et au où de chaque technologie
-imposée. Les \textbf{implémentations concrètes} de ce socle (serveur
-d'applications, SGBD, bibliothèques front-end, style de service web) et le
-\textbf{comparatif justifié} des alternatives évaluées sont détaillés à
-l'annexe~\ref{chap:technologies}.
+retenue. Les \textbf{implémentations concrètes} de ce socle (exécution,
+SGBD, bibliothèques front-end, style d'API) et le \textbf{comparatif justifié}
+des alternatives évaluées sont détaillés à l'annexe~\ref{chap:technologies}.
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.6cm} X p{5.4cm}}
 \toprule
 \textbf{Technologie} & \textbf{Pourquoi} & \textbf{Où} \\
 \midrule
 \endhead
-MVC & Séparer les responsabilités et faciliter la maintenance & Organisation générale de l'application \\
-Servlet & Traiter les requêtes et orchestrer les traitements & Couche de contrôle \\
-JSP & Produire les pages dynamiques & Couche de présentation \\
-EJB & Encapsuler la logique métier et la rendre réutilisable & Couche métier \\
-JDBC & Accéder à la base relationnelle de façon standard & Couche d'accès aux données \\
-XML i18n & Externaliser les textes pour la traduction hors-ligne & Module d'internationalisation \\
-ConfigZumm.ini & Paramétrer le système sans recompilation & Module de configuration \\
-OAuth Google & Authentifier les utilisateurs sans gérer les mots de passe & Accès au système \\
-Service web API XML & Exposer les données aux applications tierces & Interface d'interopérabilité \\
-X.509 et SSL & Chiffrer et authentifier les échanges & Communications inter-composants \\
-JavaScript & Enrichir l'ergonomie du front-end & Couche de présentation \\
+Spring Boot 3 & Socle applicatif standard du marché, conteneur d'injection et autoconfiguration & Organisation générale de l'application \\
+Spring MVC & Traiter les requêtes HTTP et orchestrer les traitements & Couche de contrôle \\
+React + TypeScript & Produire une interface riche, typée et testable & Couche de présentation \\
+Spring Data JPA & Accéder aux données sans écrire le CRUD à la main & Couche de persistance \\
+jOOQ & Écrire en SQL typé les requêtes analytiques et PostGIS que JPA exprime mal & Tableaux de bord et géotraitements \\
+OpenAPI 3 & Publier un contrat machine et générer les clients tiers & Interface d'interopérabilité \\
+Ressources i18n & Externaliser les textes pour la traduction hors-ligne & Module d'internationalisation \\
+Profils Spring & Paramétrer l'infrastructure par environnement sans reconstruire l'image & Configuration technique \\
+ConfigZumm.ini & Laisser l'exploitant régler ses seuils métier sans intervention technique & Configuration métier \\
+Keycloak / OIDC & Authentifier et autoriser sans gérer de mots de passe ni recoder le RBAC & Accès au système \\
+X.509 et TLS 1.3 & Chiffrer et authentifier les échanges & Communications inter-composants \\
 \bottomrule
 \end{xltabular}
 
 \section{Packaging et déploiement}
 \begin{itemize}
-  \item \textbf{Packaging} : l'application est empaquetée sous forme d'archive Java d'entreprise (WAR pour la partie web, EAR si les EJB sont regroupés), incluant les fichiers XML d'internationalisation et le fichier \texttt{ConfigZumm.ini}.
-  \item \textbf{Serveur} : déploiement sur un serveur d'applications J2EE fournissant conteneur de servlets et conteneur d'EJB.
-  \item \textbf{Base de données} : SGBD relationnel accédé via JDBC.
-  \item \textbf{Sécurité} : installation des certificats X.509 et activation de SSL pour les échanges, configuration de l'accès OAuth Google.
-  \item \textbf{Configuration} : les seuils, unités et modules actifs sont ajustés dans \texttt{ConfigZumm.ini} sans redéploiement.
+  \item \textbf{Packaging} : l'application serveur est empaquetée en \textbf{archive Java exécutable} (JAR autoporteur, serveur Tomcat embarqué), puis en \textbf{image conteneur} incluant les fichiers de ressources d'internationalisation. Le client React est construit en fichiers statiques servis par le proxy inverse.
+  \item \textbf{Exécution} : déploiement des conteneurs orchestrés, sans serveur d'applications externe à administrer.
+  \item \textbf{Base de données} : \textbf{PostgreSQL} étendu par \textbf{PostGIS} (géolocalisation) et \textbf{TimescaleDB} (séries temporelles de mesures).
+  \item \textbf{Sécurité} : terminaison \textbf{TLS} au proxy inverse avec certificats X.509, aucun port applicatif ni port d'administration publié directement, configuration du domaine d'identité Keycloak.
+  \item \textbf{Configuration} : l'infrastructure est réglée par profil Spring et variables d'environnement ; les seuils, unités et modules métier restent ajustés dans \texttt{ConfigZumm.ini}, monté en volume et rechargeable sans redéploiement de l'image.
 \end{itemize}
 La répartition physique est illustrée par le diagramme de déploiement (figure \ref{fig:deploiement}).
-

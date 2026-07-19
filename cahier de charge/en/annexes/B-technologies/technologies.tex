@@ -1,132 +1,180 @@
 %==============================================================================
 %  APPENDIX - Detailed technology stack and justified comparison
-%  Concrete implementations of the imposed foundation + evaluated alternatives
+%  Concrete implementations of the adopted foundation + evaluated alternatives
 %==============================================================================
 
 %==============================================================================
 \chapter{Appendix: Technology stack and comparison of alternatives}
 \label{chap:technologies}
 %==============================================================================
-The technical foundation of \textbf{Zümm} (MVC, Servlet, JSP, EJB, JDBC, XML
-i18n, Google OAuth, X.509 / SSL, XML web service) is \textbf{imposed} by the
-requirements specification and by the grading grid. The freedom of choice
-therefore concerns the \textbf{concrete implementations} of this foundation:
-application server, DBMS, front-end libraries, web-service style. This appendix
-lists the technologies chosen layer by layer, then justifies each choice against
-its alternatives.
+The technical foundation of \textbf{Zümm} aims at \textbf{alignment with market
+practice}: documented REST API, decoupled client, federated identity, geospatial
+data and time series in a single DBMS. This appendix lists the technologies
+adopted layer by layer, then justifies each choice against its alternatives.
 
 %------------------------------------------------------------------------------
-\section{Chosen technology stack}
+\section{Adopted technology stack}
 %------------------------------------------------------------------------------
 The table below specifies, for each layer of the multi-tier architecture
-(figure~\ref{fig:couches}), the concrete implementation chosen and its reference
-version. All the building blocks are \textbf{free and open source}, in line with
-the requirement of self-deployment without a subscription.
+(figure~\ref{fig:couches}), the concrete implementation adopted and its
+reference version. All the building blocks are \textbf{free and open source}, in
+line with the requirement of self-deployment without subscription.
 
 \begin{xltabular}{\textwidth}{>{\bfseries}p{3.1cm} p{4.9cm} X}
 \toprule
-\textbf{Layer / need} & \textbf{Chosen technology} & \textbf{Role in Zümm} \\
+\textbf{Layer / need} & \textbf{Technology adopted} & \textbf{Role in Zümm} \\
 \midrule
 \endhead
-Platform          & Jakarta EE 10 on JDK 17 LTS       & Current ``J2EE'' foundation: Servlet, JSP, EJB, JAX-WS \\
-Application server & WildFly (Web + EJB container)     & Runs the WAR/EAR archive, provides the containers \\
-Control (MVC)     & Jakarta Servlets + JSP + JSTL      & Request routing, control layer \\
-Business          & Session EJB (stateless)           & Management rules: ROI, thresholds, honey quantity \\
-Data access       & JDBC + HikariCP pool              & SQL queries, connection management \\
-DBMS              & PostgreSQL (+ PostGIS)            & Relational persistence, site geolocation \\
-Presentation      & HTML5 + JavaScript + Bootstrap 5  & Responsive UI, web / mobile parity \\
-Charts            & Chart.js                          & Production, alerts and summary dashboards \\
-Mapping           & Leaflet + OpenStreetMap           & Site map and foraging radii \\
-i18n              & XML files + \texttt{ResourceBundle} & FR / EN / AR texts, Arabic RTL support \\
-Configuration     & \texttt{ConfigZumm.ini} via Singleton  & Thresholds, units and modules without redeployment \\
-Third-party web service & JAX-WS (SOAP / XML)         & \texttt{getZummHoneyActualQuantity(int)} \\
-Authentication    & Google OAuth 2.0                  & Delegated login without password management \\
-Exchange security & TLS / SSL + X.509 certificates    & Encryption and inter-component authentication \\
-Offline           & PWA (Service Worker + IndexedDB)  & Field entry without a network, deferred synchronisation \\
-Build \& tests    & Maven, JUnit 5, Mockito, Arquillian & Compilation, unit and in-container tests \\
+Platform          & Spring Boot 3 on JDK 17 LTS       & Application foundation: IoC container, autoconfiguration, embedded Tomcat \\
+Runtime           & Container image (Docker)          & Single deployable artefact, no application server to administer \\
+Control           & Spring MVC + Bean Validation      & Request routing, input validation \\
+Business          & Spring \texttt{@Service} components & Business rules: ROI, thresholds, honey quantity \\
+Data access       & Spring Data JPA (CRUD) + jOOQ (typed SQL) & Entity persistence, analytical and geospatial queries \\
+DBMS              & PostgreSQL + PostGIS + TimescaleDB & Relational persistence, site geolocation, measurement series \\
+Presentation      & React 19 + TypeScript, Zümm tokens & Responsive UI, web / mobile parity, visual identity of the design system \\
+Charts            & Chart.js                          & Production, alert and summary dashboards \\
+Mapping           & MapLibre GL JS + OpenStreetMap tiles & Map of sites and foraging radii \\
+i18n              & Per-locale resource files         & FR / EN / AR texts, Arabic RTL support \\
+Configuration     & Spring profiles (technical) + \texttt{ConfigZumm.ini} via a dedicated \texttt{PropertySource} (business) & Infrastructure per environment; thresholds, units and modules without redeployment \\
+Third-party API   & REST + OpenAPI 3 contract         & \texttt{getZummHoneyActualQuantity(int)} \\
+Authentication    & Keycloak (OpenID Connect) + Google federation & Delegated login, RBAC and JWT tokens \\
+Exchange security & TLS 1.3 + X.509 certificates      & Encryption and authentication between components \\
+Offline           & PWA (Service Worker) + synchronisation engine & Field data entry without network, conflict resolution when the network returns \\
+Sensor ingestion  & MQTT (EMQX broker)                & Reception of measurements from connected hives \\
+Observability     & OpenTelemetry to Prometheus / Grafana & Traces, metrics and operational dashboards \\
+Build \& tests    & Maven, JUnit 5, Mockito, Testcontainers & Compilation, unit and integration tests on a real database \\
 \bottomrule
 \end{xltabular}
 
 \begin{encadre}
-\textbf{Note:} moving from the historical name ``J2EE'' to \textbf{Jakarta EE 10}
-changes neither the concepts nor the APIs noted (Servlet, JSP, EJB, JDBC). It
-merely adopts the maintained version of the platform. The modernisation
-trajectory towards Spring Boot is treated separately in
-appendix~\ref{chap:migration}.
+\textbf{Note:} the business domain and the public identifiers are independent of
+the technical foundation. Class, table and operation names --- including
+\texttt{getZummHoneyActualQuantity} --- remain unchanged whatever technology
+carries them.
 \end{encadre}
 
 %------------------------------------------------------------------------------
 \section{Justified comparison of the alternatives}
 %------------------------------------------------------------------------------
-For each open decision, the credible options were evaluated. The table keeps the
-option, cites the discarded alternatives and gives the justification with regard
-to the project requirements (self-deployment, free of charge, usability,
-geolocation, interoperability).
+For each open decision, the credible options were evaluated. The table gives the
+option adopted, cites the alternatives rejected and provides the justification
+with respect to the project requirements (self-deployment, free of charge,
+usability, geolocation, interoperability).
 
-\subsection{Application server}
+\subsection{Application foundation}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-WildFly & GlassFish, Payara, Open~Liberty, Apache~TomEE & Complete and free \textbf{EJB + Servlet} container, fast startup, abundant documentation. TomEE remains lighter but less integrated. Payara also fits (production-oriented GlassFish fork). \\
+Spring Boot 3 & Jakarta EE / WildFly, Quarkus, Micronaut, Node.js (NestJS) & \textbf{Most widespread ecosystem} in the Java market: abundant documentation, libraries and developer pool, hence controlled maintenance cost. Quarkus starts faster and consumes less, but its ecosystem is narrower. Jakarta EE imposes an application server to administer for no benefit at this scale. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Data access}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+JPA + jOOQ & Hand-written JDBC, MyBatis, JPA alone & \textbf{Mixed} approach: JPA removes the repetitive CRUD code over the fifteen or so domain entities, while jOOQ expresses in typed, compile-time-checked SQL the analytical queries and PostGIS calls that JPA makes unreadable. Hand-written JDBC would give the same result at a far higher development cost. \\
 \bottomrule
 \end{xltabular}
 
 \subsection{Database management system}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-PostgreSQL & MySQL / MariaDB, H2, Oracle XE & Native \textbf{geolocation} (PostGIS) for the sites and foraging radii, good support of \texttt{CHECK} constraints (frame/super rules), time series of measurements. Free and without proprietary lock-in, unlike Oracle. \\
+PostgreSQL & MySQL / MariaDB, H2, Oracle XE & Native \textbf{geolocation} (PostGIS) for sites and foraging radii and \textbf{time series} (TimescaleDB) for sensor measurements, in a \emph{single} instance: neither an additional specialised database nor synchronisation between two systems. Good support for \texttt{CHECK} constraints (frame/super rules). Free and without proprietary lock-in, unlike Oracle. \\
 \bottomrule
 \end{xltabular}
 
-\subsection{Third-party web-service style}
+\subsection{Third-party API style}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-JAX-WS (SOAP / XML) & JAX-RS (REST/JSON), gRPC & The requirements specification imposes an \textbf{XML web service} exposing \texttt{float getZummHoneyActualQuantity(int zummID)}. SOAP is its literal translation, with a WSDL contract queryable from Excel. A REST/JSON endpoint may complete the offer during modernisation (appendix~\ref{chap:migration}). \\
+REST + OpenAPI 3 & SOAP (JAX-WS), GraphQL, gRPC & \textbf{De facto} standard for third-party integration: contract readable by humans and machines, automatic client generation in most languages, universal testing tooling. SOAP would only make sense to integrate with an existing system that imposes it. GraphQL addresses client querying needs that Zümm does not have. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{User interface}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+React + TypeScript & JSP / Thymeleaf, Vue, Angular, Svelte & Complete \textbf{decoupling} of client and server, essential for offline operation: the same application serves as a PWA in the field. TypeScript secures the data contracts generated from OpenAPI. Server-side rendering (JSP, Thymeleaf) would rule out the disconnected mode. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Authentication and access control}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+Keycloak (OIDC) & Hand-wired Google OAuth, Auth0, Spring Security alone & Provides \textbf{natively} the project's three needs: Google federation, local fallback accounts and a role matrix. Re-coding that triplet would represent several weeks for a less secure result. Auth0 is equivalent but paid beyond a quota, which contradicts self-deployment. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Configuration externalisation}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+Mixed approach & Spring profiles alone, \texttt{ConfigZumm.ini} alone & The two configurations have neither the same audience nor the same life cycle. The \textbf{infrastructure} (data sources, endpoints, secrets) changes per environment and belongs to technical operations: Spring profiles and environment variables. The \textbf{business thresholds} (production, alerts, units) are set by the beekeepers themselves, during the season: they remain in \texttt{ConfigZumm.ini}, a readable text file, mounted as a volume and re-read at runtime by a dedicated \texttt{PropertySource}. Merging everything into \texttt{application.yml} would force the business user to go through a technician. \\
 \bottomrule
 \end{xltabular}
 
 \subsection{Mapping and foraging radii}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-Leaflet + OSM & Google Maps JS API, Mapbox & \textbf{Free and without a paid key} or billed quota, consistent with the self-deployment requirement. Simple drawing of the foraging circles (1, 2, 3~km) from the site coordinates. \\
+MapLibre GL + OSM & Leaflet, Google Maps JS API, Mapbox & \textbf{Free and without a paid key} or billed quota, consistent with the self-deployment requirement. Vector tiles: crisp rendering at every zoom level and a style derivable from the design-system colours, which Leaflet's raster tiles do not allow. \\
 \bottomrule
 \end{xltabular}
 
-\subsection{Charts library}
+\subsection{Charting library}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-Chart.js & D3.js, ApexCharts, Highcharts & Low learning curve and direct rendering of the histograms and curves of the dashboards (production, ROI). D3 is more powerful but oversized. Highcharts is not free for commercial use. \\
+Chart.js & D3.js, ApexCharts, Highcharts & Gentle learning curve and direct rendering of the bar and line charts of the dashboards (production, ROI). D3 is more powerful but oversized. Highcharts is not free for commercial use. \\
 \bottomrule
 \end{xltabular}
 
 \subsection{Offline and mobile access}
 \begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
 \toprule
-\textbf{Option} & \textbf{Discarded alternatives} & \textbf{Justification of the choice} \\
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
 \midrule
 \endhead
-PWA (Service Worker + IndexedDB) & Native application (Android/iOS), Flutter, React~Native & \textbf{Web / mobile parity} with a single codebase, field entry without a network then deferred synchronisation. Avoids the development and distribution of native applications, out of the academic scope. \\
+PWA + synchronisation engine & Native application (Android/iOS), Flutter, React~Native, bare IndexedDB & \textbf{Web / mobile parity} with a single code base, field data entry without network then deferred synchronisation. A dedicated synchronisation engine brings a proven \textbf{conflict-resolution policy} --- two agents editing the same visit offline is the nominal business case, not an edge case. \\
+\bottomrule
+\end{xltabular}
+
+\subsection{Integration testing}
+\begin{xltabular}{\textwidth}{>{\bfseries}p{2.7cm} p{4.2cm} X}
+\toprule
+\textbf{Option} & \textbf{Alternatives rejected} & \textbf{Justification of the choice} \\
+\midrule
+\endhead
+Testcontainers & Arquillian, in-memory H2 database & The tests run against a \textbf{real PostgreSQL} equipped with PostGIS and TimescaleDB, hence against the same extensions as in production --- something an in-memory H2 database cannot simulate. Arquillian assumes an application server, which the adopted architecture no longer uses. \\
 \bottomrule
 \end{xltabular}
 
 \begin{encadre}
-\textbf{Consistency with the academic constraint:} all the chosen building
-blocks are free, documented and \emph{justifiable} ``why / how / where''
-(\emph{Technologies} criterion of the grading grid, schedule chapter). None
+\textbf{Consistency with the project constraints:} all the building blocks
+adopted are free, documented and \emph{justifiable} ``why / how / where''
+(\emph{Technologies} criterion of the assessment grid, deadlines chapter). None
 relies on a code generator: they are implemented by hand by the team, in
-compliance with the exam constraint.
+compliance with the constraint of the examination.
 \end{encadre}

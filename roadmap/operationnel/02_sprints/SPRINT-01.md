@@ -41,7 +41,7 @@ Démonstration CRUD Fermier/Ferme/Site/Agent + seuils lus depuis ConfigZumm.ini
 
 ## ⚠️ Risques Identifiés
 
-Complexité PostGIS, configuration WildFly — spike technique de 2–3 jours en ouverture de sprint
+Complexité PostGIS, configuration Spring Boot / Docker — spike technique de 2–3 jours en ouverture de sprint
 
 ---
 

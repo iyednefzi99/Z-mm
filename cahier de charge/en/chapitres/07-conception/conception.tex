@@ -12,13 +12,13 @@ its expected content in order to guide the modelling.
 Use case & Actors (farmer, agent, supervisor, manager, administrator, third-party application) and main cases (see figure \ref{fig:uc}). \\
 Class & Entities of the data dictionary and their relationships (Farmer 1 to n Farm, Farm 1 to n Site, Site 1 to n Hive, Hive 1 to n Body or super, Body or super 1 to n Frame) and service methods. \\
 Object & Snapshot of a site containing three populated hives with their frames. \\
-Sequence & Course of carrying out a visit (Agent, JSP UI, Servlet, EJB, JDBC, database). \\
+Sequence & Course of carrying out a visit (Agent, React client, REST controller, business service, repository, database). \\
 Activity & Process of planning, approving, executing and closing a visit. \\
 State machine & Life cycle of a hive (created, populated, active, splitting, harvesting, closed). \\
 Interaction or collaboration & Same scenario as the sequence, in the form of a collaboration between objects. \\
 Package & Presentation, control, business, data-access, internationalisation, configuration and web-services layers. \\
 Component & Application components (web application, OAuth service, API service, i18n module, configuration module, database). \\
-Deployment & Distribution across the browser, the J2EE application server, the DBMS, the Google OAuth service and the sensors. \\
+Deployment & Distribution across the browser, the reverse proxy, the application container, the DBMS, the Keycloak identity provider and the sensors. \\
 \bottomrule
 \end{xltabular}
 
@@ -39,10 +39,10 @@ and the relationships with their cardinalities.
 \begin{tikzpicture}[
   couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
 ]
-\node[couche] (p) at (0,4) {Presentation: JSP and JavaScript};
-\node[couche] (c) at (0,3) {Control: Servlets (MVC)};
-\node[couche] (m) at (0,2) {Business: EJB};
-\node[couche] (d) at (0,1) {Data access: JDBC};
+\node[couche] (p) at (0,4) {Presentation: React and TypeScript};
+\node[couche] (c) at (0,3) {Control: Spring MVC (REST API)};
+\node[couche] (m) at (0,2) {Business: Spring services};
+\node[couche] (d) at (0,1) {Persistence: Spring Data JPA and jOOQ};
 \node[couche] (b) at (0,0) {Relational database};
 \node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,align=center,text width=3.1cm,right=4mm of c] (s) {i18n XML\\ConfigZumm.ini\\Web services};
 \draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
@@ -62,13 +62,13 @@ and the relationships with their cardinalities.
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (nav) {Browser\\(web client)};
-\node[noeud,right=1.6cm of nav] (srv) {J2EE server\\(Servlets, EJB)};
-\node[noeud,right=1.6cm of srv] (bd) {Relational\\DBMS};
-\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,right=1.6cm of nav] (srv) {Zümm container\\(Spring Boot)};
+\node[noeud,right=1.6cm of srv] (bd) {PostgreSQL\\PostGIS + TimescaleDB};
+\node[noeud,below=1cm of srv] (oauth) {Keycloak\\(Google federation)};
 \node[noeud,below=1cm of bd] (capt) {Sensors\\(automated part)};
 \draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
-\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
-\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC / pool};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{OIDC};
 \draw[fl] (capt)--(srv);
 \end{tikzpicture}
 \caption{Deployment diagram of the system.}
@@ -77,7 +77,7 @@ and the relationships with their cardinalities.
 
 \section{Sequence diagram (UC2)}
 The sequence diagram below details use case UC2, carry out a visit and fill in
-the report. It shows the passage through the layers (agent, UI, servlet, EJB,
+the report. It shows the passage through the layers (agent, React client, REST controller, business service,
 database) as well as the online and offline cases with deferred
 synchronisation.
 \begin{figure}[htbp]

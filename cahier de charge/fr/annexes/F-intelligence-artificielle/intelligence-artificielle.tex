@@ -13,8 +13,8 @@
 Cette annexe repond aux questions du \emph{pourquoi}, du \emph{comment} et du
 \emph{ou} de l'intelligence artificielle dans \textbf{Z\"umm}. Elle ne cree
 aucune exigence nouvelle : elle prolonge le volet capteurs et l'analyse
-predictive deja anticipes au chapitre~\ref{chap:conception} (§\,4.5) et la
-trajectoire de microservice \emph{data} evoquee a l'annexe~\ref{chap:migration}.
+predictive deja anticipes au chapitre~\ref{chap:conception} (§\,4.5) et
+s'appuie sur la pile technologique retenue a l'annexe~\ref{chap:technologies}.
 L'objectif est de documenter une integration de l'IA \textbf{coherente avec
 l'architecture faiblement couplee}, \textbf{sans trahir les contraintes} du
 cahier des charges (autodeploiement, gratuite, validation humaine).
@@ -174,10 +174,11 @@ adaptative, qui leve une pre-alerte confirmee par l'agent.}
 
 \subsection{Les traitements lourds comme microservice decouple}
 Les usages exigeant du \textbf{signal ou de la vision} (acoustique, photos) ne
-doivent \textbf{jamais} s'executer dans le conteneur EJB. Ils sont deportes dans
-un \textbf{microservice Python} (pandas, scikit-learn / TensorFlow), expose au
-coeur Java par \textbf{REST/JSON}, exactement la trajectoire \emph{data} decrite
-a l'annexe~\ref{chap:migration}. Ce microservice est \textbf{optionnel} : en son
+doivent \textbf{jamais} s'executer dans le processus applicatif principal. Ils
+sont deportes dans un \textbf{microservice Python} (pandas, scikit-learn /
+TensorFlow), expose au coeur Java par \textbf{REST/JSON}, conformement au style
+d'API retenu a l'annexe~\ref{chap:technologies}. Ce microservice est
+\textbf{optionnel} : en son
 absence, le volet manuel et la detection statistique de base fonctionnent
 integralement.
 
@@ -189,18 +190,18 @@ integralement.
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (capt) {Passerelle\\terrain};
-\node[noeud,right=1.5cm of capt] (coeur) {Coeur Z\"umm (J2EE)\\Servlet + EJB + JDBC};
+\node[noeud,right=1.5cm of capt] (coeur) {Coeur Z\"umm (Spring Boot)\\API REST + services + JPA};
 \node[noeud,right=1.5cm of coeur] (bd) {PostgreSQL\\series temporelles};
 \node[ianode,below=1.1cm of coeur] (ia) {Microservice IA (Python)\\pandas / scikit-learn};
 \node[noeud,above=1.0cm of coeur] (agent) {Agent\\tableau de bord};
 \draw[fl] (capt)--(coeur) node[midway,above,font=\scriptsize]{REST / MQTT};
-\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JPA};
 \draw[fl] (coeur.south)--(ia.north) node[midway,right,font=\scriptsize]{REST/JSON};
 \draw[fl] (ia.north west) to[bend left=15] node[midway,left,font=\scriptsize]{score} (coeur.south west);
 \draw[fl] (coeur)--(agent) node[midway,right,font=\scriptsize]{pre-alerte};
-\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Socle impose (J2EE)}] {};
+\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Socle applicatif (Spring Boot)}] {};
 \end{tikzpicture}
-\caption{Integration decouplee : le socle J2EE reste maitre, le microservice IA
+\caption{Integration decouplee : le socle Spring Boot reste maitre, le microservice IA
 est un module optionnel branche par service web.}
 \label{fig:ia-archi}
 \end{figure}

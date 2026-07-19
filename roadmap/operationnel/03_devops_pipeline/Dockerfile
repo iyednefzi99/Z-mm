@@ -1,38 +1,45 @@
 # ═══════════════════════════════════════════════════════════
-# Dockerfile Zümm - Application J2EE (WildFly)
+# Dockerfile Zümm - Application Spring Boot
+# Build multi-étapes : compilation Maven puis image d'exécution JRE
 # ═══════════════════════════════════════════════════════════
-FROM quay.io/wildfly/wildfly:30.0.0.Final-jdk17
+
+# ─── Étape 1 : build ───
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /build
+# Cache des dépendances : copie du POM avant le code source
+COPY pom.xml .
+RUN mvn -q -B dependency:go-offline
+COPY src ./src
+RUN mvn -q -B clean package -DskipTests
+
+# ─── Étape 2 : exécution ───
+FROM eclipse-temurin:17-jre-jammy
 
 LABEL maintainer="equipe-zumm@example.com"
 LABEL version="1.0"
 LABEL description="Zümm - Système de gestion apicole"
 
-# Variables d'environnement
-ENV WILDFLY_HOME=/opt/jboss/wildfly
-ENV DEPLOYMENT_DIR=$WILDFLY_HOME/standalone/deployments
-ENV CONFIG_DIR=$WILDFLY_HOME/standalone/configuration
+# Utilisateur non-root dédié (aucun secret embarqué dans l'image)
+RUN groupadd --system zumm && useradd --system --gid zumm --home /app zumm
+WORKDIR /app
 
-# Créer un utilisateur non-root pour la sécurité
-RUN $WILDFLY_HOME/bin/add-user.sh -u admin -p admin123! --silent
+# Copier le JAR autoporteur (Tomcat embarqué) depuis l'étape de build
+COPY --from=build --chown=zumm:zumm /build/target/zumm.jar /app/zumm.jar
 
-# Copier le WAR
-COPY target/zumm.war $DEPLOYMENT_DIR/
+# Répertoire de configuration métier (ConfigZumm.ini monté en volume au run)
+ENV CONFIG_DIR=/app/config
+RUN mkdir -p $CONFIG_DIR && chown zumm:zumm $CONFIG_DIR
 
-# Copier les certificats SSL (X.509)
-COPY docker/certs/ $CONFIG_DIR/
+USER zumm
 
-# Copier la configuration standalone.xml personnalisée
-COPY docker/standalone-zumm.xml $CONFIG_DIR/standalone.xml
+# Un seul port applicatif exposé ; TLS et routage sont assurés par le proxy
+# inverse. Aucun port d'administration n'est publié.
+EXPOSE 8080
 
-# Configurer les datasources PostgreSQL
-COPY docker/zumm-ds.xml $DEPLOYMENT_DIR/
+# Health check via l'endpoint Actuator de Spring Boot
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:8080/actuator/health || exit 1
 
-# Exposer les ports
-EXPOSE 8080 8443 9990
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=60s --retries=3 \
-  CMD curl -f http://localhost:8080/zumm/api/health || exit 1
-
-# Commande de démarrage
-CMD ["sh", "-c", "$WILDFLY_HOME/bin/standalone.sh -b 0.0.0.0 -bmanagement 0.0.0.0"]
+# Démarrage : le profil et les secrets viennent de l'environnement, jamais de
+# l'image (cf. SPRING_PROFILES_ACTIVE, SPRING_DATASOURCE_* dans compose).
+ENTRYPOINT ["java", "-jar", "/app/zumm.jar"]

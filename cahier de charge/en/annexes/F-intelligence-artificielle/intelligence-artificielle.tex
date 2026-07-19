@@ -10,8 +10,8 @@
 This appendix answers the questions of the \emph{why}, the \emph{how} and the
 \emph{where} of artificial intelligence in \textbf{Zümm}. It creates no new
 requirement: it extends the sensor part and the predictive analysis already
-anticipated in chapter~\ref{chap:conception} (§\,4.5) and the \emph{data}
-microservice trajectory mentioned in appendix~\ref{chap:migration}. The
+anticipated in chapter~\ref{chap:conception} (§\,4.5) and builds on the
+technology stack adopted in appendix~\ref{chap:technologies}. The
 objective is to document an AI integration \textbf{consistent with the loosely
 coupled architecture}, \textbf{without betraying the constraints} of the
 requirements specification (self-deployment, free of charge, human validation).
@@ -168,10 +168,10 @@ adaptive strategy, which raises a pre-alert confirmed by the agent.}
 
 \subsection{The heavy processing as a decoupled microservice}
 The uses requiring \textbf{signal or vision} (acoustics, photos) must
-\textbf{never} run in the EJB container. They are offloaded to a \textbf{Python
-microservice} (pandas, scikit-learn / TensorFlow), exposed to the Java core by
-\textbf{REST/JSON}, exactly the \emph{data} trajectory described in
-appendix~\ref{chap:migration}. This microservice is \textbf{optional}: in its
+\textbf{never} run in the main application process. They are offloaded to a
+\textbf{Python microservice} (pandas, scikit-learn / TensorFlow), exposed to the
+Java core by \textbf{REST/JSON}, in line with the API style adopted in
+appendix~\ref{chap:technologies}. This microservice is \textbf{optional}: in its
 absence, the manual part and the basic statistical detection work fully.
 
 \begin{figure}[htbp]
@@ -182,18 +182,18 @@ absence, the manual part and the basic statistical detection work fully.
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (capt) {Field\\gateway};
-\node[noeud,right=1.5cm of capt] (coeur) {Zümm core (J2EE)\\Servlet + EJB + JDBC};
+\node[noeud,right=1.5cm of capt] (coeur) {Zümm core (Spring Boot)\\REST API + services + JPA};
 \node[noeud,right=1.5cm of coeur] (bd) {PostgreSQL\\time series};
 \node[ianode,below=1.1cm of coeur] (ia) {AI microservice (Python)\\pandas / scikit-learn};
 \node[noeud,above=1.0cm of coeur] (agent) {Agent\\dashboard};
 \draw[fl] (capt)--(coeur) node[midway,above,font=\scriptsize]{REST / MQTT};
-\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JDBC};
+\draw[fl] (coeur)--(bd) node[midway,above,font=\scriptsize]{JPA};
 \draw[fl] (coeur.south)--(ia.north) node[midway,right,font=\scriptsize]{REST/JSON};
 \draw[fl] (ia.north west) to[bend left=15] node[midway,left,font=\scriptsize]{score} (coeur.south west);
 \draw[fl] (coeur)--(agent) node[midway,right,font=\scriptsize]{pre-alert};
-\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Imposed foundation (J2EE)}] {};
+\node[draw=mielfonce,dashed,thick,inner sep=6pt,fit=(coeur)(bd),label={[font=\scriptsize\bfseries,mielfonce]above:Application foundation (Spring Boot)}] {};
 \end{tikzpicture}
-\caption{Decoupled integration: the J2EE foundation remains in control, the AI
+\caption{Decoupled integration: the Spring Boot foundation remains in control, the AI
 microservice is an optional module plugged in via a web service.}
 \label{fig:ia-archi}
 \end{figure}

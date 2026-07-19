@@ -19,7 +19,7 @@ title Sequence - Test de charge et de robustesse (k6)
 
 participant "k6\n(generateur VUs)" as k6
 participant "Edge\n(WAF / reverse proxy)" as Edge
-participant "Serveur Zumm\n(J2EE)" as Srv
+participant "Serveur Zumm\n(Spring Boot)" as Srv
 participant "PostgreSQL" as BD
 
 autonumber

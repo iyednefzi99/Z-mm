@@ -15,7 +15,7 @@ et se déclenche à chaque \emph{push} ou \emph{pull request}.
 \toprule
 \textbf{Environnement} & \textbf{Branche} & \textbf{URL} & \textbf{Usage} \\
 \midrule
-Local      & \texttt{feature/*}  & \texttt{http://localhost:8080/zumm} & Développement local (WildFly) \\
+Local      & \texttt{feature/*}  & \texttt{http://localhost:8080/zumm} & Développement local (Spring Boot) \\
 Dev        & \texttt{develop}    & \texttt{https://dev.zumm.local}     & Intégration continue, tests \\
 Staging    & \texttt{release/*}  & \texttt{https://staging.zumm.local} & Recette, démo sprint review \\
 Production & \texttt{main}       & \texttt{https://zumm.local}         & Déploiement manuel validé \\
@@ -36,7 +36,7 @@ Production & \texttt{main}       & \texttt{https://zumm.local}         & Déploi
   fleche/.style={-{Stealth[length=2.4mm]}, thick, color=miel}
 ]
 \node[stage] (build)   {BUILD\\ \scriptsize Maven (3 min)};
-\node[stage, right=of build] (test)    {TESTS\\ \scriptsize JUnit + Arquillian\\ \scriptsize (13 min)};
+\node[stage, right=of build] (test)    {TESTS\\ \scriptsize JUnit + Testcontainers\\ \scriptsize (13 min)};
 \node[stage, right=of test] (qualite) {QUALITÉ\\ \scriptsize Sonar + OWASP\\ \scriptsize (9 min)};
 \node[stage, right=of qualite] (docker)  {DOCKER\\ \scriptsize Image (6 min)};
 \node[stage, below=of docker] (staging) {STAGING\\ \scriptsize Auto (2 min)};
@@ -62,7 +62,7 @@ Production & \texttt{main}       & \texttt{https://zumm.local}         & Déploi
 \toprule
 \textbf{Étape} & \textbf{Description} & \textbf{Commandes} & \textbf{Seuils / conditions} & \textbf{Durée} \\
 \midrule
-Build & Compilation Maven + packaging WAR/EAR (JDK 17, Maven 3.9+, WildFly)
+Build & Compilation Maven + packaging JAR autoporteur (JDK 17, Maven 3.9+, Spring Boot 3)
   & \texttt{mvn clean compile}\newline \texttt{mvn package -DskipTests}
   & --- & 3 min \\
 \addlinespace
@@ -70,7 +70,7 @@ Tests unitaires & JUnit 5 + Mockito + JaCoCo
   & \texttt{mvn test}\newline \texttt{mvn jacoco:report}
   & couverture $\geq 70\,\%$, 0 échec & 5 min \\
 \addlinespace
-Tests d'intégration & Arquillian \emph{in-container} + H2
+Tests d'intégration & Testcontainers : PostgreSQL réel (PostGIS + TimescaleDB)
   & \texttt{mvn verify -P integration-tests}
   & --- & 8 min \\
 \addlinespace
@@ -82,7 +82,7 @@ Sécurité & Scan des dépendances OWASP
   & \texttt{mvn dependency-check:check}
   & --- & 4 min \\
 \addlinespace
-Build Docker & Image WildFly + WAR Zümm
+Build Docker & Image multi-étapes (build Maven puis JRE + JAR Zümm)
   & \texttt{docker build -t zumm:\$\{VERSION\} .}
   & --- & 6 min \\
 \addlinespace
@@ -108,7 +108,7 @@ Déploiement production & Déploiement \textbf{manuel} (\emph{approval gate})
 \section{Infrastructure as Code}
 
 \begin{itemize}
-  \item \textbf{Docker} : \texttt{Dockerfile} applicatif (WildFly + WAR),
+  \item \textbf{Docker} : \texttt{Dockerfile} applicatif multi-étapes (JAR Spring Boot),
         \texttt{Dockerfile} base de données (PostgreSQL + PostGIS),
         \texttt{docker-compose.yml} pour la stack complète
         (application + PostgreSQL + Nginx + monitoring) ;

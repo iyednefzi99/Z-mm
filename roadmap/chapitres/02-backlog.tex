@@ -105,7 +105,7 @@ US-019 & Conversion d'unités hétérogènes       & 5 & Moyenne & Patron \emph{
 
 \section{EPIC-005 --- Authentification et sécurité}
 
-OAuth Google, RBAC, SSL/X.509.
+Keycloak (OIDC, fédération Google), RBAC, TLS/X.509.
 
 \begin{center}
 \begin{tabular}{lp{6.6cm}cl p{4.6cm}}
@@ -115,7 +115,7 @@ OAuth Google, RBAC, SSL/X.509.
 US-020 & Authentification OAuth 2.0 Google & 8 & Haute & Flot \emph{Authorization Code} + JWT \\
 US-021 & Authentification locale (repli)   & 5 & Haute & Repli si OAuth indisponible \\
 US-022 & Contrôle d'accès RBAC             & 8 & Haute & Matrice 6 profils $\times$ 15 fonctions \\
-US-023 & Chiffrement SSL/TLS X.509         & 5 & Haute & HTTPS forcé + certificats \\
+US-023 & Chiffrement TLS 1.3 / X.509         & 5 & Haute & HTTPS forcé + certificats \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -129,7 +129,7 @@ i18n FR/EN/AR, \texttt{ConfigZumm.ini}.
 \toprule
 \textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
 \midrule
-US-024 & Internationalisation XML (FR/EN/AR) & 8 & Haute & RTL arabe + extensible \\
+US-024 & Internationalisation (FR/EN/AR) & 8 & Haute & RTL arabe + extensible \\
 US-025 & Configuration \texttt{ConfigZumm.ini} & 5 & Haute & Seuils, unités, modules sans recompilation \\
 \bottomrule
 \end{tabular}
@@ -144,7 +144,7 @@ Exposition d'une API pour applications externes.
 \toprule
 \textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
 \midrule
-US-026 & Service web XML \texttt{getZummHoneyActualQuantity} & 5 & Moyenne & JAX-WS SOAP + WSDL \\
+US-026 & Service web REST \texttt{getZummHoneyActualQuantity} & 5 & Moyenne & REST + contrat OpenAPI 3 \\
 US-027 & Export CSV/TXT & 5 & Moyenne & Données maîtrisées par l'utilisateur \\
 \bottomrule
 \end{tabular}
@@ -161,7 +161,7 @@ Fonctions complémentaires inspirées de HiveTracks, Apiary Book et BeePlus.
 \midrule
 US-028 & Photos d'inspection            & 5 & Haute   & Attachées au rapport \\
 US-029 & Contexte météo local           & 5 & Moyenne & API météo par géolocalisation \\
-US-030 & Carte et rayons de butinage    & 8 & Moyenne & Leaflet + OpenStreetMap + cercles 1/2/3 km \\
+US-030 & Carte et rayons de butinage    & 8 & Moyenne & MapLibre GL + OpenStreetMap + cercles 1/2/3 km \\
 US-031 & Liste de tâches et rappels     & 5 & Haute   & Calendrier de rappels \\
 US-032 & Suivi de la reine              & 5 & Haute   & Historique du statut de la reine \\
 US-033 & Récolte et QR code             & 8 & Moyenne & QR par lot + traçabilité \\
@@ -194,7 +194,7 @@ Plan de tests, UML, rapport, poster.
 \textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
 \midrule
 US-036 & Tests unitaires JUnit 5 + Mockito   & 8  & Haute   & 70\,\% de couverture métier \\
-US-037 & Tests d'intégration (Arquillian)    & 5  & Haute   & Tests \emph{in-container} \\
+US-037 & Tests d'intégration (Testcontainers)    & 5  & Haute   & Tests \emph{in-container} \\
 US-038 & Tests de charge k6                  & 5  & Moyenne & p95 $<$ 500 ms, erreurs $<$ 1\,\% \\
 US-039 & Diagrammes UML complets             & 13 & Haute   & 10 diagrammes requis \\
 US-040 & Rapport + poster + présentation     & 8  & Haute   & Livrables de soutenance \\

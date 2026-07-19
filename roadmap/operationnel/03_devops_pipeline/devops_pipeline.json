@@ -6,7 +6,7 @@
       "nom": "Local",
       "branche": "feature/*",
       "url": "http://localhost:8080/zumm",
-      "description": "Développement local sur WildFly"
+      "description": "Développement local sur Spring Boot (Tomcat embarqué)"
     },
     {
       "nom": "Dev",
@@ -32,7 +32,7 @@
     "stages": [
       {
         "nom": "Build",
-        "description": "Compilation Maven + packaging WAR/EAR",
+        "description": "Compilation Maven + packaging JAR autoporteur",
         "commandes": [
           "mvn clean compile",
           "mvn package -DskipTests"
@@ -40,7 +40,7 @@
         "outils": [
           "Maven 3.9+",
           "JDK 17",
-          "WildFly"
+          "Spring Boot 3"
         ],
         "duree_estimee": "3 min"
       },
@@ -59,7 +59,7 @@
       },
       {
         "nom": "Tests d'Intégration",
-        "description": "Arquillian in-container + H2",
+        "description": "Testcontainers : PostgreSQL réel (PostGIS + TimescaleDB)",
         "commandes": [
           "mvn verify -P integration-tests"
         ],
@@ -90,7 +90,7 @@
       },
       {
         "nom": "Build Docker",
-        "description": "Image Docker WildFly + Zümm WAR",
+        "description": "Image Docker multi-étapes (build Maven puis JRE + JAR Spring Boot)",
         "commandes": [
           "docker build -t zumm:${VERSION} .",
           "docker tag zumm:${VERSION} zumm:latest"
@@ -146,8 +146,8 @@
   },
   "infrastructure_as_code": {
     "docker": {
-      "dockerfile_app": "Dockerfile de l'application WildFly + WAR",
-      "dockerfile_db": "Dockerfile PostgreSQL + PostGIS",
+      "dockerfile_app": "Dockerfile multi-étapes de l'application Spring Boot (JAR)",
+      "dockerfile_db": "Image PostgreSQL + PostGIS + TimescaleDB",
       "docker_compose": "docker-compose.yml pour stack complète"
     },
     "kubernetes": {

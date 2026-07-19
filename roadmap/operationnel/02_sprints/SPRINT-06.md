@@ -25,7 +25,7 @@
 | US-015 | Tableau de bord synthèse et ROI | 13 | ⬜ À faire | - |
 | US-017 | Interface ingestion REST/MQTT | 8 | ⬜ À faire | - |
 | US-018 | Seuils paramétrables et logique d'alerte | 8 | ⬜ À faire | - |
-| US-026 | Service web XML getZummHoneyActualQuantity | 5 | ⬜ À faire | - |
+| US-026 | Service web REST getZummHoneyActualQuantity | 5 | ⬜ À faire | - |
 | US-029 | Contexte météo local | 5 | ⬜ À faire | - |
 
 ---
@@ -34,13 +34,13 @@
 
 **Date:** 2026-10-05 14:00-16:00
 
-Démonstration synthèse ROI, ingestion REST/MQTT d'une mesure, appel WSDL depuis un client externe
+Démonstration synthèse ROI, ingestion REST/MQTT d'une mesure, appel REST depuis un client externe généré depuis OpenAPI
 
 ---
 
 ## ⚠️ Risques Identifiés
 
-Anti-rebond/hystérésis des seuils, génération du WSDL JAX-WS
+Anti-rebond/hystérésis des seuils, complétude du contrat OpenAPI
 
 ---
 

@@ -23,10 +23,10 @@
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
 | US-004 | CRUD Ruche avec composition | 13 | ⬜ À faire | - |
-| US-024 | Internationalisation XML (FR/EN/AR) | 8 | ⬜ À faire | - |
+| US-024 | Internationalisation (FR/EN/AR) | 8 | ⬜ À faire | - |
 | US-016 | Modèle de données Mesure | 8 | ⬜ À faire | - |
-| US-023 | Chiffrement SSL/TLS X.509 | 5 | ⬜ À faire | - |
-| US-037 | Tests d'intégration (Arquillian) | 5 | ⬜ À faire | - |
+| US-023 | Chiffrement TLS 1.3 / X.509 | 5 | ⬜ À faire | - |
+| US-037 | Tests d'intégration (Testcontainers) | 5 | ⬜ À faire | - |
 
 ---
 

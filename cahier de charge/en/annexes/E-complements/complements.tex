@@ -143,7 +143,7 @@ Development delay             & Medium & High      & Prioritise the CRUD core, w
 Scope too broad               & Medium & High      & Limit to the high-priority functions, the rest optional. \\
 Arabic i18n complexity (RTL)  & Medium & Medium    & Early end-to-end FR/EN/AR testing, \texttt{dir=rtl} handling. \\
 Loss of field data            & Medium & High      & Offline command queue + synchronisation + backup. \\
-Application vulnerabilities (injection, XSS) & Medium & High & \texttt{PreparedStatement}, JSP escaping, security review. \\
+Application vulnerabilities (injection, XSS) & Medium & High & Parameterised queries (JPA / jOOQ), React automatic escaping, security review. \\
 False alerts (sensors)        & Medium & Medium    & Configurable thresholds + human validation through the report. \\
 Google OAuth unavailability   & Low    & Medium    & Local authentication fallback for the demonstration. \\
 Measurement volume            & Low    & Medium    & Archiving and aggregation per period (automated part). \\
@@ -213,7 +213,7 @@ injecting doubles (mocks).
 \midrule
 \endhead
 Unit         & Isolated management rules           & Frame/super constraints, honey calculation (Composite), ROI, thresholds & JUnit 5, Mockito \\
-Integration  & Data access (Repository/JDBC)       & Persisted CRUD, calculation queries                                     & JUnit + H2 database \\
+Integration  & Data access (Repository / JPA)      & Persisted CRUD, calculation queries                                     & JUnit + Testcontainers \\
 System       & End-to-end functional cases         & Cases TC01 to TC16 of chapter~10                                        & JUnit, Selenium \\
 Acceptance   & Validation by the demonstration     & Agent, farmer, manager journeys                                         & Defence \\
 \bottomrule
@@ -227,6 +227,6 @@ Acceptance   & Validation by the demonstration     & Agent, farmer, manager jour
 
 \begin{encadre}
 \textbf{Synergy with the design:} dependency inversion (DIP) makes it possible to
-substitute an in-memory \texttt{RucheRepository} for the JDBC implementations,
+substitute an in-memory \texttt{RucheRepository} for the JPA implementations,
 which makes the tests fast, deterministic and independent of the database.
 \end{encadre}

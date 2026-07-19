@@ -58,12 +58,12 @@ Targeted interfaces: \texttt{ServiceRequeteMiel} (the third-party API sees only
 \texttt{getZummHoneyActualQuantity}), \texttt{ServiceVisite},
 \texttt{ServiceTableauDeBord}. Each client depends only on its contract. \\
 D: Dependency inversion &
-The business layer (EJB) calls JDBC directly (concrete implementation): strong
-coupling to the database and to \texttt{ResultSet}. &
+The business layer calls SQL directly (concrete implementation): strong
+coupling to the database and to the result sets. &
 The business layer depends on abstractions \texttt{RucheRepository} /
-\texttt{VisiteRepository} (DAO pattern), implemented by
-\texttt{RucheRepositoryJdbc}. Mock testing and JDBC \textrightarrow{} Spring
-Data JPA migration facilitated (cf. appendix~\ref{chap:migration}). \\
+\texttt{VisiteRepository} (DAO pattern), implemented by Spring Data JPA and, for
+analytical queries, by jOOQ. Mock testing and implementation substitution
+facilitated (cf. appendix~\ref{chap:technologies}). \\
 \bottomrule
 \end{xltabular}
 
@@ -120,8 +120,8 @@ case. &
 \texttt{AdaptateurCapteur} standardises each source into a \texttt{Mesure} with
 configurable units (automated part). \\
 Facade \newline {\small\itshape structural: control} &
-The Servlet orchestrates all the business services directly. &
-\texttt{FacadeApplication} offers a simplified entry point to the Servlets on
+The controller orchestrates all the business services directly. &
+\texttt{FacadeApplication} offers a simplified entry point to the controllers on
 top of the subsystems. \\
 Singleton \newline {\small\itshape creational: cross-cutting} &
 The \texttt{ConfigZumm.ini} file and the i18n labels would be re-read in several
@@ -153,10 +153,10 @@ to the Zümm system.}
 
 \begin{encadre}
 \textbf{Correspondence with the layers:} the \texttt{Repository} belong to the
-data-access layer (JDBC), the \texttt{Service} and the domain (Composite, State,
-Strategy, Observer, Command) to the business layer (EJB), the \texttt{Facade}
-and the \texttt{Proxy} to the control layer (Servlets), the report
-\texttt{Builder} to the presentation (JSP). The loosely coupled layered
+persistence layer (JPA / jOOQ), the \texttt{Service} and the domain (Composite,
+State, Strategy, Observer, Command) to the business layer (Spring services), the
+\texttt{Facade} and the \texttt{Proxy} to the control layer (Spring MVC), the
+report \texttt{Builder} to the presentation (React). The loosely coupled layered
 architecture of chapter~\ref{chap:conception} is thus reinforced, without being
 modified.
 \end{encadre}

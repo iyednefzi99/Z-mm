@@ -17,11 +17,11 @@ skinparam sequence {
 title Sequence - Pattern Command : mode hors-ligne et synchronisation differee
 
 actor "Agent apiculteur" as Agent
-participant "IHM\n(JSP / JavaScript)" as IHM
+participant "Client React\n(PWA / TypeScript)" as IHM
 participant "CommandeCollecteMiel\n(Command)" as Cmd
 participant "FileCommandesHorsLigne\n(Invoker)" as File
-participant "VisiteService\n(Receiver, EJB)" as EJB
-database "Base de donnees\n(JDBC)" as BD
+participant "VisiteService\n(Receiver, service Spring)" as Svc
+database "PostgreSQL\n(JPA / jOOQ)" as BD
 
 autonumber
 
@@ -40,12 +40,12 @@ activate File
 loop pour chaque commande en attente
   File -> Cmd : executer()
   activate Cmd
-  Cmd -> EJB : appliquer(ruche, donnees)
-  activate EJB
-  EJB -> BD : INSERT rapport / UPDATE statut
-  BD --> EJB : confirmation
-  EJB --> Cmd : succes
-  deactivate EJB
+  Cmd -> Svc : appliquer(ruche, donnees)
+  activate Svc
+  Svc -> BD : INSERT rapport / UPDATE statut
+  BD --> Svc : confirmation
+  Svc --> Cmd : succes
+  deactivate Svc
   alt Echec (conflit)
     Cmd -> Cmd : annuler()
   end

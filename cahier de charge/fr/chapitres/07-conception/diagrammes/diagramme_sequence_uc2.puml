@@ -17,20 +17,20 @@ skinparam sequence {
 title Diagramme de sequence - UC2 : Realiser une visite et remplir le rapport
 
 actor "Agent apiculteur" as Agent
-participant "IHM\n(JSP / JavaScript)" as IHM
-participant "Servlet\n(Controleur MVC)" as Servlet
-participant "EJB\nVisiteService" as EJB
-database "Base de donnees\n(JDBC)" as BD
+participant "Client React\n(PWA / TypeScript)" as IHM
+participant "Controleur REST\n(Spring MVC)" as Ctrl
+participant "VisiteService\n(service Spring)" as Svc
+database "PostgreSQL\n(JPA / jOOQ)" as BD
 
 autonumber
 
 Agent -> IHM : ouvrir la visite planifiee et approuvee
-IHM -> Servlet : GET visite(id)
-Servlet -> EJB : getVisite(id)
-EJB -> BD : SELECT visite, ruche
-BD --> EJB : donnees de la visite
-EJB --> Servlet : visite
-Servlet --> IHM : formulaire pre-rempli
+IHM -> Ctrl : GET /api/v1/visites/{id}
+Ctrl -> Svc : getVisite(id)
+Svc -> BD : SELECT visite, ruche
+BD --> Svc : donnees de la visite
+Svc --> Ctrl : visite
+Ctrl --> IHM : formulaire pre-rempli
 IHM --> Agent : afficher le formulaire
 
 Agent -> IHM : saisir date, heure, duree, raison,\nconstatations, actions, recommandations
@@ -41,21 +41,21 @@ opt Ajout de photos
 end
 
 Agent -> IHM : valider le rapport
-IHM -> Servlet : POST rapport
+IHM -> Ctrl : POST /api/v1/visites/{id}/rapport
 
 alt Mode en ligne
-  Servlet -> EJB : enregistrerRapport(rapport)
-  EJB -> EJB : verifier les contraintes\n(duree, echelle 1 a 3)
-  EJB -> BD : INSERT rapport
-  EJB -> BD : UPDATE visite SET statut = execute
-  BD --> EJB : confirmation
-  EJB --> Servlet : succes
-  Servlet --> IHM : visite executee
+  Ctrl -> Svc : enregistrerRapport(rapport)
+  Svc -> Svc : verifier les contraintes\n(duree, echelle 1 a 3)
+  Svc -> BD : INSERT rapport
+  Svc -> BD : UPDATE visite SET statut = execute
+  BD --> Svc : confirmation
+  Svc --> Ctrl : succes
+  Ctrl --> IHM : visite executee
   IHM --> Agent : confirmation, case du calendrier mise a jour
 else Mode hors-ligne
-  IHM -> IHM : enregistrer localement le rapport
+  IHM -> IHM : enregistrer le rapport dans le magasin local
   IHM --> Agent : rapport en attente de synchronisation
-  note over IHM, Servlet : synchronisation differee au retour du reseau
+  note over IHM, Ctrl : synchronisation differee au retour du reseau ;\nles conflits sont arbitres par horodatage serveur
 end
 
 @enduml

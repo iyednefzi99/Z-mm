@@ -86,5 +86,5 @@ This value is exposed by the web service via \texttt{getZummHoneyActualQuantity(
 \[ V_{\text{reference}} = V_{\text{measurement}} \times \text{conversionFactor}(\text{unit}) \]
 
 \section{Typical queries}
-The results rely on queries executed via JDBC, for example for the honey
+The results rely on queries executed via jOOQ, for example for the honey
 quantity of a hive: \texttt{SELECT SUM(quantiteMiel) FROM recolte WHERE ruche = zummID}.

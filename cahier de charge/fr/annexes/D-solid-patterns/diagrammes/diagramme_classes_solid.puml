@@ -100,15 +100,16 @@ package "DIP  (Repository / DAO)" {
     +save(r : Ruche)
   }
   interface VisiteRepository
-  class RucheRepositoryJdbc
-  class VisiteRepositoryJdbc
-  RucheRepository <|.. RucheRepositoryJdbc
-  VisiteRepository <|.. VisiteRepositoryJdbc
+  class RucheRepositoryJpa
+  class VisiteRepositoryJpa
+  RucheRepository <|.. RucheRepositoryJpa
+  VisiteRepository <|.. VisiteRepositoryJpa
 }
 note bottom of RucheRepository
   DIP : la couche metier depend de l'interface
-  Repository, pas de JDBC. Facilite les tests et
-  la migration (JDBC -> Spring Data JPA).
+  Repository, pas de la technologie de persistance.
+  Facilite les tests et la substitution
+  (Spring Data JPA, jOOQ, mock en memoire).
 end note
 
 class ServiceMielImpl

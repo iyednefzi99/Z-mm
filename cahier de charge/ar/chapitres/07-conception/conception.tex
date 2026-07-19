@@ -12,13 +12,13 @@
 حالات الاستعمال & الفاعلون (مربّي النحل، عون، مشرف، مسؤول، مدير نظام، تطبيق خارجي) والحالات الرئيسية (انظر الشكل \ref{fig:uc}). \\
 الأصناف & كيانات قاموس المعطيات وعلاقاتها (مربّي النحل 1 إلى n مزرعة، مزرعة 1 إلى n موقع، موقع 1 إلى n خلية، خلية 1 إلى n جسم أو عاسلة، جسم أو عاسلة 1 إلى n إطار) وطرق الخدمة. \\
 الكائنات & لقطة لموقع يحتوي على ثلاث خلايا مُعمَّرة بإطاراتها. \\
-التسلسل & سير إنجاز زيارة (العون، واجهة JSP، Servlet، EJB، JDBC، قاعدة المعطيات). \\
+التسلسل & سير إنجاز زيارة (العون، عميل React، متحكّم REST، خدمة الأعمال، مستودع، قاعدة المعطيات). \\
 النشاط & سيرورة تخطيط زيارة والمصادقة عليها وتنفيذها وإغلاقها. \\
 آلة الحالات & دورة حياة خلية (مُنشأة، مُعمَّرة، نشطة، في تقسيم، في جمع، مُغلقة). \\
 التفاعل أو التعاون & السيناريو نفسه للتسلسل في شكل تعاون بين الكائنات. \\
 الحزمة & طبقات العرض والتحكم والأعمال والوصول إلى المعطيات والتدويل والإعداد وخدمات الويب. \\
 المكوّن & المكوّنات التطبيقية (تطبيق ويب، خدمة OAuth، خدمة API، وحدة i18n، وحدة الإعداد، قاعدة المعطيات). \\
-النشر & التوزيع على المتصفّح وخادم تطبيقات J2EE ونظام إدارة قواعد المعطيات وخدمة Google OAuth والمستشعرات. \\
+النشر & التوزيع على المتصفّح والوسيط العكسي وحاوية التطبيق ونظام إدارة قواعد المعطيات ومزوّد الهوية Keycloak والمستشعرات. \\
 \bottomrule
 \end{xltabular}
 
@@ -38,12 +38,12 @@
 \begin{tikzpicture}[
   couche/.style={draw=mielfonce,fill=grisdoux,thick,minimum width=10cm,minimum height=8mm,font=\small}
 ]
-\node[couche] (p) at (0,4) {العرض: JSP وJavaScript};
-\node[couche] (c) at (0,3) {التحكم: Servlets (MVC)};
-\node[couche] (m) at (0,2) {الأعمال: EJB};
-\node[couche] (d) at (0,1) {الوصول إلى المعطيات: JDBC};
-\node[couche] (b) at (0,0) {قاعدة معطيات علائقية};
-\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,align=center,text width=3.1cm,right=4mm of c] (s) {i18n XML\\ConfigZumm.ini\\خدمات الويب};
+\node[couche] (p) at (0,4) {العرض: React وTypeScript};
+\node[couche] (c) at (0,3) {التحكم: Spring MVC (واجهة REST)};
+\node[couche] (m) at (0,2) {الأعمال: خدمات Spring};
+\node[couche] (d) at (0,1) {الاستمرارية: Spring Data JPA وjOOQ};
+\node[couche] (b) at (0,0) {PostgreSQL (PostGIS، TimescaleDB)};
+\node[draw=mielfonce,thick,fill=miel!15,minimum height=8mm,font=\footnotesize,align=center,text width=3.1cm,right=4mm of c] (s) {موارد i18n\\ConfigZumm.ini\\عقد OpenAPI};
 \draw[-{Latex[length=2mm]},mielfonce] (p)--(c);
 \draw[-{Latex[length=2mm]},mielfonce] (c)--(m);
 \draw[-{Latex[length=2mm]},mielfonce] (m)--(d);
@@ -61,13 +61,13 @@
   fl/.style={-{Latex[length=2mm]},mielfonce,thick}
 ]
 \node[noeud] (nav) {المتصفّح\\(عميل ويب)};
-\node[noeud,right=1.6cm of nav] (srv) {خادم J2EE\\(Servlets، EJB)};
-\node[noeud,right=1.6cm of srv] (bd) {نظام إدارة\\قواعد معطيات};
-\node[noeud,below=1cm of srv] (oauth) {Google OAuth};
+\node[noeud,right=1.6cm of nav] (srv) {حاوية Zümm\\(Spring Boot)};
+\node[noeud,right=1.6cm of srv] (bd) {PostgreSQL\\PostGIS + TimescaleDB};
+\node[noeud,below=1cm of srv] (oauth) {Keycloak\\(اتّحاد Google)};
 \node[noeud,below=1cm of bd] (capt) {مستشعرات\\(الشقّ الآلي)};
 \draw[fl] (nav)--(srv) node[midway,above,font=\scriptsize]{HTTPS};
-\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC};
-\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{SSL};
+\draw[fl] (srv)--(bd) node[midway,above,font=\scriptsize]{JDBC / pool};
+\draw[fl] (srv)--(oauth) node[midway,right,font=\scriptsize]{OIDC};
 \draw[fl] (capt)--(srv);
 \end{tikzpicture}
 \caption{مخطّط نشر النظام.}
@@ -76,7 +76,7 @@
 
 \section{مخطّط التسلسل (UC2)}
 يفصّل مخطّط التسلسل أدناه حالة الاستعمال UC2، إنجاز زيارة وملء التقرير. يُظهر
-المرور عبر الطبقات (العون، الواجهة، servlet، EJB، قاعدة المعطيات) إضافةً إلى
+المرور عبر الطبقات (العون، عميل React، متحكّم REST، خدمة الأعمال، قاعدة المعطيات) إضافةً إلى
 الحالتين المتّصلة وغير المتّصلة مع مزامنة مؤجّلة.
 \begin{figure}[htbp]
 \centering

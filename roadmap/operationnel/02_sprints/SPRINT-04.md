@@ -23,7 +23,7 @@
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
 | US-011 | Mode hors-ligne et synchronisation différée | 13 | ⬜ À faire | - |
-| US-020 | Authentification OAuth 2.0 Google | 8 | ⬜ À faire | - |
+| US-020 | Authentification OIDC (Keycloak, fédération Google) | 8 | ⬜ À faire | - |
 | US-021 | Authentification locale (fallback) | 5 | ⬜ À faire | - |
 | US-022 | Contrôle d'accès RBAC | 8 | ⬜ À faire | - |
 | US-019 | Conversion d'unités hétérogènes | 5 | ⬜ À faire | - |

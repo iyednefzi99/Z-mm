@@ -10,19 +10,19 @@ skinparam object {
 title Diagramme de collaboration - UC2 : realiser une visite
 
 object "Agent apiculteur" as Agent #D4A017
-object "IHM (JSP / JS)" as IHM
-object "Servlet (Controleur)" as Servlet
-object "EJB VisiteService" as EJB
-object "Base de donnees" as BD
+object "Client React (PWA)" as IHM
+object "Controleur REST (Spring MVC)" as Ctrl
+object "VisiteService (Spring)" as Svc
+object "PostgreSQL" as BD
 
 Agent --> IHM : "1 : ouvrir la visite"
-IHM --> Servlet : "2 : GET visite(id)"
-Servlet --> EJB : "3 : getVisite(id)"
-EJB --> BD : "4 : SELECT visite"
+IHM --> Ctrl : "2 : GET /api/v1/visites/{id}"
+Ctrl --> Svc : "3 : getVisite(id)"
+Svc --> BD : "4 : SELECT visite"
 Agent --> IHM : "5 : valider le rapport"
-IHM --> Servlet : "6 : POST rapport"
-Servlet --> EJB : "7 : enregistrerRapport()"
-EJB --> BD : "8 : INSERT rapport"
-EJB --> BD : "9 : UPDATE statut = execute"
+IHM --> Ctrl : "6 : POST /api/v1/visites/{id}/rapport"
+Ctrl --> Svc : "7 : enregistrerRapport()"
+Svc --> BD : "8 : INSERT rapport"
+Svc --> BD : "9 : UPDATE statut = execute"
 
 @enduml

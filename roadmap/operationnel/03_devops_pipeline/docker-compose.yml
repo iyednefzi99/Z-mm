@@ -1,12 +1,11 @@
 # ═══════════════════════════════════════════════════════════
 # Docker Compose - Stack Zümm Complète
 # ═══════════════════════════════════════════════════════════
-version: '3.8'
 
 services:
-  # ─── Base de données PostgreSQL + PostGIS ───
+  # ─── Base de données PostgreSQL + PostGIS + TimescaleDB ───
   postgres:
-    image: postgis/postgis:15-3.4
+    image: timescale/timescaledb-ha:pg16-ts2.14
     container_name: zumm-postgres
     environment:
       POSTGRES_DB: zumm
@@ -15,8 +14,10 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
+    # Pas de port publié sur l'hôte : la base n'est joignable que par le
+    # réseau interne. Accès local ponctuel via `docker compose exec`.
+    expose:
+      - "5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U zumm -d zumm"]
       interval: 10s
@@ -25,7 +26,30 @@ services:
     networks:
       - zumm-network
 
-  # ─── Application WildFly (Zümm) ───
+  # ─── Fournisseur d'identité Keycloak (OIDC) ───
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: zumm-keycloak
+    command: start
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/zumm
+      KC_DB_USERNAME: zumm
+      KC_DB_PASSWORD: ${DB_PASSWORD:-zumm_secure}
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME:-localhost}
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD requis}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8080"
+    networks:
+      - zumm-network
+
+  # ─── Application Spring Boot (Zümm) ───
   zumm-app:
     build:
       context: .
@@ -34,24 +58,25 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: zumm
-      DB_USER: zumm
-      DB_PASSWORD: ${DB_PASSWORD:-zumm_secure}
-      OAUTH_CLIENT_ID: ${OAUTH_CLIENT_ID}
-      OAUTH_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
-      SSL_KEYSTORE_PASSWORD: ${SSL_KEYSTORE_PASSWORD}
-    ports:
-      - "8080:8080"
-      - "8443:8443"
-      - "9990:9990"
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zumm
+      SPRING_DATASOURCE_USERNAME: zumm
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-zumm_secure}
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/zumm
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_ID: ${OAUTH_CLIENT_ID}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KEYCLOAK_CLIENT_SECRET: ${OAUTH_CLIENT_SECRET}
+    # Aucun port publié sur l'hôte : l'application n'est atteignable qu'à
+    # travers le proxy inverse (terminaison TLS, en-têtes, limitation de débit).
+    expose:
+      - "8080"
     volumes:
-      - zumm_uploads:/opt/jboss/wildfly/standalone/uploads
-      - ./ConfigZumm.ini:/opt/jboss/wildfly/standalone/configuration/ConfigZumm.ini:ro
+      - zumm_uploads:/app/uploads
+      - ./ConfigZumm.ini:/app/config/ConfigZumm.ini:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/zumm/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -75,7 +100,7 @@ services:
 
   # ─── Monitoring: Prometheus ───
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.53.0
     container_name: zumm-prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -87,7 +112,7 @@ services:
 
   # ─── Monitoring: Grafana ───
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.1.0
     container_name: zumm-grafana
     depends_on:
       - prometheus

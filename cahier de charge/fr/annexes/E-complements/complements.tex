@@ -148,7 +148,7 @@ Retard de developpement       & Moyenne & Fort      & Prioriser le noyau CRUD, a
 Portee trop large             & Moyenne & Fort      & Se limiter aux fonctions de priorite haute, le reste en option. \\
 Complexite i18n arabe (RTL)   & Moyenne & Moyen     & Test precoce de bout en bout FR/EN/AR, gestion \texttt{dir=rtl}. \\
 Perte de donnees terrain      & Moyenne & Fort      & File de commandes hors-ligne + synchronisation + sauvegarde. \\
-Failles applicatives (injection, XSS) & Moyenne & Fort & \texttt{PreparedStatement}, echappement JSP, revue de securite. \\
+Failles applicatives (injection, XSS) & Moyenne & Fort & Requetes parametrees (JPA / jOOQ), echappement automatique de React, revue de securite. \\
 Fausses alertes (capteurs)    & Moyenne & Moyen     & Seuils parametrables + validation humaine par le rapport. \\
 Indisponibilite d'OAuth Google & Faible & Moyen     & Repli d'authentification locale pour la demonstration. \\
 Volumetrie des mesures        & Faible  & Moyen     & Archivage et agregation par periode (volet automatise). \\
@@ -218,7 +218,7 @@ isolation, par injection de doubles (mocks).
 \midrule
 \endhead
 Unitaire      & Regles de gestion isolees          & Contraintes cadres/hausses, calcul du miel (Composite), ROI, seuils & JUnit 5, Mockito \\
-Integration   & Acces aux donnees (Repository/JDBC) & CRUD persiste, requetes de calcul                                   & JUnit + base H2 \\
+Integration   & Acces aux donnees (Repository / JPA) & CRUD persiste, requetes de calcul                                   & JUnit + Testcontainers \\
 Systeme       & Cas fonctionnels de bout en bout    & Cas TC01 a TC16 du chapitre~10                                      & JUnit, Selenium \\
 Acceptation   & Validation par la demonstration     & Parcours agent, fermier, responsable                                & Soutenance \\
 \bottomrule
@@ -232,6 +232,6 @@ Acceptation   & Validation par la demonstration     & Parcours agent, fermier, r
 
 \begin{encadre}
 \textbf{Synergie avec la conception :} l'inversion de dependance (DIP) permet de
-substituer un \texttt{RucheRepository} en memoire aux implementations JDBC, ce
+substituer un \texttt{RucheRepository} en memoire aux implementations JPA, ce
 qui rend les tests rapides, deterministes et independants de la base.
 \end{encadre}
