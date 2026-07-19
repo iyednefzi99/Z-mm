@@ -3,6 +3,10 @@
 
 # Scripts shell : toujours en LF (exécutés par bash en CI Linux)
 *.sh text eol=lf
+# Le wrapper Maven est un script shell sans extension : en CRLF, il est
+# inexécutable sous Linux et casse la CI.
+mvnw text eol=lf
+*.jar binary
 
 # Sources LaTeX / Markdown : LF pour un diff stable multi-plateforme
 *.tex text eol=lf

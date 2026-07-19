@@ -57,6 +57,7 @@ dist/
 dist-ssr/
 *.local
 .vite/
+*.tsbuildinfo
 
 # Secrets et configuration locale : seuls les gabarits *.example.* sont versionnes.
 .env
