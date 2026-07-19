@@ -22,6 +22,10 @@
     <java.version>17</java.version>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Surcharge la version geree par Spring Boot (1.20.4) : son docker-java
+         est anterieur a Docker Engine 29 (API minimale 1.40) et echoue avec un
+         HTTP 400 a la decouverte du demon. -->
+    <testcontainers.version>1.21.4</testcontainers.version>
   </properties>
 
   <dependencies>

@@ -28,6 +28,28 @@ Sans Docker, les tests d'intégration sont **ignorés automatiquement** plutôt 
 mis en échec (`@Testcontainers(disabledWithoutDocker = true)`). En intégration
 continue, Docker est présent : ils s'exécutent réellement et font autorité.
 
+> ⚠️ **Vigilance : un `BUILD SUCCESS` ne prouve pas que les tests d'intégration
+> ont tourné.** Ignorés, ils laissent le build vert. Vérifier la ligne
+> `Tests run: N, ... Skipped: 0 -- in ...IT` avant de conclure quoi que ce soit.
+
+### Docker Engine 29 et Testcontainers
+
+Docker Engine 29 impose une version d'API minimale de `1.40`. La version de
+Testcontainers gérée par défaut par Spring Boot 3.4.1 (**1.20.4**) embarque un
+`docker-java` antérieur : la découverte du démon échoue avec un `HTTP 400` et
+tous les tests d'intégration sont **silencieusement ignorés**, build vert à
+l'appui. Le `pom.xml` force donc `testcontainers.version` à **1.21.4**.
+
+Ni `DOCKER_HOST` ni `DOCKER_API_VERSION` ne corrigent ce cas : seule la montée
+de version fonctionne.
+
+La première exécution télécharge l'image `timescale/timescaledb-ha` (~1,5 Go) ;
+prévoir du temps. Pour la mettre en cache à l'avance :
+
+```bash
+docker pull timescale/timescaledb-ha:pg16-ts2.14
+```
+
 L'API répond alors sur `http://localhost:8080` :
 
 - `GET /api/info` — identité de l'application, traduite selon `Accept-Language`
