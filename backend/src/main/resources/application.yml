@@ -18,6 +18,13 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Emetteur des jetons. Keycloak expose ses cles publiques sous
+          # <issuer-uri>/protocol/openid-connect/certs : aucun secret ici.
+          issuer-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}
   messages:
     basename: messages
     encoding: UTF-8
@@ -33,12 +40,18 @@ management:
   endpoints:
     web:
       exposure:
-        # Sprint 0 : sante et information. Les metriques Prometheus seront
-        # ajoutees avec l'observabilite (tranche 6).
-        include: health,info
+        # Actuator n'est jamais joignable depuis l'exterieur : le proxy inverse
+        # ne laisse passer que /actuator/health (cf. infra/nginx/nginx.conf).
+        include: health,info,prometheus
   endpoint:
     health:
       show-details: when-authorized
+  metrics:
+    tags:
+      application: zumm
+  observations:
+    key-values:
+      application: zumm
 
 zumm:
   nom: Zumm

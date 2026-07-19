@@ -93,16 +93,38 @@ client et l'API partagent la même origine, aucun CORS à ouvrir.
 ## Stack complète (Docker)
 
 ```bash
-cp .env.example .env                 # puis renseigner DB_PASSWORD
+cp .env.example .env                 # puis renseigner les mots de passe
 cp config/ConfigZumm.example.ini config/ConfigZumm.ini
-docker compose -f infra/docker-compose.yml up --build
+docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/
+bash infra/generer-certificat-dev.sh
+docker compose --env-file .env -f infra/docker-compose.yml up --build
 ```
+
+> Le fichier `.env` est à la **racine** du dépôt, pas à côté du compose : d'où le
+> `--env-file .env` obligatoire. Sans lui, l'interpolation des mots de passe échoue.
+
+Services exposés en local : Nginx `https://localhost` (proxy TLS, certificat
+auto-signé → avertissement navigateur attendu), Keycloak `http://localhost:8081`,
+Grafana `http://localhost:3000`. L'application et Prometheus ne sont **pas**
+publiés : ils ne sont joignables qu'à travers le proxy ou le réseau interne.
 
 La base n'expose aucun port sur l'hôte. Pour l'interroger :
 
 ```bash
-docker compose -f infra/docker-compose.yml exec postgres psql -U zumm -d zumm
+docker compose --env-file .env -f infra/docker-compose.yml exec postgres psql -U zumm -d zumm
 ```
+
+## Sauvegarde et restauration
+
+```bash
+bash infra/sauvegarde.sh                    # produit un dump horodaté
+bash infra/restauration.sh <fichier.dump>   # restaure depuis un dump
+bash infra/tester-restauration.sh           # exercice complet : écrit, sauvegarde,
+                                            # DÉTRUIT, restaure, vérifie
+```
+
+L'exercice de restauration est un livrable de la Definition of Done du SPRINT-00 :
+une sauvegarde jamais restaurée n'est pas une sauvegarde.
 
 > **État au SPRINT-00.** La stack contient PostgreSQL et le backend. Keycloak,
 > Nginx/TLS, Prometheus et Grafana sont ajoutés tranche par tranche, chacun

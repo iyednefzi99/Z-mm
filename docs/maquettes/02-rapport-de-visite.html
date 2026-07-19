@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maquette — Rapport de visite | Zümm</title>
+    <link rel="stylesheet" href="maquettes.css" />
+    <style>
+      .z-champ { margin-block-end: 1.1rem; }
+      .z-champ label {
+        display: block;
+        margin-block-end: 0.35rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--z-text-muted);
+      }
+      .z-champ input,
+      .z-champ select,
+      .z-champ textarea {
+        inline-size: 100%;
+        padding: 0.55rem 0.7rem;
+        font: inherit;
+        color: var(--z-text);
+        background: var(--z-bg);
+        border: 1px solid var(--z-line);
+        border-radius: var(--z-radius-md);
+      }
+      .z-champ input:focus-visible,
+      .z-champ select:focus-visible,
+      .z-champ textarea:focus-visible {
+        outline: 2px solid var(--z-honey-500);
+        outline-offset: 1px;
+      }
+      .z-aide { margin: 0.3rem 0 0; font-size: 0.8125rem; color: var(--z-text-muted); }
+      .z-hors-ligne {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-block-end: 1.25rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: var(--z-radius-md);
+        background: color-mix(in srgb, var(--z-info) 12%, transparent);
+        font-size: 0.875rem;
+      }
+      .z-grille { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0 1.25rem; }
+    </style>
+  </head>
+  <body>
+    <div class="z-conteneur">
+      <p class="z-avis">
+        <strong>Maquette SPRINT-00 — en attente de validation.</strong>
+        La Definition of Done exige une validation par un <strong>apiculteur réel</strong>,
+        pas par l'équipe projet. Ce document n'est pas validé à ce jour.
+      </p>
+
+      <header class="z-entete">
+        <h1 class="z-titre">Rapport de visite</h1>
+        <p class="z-sous-titre">Saisie sur le terrain, souvent sans réseau et avec des gants.</p>
+      </header>
+
+      <section class="z-carte">
+        <p class="z-hors-ligne">
+          <span class="z-etat z-etat--surveil">Hors ligne</span>
+          Saisie enregistrée sur l'appareil. Synchronisation dès le retour du réseau.
+        </p>
+
+        <h2 class="z-carte__titre">Ruche R-003 — rucher des Oliviers</h2>
+
+        <div class="z-grille">
+          <div class="z-champ">
+            <label for="date">Date de la visite</label>
+            <input id="date" type="date" value="2026-07-31" />
+          </div>
+          <div class="z-champ">
+            <label for="etat">État sanitaire</label>
+            <select id="etat">
+              <option>Saine</option>
+              <option selected>À surveiller</option>
+              <option>Alerte</option>
+            </select>
+          </div>
+          <div class="z-champ">
+            <label for="reine">Reine observée</label>
+            <select id="reine">
+              <option selected>Oui</option>
+              <option>Non</option>
+              <option>Non recherchée</option>
+            </select>
+          </div>
+          <div class="z-champ">
+            <label for="cadres">Cadres de couvain</label>
+            <input id="cadres" type="number" min="0" max="12" value="6" />
+            <p class="z-aide">Plage vérifiée en base et à la saisie.</p>
+          </div>
+        </div>
+
+        <div class="z-champ">
+          <label for="obs">Observations</label>
+          <textarea id="obs" rows="3">Colonie active, réserves en baisse. Prévoir un nourrissement.</textarea>
+        </div>
+
+        <div class="z-champ">
+          <label for="photos">Photos d'inspection</label>
+          <input id="photos" type="file" accept="image/*" multiple />
+          <p class="z-aide">Stockées comme fichiers, jamais en base — seul le chemin est enregistré.</p>
+        </div>
+
+        <button class="z-bouton" type="button">Enregistrer la visite</button>
+      </section>
+
+      <section class="z-carte">
+        <h2 class="z-carte__titre">Intention</h2>
+        <ul>
+          <li>
+            <strong>L'état hors-ligne est annoncé avant la saisie</strong>, pas après l'échec
+            d'un envoi. Sur le terrain, le réseau est l'exception, pas la règle.
+          </li>
+          <li>
+            <strong>Cibles tactiles généreuses, listes plutôt que saisie libre</strong> :
+            l'écran s'utilise debout, avec des gants.
+          </li>
+          <li>
+            <strong>L'état sanitaire ne repose jamais sur la seule couleur</strong> — un
+            libellé l'accompagne toujours (WCAG 2.1 AA, critère 1.4.1).
+          </li>
+        </ul>
+      </section>
+
+      <p class="z-source">
+        Sources : <code>US-010</code> (rapport de visite avec photos, SPRINT-03),
+        <code>US-011</code> (saisie hors-ligne, SPRINT-04),
+        <code>US-006</code> (contraintes de composition, SPRINT-01).
+      </p>
+    </div>
+  </body>
+</html>

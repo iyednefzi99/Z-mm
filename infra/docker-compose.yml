@@ -1,18 +1,24 @@
 # ═══════════════════════════════════════════════════════════
-# Stack Zümm — etat au SPRINT-00
+# Stack Zümm — walking skeleton du SPRINT-00
 #
-# Ce fichier grandit tranche par tranche, au rythme du walking skeleton.
-# Present : PostgreSQL/PostGIS/TimescaleDB + application Spring Boot.
-# A venir  : Keycloak (tranche 3), Nginx/TLS (tranche 4), Prometheus +
-#            Grafana (tranche 6). La cible complete est decrite dans
-#            roadmap/operationnel/03_devops_pipeline/docker-compose.yml ;
-#            les services n'y sont repris ici qu'une fois reellement verifies.
+# Chaine complete : PostgreSQL/PostGIS/TimescaleDB, Keycloak, application
+# Spring Boot, proxy inverse TLS, Prometheus et Grafana.
+# Derive de roadmap/operationnel/03_devops_pipeline/docker-compose.yml.
+#
+# Prerequis : `.env` renseigne (cf. .env.example) et certificat de dev genere
+# par `infra/generer-certificat-dev.sh`.
 # ═══════════════════════════════════════════════════════════
 
 services:
   # ─── Base de donnees PostgreSQL + PostGIS + TimescaleDB ───
   postgres:
-    image: timescale/timescaledb-ha:pg16-ts2.14
+    # Cible de production : `timescale/timescaledb-ha:pg16-ts2.14`, qui embarque
+    # PostGIS et TimescaleDB. Son depot etant impraticable depuis certains
+    # reseaux, le defaut local est l'image equivalente construite par
+    # `infra/test-postgres.Dockerfile`. Memes extensions, meme version majeure.
+    #   docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/
+    image: ${POSTGRES_IMAGE:-zumm/test-postgres:16}
+    command: ["postgres", "-c", "shared_preload_libraries=timescaledb"]
     container_name: zumm-postgres
     environment:
       POSTGRES_DB: zumm
@@ -32,6 +38,35 @@ services:
     networks:
       - zumm-network
 
+  # ─── Fournisseur d'identite Keycloak (OIDC) ───
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    container_name: zumm-keycloak
+    # `start-dev` importe le realm et n'exige pas de certificat propre : reserve
+    # au poste de developpement. En production, `start` avec un realm deja
+    # provisionne et les secrets injectes par le coffre.
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/zumm
+      KC_DB_USERNAME: zumm
+      KC_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_ADMIN_USER:-admin}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD:?KC_ADMIN_PASSWORD requis}
+    volumes:
+      - ./keycloak/realm-zumm.json:/opt/keycloak/data/import/realm-zumm.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Publie en developpement pour que le client Vite atteigne l'emetteur.
+    # En production, seul le proxy inverse y accede.
+    ports:
+      - "8081:8080"
+    networks:
+      - zumm-network
+
   # ─── Application Spring Boot ───
   backend:
     build:
@@ -41,22 +76,72 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zumm
       SPRING_DATASOURCE_USERNAME: zumm
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
+      ZUMM_OIDC_ISSUER_URI: http://keycloak:8080/realms/zumm
     volumes:
       - ../config/ConfigZumm.ini:/app/config/ConfigZumm.ini:ro
-    # Publie uniquement tant qu'il n'y a pas de proxy inverse (tranche 4).
-    # A retirer des que Nginx assure la terminaison TLS.
+    # Aucun port publie : l'application n'est atteignable qu'a travers le proxy
+    # inverse, qui assure la terminaison TLS et la limitation de debit.
+    expose:
+      - "8080"
+    networks:
+      - zumm-network
+
+  # ─── Proxy inverse et terminaison TLS ───
+  nginx:
+    image: nginx:alpine
+    container_name: zumm-nginx
+    depends_on:
+      - backend
     ports:
-      - "8080:8080"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - zumm-network
+
+  # ─── Metriques ───
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: zumm-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    expose:
+      - "9090"
+    networks:
+      - zumm-network
+
+  # ─── Tableaux de bord ───
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: zumm-grafana
+    depends_on:
+      - prometheus
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD requis}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3000:3000"
     networks:
       - zumm-network
 
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   zumm-network:

@@ -1,0 +1,174 @@
+/* ==========================================================================
+   Maquettes des 3 ecrans structurants — SPRINT-00.
+   Jetons issus de design/tokens.json. Aucune valeur inventee.
+   Statut : EN ATTENTE DE VALIDATION par un apiculteur (DoD SPRINT-00).
+   ========================================================================== */
+
+:root {
+  --z-honey-300: #ebc55b;
+  --z-honey-500: #d9a521;
+  --z-honey-600: #b8860b;
+  --z-green-300: #6fc46b;
+  --z-green-500: #2e9e3f;
+  --z-green-600: #1f7a2e;
+  --z-slate-800: #2c4a42;
+  --z-slate-900: #1e3a34;
+
+  --z-gradient-signature: linear-gradient(120deg, #d9a521 0%, #2e9e3f 100%);
+
+  --z-success: #2e9e3f;
+  --z-warning: #d9a521;
+  --z-danger: #c0392b;
+  --z-info: #2c7a7b;
+
+  --z-radius-sm: 6px;
+  --z-radius-md: 12px;
+  --z-radius-lg: 20px;
+  --z-radius-pill: 999px;
+
+  --z-shadow-1: 0 1px 2px rgba(28, 74, 66, 0.08);
+  --z-shadow-2: 0 4px 12px rgba(28, 74, 66, 0.1);
+
+  --z-duration-fast: 120ms;
+  --z-duration-base: 200ms;
+  --z-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --z-font-ui: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --z-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Neutres teintes : jamais #FFF ni #000 purs. */
+  --z-bg: #fcfdfc;
+  --z-surface: #f5f7f5;
+  --z-text: #1b2320;
+  --z-text-muted: #5b6b65;
+  --z-line: #dce4e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --z-bg: #1e3a34;
+    --z-surface: #25423b;
+    --z-text: #eaf1ee;
+    --z-text-muted: #a9bdb6;
+    --z-line: rgba(255, 255, 255, 0.1);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 2rem 1.25rem 4rem;
+  background: var(--z-bg);
+  color: var(--z-text);
+  font-family: var(--z-font-ui);
+  line-height: 1.5;
+}
+
+.z-conteneur { max-width: 1100px; margin-inline: auto; }
+
+.z-avis {
+  margin-block-end: 2rem;
+  padding: 0.875rem 1.125rem;
+  border-inline-start: 3px solid var(--z-warning);
+  border-radius: var(--z-radius-sm);
+  background: color-mix(in srgb, var(--z-warning) 10%, transparent);
+  font-size: 0.9375rem;
+}
+
+.z-entete { margin-block-end: 2rem; }
+
+.z-titre {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.z-sous-titre { margin: 0.35rem 0 0; color: var(--z-text-muted); }
+
+.z-carte {
+  padding: 1.25rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-2);
+}
+
+.z-carte + .z-carte { margin-block-start: 1.5rem; }
+
+.z-carte__titre {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--z-text-muted);
+}
+
+/* --- Etats sanitaires. La couleur ne porte JAMAIS l'information seule :
+   chaque pastille est doublee d'un libelle (WCAG 2.1 AA, critere 1.4.1). --- */
+.z-etat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--z-radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.z-etat::before {
+  content: '';
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: var(--z-radius-pill);
+  background: currentColor;
+  flex: none;
+}
+
+.z-etat--saine   { color: var(--z-green-600); background: color-mix(in srgb, var(--z-success) 14%, transparent); }
+.z-etat--surveil { color: var(--z-honey-600); background: color-mix(in srgb, var(--z-warning) 16%, transparent); }
+.z-etat--alerte  { color: var(--z-danger);    background: color-mix(in srgb, var(--z-danger) 12%, transparent); }
+
+table { inline-size: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+caption { text-align: start; color: var(--z-text-muted); font-size: 0.8125rem; padding-block-end: 0.75rem; }
+th, td { padding: 0.6rem 0.75rem; text-align: start; border-block-end: 1px solid var(--z-line); }
+th { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--z-text-muted); font-weight: 600; }
+tbody tr:last-child td { border-block-end: none; }
+
+.z-defilement { overflow-x: auto; }
+
+.z-bouton {
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--z-slate-900);
+  background: var(--z-honey-300);
+  border: 1px solid var(--z-honey-500);
+  border-radius: var(--z-radius-pill);
+  cursor: pointer;
+  transition: background-color var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-bouton:hover { background: var(--z-honey-500); }
+.z-bouton:focus-visible { outline: 2px solid var(--z-honey-600); outline-offset: 2px; }
+
+.z-source {
+  margin-block-start: 2.5rem;
+  padding-block-start: 1.25rem;
+  border-block-start: 1px solid var(--z-line);
+  font-size: 0.8125rem;
+  color: var(--z-text-muted);
+}
+
+.z-source code { font-family: var(--z-font-mono); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

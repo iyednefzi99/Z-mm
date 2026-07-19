@@ -77,3 +77,10 @@ Desktop.ini
 # Les PNG des diagrammes (images/*.png) et le PDF final (cahier_des_charges.pdf)
 # sont VOLONTAIREMENT versionnes : ils font partie du livrable et evitent
 # d'exiger PlantUML/Graphviz/LaTeX pour consulter le dossier.
+
+# Sauvegardes locales : jamais versionnees (donnees, volumineuses).
+sauvegardes/
+
+# Certificats TLS : jamais versionnes, meme auto-signes de developpement.
+# Ils sont regeneres par infra/generer-certificat-dev.sh.
+infra/nginx/ssl/

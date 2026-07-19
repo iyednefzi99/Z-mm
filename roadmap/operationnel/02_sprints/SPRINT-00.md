@@ -87,3 +87,65 @@ Démonstration en conditions réelles :
 - Une restauration de sauvegarde a réussi.
 - Les maquettes des 3 écrans sont validées par un utilisateur métier.
 - L'AIPD est lancée.
+
+---
+
+## 📊 État en fin de sprint
+
+Sprint réalisé **en mode dégradé** : la partie technique à la portée de l'équipe
+est faite et prouvée ; trois éléments dépendent du client ou d'un environnement
+réel et restent dus.
+
+| Livrable DoD | État | Preuve / reste dû |
+|:---|:---|:---|
+| 4 ADR | 🟠 **Proposé** | Rédigés et argumentés ; **arbitrage client requis** pour passer à « Accepté ». Bloque SPRINT-01. |
+| Walking skeleton | 🟡 **Prouvé en local** | Chaîne complète testée (`mvn verify`, 16 tests, `Skipped: 0`) ; **pas déployé en production réelle** (hébergeur/domaine/Let's Encrypt hors périmètre technique). |
+| Restauration de sauvegarde | 🟢 **Réussie** | `infra/tester-restauration.sh` : témoin détruit puis retrouvé après restauration. |
+| Maquettes des 3 écrans | 🟡 **Produites** | `docs/maquettes/` aux jetons de la charte ; **non validées par un apiculteur**. |
+| AIPD | 🟢 **Lancée** | `07_conformite/AIPD.md` présent ; scan de licences AGPL câblé en CI. |
+
+**Détail technique livré et prouvé :** ossature Spring Boot 3 / React 19 ;
+PostgreSQL + PostGIS + TimescaleDB via Flyway ; sécurité OAuth2/Keycloak, API
+fermée par défaut ; proxy Nginx + TLS ; Prometheus + Grafana ; CI applicative
+(build, tests, gitleaks, Dependency-Check, licences) ; sauvegarde/restauration.
+
+**Non exécuté sur ce poste** (réseau ~64 Ko/s) : `docker compose up` de la stack
+complète — les images Keycloak et Grafana n'ont pas pu être téléchargées. Chaque
+brique est prouvée isolément (tests d'intégration, run réel de l'app, exercice de
+restauration), l'assemblage `compose` reste à exécuter sur un lien correct.
+
+## 📝 Rétrospective
+
+### Ce qui a bien fonctionné
+
+- **La règle « prouver, pas déclarer » a payé.** Un `BUILD SUCCESS` a menti
+  plusieurs fois (tests d'intégration silencieusement ignorés, processus tués).
+  Exiger `Skipped: 0` sur les tests d'intégration a évité de fausses validations.
+- **Ordre walking skeleton avant métier** confirmé : les frictions (versions
+  Docker, réseau, TLS) sont apparues sur une entité factice, pas sur le CRUD.
+- **Le socle documentaire a servi de contrat** : annexe B et registre des ADR ont
+  cadré les choix sans improvisation.
+
+### Ce qui peut être amélioré
+
+- **Le réseau de développement (~64 Ko/s) est un risque projet réel.** Il a
+  dominé le sprint : images Docker inaccessibles, URLs signées expirées. À traiter
+  (miroir de registre local, ou lien dédié) avant les sprints suivants.
+- **Compatibilité Testcontainers ↔ Docker Engine 29** : perdue à découvrir ; à
+  épingler dans les prérequis.
+- **`.env` à la racine + `--env-file`** : source d'échecs répétés ; documenté,
+  mais à surveiller.
+
+### Actions pour le prochain sprint
+
+1. **Faire arbitrer les 4 ADR** — priorité absolue : SPRINT-01 ne démarre pas sans
+   ADR-001 (multi-tenant → `tenant_id`/RLS).
+2. **Résoudre le débit réseau / registre d'images** avant d'ajouter des services.
+3. **Exécuter `docker compose up` de bout en bout** sur un lien correct, puis
+   présenter la démo complète.
+4. **Planifier la validation des maquettes** avec un apiculteur référent.
+
+> **Vélocité :** sprint de cadrage, hors vélocité produit (0 point). Aucune
+> conséquence sur le burndown des sprints métier.
+
+*Dernière mise à jour : 19/07/2026*

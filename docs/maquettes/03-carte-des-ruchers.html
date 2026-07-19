@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maquette — Carte des ruchers | Zümm</title>
+    <link rel="stylesheet" href="maquettes.css" />
+    <style>
+      .z-carte-geo {
+        position: relative;
+        block-size: 340px;
+        border-radius: var(--z-radius-md);
+        background:
+          radial-gradient(circle at 30% 40%, color-mix(in srgb, var(--z-green-500) 18%, transparent), transparent 55%),
+          radial-gradient(circle at 70% 65%, color-mix(in srgb, var(--z-honey-500) 16%, transparent), transparent 50%),
+          var(--z-bg);
+        border: 1px solid var(--z-line);
+        overflow: hidden;
+      }
+      .z-marqueur {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: var(--z-radius-pill);
+        background: var(--z-surface);
+        border: 1px solid var(--z-line);
+        box-shadow: var(--z-shadow-2);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .z-pastille { inline-size: 0.5rem; block-size: 0.5rem; border-radius: var(--z-radius-pill); flex: none; }
+      .z-pastille--saine { background: var(--z-success); }
+      .z-pastille--surveil { background: var(--z-warning); }
+      .z-pastille--alerte { background: var(--z-danger); }
+      .z-zone {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        border: 1px dashed color-mix(in srgb, var(--z-honey-600) 55%, transparent);
+        background: color-mix(in srgb, var(--z-honey-500) 8%, transparent);
+      }
+      .z-confidentiel {
+        margin-block-start: 1rem;
+        padding: 0.8rem 1rem;
+        border-inline-start: 3px solid var(--z-danger);
+        border-radius: var(--z-radius-sm);
+        background: color-mix(in srgb, var(--z-danger) 8%, transparent);
+        font-size: 0.9375rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="z-conteneur">
+      <p class="z-avis">
+        <strong>Maquette SPRINT-00 — en attente de validation.</strong>
+        La Definition of Done exige une validation par un <strong>apiculteur réel</strong>,
+        pas par l'équipe projet. Ce document n'est pas validé à ce jour.
+      </p>
+
+      <header class="z-entete">
+        <h1 class="z-titre">Carte des ruchers</h1>
+        <p class="z-sous-titre">Localisation des sites et rayons de butinage.</p>
+      </header>
+
+      <section class="z-carte">
+        <h2 class="z-carte__titre">Vue d'ensemble — 3 sites</h2>
+        <div class="z-carte-geo" role="img"
+             aria-label="Carte schématique de trois ruchers : Oliviers (saine), Coteau (à surveiller), Vallon (alerte), avec leurs rayons de butinage.">
+          <div class="z-zone" style="inset-inline-start: 30%; inset-block-start: 38%; inline-size: 150px; block-size: 150px;"></div>
+          <div class="z-zone" style="inset-inline-start: 68%; inset-block-start: 62%; inline-size: 130px; block-size: 130px;"></div>
+
+          <span class="z-marqueur" style="inset-inline-start: 30%; inset-block-start: 38%;">
+            <span class="z-pastille z-pastille--saine"></span> Oliviers · 12 ruches
+          </span>
+          <span class="z-marqueur" style="inset-inline-start: 68%; inset-block-start: 62%;">
+            <span class="z-pastille z-pastille--surveil"></span> Coteau · 8 ruches
+          </span>
+          <span class="z-marqueur" style="inset-inline-start: 47%; inset-block-start: 20%;">
+            <span class="z-pastille z-pastille--alerte"></span> Vallon · 5 ruches
+          </span>
+        </div>
+
+        <p class="z-confidentiel">
+          <strong>Position précise masquée.</strong> Les coordonnées exactes d'un rucher
+          exposent au vol de ruches. Elles ne sont livrées qu'au propriétaire et aux rôles
+          autorisés ; pour les autres, l'API arrondit la position et la carte n'affiche
+          qu'une zone approximative.
+        </p>
+      </section>
+
+      <section class="z-carte">
+        <h2 class="z-carte__titre">Intention</h2>
+        <ul>
+          <li>
+            <strong>La sensibilité de la donnée est traitée à l'écran, pas seulement côté serveur</strong> :
+            l'utilisateur doit comprendre pourquoi une position est floue.
+          </li>
+          <li>
+            <strong>Chaque marqueur porte un nom et un effectif</strong> — la couleur seule
+            ne suffit ni à l'accessibilité, ni à la décision.
+          </li>
+          <li>
+            <strong>Le rayon de butinage est une zone, pas un point</strong> : c'est ainsi
+            qu'un apiculteur raisonne l'implantation.
+          </li>
+        </ul>
+      </section>
+
+      <p class="z-source">
+        Sources : <code>US-003</code> (site géolocalisé, PostGIS, SPRINT-01),
+        <code>US-034</code> (carte et rayons de butinage, SPRINT-07),
+        contraintes de confidentialité du chapitre 08.
+      </p>
+    </div>
+  </body>
+</html>

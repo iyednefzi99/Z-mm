@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maquette — Calendrier agents × ruches | Zümm</title>
+    <link rel="stylesheet" href="maquettes.css" />
+    <style>
+      .z-matrice th:first-child,
+      .z-matrice td:first-child {
+        position: sticky;
+        inset-inline-start: 0;
+        background: var(--z-surface);
+        font-weight: 600;
+      }
+      .z-creneau {
+        display: block;
+        padding: 0.3rem 0.5rem;
+        border-radius: var(--z-radius-sm);
+        font-size: 0.8125rem;
+        background: color-mix(in srgb, var(--z-honey-500) 16%, transparent);
+        color: var(--z-text);
+      }
+      .z-creneau--valide { background: color-mix(in srgb, var(--z-success) 16%, transparent); }
+      .z-creneau--vide { color: var(--z-text-muted); }
+    </style>
+  </head>
+  <body>
+    <div class="z-conteneur">
+      <p class="z-avis">
+        <strong>Maquette SPRINT-00 — en attente de validation.</strong>
+        La Definition of Done exige une validation par un <strong>apiculteur réel</strong>,
+        pas par l'équipe projet. Ce document n'est pas validé à ce jour.
+      </p>
+
+      <header class="z-entete">
+        <h1 class="z-titre">Calendrier agents × ruches</h1>
+        <p class="z-sous-titre">
+          Qui intervient sur quelle ruche, et quand. Vue matricielle de la semaine.
+        </p>
+      </header>
+
+      <section class="z-carte">
+        <h2 class="z-carte__titre">Semaine du 27 juillet au 2 août</h2>
+        <div class="z-defilement">
+          <table class="z-matrice">
+            <caption>
+              Chaque cellule porte l'agent affecté et l'état de la visite. Le
+              défilement horizontal est confiné au tableau : la page ne défile jamais latéralement.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Ruche</th>
+                <th scope="col">Lun 27</th>
+                <th scope="col">Mar 28</th>
+                <th scope="col">Mer 29</th>
+                <th scope="col">Jeu 30</th>
+                <th scope="col">Ven 31</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>R-001</td>
+                <td><span class="z-creneau z-creneau--valide">Amine — réalisée</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau">Amine — planifiée</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+              </tr>
+              <tr>
+                <td>R-002</td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau">Sonia — planifiée</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau">Sonia — planifiée</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+              </tr>
+              <tr>
+                <td>R-003</td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau z-creneau--valide">Amine — réalisée</span></td>
+                <td><span class="z-creneau z-creneau--vide">—</span></td>
+                <td><span class="z-creneau">Karim — à approuver</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="z-carte">
+        <h2 class="z-carte__titre">Intention</h2>
+        <ul>
+          <li>
+            <strong>L'axe temps est horizontal, les ruches en lignes</strong> : un apiculteur
+            raisonne par ruche, puis se demande quand elle a été vue.
+          </li>
+          <li>
+            <strong>La première colonne reste visible au défilement</strong> — sans elle, on
+            perd de vue la ruche dont on lit la ligne.
+          </li>
+          <li>
+            <strong>Une cellule vide reste un tiret explicite</strong>, jamais un blanc :
+            l'absence de visite est une information, pas un oubli d'affichage.
+          </li>
+        </ul>
+      </section>
+
+      <p class="z-source">
+        Sources : <code>US-012</code> (calendrier matriciel, SPRINT-05),
+        <code>US-007</code> à <code>US-009</code> (planification et approbation, SPRINT-03).
+        Terminologie issue du glossaire du cahier des charges.
+      </p>
+    </div>
+  </body>
+</html>

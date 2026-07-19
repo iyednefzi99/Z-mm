@@ -1,0 +1,146 @@
+name: CI applicative
+
+# Ne touche pas build-pdfs.yml : les deux workflows sont independants.
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'infra/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'infra/**'
+      - '.github/workflows/ci.yml'
+
+env:
+  JAVA_VERSION: '17'
+
+jobs:
+  backend:
+    name: Backend — build et tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer le JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      # Les tests d'integration ont besoin de cette image ; elle n'est pas
+      # publiee sur un registre, donc la CI la construit comme un poste local.
+      - name: Construire l'image PostgreSQL de test
+        run: docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/
+
+      - name: Tests unitaires et d'integration
+        working-directory: backend
+        run: ./mvnw -B verify
+
+      # Un `BUILD SUCCESS` ne prouve rien si les tests d'integration ont ete
+      # ignores faute de Docker : on le verifie explicitement.
+      - name: Verifier que les tests d'integration ont bien tourne
+        working-directory: backend
+        run: |
+          set -euo pipefail
+          fichiers=$(ls target/failsafe-reports/*.txt 2>/dev/null || true)
+          if [ -z "$fichiers" ]; then
+            echo "::error::Aucun rapport failsafe : les tests d'integration n'ont pas tourne."
+            exit 1
+          fi
+          if grep -qE "Skipped: [1-9]" $fichiers; then
+            echo "::error::Des tests d'integration ont ete ignores."
+            grep -E "Tests run" $fichiers
+            exit 1
+          fi
+          grep -hE "Tests run" $fichiers
+
+      - name: Empaqueter le JAR
+        working-directory: backend
+        run: ./mvnw -B package -DskipTests
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zumm-jar
+          path: backend/target/zumm.jar
+
+  frontend:
+    name: Frontend — build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Installer les dependances
+        working-directory: frontend
+        run: npm ci
+
+      - name: Verification des types
+        working-directory: frontend
+        run: npm run typecheck
+
+      - name: Build de production
+        working-directory: frontend
+        run: npm run build
+
+  securite:
+    name: Sécurité — secrets, dépendances, licences
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Recherche de secrets versionnes : aucun secret ne doit entrer dans
+      # l'historique, y compris dans un commit ancien.
+      - name: Scan de secrets (gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      # Vulnerabilites connues des dependances. Non bloquant pour l'instant :
+      # le seuil devient bloquant au SPRINT-08 (quality gate).
+      - name: Scan de dependances (OWASP Dependency-Check)
+        working-directory: backend
+        continue-on-error: true
+        run: ./mvnw -B org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Audit des dependances npm
+        working-directory: frontend
+        continue-on-error: true
+        run: npm audit --audit-level=high
+
+      # Conformite des licences : une dependance AGPL contaminerait le livrable.
+      - name: Détection de licences AGPL
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          npm ci --silent
+          npx --yes license-checker --summary --excludePrivatePackages > licences.txt || true
+          cat licences.txt
+          if grep -iE "AGPL" licences.txt; then
+            echo "::error::Dépendance sous licence AGPL détectée."
+            exit 1
+          fi
