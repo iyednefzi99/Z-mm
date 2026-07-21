@@ -69,6 +69,7 @@ jobs:
              "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf"
 
       - name: Compiler (${{ matrix.lang }})
+        id: compile
         uses: xu-cheng/latex-action@v3
         with:
           working_directory: ${{ matrix.dir }}
@@ -79,14 +80,41 @@ jobs:
           # étape préalable — fr/en n'ont aucune police à résoudre.
           pre_compile: ${{ matrix.pre_compile }}
 
+      # Les logs Actions exigent une authentification ; les ANNOTATIONS, elles,
+      # sont publiques. On y recopie l'erreur LaTeX pour qu'un échec reste
+      # diagnosticable sans accès privilégié au dépôt.
+      - name: Remonter l'erreur LaTeX (${{ matrix.lang }})
+        if: failure() && steps.compile.outcome == 'failure'
+        run: |
+          log="${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.log"
+          if [ ! -f "$log" ]; then
+            echo "::error::[${{ matrix.lang }}] aucun .log produit — échec avant le premier passage LaTeX"
+            exit 0
+          fi
+          extrait=$(grep -nE '^!|^l\.[0-9]+|^\*\*\*|Fatal error|Emergency stop|Undefined control sequence|not loadable|not found' "$log" \
+                    | head -25 | tr '\n' '§')
+          echo "::error::[${{ matrix.lang }}] ${extrait:-aucune ligne d erreur reconnue dans le log}"
+
       - name: Installer poppler-utils
         run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
 
       - name: Vérifier que le PDF versionné est à jour (${{ matrix.lang }})
+        id: fraicheur
         run: |
+          set -o pipefail
           bash scripts/check-pdf-current.sh \
             "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf" \
-            "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf"
+            "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf" 2>&1 \
+            | tee /tmp/fraicheur-${{ matrix.lang }}.txt
+
+      # Même raison : l'écart trouvé par le script part sur stderr, donc dans des
+      # logs illisibles publiquement. On le republie en annotation.
+      - name: Remonter l'écart de contenu (${{ matrix.lang }})
+        if: failure() && steps.fraicheur.outcome == 'failure'
+        run: |
+          f=/tmp/fraicheur-${{ matrix.lang }}.txt
+          [ -f "$f" ] || { echo "::error::[${{ matrix.lang }}] aucun rapport de fraîcheur"; exit 0; }
+          echo "::error::[${{ matrix.lang }}] $(tr '\n' '§' < "$f" | cut -c1-1800)"
 
       - name: Publier le PDF (${{ matrix.lang }})
         uses: actions/upload-artifact@v4
