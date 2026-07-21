@@ -111,6 +111,15 @@
 \usepackage{polyglossia}
 \setmainlanguage{arabic}
 \setotherlanguage{english}
+% Rustine de compatibilite `bidi`. Dans l'image TeX Live de la CI, bidi
+% redefinit \@tabular en y appelant \UseMathForPositioningText sans que sa
+% propre version ne la definisse : tout \begin{tabular} meurt alors en
+% « Undefined control sequence » (latexmk exit 12), alors que la meme source
+% compile sous MiKTeX. \providecommand ne masque rien : si une version de bidi
+% fournit la macro, c'est la sienne qui prime. Vide, elle retablit le
+% comportement classique (positionnement en mode mathematique, comme le
+% \@tabular du noyau LaTeX). A retirer quand l'image CI sera coherente.
+\providecommand{\UseMathForPositioningText}{}
 % Police arabe : « Traditional Arabic » (Windows) en local — rendu de référence
 % du PDF versionné. En son absence (ex. CI Linux / TeX Live), repli automatique
 % sur « Amiri » (fournie par texlive-lang-arabic) pour que le build reste
