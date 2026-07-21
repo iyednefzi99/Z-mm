@@ -138,3 +138,103 @@ chaîne, puis enchaîner sur Keycloak (tranche 3).
 7. `openssl -subj` réécrit par MSYS sous Git Bash → `MSYS_NO_PATHCONV=1`.
 8. `.env` à la racine ⇒ `docker compose --env-file .env` obligatoire ; corrigé
    aussi dans les scripts de sauvegarde/restauration.
+
+---
+
+## 2026-07-21 — Clôture du SPRINT-00 : CI réparée, branche fusionnée, assemblage éprouvé
+
+Séance de fermeture. Objectif : ne pas clore un sprint « prouver, pas déclarer »
+avec une CI rouge et un assemblage jamais exécuté.
+
+### La CI était rouge — deux causes distinctes, aucune dans le code métier
+
+La branche `sprint00-ossature` n'avait jamais été poussée : les 9 commits du
+sprint n'avaient donc **jamais été jugés par la CI**. Au premier push, les deux
+workflows ont échoué. Les logs GitHub n'étant pas lisibles sans authentification
+(HTTP 403), le diagnostic est passé par les **annotations de check-runs**, qui
+sont publiques et portent le code de sortie — puis par une analyse différentielle
+de l'historique des runs.
+
+1. **Backend, `exit 126` = permission denied.** `backend/mvnw` était versionné en
+   `100644` — un commit depuis Windows ne porte pas le bit d'exécution. Le runner
+   Linux ne pouvait pas lancer `./mvnw`. Corrigé par
+   `git update-index --chmod=+x backend/mvnw`. **Job vert depuis.**
+2. **LaTeX, `exit 255` sur les trois langues.** Le `pre_compile: tlmgr install amiri`
+   introduit en `ac3fa84` s'appliquait à **toute** la matrice. L'image de
+   `xu-cheng/latex-action@v3` est une Alpine avec TeXLive *complet*, dont le dépôt
+   `tlmgr` est en lecture seule : la commande sort en 255 et tue le job — y compris
+   `fr` et `en`, qui n'avaient aucune police à installer. Le `pre_compile` est
+   désormais porté par la matrice, vide sauf pour l'arabe.
+
+L'analyse différentielle a aussi établi un fait qui manquait au sprint :
+**`Build PDFs` est rouge sur `main` depuis le 18/07**, avant le SPRINT-00. Ce
+n'est pas une régression du sprint, c'est une dette antérieure — et `ar` n'a
+**jamais** compilé en CI.
+
+### Fusion dans `main`
+
+`main` fast-forwardé sur `sprint00-ossature` (`ac3fa84..6526868`) et poussé. Le
+socle du walking skeleton est scellé. Décision assumée : merger alors que
+`Build PDFs` restait rouge, parce que ce workflow l'était déjà avant le sprint et
+que la CI applicative — celle du périmètre — est verte.
+
+### Le réseau s'est débloqué, l'assemblage a enfin pu être tenté
+
+Les 4 images qui manquaient le 19/07 (Keycloak, Nginx, Prometheus, Grafana) se
+sont téléchargées sans incident. Mais `docker compose up --build` bute ailleurs :
+il doit d'abord tirer `maven:3.9-eclipse-temurin-17` (~350 Mo) pour l'étage de
+build. Au débit du poste, ~2 h. **Build interrompu au bout de 11 min** ; les 5
+autres services ont été montés avec `--no-deps`.
+
+### Ce que l'assemblage a révélé — un défaut que les tests ne pouvaient pas voir
+
+**Keycloak n'avait jamais démarré.** `infra/keycloak/realm-zumm.json` contenait
+des clés de commentaire (`_commentaire_roles`, `_commentaire`) ; l'importateur
+désérialise en `RealmRepresentation` sans tolérance et échoue sur toute clé
+inconnue : `Unrecognized field "_commentaire_roles" ... not marked as ignorable`,
+puis `Failed to run import` et sortie en 1. Le realm — 4 rôles, 2 clients — était
+donc déclaré livré au sprint alors qu'**il n'avait jamais été importé une seule
+fois**. Les tests d'intégration ne le couvraient pas : `SecuriteApiIT` valide la
+configuration Spring Security, pas l'import du realm.
+
+Corrigé : clés retirées, justifications déplacées dans `infra/keycloak/README.md`
+(le JSON n'admet pas de commentaires — le fait de l'avoir oublié a coûté un
+service entier). **Realm `zumm` importé et vérifié** : l'endpoint OIDC sert sa
+clé publique.
+
+### État réel de la pile
+
+| Service | État | Preuve |
+|---|---|---|
+| `postgres` | 🟢 sain | PostGIS 3.4.3 actif. `timescaledb` **disponible** mais non créée : c'est la migration Flyway `V1` qui la crée, au démarrage du backend. Aucun défaut. |
+| `keycloak` | 🟢 démarré | Realm `zumm` importé, clé publique OIDC servie |
+| `prometheus` | 🟢 sain | `/-/healthy` |
+| `grafana` | 🟢 sain | `/api/health` → `database: ok`, v11.1.0 |
+| `backend` | ⚪ non monté | Image non construite (téléchargement Maven abandonné) |
+| `nginx` | 🔴 sort en 1 | `host not found in upstream "backend"` — **comportement attendu** : la dépendance est correctement déclarée, elle a été contournée par `--no-deps` |
+
+**4 services sur 6 prouvés en fonctionnement.** L'assemblage complet reste dû, et
+ne dépend plus que du temps de téléchargement de l'image Maven.
+
+### Nouveaux pièges consignés
+
+9. **`backend/mvnw` doit rester en `100755` dans l'index git.** Un commit depuis
+   Windows le repasse en `100644` → runner Linux en `exit 126`. Vérifier avec
+   `git ls-files -s backend/mvnw`.
+10. **Jamais de clé de commentaire dans un JSON Keycloak** — l'import échoue et le
+    conteneur ne démarre pas.
+11. **`tlmgr install` est inopérant** dans l'image de `latex-action@v3` (dépôt en
+    lecture seule) : sortie 255. TeXLive y est déjà complet.
+12. **Les logs GitHub Actions exigent une authentification** ; les *annotations de
+    check-runs* sont publiques et suffisent souvent — elles portent le code de
+    sortie, qui à lui seul a identifié le 126.
+13. Une branche non poussée n'est **pas** une branche testée. Les 9 commits du
+    sprint ont vécu 2 jours sans jugement de CI.
+
+### Reste dû
+
+- `Build PDFs` : `ar` ne compile toujours pas (`exit 12`), `fr`/`en` échouent plus
+  loin (`exit 1`). Dette antérieure au sprint, à traiter au SPRINT-01.
+- Assemblage `compose` complet (backend + nginx).
+- Les 4 ADR restent « Proposé » → **SPRINT-01 reste fermé**.
+- Production réelle et validation des maquettes : hors périmètre technique.

@@ -99,7 +99,7 @@ réel et restent dus.
 | Livrable DoD | État | Preuve / reste dû |
 |:---|:---|:---|
 | 4 ADR | 🟠 **Proposé** | Rédigés et argumentés ; **arbitrage client requis** pour passer à « Accepté ». Bloque SPRINT-01. |
-| Walking skeleton | 🟡 **Prouvé en local** | Chaîne complète testée (`mvn verify`, 16 tests, `Skipped: 0`) ; **pas déployé en production réelle** (hébergeur/domaine/Let's Encrypt hors périmètre technique). |
+| Walking skeleton | 🟡 **Prouvé en local, assemblage partiel** | Chaîne complète testée (`mvn verify`, 16 tests, `Skipped: 0`) et **CI applicative verte** depuis le 21/07 ; 4 services sur 6 assemblés et vérifiés. **Pas déployé en production réelle** (hébergeur/domaine/Let's Encrypt hors périmètre technique). |
 | Restauration de sauvegarde | 🟢 **Réussie** | `infra/tester-restauration.sh` : témoin détruit puis retrouvé après restauration. |
 | Maquettes des 3 écrans | 🟡 **Produites** | `docs/maquettes/` aux jetons de la charte ; **non validées par un apiculteur**. |
 | AIPD | 🟢 **Lancée** | `07_conformite/AIPD.md` présent ; scan de licences AGPL câblé en CI. |
@@ -109,10 +109,20 @@ PostgreSQL + PostGIS + TimescaleDB via Flyway ; sécurité OAuth2/Keycloak, API
 fermée par défaut ; proxy Nginx + TLS ; Prometheus + Grafana ; CI applicative
 (build, tests, gitleaks, Dependency-Check, licences) ; sauvegarde/restauration.
 
-**Non exécuté sur ce poste** (réseau ~64 Ko/s) : `docker compose up` de la stack
-complète — les images Keycloak et Grafana n'ont pas pu être téléchargées. Chaque
-brique est prouvée isolément (tests d'intégration, run réel de l'app, exercice de
-restauration), l'assemblage `compose` reste à exécuter sur un lien correct.
+**Assemblage `compose` — repris le 21/07, partiellement prouvé.** Le réseau s'est
+débloqué : les 4 images manquantes sont descendues. 4 services sur 6 tournent et
+sont vérifiés (`postgres` sain avec PostGIS 3.4.3, `keycloak` avec le realm `zumm`
+importé, `prometheus` et `grafana` sains). Restent `backend` — dont l'image n'a pas
+pu être construite, l'étage Maven exigeant ~2 h de téléchargement — et `nginx`, qui
+en dépend directement (`host not found in upstream "backend"`).
+
+> ⚠️ **L'assemblage a démenti un livrable déclaré.** Le realm Keycloak était annoncé
+> livré alors qu'il n'avait **jamais été importé** : le JSON contenait des clés de
+> commentaire, rejetées par l'importateur, et le conteneur sortait en 1 à chaque
+> démarrage. Les tests d'intégration ne pouvaient pas le voir — `SecuriteApiIT`
+> valide la configuration Spring Security, pas l'import du realm. Corrigé et
+> vérifié le 21/07. C'est l'illustration la plus nette de la règle du sprint :
+> une brique « prouvée isolément » n'est pas une brique assemblée.
 
 ## 📝 Rétrospective
 
@@ -126,6 +136,10 @@ restauration), l'assemblage `compose` reste à exécuter sur un lien correct.
 - **Le socle documentaire a servi de contrat** : annexe B et registre des ADR ont
   cadré les choix sans improvisation.
 
+- **L'assemblage a payé immédiatement.** Monter la pile a révélé, en une heure, un
+  livrable déclaré mais inexistant (le realm Keycloak). Aucun test unitaire ou
+  d'intégration ne pouvait le voir.
+
 ### Ce qui peut être amélioré
 
 - **Le réseau de développement (~64 Ko/s) est un risque projet réel.** Il a
@@ -135,6 +149,12 @@ restauration), l'assemblage `compose` reste à exécuter sur un lien correct.
   épingler dans les prérequis.
 - **`.env` à la racine + `--env-file`** : source d'échecs répétés ; documenté,
   mais à surveiller.
+- **Le travail a vécu 2 jours sur une branche non poussée**, donc jamais jugé par
+  la CI. Au premier push, les deux workflows étaient rouges — pour des causes
+  triviales (bit d'exécution sur `mvnw`, `pre_compile` LaTeX mal ciblé) qui
+  auraient été vues immédiatement. **Pousser la branche dès le premier commit.**
+- **La CI documentaire était rouge depuis le 18/07 sans que personne le sache** :
+  aucune alerte, aucun suivi. Un workflow rouge toléré cesse d'être un signal.
 
 ### Actions pour le prochain sprint
 
@@ -144,8 +164,13 @@ restauration), l'assemblage `compose` reste à exécuter sur un lien correct.
 3. **Exécuter `docker compose up` de bout en bout** sur un lien correct, puis
    présenter la démo complète.
 4. **Planifier la validation des maquettes** avec un apiculteur référent.
+5. **Réparer `Build PDFs`** — rouge depuis le 18/07, antérieur à ce sprint :
+   l'arabe n'a jamais compilé en CI (`exit 12`), `fr`/`en` échouent au contrôle de
+   fraîcheur des PDF (`exit 1`).
+6. **Terminer l'assemblage** : construire l'image backend, puis relancer la pile
+   complète pour que `nginx` trouve son *upstream*.
 
 > **Vélocité :** sprint de cadrage, hors vélocité produit (0 point). Aucune
 > conséquence sur le burndown des sprints métier.
 
-*Dernière mise à jour : 19/07/2026*
+*Dernière mise à jour : 21/07/2026*

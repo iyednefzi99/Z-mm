@@ -7,19 +7,32 @@
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "internationalizationEnabled": true,
-  "supportedLocales": ["fr", "en", "ar"],
+  "supportedLocales": [
+    "fr",
+    "en",
+    "ar"
+  ],
   "defaultLocale": "fr",
-
-  "_commentaire_roles": "Profils repris du cahier des charges (US-005). La matrice RBAC profils x fonctions est arretee au SPRINT-01 : ces roles en sont le support, pas la definition.",
   "roles": {
     "realm": [
-      { "name": "apiculteur", "description": "Gere ses propres ruchers et saisit ses visites" },
-      { "name": "superviseur", "description": "Supervise les agents et valide les visites" },
-      { "name": "responsable", "description": "Pilote une ou plusieurs fermes" },
-      { "name": "admin", "description": "Administration technique et parametrage" }
+      {
+        "name": "apiculteur",
+        "description": "Gere ses propres ruchers et saisit ses visites"
+      },
+      {
+        "name": "superviseur",
+        "description": "Supervise les agents et valide les visites"
+      },
+      {
+        "name": "responsable",
+        "description": "Pilote une ou plusieurs fermes"
+      },
+      {
+        "name": "admin",
+        "description": "Administration technique et parametrage"
+      }
     ]
   },
-
   "clients": [
     {
       "clientId": "zumm-frontend",
@@ -29,13 +42,18 @@
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
       "serviceAccountsEnabled": false,
-      "_commentaire": "Client public : aucun secret ne peut etre garde dans un navigateur. PKCE obligatoire.",
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "http://localhost:5173/*"
       },
-      "redirectUris": ["http://localhost:5173/*", "https://localhost/*"],
-      "webOrigins": ["http://localhost:5173", "https://localhost"],
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "https://localhost/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "https://localhost"
+      ],
       "protocolMappers": [
         {
           "name": "audience-backend",
@@ -53,11 +71,9 @@
       "name": "API Zümm",
       "enabled": true,
       "bearerOnly": true,
-      "publicClient": false,
-      "_commentaire": "Serveur de ressources : valide les jetons, n'en emet aucun."
+      "publicClient": false
     }
   ],
-
   "users": [
     {
       "username": "apiculteur-test",
@@ -66,11 +82,16 @@
       "firstName": "Utilisateur",
       "lastName": "De test",
       "email": "apiculteur-test@example.invalid",
-      "_commentaire": "Compte de DEVELOPPEMENT uniquement. Le mot de passe est un secret de test, sans valeur : ce realm n'est jamais importe en production, ou les comptes sont crees par l'administrateur.",
       "credentials": [
-        { "type": "password", "value": "changez-moi", "temporary": false }
+        {
+          "type": "password",
+          "value": "changez-moi",
+          "temporary": false
+        }
       ],
-      "realmRoles": ["apiculteur"]
+      "realmRoles": [
+        "apiculteur"
+      ]
     }
   ]
 }
