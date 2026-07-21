@@ -41,14 +41,22 @@ jobs:
             dir: cahier de charge/fr
             root: cahier_des_charges_fr.tex
             xelatex: false
+            pre_compile: ''
           - lang: en
             dir: cahier de charge/en
             root: cahier_des_charges_en.tex
             xelatex: false
+            pre_compile: ''
           - lang: ar
             dir: cahier de charge/ar
             root: cahier_des_charges_ar.tex
             xelatex: true
+            # L'image de l'action est une Alpine avec TeXLive *complet* : amiri y
+            # est deja present et son depot tlmgr est en lecture seule, donc
+            # `tlmgr install` sort en 255 et tue le job. On se contente de
+            # verifier que la police est bien la, sans jamais faire echouer
+            # l'etape : le master bascule seul sur son repli (\IfFontExistsTF).
+            pre_compile: kpsewhich Amiri-Regular.ttf || true
     steps:
       - uses: actions/checkout@v4
 
@@ -66,10 +74,10 @@ jobs:
           working_directory: ${{ matrix.dir }}
           root_file: ${{ matrix.root }}
           latexmk_use_xelatex: ${{ matrix.xelatex }}
-          # « Traditional Arabic » n'existe pas ici : le master bascule sur son
-          # repli Amiri, que l'on installe explicitement plutôt que de le
-          # supposer présent dans l'image (cf. \IfFontExistsTF dans le master).
-          pre_compile: tlmgr install amiri
+          # « Traditional Arabic » n'existe pas dans l'image : le master bascule
+          # seul sur son repli Amiri (cf. \IfFontExistsTF). Seul l'arabe a une
+          # étape préalable — fr/en n'ont aucune police à résoudre.
+          pre_compile: ${{ matrix.pre_compile }}
 
       - name: Installer poppler-utils
         run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
