@@ -7,34 +7,13 @@
 \documentclass[11pt,a4paper]{report}
 
 % ---------- الخط واللغة (XeLaTeX + polyglossia) -------------------------------
-\usepackage{fontspec}
-\usepackage{polyglossia}
-\setmainlanguage{arabic}
-\setotherlanguage{english}
-% Police arabe : « Traditional Arabic » (Windows) en local — rendu de référence
-% du PDF versionné. En son absence (ex. CI Linux / TeX Live), repli automatique
-% sur « Amiri » (fournie par texlive-lang-arabic) pour que le build reste
-% vérifiable partout. Le PDF committé est celui produit avec Traditional Arabic.
-%
-% Le repli désigne Amiri par NOM DE FICHIER (Extension + UprightFont/BoldFont)
-% et non par nom de famille : les .ttf de texlive-lang-arabic vivent dans
-% texmf-dist, où XeTeX les trouve via kpathsea, alors qu'une recherche par
-% famille passe par fontconfig — qui ne les connaît pas dans l'image CI.
-\IfFontExistsTF{Traditional Arabic}{%
-  \newfontfamily\arabicfont[Script=Arabic,ItalicFont={Traditional Arabic},BoldItalicFont={Traditional Arabic},AutoFakeSlant=0]{Traditional Arabic}%
-  \newfontfamily\arabicfonttt[Script=Arabic]{Traditional Arabic}%
-  \newfontfamily\arabicfontsf[Script=Arabic]{Traditional Arabic}%
-}{%
-  \newfontfamily\arabicfont[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
-  \newfontfamily\arabicfonttt[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
-  \newfontfamily\arabicfontsf[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
-}
-% Idem pour le latin : « Latin Modern Roman » par nom de famille echouait en CI
-% (« The font Latin Modern Roman cannot be found »), fontconfig ne connaissant
-% pas les .otf de texmf-dist. Resolution par nom de fichier, via kpathsea.
-\newfontfamily\englishfont[Extension=.otf,UprightFont=lmroman10-regular,%
-  BoldFont=lmroman10-bold,ItalicFont=lmroman10-italic,%
-  BoldItalicFont=lmroman10-bolditalic]{Latin Modern Roman}
+% ATTENTION : polyglossia charge `bidi`, qui DOIT être chargé en dernier — il
+% patche les macros de tableaux (\@tabular) redéfinies par array/tabularx/
+% xltabular, ainsi que hyperref. Chargé ici, en tête de préambule, le patch
+% s'appliquait à des macros ensuite écrasées : la compilation mourait sur
+% `\UseMathForPositioningText` indéfinie au premier \begin{tabular} (exit 12 en
+% CI). MiKTeX le tolérait, TeX Live non — d'où un échec invisible en local.
+% Le bloc a donc été déplacé À LA FIN du préambule. Ne pas le remonter ici.
 \usepackage{amsmath}
 
 % ---------- تنسيق الصفحة ------------------------------------------------------
@@ -123,6 +102,39 @@
 \usetikzlibrary{positioning,arrows.meta,calc,shapes.geometric,fit}
 \usepackage{caption}
 \captionsetup{font=small,labelfont={bf,color=mielfonce},labelsep=period}
+
+% ---------- الخط واللغة (XeLaTeX + polyglossia) — EN DERNIER -------------------
+% `bidi` (chargé par polyglossia) patche \@tabular, \@array et hyperref : il doit
+% voir leur version DÉFINITIVE, donc venir après array/tabularx/xltabular/
+% hyperref/caption. Cf. l'avertissement en tête de préambule.
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{arabic}
+\setotherlanguage{english}
+% Police arabe : « Traditional Arabic » (Windows) en local — rendu de référence
+% du PDF versionné. En son absence (ex. CI Linux / TeX Live), repli automatique
+% sur « Amiri » (fournie par texlive-lang-arabic) pour que le build reste
+% vérifiable partout. Le PDF committé est celui produit avec Traditional Arabic.
+%
+% Le repli désigne Amiri par NOM DE FICHIER (Extension + UprightFont/BoldFont)
+% et non par nom de famille : les .ttf de texlive-lang-arabic vivent dans
+% texmf-dist, où XeTeX les trouve via kpathsea, alors qu'une recherche par
+% famille passe par fontconfig — qui ne les connaît pas dans l'image CI.
+\IfFontExistsTF{Traditional Arabic}{%
+  \newfontfamily\arabicfont[Script=Arabic,ItalicFont={Traditional Arabic},BoldItalicFont={Traditional Arabic},AutoFakeSlant=0]{Traditional Arabic}%
+  \newfontfamily\arabicfonttt[Script=Arabic]{Traditional Arabic}%
+  \newfontfamily\arabicfontsf[Script=Arabic]{Traditional Arabic}%
+}{%
+  \newfontfamily\arabicfont[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
+  \newfontfamily\arabicfonttt[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
+  \newfontfamily\arabicfontsf[Script=Arabic,Extension=.ttf,UprightFont=Amiri-Regular,BoldFont=Amiri-Bold]{Amiri}%
+}
+% Idem pour le latin : « Latin Modern Roman » par nom de famille echouait en CI
+% (« The font Latin Modern Roman cannot be found »), fontconfig ne connaissant
+% pas les .otf de texmf-dist. Resolution par nom de fichier, via kpathsea.
+\newfontfamily\englishfont[Extension=.otf,UprightFont=lmroman10-regular,%
+  BoldFont=lmroman10-bold,ItalicFont=lmroman10-italic,%
+  BoldItalicFont=lmroman10-bolditalic]{Latin Modern Roman}
 
 % عمود بعرض ثابت وتوسيط
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}

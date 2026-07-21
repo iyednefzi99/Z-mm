@@ -58,15 +58,31 @@ jobs:
             # l'etape : le master bascule seul sur son repli (\IfFontExistsTF).
             pre_compile: kpsewhich Amiri-Regular.ttf || true
     steps:
+      # fetch-depth: 0 — la vérification de fraîcheur lit les dates de commit du
+      # PDF et de ses sources. Un clone superficiel les tronque et rendrait un
+      # verdict faux ; le script refuse d'ailleurs de s'exécuter dessus.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Le PDF versionné doit être mis de côté AVANT la compilation : latex-action
-      # écrit son résultat dans le répertoire de travail et l'écraserait.
-      - name: Mettre de côté le PDF versionné (${{ matrix.lang }})
+      # La fraîcheur se juge sur l'historique, avant toute compilation : inutile
+      # de compiler pour découvrir qu'un PDF n'a pas été régénéré.
+      - name: Vérifier que le PDF versionné est à jour (${{ matrix.lang }})
+        id: fraicheur
         run: |
-          mkdir -p /tmp/committed
-          cp "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf" \
-             "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf"
+          set -o pipefail
+          bash scripts/check-pdf-current.sh \
+            "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf" \
+            "${{ matrix.dir }}" 2>&1 | tee /tmp/fraicheur-${{ matrix.lang }}.txt
+
+      # L'écart part sur stderr, donc dans des logs illisibles sans
+      # authentification. On le republie en annotation, qui est publique.
+      - name: Remonter le défaut de fraîcheur (${{ matrix.lang }})
+        if: failure() && steps.fraicheur.outcome == 'failure'
+        run: |
+          f=/tmp/fraicheur-${{ matrix.lang }}.txt
+          [ -f "$f" ] || { echo "::error::[${{ matrix.lang }}] aucun rapport de fraîcheur"; exit 0; }
+          echo "::error::[${{ matrix.lang }}] $(tr '\n' '§' < "$f" | cut -c1-1800)"
 
       - name: Compiler (${{ matrix.lang }})
         id: compile
@@ -96,27 +112,6 @@ jobs:
           extrait=$(grep -nE -A8 '^!|\.tex:[0-9]+:|Fatal error|Emergency stop' "$log" \
                     | head -40 | tr '\n' '§')
           echo "::error::[${{ matrix.lang }}] ${extrait:-aucune ligne d erreur reconnue dans le log}"
-
-      - name: Installer poppler-utils
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
-
-      - name: Vérifier que le PDF versionné est à jour (${{ matrix.lang }})
-        id: fraicheur
-        run: |
-          set -o pipefail
-          bash scripts/check-pdf-current.sh \
-            "/tmp/committed/cahier_des_charges_${{ matrix.lang }}.pdf" \
-            "${{ matrix.dir }}/cahier_des_charges_${{ matrix.lang }}.pdf" 2>&1 \
-            | tee /tmp/fraicheur-${{ matrix.lang }}.txt
-
-      # Même raison : l'écart trouvé par le script part sur stderr, donc dans des
-      # logs illisibles publiquement. On le republie en annotation.
-      - name: Remonter l'écart de contenu (${{ matrix.lang }})
-        if: failure() && steps.fraicheur.outcome == 'failure'
-        run: |
-          f=/tmp/fraicheur-${{ matrix.lang }}.txt
-          [ -f "$f" ] || { echo "::error::[${{ matrix.lang }}] aucun rapport de fraîcheur"; exit 0; }
-          echo "::error::[${{ matrix.lang }}] $(tr '\n' '§' < "$f" | cut -c1-1800)"
 
       - name: Publier le PDF (${{ matrix.lang }})
         uses: actions/upload-artifact@v4

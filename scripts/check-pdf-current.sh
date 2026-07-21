@@ -1,91 +1,89 @@
 #!/usr/bin/env bash
 #===============================================================================
-# check-pdf-current.sh — Vérifie qu'un PDF versionné correspond bien à ses sources
+# check-pdf-current.sh — Vérifie qu'un PDF versionné a bien été régénéré après
+#                        la dernière modification de ses sources
 #
 # Les trois cahiers des charges sont commités sous forme de PDF. Rien ne garantit
-# qu'un PDF versionné a été régénéré après une modification de ses sources : ce
-# script compare le PDF committé au PDF fraîchement compilé et échoue (exit 1) en
-# cas de divergence de CONTENU.
+# qu'un PDF a été recompilé après une modification de ses sources : ce script
+# compare, dans l'historique git, la date du dernier commit touchant le PDF à
+# celle du dernier commit touchant ses sources.
 #
-# Pourquoi comparer le texte et non les fichiers : un PDF n'est jamais
-# reproductible au bit près (pdfTeX y embarque /CreationDate, /ModDate et /ID à
-# chaque compilation). Pire pour l'arabe : en CI la police « Traditional Arabic »
-# est absente et le master bascule sur Amiri (\IfFontExistsTF), ce qui change les
-# métriques, donc les coupures de lignes et la pagination — sans rien changer au
-# contenu. Une comparaison d'octets, de taille ou de nombre de pages produirait
-# donc des faux positifs permanents.
+# POURQUOI PAS UNE COMPARAISON DE CONTENU
+# ---------------------------------------
+# La version précédente recompilait le document en CI et comparait le texte
+# extrait par pdftotext au texte du PDF versionné. Cette approche a été
+# abandonnée : elle produit des FAUX POSITIFS PERMANENTS dès que le PDF de
+# référence et le PDF de CI sortent de deux distributions LaTeX différentes.
 #
-# La comparaison porte sur le texte extrait, débarrassé de TOUT espacement, afin
-# d'être insensible aux coupures de lignes et de pages induites par la police.
+# Cas réel observé (2026-07-21) : sur `fr` comme sur `en`, l'écart portait sur
+# UN caractère parmi 107 000 — le signe somme de la formule QuantiteMiel. Le PDF
+# de référence (MiKTeX, Windows) l'expose en « X », celui de la CI (TeX Live,
+# Alpine) en « ∑ ». Contenu identique, extraction différente : les polices
+# mathématiques n'embarquent pas la même table ToUnicode. Aucune normalisation
+# raisonnable ne rattrape cela — « X » est une lettre, pas un symbole.
 #
-# Usage : bash scripts/check-pdf-current.sh <pdf-committé> <pdf-recompilé>
+# La date de commit, elle, ne dépend d'aucune police : elle répond exactement à
+# la question posée — « ce PDF est-il postérieur à ses sources ? ».
+#
+# Usage : bash scripts/check-pdf-current.sh <pdf-versionné> <répertoire-sources>
+# Requiert : un dépôt git avec l'historique complet (actions/checkout
+#            fetch-depth: 0 — un clone superficiel fausserait les dates).
 #===============================================================================
 set -euo pipefail
 
 if [[ $# -ne 2 ]]; then
-  echo "Usage : bash scripts/check-pdf-current.sh <pdf-committé> <pdf-recompilé>" >&2
+  echo "Usage : bash scripts/check-pdf-current.sh <pdf-versionné> <répertoire-sources>" >&2
   exit 2
 fi
 
-COMMITTED="$1"
-REBUILT="$2"
+PDF="$1"
+SRC_DIR="${2%/}"
 
-for f in "$COMMITTED" "$REBUILT"; do
-  if [[ ! -f "$f" ]]; then
-    echo "✗ PDF introuvable : $f" >&2
-    exit 2
-  fi
-done
-
-if ! command -v pdftotext > /dev/null 2>&1; then
-  echo "✗ pdftotext est requis (paquet poppler-utils)." >&2
+if [[ ! -f "$PDF" ]]; then
+  echo "✗ PDF introuvable : $PDF" >&2
   exit 2
 fi
 
-# Texte brut en UTF-8, sans -layout : la mise en colonnes dépend des métriques
-# de police et n'a pas à entrer dans la comparaison.
-extract() { pdftotext -q -enc UTF-8 "$1" - 2> /dev/null || true; }
-
-# Normalisation : suppression de tout caractère d'espacement. Deux rendus du même
-# contenu avec des polices différentes coupent les lignes ailleurs mais émettent
-# la même suite de caractères.
-normalise() { extract "$1" | tr -d '[:space:]'; }
-
-a="$(normalise "$COMMITTED")"
-b="$(normalise "$REBUILT")"
-
-if [[ -z "$b" ]]; then
-  echo "✗ Le PDF recompilé ne contient aucun texte extractible : $REBUILT" >&2
-  echo "  (compilation muette ou pdftotext en échec — à investiguer)" >&2
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  echo "✗ Pas un dépôt git : la vérification de fraîcheur est impossible." >&2
   exit 2
 fi
 
-if [[ "$a" == "$b" ]]; then
-  echo "✓ $(basename "$COMMITTED") est à jour (${#b} caractères comparés)"
+# Un clone superficiel ne contient pas l'historique nécessaire : le dire plutôt
+# que de rendre un verdict faux.
+if [[ "$(git rev-parse --is-shallow-repository 2> /dev/null)" == "true" ]]; then
+  echo "✗ Dépôt superficiel (shallow) : utilisez actions/checkout avec fetch-depth: 0." >&2
+  exit 2
+fi
+
+horodatage_pdf="$(git log -1 --format=%ct -- "$PDF" || true)"
+if [[ -z "$horodatage_pdf" ]]; then
+  echo "✗ $PDF n'a aucun commit dans l'historique." >&2
+  exit 2
+fi
+
+# Sources = tout le répertoire de la langue SAUF le PDF lui-même. Les images
+# partagées vivent dans fr/ : elles sont couvertes par la vérification de fr.
+horodatage_src="$(git log -1 --format=%ct -- "$SRC_DIR" ":(exclude)$PDF" || true)"
+if [[ -z "$horodatage_src" ]]; then
+  echo "✗ Aucune source trouvée sous $SRC_DIR." >&2
+  exit 2
+fi
+
+if [[ "$horodatage_pdf" -ge "$horodatage_src" ]]; then
+  echo "✓ $(basename "$PDF") est à jour"
+  echo "  PDF     : $(git log -1 --format='%h %ad %s' --date=short -- "$PDF")"
   exit 0
 fi
 
-echo "✗ $(basename "$COMMITTED") n'est PAS à jour : son contenu diffère des sources." >&2
-echo "  versionné  : ${#a} caractères" >&2
-echo "  recompilé  : ${#b} caractères" >&2
+echo "✗ $(basename "$PDF") n'est PAS à jour : des sources ont été modifiées après lui." >&2
 echo "" >&2
-echo "  Premier écart :" >&2
-# Localise la première divergence pour rendre l'échec exploitable.
-python3 - "$COMMITTED" "$REBUILT" <<'PY' >&2 || true
-import subprocess, sys
-
-def norm(p):
-    out = subprocess.run(["pdftotext", "-q", "-enc", "UTF-8", p, "-"],
-                         capture_output=True).stdout.decode("utf-8", "replace")
-    return "".join(out.split())
-
-a, b = norm(sys.argv[1]), norm(sys.argv[2])
-i = next((i for i in range(min(len(a), len(b))) if a[i] != b[i]), min(len(a), len(b)))
-lo = max(0, i - 60)
-print("    position %d" % i)
-print("    versionné : …%s…" % a[lo:i + 60])
-print("    recompilé : …%s…" % b[lo:i + 60])
-PY
+echo "  Dernier commit du PDF     : $(git log -1 --format='%h %ad %s' --date=short -- "$PDF")" >&2
+echo "  Dernier commit des sources: $(git log -1 --format='%h %ad %s' --date=short -- "$SRC_DIR" ":(exclude)$PDF")" >&2
+echo "" >&2
+echo "  Fichiers modifiés depuis la dernière régénération :" >&2
+git log --format='' --name-only --since="@${horodatage_pdf}" -- "$SRC_DIR" ":(exclude)$PDF" 2> /dev/null \
+  | sort -u | sed '/^$/d' | head -20 | sed 's/^/    /' >&2 || true
 echo "" >&2
 echo "  → Recompilez le document et commitez le PDF régénéré." >&2
 exit 1
