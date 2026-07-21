@@ -91,8 +91,10 @@ jobs:
             echo "::error::[${{ matrix.lang }}] aucun .log produit — échec avant le premier passage LaTeX"
             exit 0
           fi
-          extrait=$(grep -nE '^!|^l\.[0-9]+|^\*\*\*|Fatal error|Emergency stop|Undefined control sequence|not loadable|not found' "$log" \
-                    | head -25 | tr '\n' '§')
+          # Contexte autour de la PREMIERE erreur : la ligne seule ne dit pas
+          # quelle macro est indefinie, LaTeX l'imprime sur les lignes suivantes.
+          extrait=$(grep -nE -A8 '^!|\.tex:[0-9]+:|Fatal error|Emergency stop' "$log" \
+                    | head -40 | tr '\n' '§')
           echo "::error::[${{ matrix.lang }}] ${extrait:-aucune ligne d erreur reconnue dans le log}"
 
       - name: Installer poppler-utils
