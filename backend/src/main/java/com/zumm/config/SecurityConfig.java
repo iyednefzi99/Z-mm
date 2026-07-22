@@ -17,7 +17,9 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import com.zumm.tenant.TenantFilter;
 
 /**
  * Securite de l'API : serveur de ressources OAuth2 valide par Keycloak.
@@ -55,6 +57,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())))
+                // Le contexte tenant se lit sur le jeton : le filtre vient donc
+                // apres l'authentification, une fois le JWT resolu.
+                .addFilterAfter(new TenantFilter(), BasicAuthenticationFilter.class)
                 .headers(entetes -> entetes
                         .referrerPolicy(referrer -> referrer.policy(
                                 ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))
