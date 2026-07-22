@@ -1,7 +1,7 @@
 # ADR-002 — Volumétrie cible et justification de TimescaleDB
 
 - **Date** : 2026-07-19
-- **Statut** : 🟠 Proposé — chiffres à confirmer par le client
+- **Statut** : 🟢 Accepté (sur hypothèses par défaut) — 2026-07-22 · voir § Arbitrage
 - **Décideurs** : architecte, client
 - **Bloque** : dimensionnement infra, EPIC-004 (capteurs), coût d'hébergement
 
@@ -87,10 +87,34 @@ remplaçant celui-ci.
 | **InfluxDB / base de séries dédiée** | Ajoute un second système à exploiter, sauvegarder et synchroniser avec les données relationnelles. Le gain ne justifie pas ce coût à cette échelle. |
 | **Agrégation applicative en Java** | Reporte sur l'application un travail que le SGBD fait mieux, et complexifie US-013 à US-015. |
 
-## Questions ouvertes à trancher avec le client
+## Arbitrage (2026-07-22)
 
-1. Combien de ruches **réellement instrumentées** (avec capteurs) à 1 an ?
-   Les ruches saisies manuellement ne génèrent pas de série temporelle.
-2. Quelle fréquence d'échantillonnage les capteurs retenus imposent-ils ?
-3. Quelle durée légale ou contractuelle de conservation des mesures ?
-4. Y a-t-il un engagement de restitution de l'historique brut au client ?
+L'équipe projet tranche sur hypothèses par défaut. **La décision proposée est
+retenue** : conserver TimescaleDB, les hypothèses de volumétrie du tableau
+ci-dessus servant de base de dimensionnement.
+
+**Pourquoi cet arbitrage est peu risqué pour ouvrir le SPRINT-01.** TimescaleDB
+n'est exercé qu'à partir des stories capteurs (**EPIC-004**, ~Sprint 4) : ni le
+CRUD du SPRINT-01 ni les entités de référence n'en dépendent. Accepter sur
+hypothèses ne fait donc courir **aucun risque au SPRINT-01**, tout en gardant la
+décision révisable jusqu'à l'ouverture d'EPIC-004.
+
+**Condition de révision maintenue et datée.** Si la volumétrie réelle confirmée
+par le client tombe **sous 10 M de mesures/an**, TimescaleDB est retiré au profit
+de PostgreSQL + PostGIS (index BRIN), par un ADR remplaçant celui-ci. **Cette
+confirmation doit être obtenue avant le démarrage d'EPIC-004**, pas avant le
+SPRINT-01 — c'est le vrai point de non-retour, l'ingestion des mesures.
+
+**Réserve.** Chiffres non confirmés par le client. L'arbitrage vaut engagement
+d'équipe ; il devient définitif à la confirmation des ordres de grandeur (ruches
+instrumentées, fréquence, rétention) à la première revue.
+
+## Questions ouvertes — réponses par défaut
+
+1. Ruches réellement instrumentées à 1 an → hypothèse **10 000** (tableau).
+2. Fréquence d'échantillonnage → **4 mesures/ruche/heure** par défaut.
+3. Durée de conservation → **24 mois** (à croiser avec l'AIPD).
+4. Restitution de l'historique brut → **non engagée** par défaut.
+
+> Ces quatre réponses sont des hypothèses de dimensionnement, pas des engagements.
+> Leur confirmation est requise **avant EPIC-004**, échéance portée au backlog.

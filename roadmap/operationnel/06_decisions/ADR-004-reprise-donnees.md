@@ -1,7 +1,7 @@
 # ADR-004 — Reprise de l'existant
 
 - **Date** : 2026-07-19
-- **Statut** : 🟠 Proposé — inventaire client requis
+- **Statut** : 🟢 Accepté (sur hypothèses par défaut) — 2026-07-22 · voir § Arbitrage
 - **Décideurs** : Product Owner, client, architecte
 - **Bloque** : périmètre, planning de fin de projet, AIPD
 
@@ -90,9 +90,43 @@ mécanisme qui traite l'ensemble des sources.
 | **Reprise exhaustive de l'historique** | Coût disproportionné au regard de la valeur d'un historique de visites de plus de 12 mois. |
 | **Saisie manuelle assistée** | Envisageable pour un très petit volume, mais ne passe pas l'échelle et déplace la charge sur le client. |
 
-## Questions ouvertes à trancher avec le client
+## Arbitrage (2026-07-22)
 
-1. Quelles sources existent réellement, sous quel format, sur quel volume ?
-2. Combien d'exploitations sont concernées à la mise en production ?
-3. Qui est responsable du nettoyage des données avant import — nous ou eux ?
-4. Quelle base légale et quelle durée de conservation pour l'historique repris ?
+L'équipe projet tranche sur hypothèses par défaut. **Le mécanisme proposé est
+retenu** : reprise limitée et cadrée par **import CSV générique** (modèle de
+fichier fourni, rapport d'import détaillant les lignes rejetées), périmètre par
+priorités du tableau ci-dessus, **+13 SP** planifiés au **Sprint 2**.
+
+**Correction d'un point de la décision proposée.** Le texte prévoyait un
+« inventaire de l'existant réalisé pendant le Sprint 0 ». **Cet inventaire n'a pas
+été réalisé** : il dépend d'un accès au client qui n'a pas eu lieu. Il reste donc
+**dû**, et devient une **dépendance d'entrée du Sprint 2** — le développement de
+l'import CSV au Sprint 2 est conditionné à sa réalisation en amont. Cela ne change
+pas le mécanisme retenu (le CSV couvre toutes les sources, connu ou non
+l'inventaire), seulement le calendrier de sa préparation.
+
+**Pourquoi cet arbitrage n'affecte pas le SPRINT-01.** La reprise est planifiée au
+Sprint 2 ; le SPRINT-01 (CRUD des entités de référence) en est le prérequis, pas
+l'inverse. Accepter ADR-004 fixe le périmètre (+13 SP) et lève le blocage de
+principe, sans rien exiger avant le Sprint 1.
+
+**Hypothèses retenues** (à confirmer sans bloquer le Sprint 1) :
+
+- Sources = **tableurs + carnets papier + exports d'applications concurrentes**,
+  toutes ramenées au CSV ; **pas de connecteur spécifique**.
+- Nettoyage des données à la charge du **client**, avec itérations conjointes ;
+  **aucun engagement de résultat** sur des données non maîtrisées.
+- Chaque enregistrement importé reçoit un `tenant_id` (ADR-001).
+- Base légale et durée de conservation de l'historique repris : **traitées dans
+  l'AIPD** avant l'import (dépendance de conformité, pas seulement technique).
+
+**Réserve.** Inventaire client non fait → dépendance ouverte du Sprint 2. L'arbitrage
+vaut engagement d'équipe ; le périmètre exact se confirme à l'inventaire.
+
+## Questions ouvertes — réponses par défaut
+
+1. Sources réelles (format/volume) → **inconnues, inventaire dû avant Sprint 2**.
+2. Exploitations concernées à la mise en production → hypothèse **1 à quelques**
+   (cf. ADR-001/002).
+3. Responsable du nettoyage → **client**, par défaut.
+4. Base légale / conservation de l'historique → **à traiter dans l'AIPD**.

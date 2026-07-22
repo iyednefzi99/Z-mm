@@ -1,7 +1,7 @@
 # ADR-001 — Multi-tenant ou mono-client
 
 - **Date** : 2026-07-19
-- **Statut** : 🟠 Proposé — arbitrage client requis
+- **Statut** : 🟢 Accepté (sur hypothèses par défaut) — 2026-07-22 · voir § Arbitrage
 - **Décideurs** : Product Owner, architecte, client
 - **Bloque** : modèle de données, sécurité, sauvegardes, tarification
 
@@ -86,10 +86,40 @@ le client par écrit.
 | **Un schéma PostgreSQL par client** | Compromis intermédiaire, mais les migrations de schéma deviennent pénibles au-delà de quelques dizaines de clients. |
 | **Filtrage applicatif seul** | Un seul oubli de clause `WHERE` suffit à créer une fuite. Inacceptable au vu de la sensibilité des coordonnées GPS. |
 
-## Questions ouvertes à trancher avec le client
+## Arbitrage (2026-07-22)
 
-1. Combien de clients distincts visés à 1 an ? à 3 ans ?
-2. Un client peut-il exiger une isolation physique (base dédiée) par contrat ?
-3. Un utilisateur peut-il appartenir à plusieurs exploitations (apiculteur
-   prestataire travaillant pour plusieurs fermes) ? Ce cas change la
-   modélisation du lien utilisateur↔tenant.
+Faute d'arbitrage client dans les délais du Sprint 0, l'équipe projet (architecte,
+Product Owner) tranche sur hypothèses par défaut — l'escalade J+5 prévue au
+SPRINT-00 est arrivée à échéance. **La décision proposée est retenue** :
+multi-tenant dès l'origine, isolation par RLS PostgreSQL, realm Keycloak unique,
+`tenant_id` en *claim* JWT.
+
+**Pourquoi trancher dans ce sens sans le client.** C'est la décision qui préserve
+l'optionalité : bâtir mono-client et découvrir ensuite le besoin multi-tenant
+coûte 3 à 4× le rattrapage, avec risque de fuite ; bâtir multi-tenant et rester
+mono-client ne coûte qu'un léger surdimensionnement. Face à une incertitude
+irréversible, on choisit l'option réversible.
+
+**Hypothèses retenues** (à confirmer, sans bloquer la construction) :
+
+1. Produit **commercialisable à plusieurs exploitations** — cohérent avec
+   l'enveloppe de 200 000 $.
+2. **Pas d'isolation physique contractuelle** à ce jour : base et schéma uniques,
+   RLS. Un client l'exigeant serait traité par l'alternative « base par client »,
+   sans remettre en cause la modélisation `tenant_id`.
+3. **Un utilisateur appartient à une seule exploitation** (lien utilisateur↔tenant
+   simple). C'est le seul point qui touche la modélisation : le défaut retenu est
+   le plus simple et **extensible** (une table d'association pourra le lever plus
+   tard sans casser l'existant). À signaler au client comme limitation actuelle.
+
+**Réserve.** La DoD du Sprint 0 demandait une signature client ; elle n'est pas
+acquise. Cet arbitrage a valeur d'engagement d'équipe, pas de validation
+contractuelle : à confirmer par écrit à la première revue client. Si le client
+tranche différemment, seul le point 3 impose une reprise (limitée) ; le cœur
+`tenant_id`/RLS reste valable dans tous les scénarios sauf mono-client assumé.
+
+## Questions ouvertes — réponses par défaut
+
+1. Clients distincts visés à 1/3 ans → hypothèse **50 à 3 ans** (cf. ADR-002).
+2. Isolation physique par contrat → **non par défaut** (voir hypothèse 2).
+3. Utilisateur multi-exploitations → **non par défaut** (voir hypothèse 3).

@@ -98,7 +98,7 @@ réel et restent dus.
 
 | Livrable DoD | État | Preuve / reste dû |
 |:---|:---|:---|
-| 4 ADR | 🟠 **Proposé** | Rédigés et argumentés ; **arbitrage client requis** pour passer à « Accepté ». Bloque SPRINT-01. |
+| 4 ADR | 🟢 **Accepté (hypothèses)** | Arbitrés le 22/07 par l'équipe projet, faute d'arbitrage client dans les délais (escalade J+5 échue). Décisions proposées retenues, sous réserves documentées (cf. `06_decisions/`). **SPRINT-01 débloqué.** Signature client encore due. |
 | Walking skeleton | 🟡 **Prouvé en local, assemblage partiel** | Chaîne complète testée (`mvn verify`, 16 tests, `Skipped: 0`) et **CI applicative verte** depuis le 21/07 ; 4 services sur 6 assemblés et vérifiés. **Pas déployé en production réelle** (hébergeur/domaine/Let's Encrypt hors périmètre technique). |
 | Restauration de sauvegarde | 🟢 **Réussie** | `infra/tester-restauration.sh` : témoin détruit puis retrouvé après restauration. |
 | Maquettes des 3 écrans | 🟡 **Produites** | `docs/maquettes/` aux jetons de la charte ; **non validées par un apiculteur**. |
@@ -158,8 +158,11 @@ en dépend directement (`host not found in upstream "backend"`).
 
 ### Actions pour le prochain sprint
 
-1. **Faire arbitrer les 4 ADR** — priorité absolue : SPRINT-01 ne démarre pas sans
-   ADR-001 (multi-tenant → `tenant_id`/RLS).
+1. ~~**Faire arbitrer les 4 ADR**~~ — ✅ **fait le 22/07.** Arbitrés par l'équipe
+   projet sur hypothèses par défaut (escalade J+5 échue), dans le sens des
+   décisions proposées. ADR-001 (multi-tenant → `tenant_id`/RLS) est acté :
+   SPRINT-01 peut démarrer. **Reste dû : confirmation/signature client**, et pour
+   ADR-002 la volumétrie réelle **avant EPIC-004**.
 2. **Résoudre le débit réseau / registre d'images** avant d'ajouter des services.
 3. **Exécuter `docker compose up` de bout en bout** sur un lien correct, puis
    présenter la démo complète.

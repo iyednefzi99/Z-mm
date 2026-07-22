@@ -298,3 +298,56 @@ restent en place** : le prochain échec sera diagnosticable de la même façon.
     `\providecommand{\UseMathForPositioningText}{}` en préambule arabe.
 17. **Un contrôle de fraîcheur par historique git exige `fetch-depth: 0`** — le
     `checkout` par défaut est superficiel et tronque les dates.
+
+---
+
+## 2026-07-22 (suite) — Les 4 ADR arbitrés : le SPRINT-01 est débloqué
+
+Le vrai chemin critique du projet n'était pas technique mais décisionnel : les 4
+ADR de `06_decisions/` étaient « Proposé », et la porte du SPRINT-01 restait fermée
+en attendant un arbitrage client qui n'est pas venu. Le SPRINT-00 avait prévu ce
+cas (risque « le client ne tranche pas → escalade J+5 »). L'échéance étant passée,
+**l'équipe projet a tranché sur hypothèses par défaut**, dans le sens des décisions
+proposées, chacune sous réserves explicites.
+
+### Ce qui a été acté
+
+- **ADR-001 — multi-tenant + RLS PostgreSQL** : retenu. C'est la décision qui
+  préserve l'optionalité (le rattrapage mono→multi coûte 3-4×, l'inverse coûte un
+  léger surdimensionnement). Défaut posé : **un utilisateur ↔ une exploitation**
+  (seul point qu'un revirement client obligerait à reprendre, et il est extensible).
+- **ADR-002 — TimescaleDB conservé** sur les hypothèses de volumétrie (350 M
+  mesures/an, 35× le seuil de pertinence). Peu risqué à ce stade : TimescaleDB
+  n'est exercé qu'à **EPIC-004** (~Sprint 4). La condition de révision (< 10 M/an →
+  retrait) reste vive, à confirmer **avant EPIC-004**, pas avant le Sprint 1.
+- **ADR-003 — `docker compose` mono-serveur, exploité client + TMA** ; Kubernetes
+  hors périmètre. Réversible par ADR ultérieur. Restent subordonnés au client, sans
+  bloquer le Sprint 1 : **SLO 99,5 %** (à accepter par écrit), RPO, astreinte,
+  détention des secrets.
+- **ADR-004 — import CSV générique, +13 SP au Sprint 2**. J'ai corrigé un point
+  faux de la décision : l'« inventaire réalisé pendant le Sprint 0 » n'a **pas** eu
+  lieu ; il reste dû et devient une **dépendance d'entrée du Sprint 2**, pas du
+  Sprint 1.
+
+### Nature de l'arbitrage — et ses limites
+
+Ces statuts sont « **Accepté (sur hypothèses par défaut)** », un statut ajouté au
+registre. Ils **font autorité pour la construction** mais ne valent **pas**
+signature client : la DoD du Sprint 0 exigeait cette signature, elle n'est pas
+acquise. Chaque ADR liste ce qui reste à confirmer et à quelle échéance. Le
+`docker compose` n'a pas été fabriqué à partir de rien : la porte s'ouvre sur une
+décision, pas sur un fait accompli côté client.
+
+### Effet
+
+**Le SPRINT-01 (CRUD Fermier/Ferme/Site/Agent + `ConfigZumm.ini`, 36 SP) peut
+démarrer** le 28/07 comme prévu. ADR-001 en est le fondement direct : les tables de
+référence porteront `tenant_id` avec politique RLS dès leur création.
+
+### Reste dû
+
+- **Confirmation/signature client** des 4 arbitrages (revue client).
+- **Volumétrie réelle** avant EPIC-004 (ADR-002).
+- **Inventaire de l'existant** avant le Sprint 2 (ADR-004).
+- Assemblage `compose` complet (backend + nginx) ; production réelle ; validation
+  des maquettes par un apiculteur.
