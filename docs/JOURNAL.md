@@ -234,7 +234,67 @@ ne dépend plus que du temps de téléchargement de l'image Maven.
 ### Reste dû
 
 - `Build PDFs` : `ar` ne compile toujours pas (`exit 12`), `fr`/`en` échouent plus
-  loin (`exit 1`). Dette antérieure au sprint, à traiter au SPRINT-01.
+  loin (`exit 1`). Dette antérieure au sprint. → **Résolu le 22/07, voir ci-dessous.**
 - Assemblage `compose` complet (backend + nginx).
 - Les 4 ADR restent « Proposé » → **SPRINT-01 reste fermé**.
 - Production réelle et validation des maquettes : hors périmètre technique.
+
+---
+
+## 2026-07-22 — `Build PDFs` réparé : les trois cahiers compilent en CI
+
+Dette antérieure au SPRINT-00 (rouge depuis le 18/07). Les deux workflows de
+`main` sont désormais **verts pour la première fois**. Trois défauts distincts,
+aucun visible en local sous MiKTeX.
+
+### 1. L'arabe n'avait jamais compilé — conflit `bidi`, en deux couches
+
+`polyglossia` charge `bidi`, qui patche `\@tabular`, `\@array` et `hyperref`. Le
+bloc langue/polices était chargé **en tête de préambule** : `bidi` patchait donc
+des macros ensuite écrasées par `array`/`tabularx`/`xltabular`/`hyperref`. Bloc
+déplacé **en fin de préambule** (avec un avertissement en tête pour ne pas le
+remonter). Nécessaire — mais l'échec persistait à l'identique.
+
+Cause finale : dans l'image TeX Live de `latex-action`, `bidi` redéfinit
+`\@tabular` en appelant `\UseMathForPositioningText` **sans que sa propre version
+ne la définisse**. Tout `\begin{tabular}` mourait en *Undefined control sequence*
+(`latexmk` exit 12). Neutralisée par `\providecommand{\UseMathForPositioningText}{}` :
+`\providecommand` n'écrase rien si une version correcte existe ; vide, elle
+rétablit le `\@tabular` du noyau. **À retirer quand l'image CI sera cohérente.**
+
+### 2. `fr`/`en` — faux positif structurel du contrôle de fraîcheur
+
+Le contrôle comparait le **texte extrait** du PDF versionné à celui d'un PDF
+recompilé en CI. Deux distributions LaTeX n'extraient pas le même texte : sur `fr`
+comme sur `en`, l'écart portait sur **un caractère parmi 107 000** — le signe
+somme de la formule `QuantiteMiel`, rendu `X` par MiKTeX (référence versionnée) et
+`∑` par TeX Live (CI). Les polices mathématiques n'embarquent pas la même table
+ToUnicode ; aucune normalisation ne rattrape cela, `X` étant une lettre.
+
+`check-pdf-current.sh` a été réécrit : il interroge l'**historique git** — *le PDF
+est-il postérieur à ses sources ?* — ce qui répond à l'intention d'origine sans
+dépendre d'aucune police. Le job n'a plus besoin de `poppler-utils` ni de mettre
+le PDF de côté, mais exige `fetch-depth: 0` (un clone superficiel fausserait les
+dates ; le script le détecte et refuse).
+
+### 3. Le détour qui a rendu tout cela possible
+
+Les logs Actions exigent une authentification (HTTP 403 depuis l'API publique) ;
+les **annotations de check-runs**, elles, sont publiques. Deux étapes
+conditionnelles y recopient désormais les lignes d'erreur LaTeX (avec 8 lignes de
+contexte — la ligne seule ne nomme pas la macro indéfinie) et le rapport de
+fraîcheur. Sans ce câblage, je n'aurais eu que des codes de sortie. **Ces étapes
+restent en place** : le prochain échec sera diagnosticable de la même façon.
+
+### Nouveaux pièges consignés
+
+14. **`bidi` doit être chargé en dernier** (après `array`/`tabularx`/`xltabular`/
+    `hyperref`) : il patche leurs macros de tableaux et doit voir leur version
+    définitive. MiKTeX le tolère, TeX Live non.
+15. **Ne jamais comparer le *contenu* de deux PDF issus de distributions LaTeX
+    différentes** : les tables ToUnicode divergent (`∑` ↔ `X`), faux positif
+    permanent. Juger la fraîcheur sur les **dates de commit**, pas sur le texte.
+16. **`\UseMathForPositioningText` indéfinie** dans le `bidi` de l'image CI :
+    `\providecommand{\UseMathForPositioningText}{}` en préambule arabe.
+17. **Un contrôle de fraîcheur par historique git exige `fetch-depth: 0`** — le
+    `checkout` par défaut est superficiel et tronque les dates.

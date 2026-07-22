@@ -164,13 +164,15 @@ en dépend directement (`host not found in upstream "backend"`).
 3. **Exécuter `docker compose up` de bout en bout** sur un lien correct, puis
    présenter la démo complète.
 4. **Planifier la validation des maquettes** avec un apiculteur référent.
-5. **Réparer `Build PDFs`** — rouge depuis le 18/07, antérieur à ce sprint :
-   l'arabe n'a jamais compilé en CI (`exit 12`), `fr`/`en` échouent au contrôle de
-   fraîcheur des PDF (`exit 1`).
+5. ~~**Réparer `Build PDFs`**~~ — ✅ **fait le 22/07.** Les trois cahiers
+   compilent en CI ; les deux workflows de `main` sont verts. Détail et pièges
+   dans `docs/JOURNAL.md` (entrée du 22/07). Conflit `bidi`/`array` + macro
+   `\UseMathForPositioningText` indéfinie dans l'image CI ; contrôle de fraîcheur
+   basé sur le contenu remplacé par un contrôle sur les dates de commit.
 6. **Terminer l'assemblage** : construire l'image backend, puis relancer la pile
    complète pour que `nginx` trouve son *upstream*.
 
 > **Vélocité :** sprint de cadrage, hors vélocité produit (0 point). Aucune
 > conséquence sur le burndown des sprints métier.
 
-*Dernière mise à jour : 21/07/2026*
+*Dernière mise à jour : 22/07/2026*
