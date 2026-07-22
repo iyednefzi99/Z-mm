@@ -351,3 +351,64 @@ référence porteront `tenant_id` avec politique RLS dès leur création.
 - **Inventaire de l'existant** avant le Sprint 2 (ADR-004).
 - Assemblage `compose` complet (backend + nginx) ; production réelle ; validation
   des maquettes par un apiculteur.
+
+---
+
+## 2026-07-23 — Fondation du SPRINT-01 : modèle métier, multi-tenant, config, durcissement RLS
+
+Préparation du SPRINT-01 poussée jusqu'au code (choix assumé sur le curseur
+académique), compilée et vérifiée contre un PostgreSQL réel.
+
+### Livré
+
+- **Modèle métier** (migration V2) : Fermier → Ferme → Site + Agent, dérivé du
+  dictionnaire et de l'annexe A. FK composites incluant `tenant_id` (interdit les
+  références inter-tenant que la vérification FK contournerait) ; PostGIS `geog`
+  générée + index GiST pour Site (US-003) ; contraintes de composition (US-006) en
+  `CHECK` doublées par Bean Validation. Entité `ping` conservée.
+- **Multi-tenant à deux couches** (ADR-001) : `@TenantId` Hibernate (couche
+  applicative) + RLS PostgreSQL avec variable de session posée depuis le claim JWT
+  (couche SGBD). Entités, dépôts, `TenantContext`/`TenantFilter`/résolveur/
+  connection-provider.
+- **Config métier** (US-025) : lecture de `ConfigZumm.ini`, seuils typés, relecture
+  à chaud, parseur sans dépendance.
+- Conception : `docs/SPRINT-01-FONDATION.md`.
+
+### Ce que le test a révélé, et le durcissement qui a suivi
+
+`ModeleMetierIsolationIT` a démontré un défaut de fond : **la RLS était inerte**.
+L'utilisateur `zumm` (conteneur et `docker-compose`) est **superutilisateur**, et
+un superutilisateur contourne la RLS **même sous `FORCE`**. Seule la couche
+`@TenantId` protégeait réellement.
+
+Corrigé le jour même (migration **V3**) : rôle applicatif dédié `zumm_app`
+**non-superutilisateur** (DML seul, `ALTER DEFAULT PRIVILEGES` pour les tables
+futures), créé sans secret versionné (placeholders Flyway alimentés par
+`DB_APP_PASSWORD`). **Dissociation des connexions** : l'application se connecte en
+`zumm_app` (RLS effective), Flyway garde `zumm` pour les DDL — câblé dans
+`docker-compose.yml`. `RoleApplicatifIT` le prouve par une **connexion directe avec
+le vrai rôle** : non-superutilisateur, isolé par la RLS, sans droit DDL.
+
+Bilan : **11 tests unitaires + 14 d'intégration, `Skipped: 0`**.
+
+### Nouveaux pièges consignés
+
+18. **Un superutilisateur Postgres contourne la RLS même avec `FORCE`.** La défense
+    RLS n'existe que si l'application se connecte avec un rôle non-superutilisateur.
+    Dissocier le rôle applicatif (DML) du rôle de migration (DDL).
+19. **`@ServiceConnection` configure la datasource par un bean**, pas par
+    `spring.datasource.url` : un `${spring.datasource.url}` dans `spring.flyway.url`
+    se résout au défaut `localhost:5432` et casse Flyway en test. Laisser Flyway
+    hériter de la datasource par défaut ; ne dissocier qu'en prod, par variables
+    d'environnement.
+20. **Backticks dans un `git commit -m "…"`** (guillemets doubles) : bash exécute
+    `` `ping` ``, `` `geog` ``… comme substitution de commande et pollue le message.
+    Passer par `-F fichier`, ou des guillemets simples.
+
+### Reste dû (inchangé sur le fond)
+
+- Confirmation/signature client des ADR ; volumétrie avant EPIC-004 ; inventaire
+  avant le Sprint 2.
+- Contrôleurs REST + services des 4 CRUD, RBAC par rôle, suppression de `ping`,
+  arrondi des positions sensibles : **travail d'exécution du SPRINT-01**.
+- Validation de bout en bout de `zumm_app` en montant la pile `compose`.

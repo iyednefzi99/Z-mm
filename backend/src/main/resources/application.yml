@@ -18,6 +18,19 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: false
+    # Par défaut, Flyway utilise la source de données principale (= le rôle `zumm`
+    # propriétaire, en local comme en test). En PRODUCTION, l'application se
+    # connecte avec le rôle non-privilégié `zumm_app`, tandis que Flyway (qui
+    # exige des droits DDL) est ramené au propriétaire par les variables
+    # d'environnement SPRING_FLYWAY_URL / SPRING_FLYWAY_USER / SPRING_FLYWAY_PASSWORD
+    # (lues automatiquement par Spring Boot ; cf. docker-compose.yml).
+    #
+    # Placeholders du rôle applicatif créé par V3 (durcissement RLS, ADR-001).
+    # Aucun secret versionné : DB_APP_PASSWORD alimente ce mot de passe et celui
+    # de la source de données applicative en production.
+    placeholders:
+      role_app: ${DB_APP_USER:zumm_app}
+      motdepasse_app: ${DB_APP_PASSWORD:zumm_app_dev}
   security:
     oauth2:
       resourceserver:

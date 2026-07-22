@@ -81,8 +81,18 @@ services:
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zumm
-      SPRING_DATASOURCE_USERNAME: zumm
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
+      # Durcissement RLS (ADR-001) : l'APPLICATION tourne avec le role
+      # non-superutilisateur `zumm_app`, soumis a la RLS. Un superutilisateur la
+      # contournerait. Le role et son mot de passe sont crees par la migration V3.
+      SPRING_DATASOURCE_USERNAME: ${DB_APP_USER:-zumm_app}
+      SPRING_DATASOURCE_PASSWORD: ${DB_APP_PASSWORD:?DB_APP_PASSWORD requis (cf. .env.example)}
+      DB_APP_USER: ${DB_APP_USER:-zumm_app}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD:?DB_APP_PASSWORD requis}
+      # Les MIGRATIONS Flyway, elles, s'executent avec le proprietaire `zumm`
+      # (droits DDL) : source de donnees dissociee de celle de l'application.
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/zumm
+      SPRING_FLYWAY_USER: zumm
+      SPRING_FLYWAY_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
       ZUMM_OIDC_ISSUER_URI: http://keycloak:8080/realms/zumm
     volumes:
       - ../config/ConfigZumm.ini:/app/config/ConfigZumm.ini:ro

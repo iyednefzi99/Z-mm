@@ -91,19 +91,35 @@ est absente → **zéro ligne** (refus par défaut).
 d'un autre tenant (couche 2). C'est le test d'isolation inter-tenant exigé par
 l'ADR-001.
 
-> ⛔ **Durcissement obligatoire avant la mise en service — la couche RLS est
-> aujourd'hui inerte dans l'application qui tourne.** Un **superutilisateur Postgres
-> contourne toujours la RLS**, même avec `FORCE`. Or l'utilisateur `zumm` créé par
-> le conteneur et par `docker-compose` est superutilisateur : tant que
-> l'application s'y connecte, seule la couche 1 (`@TenantId`) protège réellement.
-> Le test le démontre en basculant sur un rôle non-privilégié (`SET ROLE`).
->
-> **Correctif attendu au sprint** : introduire un rôle applicatif dédié
-> **non-superutilisateur** (`zumm_app`), auquel on n'accorde que le DML sur les
-> tables métier, et faire tourner l'application avec — tandis que **Flyway** conserve
-> un rôle propriétaire pour les migrations (`spring.flyway.user` distinct de
-> `spring.datasource.username`). Sans ce changement, la défense en profondeur de
-> l'ADR-001 n'est pas réellement en place.
+### Durcissement du rôle applicatif (livré) — la RLS rendue effective
+
+Un **superutilisateur Postgres contourne toujours la RLS**, même avec `FORCE`. Or
+l'utilisateur `zumm` du conteneur et de `docker-compose` est superutilisateur :
+tant que l'application s'y connecte, la couche 2 est inerte. Corrigé (migration
+`V3__role_applicatif_rls.sql`) :
+
+| Rôle | Usage | Privilèges |
+|---|---|---|
+| `zumm` (propriétaire, superutilisateur) | **Migrations Flyway** uniquement (DDL) | tout |
+| `zumm_app` (**non-superutilisateur**) | **Application** (Hibernate/Hikari) | DML seul, soumis à la RLS |
+
+- **V3** crée `zumm_app` (idempotent, `NOSUPERUSER`, `LOGIN`), lui accorde
+  `SELECT/INSERT/UPDATE/DELETE` sur les tables et `ALTER DEFAULT PRIVILEGES` pour
+  les tables futures. Rôle et mot de passe via **placeholders Flyway** — aucun
+  secret versionné ; `DB_APP_PASSWORD` alimente à la fois la création du rôle et
+  la source de données applicative.
+- **Dissociation des connexions** : en production, l'application se connecte en
+  `zumm_app` (`SPRING_DATASOURCE_USERNAME`), tandis que **Flyway** garde `zumm`
+  (`SPRING_FLYWAY_USER/URL/PASSWORD`) pour les DDL. Câblé dans `docker-compose.yml`.
+- **Preuve** (`RoleApplicatifIT`) : connexion **directe avec le vrai rôle
+  `zumm_app`** — il est bien non-superutilisateur, la RLS l'isole réellement entre
+  tenants, et il ne peut pas faire de DDL (moindre privilège).
+
+> ℹ️ **En test et en dev local**, l'application se connecte encore en `zumm`
+> (Testcontainers `@ServiceConnection`, défaut local) : la couche 1 (`@TenantId`)
+> protège, et `RoleApplicatifIT` prouve la couche 2 sur le rôle réel. C'est en
+> **production** (compose) que l'application bascule sur `zumm_app`. La validation
+> de bout en bout de ce câblage se fait en montant la pile complète.
 
 ---
 
@@ -139,9 +155,9 @@ La fondation s'arrête au socle. Restent, US par US, le travail d'exécution :
   (`arrondi_degres_public`), donnée sensible.
 - **Suppression de `ping`** (entité et code du walking skeleton) et de son test.
 - **Exposition des seuils** via l'API si une story le requiert.
-- **Rôle applicatif non-superutilisateur** (`zumm_app`) pour rendre la RLS
-  effective en production (cf. encadré § 2). **Prérequis de sécurité, pas
-  optionnel.**
+- **Validation de bout en bout** du rôle `zumm_app` en montant la pile `compose`
+  complète (le rôle et son isolation sont déjà prouvés par `RoleApplicatifIT` ;
+  reste à confirmer le câblage applicatif en conditions réelles).
 
 ## 5. Rappels de vérification
 
