@@ -104,3 +104,16 @@ Administrateur & Gère les paramètres système, les unités de mesure, les seui
   \item L'automatisation temps réel de la collecte des indicateurs (interface prévue mais non implémentée dans cette phase).
 \end{itemize}
 
+\section{Perspectives d'évolution}
+Au-delà du périmètre de cette phase, l'évolution suivante pourra être étudiée :
+\begin{itemize}
+  \item \textbf{Application mobile native (React Native), distincte de la PWA.}
+  La solution retenue est une PWA, qui assure déjà la parité web / mobile et le
+  fonctionnement hors-ligne (voir l'annexe des technologies). Une application
+  native séparée ne serait engagée que si un besoin propre au natif l'imposait :
+  notifications \emph{push} fiables sur iOS, géolocalisation en arrière-plan, ou
+  distribution par les magasins d'applications. Elle réutiliserait le noyau métier
+  TypeScript et l'API REST, mais constituerait une seconde base de code d'interface
+  à maintenir --- à n'engager que sur exigence explicite du client.
+\end{itemize}
+

@@ -103,3 +103,16 @@ Administrator & Manages the system parameters, units of measurement, thresholds 
   \item The physical acquisition and hardware deployment of sensors (later project).
   \item Real-time automation of indicator collection (interface planned but not implemented in this phase).
 \end{itemize}
+
+\section{Future perspectives}
+Beyond the scope of this phase, the following evolution may be considered:
+\begin{itemize}
+  \item \textbf{A separate native mobile application (React Native), distinct from
+  the PWA.} The chosen solution is a PWA, which already provides web/mobile parity
+  and offline operation (see the technologies appendix). A separate native app
+  would only be undertaken if a genuinely native need required it: reliable push
+  notifications on iOS, background geolocation, or distribution through app stores.
+  It would reuse the TypeScript business core and the REST API, but would
+  constitute a second interface codebase to maintain --- to be undertaken only on
+  the client's explicit request.
+\end{itemize}
