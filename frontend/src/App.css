@@ -55,6 +55,46 @@
   }
 }
 
+.z-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Sélecteur de langue (US-024). */
+.z-langues {
+  display: inline-flex;
+  gap: 0.15rem;
+  background: var(--z-bg);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-pill);
+  padding: 0.15rem;
+}
+
+.z-langue {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--z-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--z-radius-pill);
+  cursor: pointer;
+  transition: background var(--z-duration-fast) var(--z-ease-out),
+    color var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-langue:hover {
+  color: var(--z-text);
+}
+
+.z-langue[aria-current='true'] {
+  background: var(--z-honey-500);
+  color: #24170a;
+}
+
 /* ─── Navigation par onglets ───────────────────────────────────────────── */
 
 .z-nav {
@@ -350,6 +390,27 @@
   margin: 0;
   color: var(--z-danger);
   font-size: 0.88rem;
+}
+
+/* Composition d'une ruche (US-004). */
+.z-composition {
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.z-composition__hausse {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.z-composition__hausse .z-champ {
+  flex: 1;
 }
 
 .z-champ {

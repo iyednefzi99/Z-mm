@@ -84,6 +84,61 @@ export interface AgentCorps {
   fermeId: number | null;
 }
 
+export type EtatRuche =
+  | 'creee'
+  | 'peuplee'
+  | 'active'
+  | 'en_division'
+  | 'en_collecte'
+  | 'cloturee';
+
+export const ETATS_RUCHE: readonly EtatRuche[] = [
+  'creee',
+  'peuplee',
+  'active',
+  'en_division',
+  'en_collecte',
+  'cloturee',
+];
+
+export type TypeCompartiment = 'corps' | 'hausse';
+
+export interface Compartiment {
+  id: number;
+  type: TypeCompartiment;
+  nbCadres: number;
+}
+
+export interface CompartimentCorps {
+  type: TypeCompartiment;
+  nbCadres: number;
+}
+
+export interface Ruche {
+  id: number;
+  modele: string;
+  siteId: number;
+  siteNom: string;
+  fermeId: number;
+  fermeNom: string;
+  agentResponsableId: number | null;
+  agentResponsableNom: string | null;
+  etat: EtatRuche;
+  nbHausses: number;
+  compartiments: Compartiment[];
+  creeLe: string;
+  majLe: string;
+}
+
+export interface RucheCorps {
+  modele: string;
+  siteId: number;
+  fermeId: number;
+  agentResponsableId: number | null;
+  etat: EtatRuche;
+  compartiments: CompartimentCorps[];
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];

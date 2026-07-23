@@ -14,6 +14,8 @@ import type {
   FermeCorps,
   Fermier,
   FermierCorps,
+  Ruche,
+  RucheCorps,
   Seuils,
   Site,
   SiteCorps,
@@ -94,6 +96,7 @@ export const fermiers = ressource<Fermier, FermierCorps>('/api/fermiers');
 export const fermes = ressource<Ferme, FermeCorps>('/api/fermes');
 export const sites = ressource<Site, SiteCorps>('/api/sites');
 export const agents = ressource<Agent, AgentCorps>('/api/agents');
+export const ruches = ressource<Ruche, RucheCorps>('/api/ruches');
 
 /** Sites du tenant a proximite d'un point (US-003, PostGIS). */
 export const sitesProches = (latitude: number, longitude: number, rayonMetres: number) =>

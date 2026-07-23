@@ -84,3 +84,6 @@ sauvegardes/
 # Certificats TLS : jamais versionnes, meme auto-signes de developpement.
 # Ils sont regeneres par infra/generer-certificat-dev.sh.
 infra/nginx/ssl/
+
+# Realm Keycloak de developpement (mot de passe faible, direct-grant) — jamais versionne
+infra/keycloak/realm-zumm.dev.json

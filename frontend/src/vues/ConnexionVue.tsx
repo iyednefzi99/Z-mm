@@ -1,7 +1,7 @@
 import { useState, type ReactElement } from 'react';
 import { ouvrirSession } from '../auth/session';
+import { useT } from '../i18n/langue';
 import { Bouton } from '../ui/composants';
-import { L } from '../ui/libelles';
 
 /**
  * Ecran de session. En production, il sera remplace par une redirection Keycloak
@@ -9,6 +9,7 @@ import { L } from '../ui/libelles';
  * developpement, il accepte un jeton d'acces valide (portant le claim tenant_id).
  */
 export function ConnexionVue(): ReactElement {
+  const t = useT();
   const [jeton, setJeton] = useState('');
 
   return (
@@ -16,16 +17,16 @@ export function ConnexionVue(): ReactElement {
       <div className="z-connexion__carte">
         <div className="z-marque">
           <span className="z-marque__pastille" aria-hidden="true" />
-          <span className="z-marque__nom">{L.marque}</span>
+          <span className="z-marque__nom">{t.marque}</span>
         </div>
-        <h1 className="z-connexion__titre">{L.session.titre}</h1>
-        <p className="z-connexion__texte">{L.session.explication}</p>
+        <h1 className="z-connexion__titre">{t.session.titre}</h1>
+        <p className="z-connexion__texte">{t.session.explication}</p>
         <label className="z-champ">
-          <span className="z-champ__libelle">{L.session.jeton}</span>
+          <span className="z-champ__libelle">{t.session.jeton}</span>
           <textarea
             className="z-input z-input--zone"
             rows={4}
-            placeholder={L.session.placeholder}
+            placeholder={t.session.placeholder}
             value={jeton}
             onChange={(e) => setJeton(e.target.value)}
           />
@@ -34,7 +35,7 @@ export function ConnexionVue(): ReactElement {
           variante="primaire"
           onClick={() => jeton.trim() !== '' && ouvrirSession(jeton.trim())}
         >
-          {L.actions.seConnecter}
+          {t.actions.seConnecter}
         </Bouton>
       </div>
     </main>

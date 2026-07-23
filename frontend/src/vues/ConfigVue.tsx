@@ -1,12 +1,13 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { recupererSeuils } from '../api/client';
 import type { Seuils } from '../api/types';
+import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton } from '../ui/composants';
-import { L } from '../ui/libelles';
 
 /** Affiche, en lecture seule, les seuils metier de ConfigZumm.ini (US-025). */
 export function ConfigVue(): ReactElement {
+  const t = useT();
   const [seuils, setSeuils] = useState<Seuils | null>(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -26,15 +27,15 @@ export function ConfigVue(): ReactElement {
     <section className="z-section">
       <header className="z-section__entete">
         <div>
-          <h1 className="z-section__titre">{L.config.titre}</h1>
-          <p className="z-section__soustitre">{L.config.sousTitre}</p>
+          <h1 className="z-section__titre">{t.config.titre}</h1>
+          <p className="z-section__soustitre">{t.config.sousTitre}</p>
         </div>
-        <Bouton onClick={charger}>{L.actions.reessayer}</Bouton>
+        <Bouton onClick={charger}>{t.actions.reessayer}</Bouton>
       </header>
 
       {chargement && (
         <p className="z-info" role="status">
-          {L.etats.chargement}
+          {t.etats.chargement}
         </p>
       )}
       {erreur && (
@@ -45,13 +46,13 @@ export function ConfigVue(): ReactElement {
 
       {seuils && !erreur && (
         <div className="z-seuils">
-          <Seuil libelle={L.config.poids} valeur={seuils.poidsRucheAlerteKg} />
-          <Seuil libelle={L.config.tempMin} valeur={seuils.temperatureMinCelsius} />
-          <Seuil libelle={L.config.tempMax} valeur={seuils.temperatureMaxCelsius} />
-          <Seuil libelle={L.config.humidite} valeur={seuils.humiditeMaxPourcent} />
-          <Seuil libelle={L.config.delai} valeur={seuils.delaiAlerteJours} />
-          <Seuil libelle={L.config.arrondi} valeur={seuils.arrondiDegresPublic} />
-          <Seuil libelle={L.config.langues} valeur={seuils.languesActives.join(' · ')} />
+          <Seuil libelle={t.config.poids} valeur={seuils.poidsRucheAlerteKg} />
+          <Seuil libelle={t.config.tempMin} valeur={seuils.temperatureMinCelsius} />
+          <Seuil libelle={t.config.tempMax} valeur={seuils.temperatureMaxCelsius} />
+          <Seuil libelle={t.config.humidite} valeur={seuils.humiditeMaxPourcent} />
+          <Seuil libelle={t.config.delai} valeur={seuils.delaiAlerteJours} />
+          <Seuil libelle={t.config.arrondi} valeur={seuils.arrondiDegresPublic} />
+          <Seuil libelle={t.config.langues} valeur={seuils.languesActives.join(' · ')} />
         </div>
       )}
     </section>

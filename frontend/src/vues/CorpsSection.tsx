@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
+import { useT } from '../i18n/langue';
 import { Bouton } from '../ui/composants';
-import { L } from '../ui/libelles';
 
 /** Etat minimal attendu par la section (sous-ensemble de EtatRessource). */
 export interface EtatSection {
@@ -27,6 +27,7 @@ export function CorpsSection({
   onNouveau: () => void;
   children: ReactNode;
 }): ReactElement {
+  const t = useT();
   const vide = !etat.chargement && !etat.erreur && etat.elements.length === 0;
 
   return (
@@ -34,22 +35,22 @@ export function CorpsSection({
       <header className="z-section__entete">
         <h1 className="z-section__titre">{titre}</h1>
         <Bouton variante="primaire" onClick={onNouveau}>
-          + {L.actions.nouveau}
+          + {t.actions.nouveau}
         </Bouton>
       </header>
 
       {etat.chargement && (
         <p className="z-info" role="status">
-          {L.etats.chargement}
+          {t.etats.chargement}
         </p>
       )}
       {etat.erreur && (
         <div className="z-erreur" role="alert">
           <span>{etat.erreur}</span>
-          <Bouton onClick={etat.recharger}>{L.actions.reessayer}</Bouton>
+          <Bouton onClick={etat.recharger}>{t.actions.reessayer}</Bouton>
         </div>
       )}
-      {vide && <p className="z-info">{L.etats.vide}</p>}
+      {vide && <p className="z-info">{t.etats.vide}</p>}
 
       {children}
     </section>

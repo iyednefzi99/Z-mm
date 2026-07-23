@@ -485,3 +485,42 @@ exactement à ce périmètre.
   libellés déjà centralisés, prêts à traduire.
 - **Cartographie** (MapLibre) et **graphiques** (Chart.js) : arrivent avec les EPIC
   correspondants, hors SPRINT-01.
+
+---
+
+## 2026-07-24 — SPRINT-02 mené à terme sur toute la stack, rétrospective
+
+SPRINT-02 **entièrement livré** : composition des ruches, modèle Mesure
+(TimescaleDB), i18n FR/EN/AR, TLS 1.3, harnais de test. **39 SP / 39.**
+Backend : 11 unitaires + 36 d'intégration, `Skipped: 0`. Frontend : build vert.
+
+### Livré
+
+- **US-004 — CRUD Ruche + composition** (pattern Composite) : Ruche → Compartiments
+  (V4). Règles de l'annexe A verrouillées à trois niveaux (Bean Validation, service,
+  CHECK + index unique partiel « au plus un corps »). Vue Ruches dans la PWA, avec
+  hausses dynamiques. IT dédié (composition valide/invalide, isolation).
+- **US-016 — modèle Mesure** : hypertable TimescaleDB (V5), clé naturelle incluant
+  `instant`, `tenant_id` + RLS. IT prouvant la persistance et le statut hypertable.
+- **US-024 — i18n FR/EN/AR** : console entièrement traduite via un arbre typé
+  (`Record<Langue, typeof fr>` — clé manquante = erreur de compilation), sélecteur
+  de langue, **bascule RTL** du document en arabe.
+- **US-023 — TLS 1.3** : nginx passé à `TLSv1.3` seul, suites 1.3 explicites,
+  tickets de session désactivés.
+- **US-037 — tests d'intégration** : harnais Testcontainers étendu aux nouvelles
+  entités (isolation inter-tenant sur ruches et mesures).
+
+### Nouveaux pièges consignés
+
+22. **Hypertable TimescaleDB + JPA** : toute contrainte d'unicité doit inclure la
+    colonne de partitionnement (`instant`) → pas d'`id` de substitution, clé
+    composite `@EmbeddedId`.
+23. **Recomposition d'une ruche en mise à jour** : vider les compartiments puis
+    `flush()` AVANT d'insérer les nouveaux, sinon l'index unique partiel sur le
+    corps est heurté dans le même flush.
+
+### Rétrospective
+
+Dans `SPRINT-02.md`. Actions suivantes : nettoyer `ping`, i18n des messages
+d'erreur API, matrice RBAC (US-022), flux OIDC Keycloak, préparer l'ingestion de
+mesures (EPIC-004).

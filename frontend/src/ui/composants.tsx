@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
-import { L } from './libelles';
+import { useT } from '../i18n/langue';
 
 // ─── Bouton ───────────────────────────────────────────────────────────────
 
@@ -41,6 +41,7 @@ export function Modale({
   onFermer: () => void;
   children: ReactNode;
 }): ReactElement {
+  const t = useT();
   const boite = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export function Modale({
           <button
             type="button"
             className="z-icone-btn"
-            aria-label={L.actions.fermer}
+            aria-label={t.actions.fermer}
             onClick={onFermer}
           >
             ✕
@@ -100,6 +101,7 @@ export function Table<E extends { id: number }>({
   onModifier: (element: E) => void;
   onSupprimer: (element: E) => void;
 }): ReactElement {
+  const t = useT();
   return (
     <div className="z-table-enveloppe">
       <table className="z-table">
@@ -108,7 +110,7 @@ export function Table<E extends { id: number }>({
             {colonnes.map((colonne) => (
               <th key={colonne.entete}>{colonne.entete}</th>
             ))}
-            <th className="z-table__actions" aria-label={L.actions.modifier} />
+            <th className="z-table__actions" aria-label={t.actions.modifier} />
           </tr>
         </thead>
         <tbody>
@@ -119,14 +121,14 @@ export function Table<E extends { id: number }>({
               ))}
               <td className="z-table__actions">
                 <button type="button" className="z-lien" onClick={() => onModifier(element)}>
-                  {L.actions.modifier}
+                  {t.actions.modifier}
                 </button>
                 <button
                   type="button"
                   className="z-lien z-lien--danger"
                   onClick={() => onSupprimer(element)}
                 >
-                  {L.actions.supprimer}
+                  {t.actions.supprimer}
                 </button>
               </td>
             </tr>

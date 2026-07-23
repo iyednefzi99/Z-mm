@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { fermes, sites } from '../api/client';
 import type { Ferme, Site, SiteCorps } from '../api/types';
+import { gabarit } from '../i18n/console';
+import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
@@ -13,19 +15,12 @@ import {
   Option,
   Table,
 } from '../ui/composants';
-import { gabarit, L } from '../ui/libelles';
 import { CorpsSection } from './CorpsSection';
-
-const colonnes: Colonne<Site>[] = [
-  { entete: L.champs.nom, rendu: (s) => s.nom },
-  { entete: L.champs.ferme, rendu: (s) => s.fermeNom },
-  { entete: L.champs.latitude, rendu: (s) => s.latitude.toFixed(4) },
-  { entete: L.champs.longitude, rendu: (s) => s.longitude.toFixed(4) },
-];
 
 const ouNull = (valeur: string): string | null => (valeur.trim() === '' ? null : valeur);
 
 export function SitesVue(): ReactElement {
+  const t = useT();
   const etat = useRessource<Site, SiteCorps>(sites);
   const [optionsFerme, setOptionsFerme] = useState<Option[]>([]);
   const [edition, setEdition] = useState<Site | null>(null);
@@ -39,6 +34,13 @@ export function SitesVue(): ReactElement {
   const [demenagement, setDemenagement] = useState('');
   const [cloture, setCloture] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
+
+  const colonnes: Colonne<Site>[] = [
+    { entete: t.champs.nom, rendu: (s) => s.nom },
+    { entete: t.champs.ferme, rendu: (s) => s.fermeNom },
+    { entete: t.champs.latitude, rendu: (s) => s.latitude.toFixed(4) },
+    { entete: t.champs.longitude, rendu: (s) => s.longitude.toFixed(4) },
+  ];
 
   useEffect(() => {
     fermes
@@ -65,7 +67,7 @@ export function SitesVue(): ReactElement {
 
   const enregistrer = async () => {
     if (fermeId === '') {
-      setErreur(`${L.champs.ferme} ?`);
+      setErreur(`${t.champs.ferme} ?`);
       return;
     }
     const corps: SiteCorps = {
@@ -82,23 +84,23 @@ export function SitesVue(): ReactElement {
       await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
       setOuvert(false);
     } catch (cause) {
-      setErreur(cause instanceof Error ? cause.message : L.etats.erreur);
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
     }
   };
 
   const supprimer = (s: Site) => {
-    if (window.confirm(gabarit(L.etats.confirmerSuppression, { nom: s.nom }))) {
+    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: s.nom }))) {
       void etat.supprimer(s.id);
     }
   };
 
   return (
-    <CorpsSection titre={L.onglets.sites} etat={etat} onNouveau={() => ouvrir(null)}>
+    <CorpsSection titre={t.onglets.sites} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
       )}
       {ouvert && (
-        <Modale titre={L.onglets.sites} onFermer={() => setOuvert(false)}>
+        <Modale titre={t.onglets.sites} onFermer={() => setOuvert(false)}>
           <form
             className="z-form"
             onSubmit={(e) => {
@@ -106,36 +108,36 @@ export function SitesVue(): ReactElement {
               void enregistrer();
             }}
           >
-            <ChampTexte libelle={L.champs.nom} valeur={nom} onChange={setNom} requis />
+            <ChampTexte libelle={t.champs.nom} valeur={nom} onChange={setNom} requis />
             <ChampSelect
-              libelle={L.champs.ferme}
+              libelle={t.champs.ferme}
               valeur={fermeId}
               options={optionsFerme}
               onChange={setFermeId}
               requis
             />
             <div className="z-form__grille">
-              <ChampNombre libelle={L.champs.latitude} valeur={latitude} onChange={setLatitude} requis />
-              <ChampNombre libelle={L.champs.longitude} valeur={longitude} onChange={setLongitude} requis />
-              <ChampNombre libelle={L.champs.altitude} valeur={altitude} onChange={setAltitude} />
+              <ChampNombre libelle={t.champs.latitude} valeur={latitude} onChange={setLatitude} requis />
+              <ChampNombre libelle={t.champs.longitude} valeur={longitude} onChange={setLongitude} requis />
+              <ChampNombre libelle={t.champs.altitude} valeur={altitude} onChange={setAltitude} />
             </div>
             <div className="z-form__grille">
               <ChampDate
-                libelle={L.champs.dateMiseEnOeuvre}
+                libelle={t.champs.dateMiseEnOeuvre}
                 valeur={miseEnOeuvre}
                 onChange={setMiseEnOeuvre}
                 requis
               />
-              <ChampDate libelle={L.champs.dateDemenagement} valeur={demenagement} onChange={setDemenagement} />
-              <ChampDate libelle={L.champs.dateCloture} valeur={cloture} onChange={setCloture} />
+              <ChampDate libelle={t.champs.dateDemenagement} valeur={demenagement} onChange={setDemenagement} />
+              <ChampDate libelle={t.champs.dateCloture} valeur={cloture} onChange={setCloture} />
             </div>
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>
-                {L.actions.annuler}
+                {t.actions.annuler}
               </Bouton>
               <Bouton variante="primaire" type="submit">
-                {L.actions.enregistrer}
+                {t.actions.enregistrer}
               </Bouton>
             </div>
           </form>
