@@ -1,97 +1,70 @@
-import { useEffect, useState } from 'react';
-import { recupererInfo, type Info } from './api/client';
-import { LANGUES, direction, messages, type Langue } from './i18n/messages';
+import { useEffect, useState, type ReactElement } from 'react';
+import { fermerSession, jetonCourant, surSession } from './auth/session';
+import { Bouton } from './ui/composants';
+import { L } from './ui/libelles';
+import { AgentsVue } from './vues/AgentsVue';
+import { ConfigVue } from './vues/ConfigVue';
+import { ConnexionVue } from './vues/ConnexionVue';
+import { FermesVue } from './vues/FermesVue';
+import { FermiersVue } from './vues/FermiersVue';
+import { SitesVue } from './vues/SitesVue';
 import './App.css';
 
+type Onglet = keyof typeof L.onglets;
+
+const VUES: Record<Onglet, ReactElement> = {
+  fermiers: <FermiersVue />,
+  fermes: <FermesVue />,
+  sites: <SitesVue />,
+  agents: <AgentsVue />,
+  config: <ConfigVue />,
+};
+
+const ONGLETS = Object.keys(L.onglets) as Onglet[];
+
 /**
- * Ecran unique du walking skeleton (SPRINT-00).
- *
- * Il prouve trois choses : le client React atteint l'API, l'internationalisation
- * traverse toute la chaine (en-tete Accept-Language -> messages du backend), et
- * le passage en arabe bascule reellement le document en RTL.
- *
- * Les trois ecrans structurants (calendrier, rapport de visite, carte) sont des
- * maquettes du SPRINT-00 et seront implementes a partir du SPRINT-01.
+ * Console de gestion Zümm (SPRINT-01). Ossature : barre de navigation entre les
+ * ressources metier et zone de contenu. Sans session, l'ecran de connexion prend
+ * toute la place.
  */
-export default function App() {
-  const [langue, setLangue] = useState<Langue>('fr');
-  const [info, setInfo] = useState<Info | null>(null);
-  const [erreur, setErreur] = useState(false);
-  const [chargement, setChargement] = useState(true);
+export default function App(): ReactElement {
+  const [jeton, setJeton] = useState<string | null>(jetonCourant());
+  const [onglet, setOnglet] = useState<Onglet>('fermiers');
 
-  const t = messages[langue];
+  useEffect(() => surSession(setJeton), []);
 
-  useEffect(() => {
-    const racine = document.documentElement;
-    racine.lang = langue;
-    racine.dir = direction(langue);
-  }, [langue]);
-
-  useEffect(() => {
-    const controleur = new AbortController();
-    setChargement(true);
-    setErreur(false);
-
-    recupererInfo(langue, controleur.signal)
-      .then((donnees) => setInfo(donnees))
-      .catch((cause: unknown) => {
-        if (!(cause instanceof DOMException && cause.name === 'AbortError')) {
-          setErreur(true);
-        }
-      })
-      .finally(() => setChargement(false));
-
-    return () => controleur.abort();
-  }, [langue]);
+  if (!jeton) {
+    return <ConnexionVue />;
+  }
 
   return (
-    <main className="z-page">
-      <header className="z-entete">
-        <h1 className="z-titre">{t.titre}</h1>
-        <p className="z-sous-titre">{t.sousTitre}</p>
+    <div className="z-app">
+      <header className="z-topbar">
+        <div className="z-marque">
+          <span className="z-marque__pastille" aria-hidden="true" />
+          <span className="z-marque__nom">{L.marque}</span>
+          <span className="z-marque__baseline">{L.baseline}</span>
+        </div>
+        <Bouton variante="fantome" onClick={fermerSession}>
+          {L.actions.seDeconnecter}
+        </Bouton>
       </header>
 
-      <section className="z-carte" aria-labelledby="etat-api">
-        <h2 className="z-carte__titre" id="etat-api">
-          {t.etatApi}
-        </h2>
-
-        <p className="z-etat" role="status" aria-live="polite">
-          {chargement ? (
-            <span className="z-pastille z-pastille--attente" />
-          ) : (
-            <span
-              className={`z-pastille ${erreur ? 'z-pastille--erreur' : 'z-pastille--ok'}`}
-            />
-          )}
-          <span>{chargement ? t.chargement : erreur ? t.apiInjoignable : t.apiJoignable}</span>
-        </p>
-
-        {info && !erreur && (
-          <dl className="z-details">
-            <dt>{info.nom}</dt>
-            <dd>
-              <code>{info.version}</code>
-            </dd>
-            <dt>{t.langue}</dt>
-            <dd>{info.accueil}</dd>
-          </dl>
-        )}
-      </section>
-
-      <nav className="z-langues" aria-label={t.langue}>
-        {LANGUES.map((code) => (
+      <nav className="z-nav" aria-label={L.marque}>
+        {ONGLETS.map((cle) => (
           <button
-            key={code}
+            key={cle}
             type="button"
-            className="z-langue"
-            aria-current={code === langue}
-            onClick={() => setLangue(code)}
+            className="z-onglet"
+            aria-current={cle === onglet}
+            onClick={() => setOnglet(cle)}
           >
-            {code.toUpperCase()}
+            {L.onglets[cle]}
           </button>
         ))}
       </nav>
-    </main>
+
+      <main className="z-vue">{VUES[onglet]}</main>
+    </div>
   );
 }

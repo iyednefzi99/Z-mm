@@ -14,3 +14,11 @@ createRoot(racine).render(
     <App />
   </StrictMode>,
 );
+
+// PWA : enregistrement du service worker en production uniquement (en dev, Vite
+// sert les modules et un SW gênerait le rechargement à chaud).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js');
+  });
+}

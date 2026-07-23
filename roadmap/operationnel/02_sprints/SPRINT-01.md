@@ -37,6 +37,10 @@
 
 Démonstration CRUD Fermier/Ferme/Site/Agent + seuils lus depuis ConfigZumm.ini
 
+> Support de démonstration livré : **PWA de gestion** (console CRUD React, aux
+> jetons de la charte, installable et responsive — le « mobile » du cahier est la
+> PWA, pas une app native). Détail dans `docs/JOURNAL.md`.
+
 ---
 
 ## ⚠️ Risques Identifiés

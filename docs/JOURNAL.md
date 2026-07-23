@@ -454,3 +454,34 @@ entités à relations en bénéficient.
 Consignée dans `SPRINT-01.md`. Actions pour la suite : nettoyer `ping`, matrice
 RBAC par rôle (US-022), valider `zumm_app` via `compose`, pagination, arrondi des
 positions sensibles.
+
+---
+
+## 2026-07-23 (suite) — Front-end : PWA de gestion (console CRUD)
+
+Complète la couche présentation du SPRINT-01. Rappel de cadrage (cahier, annexe B) :
+Zümm n'est **pas** une app native, c'est **une PWA** — une seule application React
+qui sert à la fois de site web (bureau) et d'app mobile installable, avec
+« parité web / mobile » et mode hors-ligne. Ce qui est livré ici correspond
+exactement à ce périmètre.
+
+- **Console CRUD** des quatre entités (Fermier, Ferme, Site, Agent) + vue des
+  seuils de `ConfigZumm.ini`, aux jetons de la charte, responsive.
+- **Client d'API typé** (`api/types.ts`, `api/client.ts`) avec jeton Bearer,
+  gestion des erreurs `ProblemDetail`, et bascule automatique sur l'écran de
+  session en cas de 401.
+- **Auth isolée** (`auth/session.ts`) : la source du jeton est encapsulée. En prod,
+  Keycloak (OIDC/PKCE, déjà provisionné) ; le flux OIDC complet est le point
+  d'intégration restant. Écran de session de développement en attendant.
+- **PWA installable** : `manifest.webmanifest`, `sw.js` (coquille *network-first*,
+  **jamais** de cache pour `/api` — données authentifiées), icônes 192/512.
+- **Build vert** : `tsc` strict (`noUnusedLocals`/`noUnusedParameters`) + `vite build`,
+  sans nouvelle dépendance (CI `npm ci` inchangée).
+
+### Reste dû côté front
+
+- **Flux OIDC Keycloak** (remplacer l'écran de session dev) — point d'intégration.
+- **i18n de la console** (FR/EN/AR + RTL) : la console est FR pour l'instant ;
+  libellés déjà centralisés, prêts à traduire.
+- **Cartographie** (MapLibre) et **graphiques** (Chart.js) : arrivent avec les EPIC
+  correspondants, hors SPRINT-01.

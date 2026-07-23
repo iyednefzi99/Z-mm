@@ -1,152 +1,454 @@
-/* Ecran du walking skeleton. Uniquement des jetons de la charte : aucune
-   couleur ni duree en dur. Proprietes logiques partout, pour que le passage
-   en arabe (RTL) soit un miroir reel et non un rustine. */
+/* Console de gestion Zümm (SPRINT-01). Uniquement des jetons de la charte : ni
+   couleur ni durée en dur. Propriétés logiques partout, pour que le RTL arabe
+   soit un miroir réel. Le mouvement est protégé par prefers-reduced-motion
+   (défini globalement dans theme/tokens.css). */
 
-.z-page {
+/* ─── Ossature ─────────────────────────────────────────────────────────── */
+
+.z-app {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+}
+
+.z-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--z-surface);
+  border-block-end: 1px solid var(--z-line);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+}
+
+.z-marque {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.z-marque__pastille {
+  inline-size: 0.85rem;
+  block-size: 0.85rem;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-gradient-signature);
+  align-self: center;
+}
+
+.z-marque__nom {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--z-text);
+}
+
+.z-marque__baseline {
+  font-size: 0.8rem;
+  color: var(--z-text-muted);
+}
+
+@media (max-width: 640px) {
+  .z-marque__baseline {
+    display: none;
+  }
+}
+
+/* ─── Navigation par onglets ───────────────────────────────────────────── */
+
+.z-nav {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 1.25rem;
+  background: var(--z-surface);
+  border-block-end: 1px solid var(--z-line);
+  overflow-x: auto;
+}
+
+.z-onglet {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--z-text-muted);
+  padding: 0.8rem 0.9rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-block-end: 2px solid transparent;
+  white-space: nowrap;
+  transition: color var(--z-duration-fast) var(--z-ease-out),
+    border-color var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-onglet:hover {
+  color: var(--z-text);
+}
+
+.z-onglet[aria-current='true'] {
+  color: var(--z-honey-600);
+  border-block-end-color: var(--z-honey-500);
+  font-weight: 600;
+}
+
+/* ─── Contenu ──────────────────────────────────────────────────────────── */
+
+.z-vue {
+  flex: 1;
+  padding: 1.5rem 1.25rem 3rem;
+  max-inline-size: 1000px;
+  inline-size: 100%;
+  margin-inline: auto;
+}
+
+.z-section__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-block-end: 1.25rem;
+}
+
+.z-section__titre {
+  font-size: 1.4rem;
+  margin: 0;
+  color: var(--z-text);
+}
+
+.z-section__soustitre {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--z-text-muted);
+}
+
+/* ─── Boutons ──────────────────────────────────────────────────────────── */
+
+.z-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--z-radius-md);
+  padding: 0.55rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--z-duration-fast) var(--z-ease-out),
+    filter var(--z-duration-fast) var(--z-ease-out),
+    background var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-btn:active {
+  transform: translateY(1px);
+}
+
+.z-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.z-btn--primaire {
+  background: var(--z-honey-500);
+  color: #24170a;
+}
+
+.z-btn--primaire:hover {
+  filter: brightness(1.05);
+}
+
+.z-btn--secondaire {
+  background: var(--z-surface);
+  color: var(--z-text);
+  border-color: var(--z-line);
+}
+
+.z-btn--danger {
+  background: var(--z-danger);
+  color: #fff5f4;
+}
+
+.z-btn--fantome {
+  background: transparent;
+  color: var(--z-text-muted);
+}
+
+.z-btn--fantome:hover {
+  color: var(--z-text);
+}
+
+/* ─── États ────────────────────────────────────────────────────────────── */
+
+.z-info {
+  color: var(--z-text-muted);
+  padding: 1.5rem 0;
+}
+
+.z-erreur {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: var(--z-radius-md);
+  background: color-mix(in srgb, var(--z-danger) 12%, var(--z-surface));
+  color: var(--z-text);
+  border: 1px solid color-mix(in srgb, var(--z-danger) 40%, transparent);
+}
+
+/* ─── Table ────────────────────────────────────────────────────────────── */
+
+.z-table-enveloppe {
+  overflow-x: auto;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  background: var(--z-surface);
+  box-shadow: var(--z-shadow-1);
+}
+
+.z-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.z-table th,
+.z-table td {
+  padding: 0.75rem 1rem;
+  text-align: start;
+  border-block-end: 1px solid var(--z-line);
+}
+
+.z-table th {
+  color: var(--z-text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.z-table tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.z-table tbody tr {
+  transition: background var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-table tbody tr:hover {
+  background: color-mix(in srgb, var(--z-honey-500) 7%, transparent);
+}
+
+.z-table__actions {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.z-lien {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--z-info);
+  cursor: pointer;
+  font-size: 0.88rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-lien:hover {
+  text-decoration: underline;
+}
+
+.z-lien--danger {
+  color: var(--z-danger);
+}
+
+/* ─── Modale ───────────────────────────────────────────────────────────── */
+
+.z-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 34, 30, 0.5);
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  padding: 2rem 1.25rem;
+  padding: 1rem;
+  z-index: 50;
+  animation: z-overlay-in var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-modale {
+  background: var(--z-bg);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-3);
+  inline-size: min(30rem, 100%);
+  max-block-size: 90dvh;
+  overflow-y: auto;
+  padding: 1.25rem 1.4rem 1.4rem;
+  animation: z-modale-in var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-modale__entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 1rem;
+}
+
+.z-modale__titre {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.z-icone-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--z-text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.3rem;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-icone-btn:hover {
+  color: var(--z-text);
+  background: var(--z-surface);
+}
+
+@keyframes z-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes z-modale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* ─── Formulaire ───────────────────────────────────────────────────────── */
+
+.z-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.z-form__grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.9rem;
+}
+
+.z-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-block-start: 0.4rem;
+}
+
+.z-form__erreur {
+  margin: 0;
+  color: var(--z-danger);
+  font-size: 0.88rem;
+}
+
+.z-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.z-champ__libelle {
+  font-size: 0.82rem;
+  color: var(--z-text-muted);
+  font-weight: 600;
+}
+
+.z-input {
+  inline-size: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
   background: var(--z-bg);
   color: var(--z-text);
-  font-family: var(--z-font-ui);
+  font-size: 0.95rem;
+  transition: border-color var(--z-duration-fast) var(--z-ease-out),
+    box-shadow var(--z-duration-fast) var(--z-ease-out);
 }
 
-.z-entete {
-  text-align: center;
+.z-input:focus-visible {
+  outline: none;
+  border-color: var(--z-honey-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--z-honey-500) 30%, transparent);
 }
 
-.z-titre {
-  margin: 0;
-  font-size: clamp(2.25rem, 6vw, 3.5rem);
+.z-input--zone {
+  resize: vertical;
+  font-family: var(--z-font-mono);
+  font-size: 0.82rem;
+}
+
+/* ─── Seuils (US-025) ──────────────────────────────────────────────────── */
+
+.z-seuils {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.9rem;
+}
+
+.z-seuil {
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.z-seuil__valeur {
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  /* Degrade signature : reserve aux surfaces d'emphase, jamais au texte courant. */
-  background: var(--z-gradient-signature);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--z-honey-600);
 }
 
-.z-sous-titre {
-  margin: 0.5rem 0 0;
+.z-seuil__libelle {
+  font-size: 0.8rem;
   color: var(--z-text-muted);
-  font-size: 1rem;
-  max-inline-size: 42ch;
 }
 
-.z-carte {
-  inline-size: min(100%, 34rem);
-  padding: 1.5rem;
+/* ─── Écran de connexion ───────────────────────────────────────────────── */
+
+.z-connexion {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--z-honey-500) 14%, transparent), transparent),
+    var(--z-bg);
+}
+
+.z-connexion__carte {
+  inline-size: min(26rem, 100%);
   background: var(--z-surface);
   border: 1px solid var(--z-line);
   border-radius: var(--z-radius-lg);
   box-shadow: var(--z-shadow-2);
-}
-
-.z-carte__titre {
-  margin: 0 0 1rem;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--z-text-muted);
-}
-
-.z-etat {
+  padding: 1.75rem;
   display: flex;
-  align-items: center;
-  gap: 0.625rem;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.z-connexion__titre {
+  margin: 0.25rem 0 0;
+  font-size: 1.25rem;
+}
+
+.z-connexion__texte {
   margin: 0;
-  font-size: 1.0625rem;
-}
-
-.z-pastille {
-  inline-size: 0.625rem;
-  block-size: 0.625rem;
-  border-radius: var(--z-radius-pill);
-  flex: none;
-  transition: background-color var(--z-duration-base) var(--z-ease-out);
-}
-
-.z-pastille--ok {
-  background: var(--z-success);
-}
-
-.z-pastille--erreur {
-  background: var(--z-danger);
-}
-
-.z-pastille--attente {
-  background: var(--z-text-muted);
-  animation: z-pulsation 1.2s var(--z-ease-inout) infinite;
-}
-
-@keyframes z-pulsation {
-  50% {
-    opacity: 0.35;
-  }
-}
-
-.z-details {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1rem;
-  margin: 1.25rem 0 0;
-  padding-block-start: 1rem;
-  border-block-start: 1px solid var(--z-line);
-  font-size: 0.9375rem;
-}
-
-.z-details dt {
+  font-size: 0.88rem;
   color: var(--z-text-muted);
-}
-
-.z-details dd {
-  margin: 0;
-}
-
-.z-details code {
-  font-family: var(--z-font-mono);
-  font-size: 0.875em;
-}
-
-.z-langues {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.z-langue {
-  padding: 0.4rem 0.85rem;
-  font: inherit;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--z-text-muted);
-  background: transparent;
-  border: 1px solid var(--z-line);
-  border-radius: var(--z-radius-pill);
-  cursor: pointer;
-  transition:
-    color var(--z-duration-fast) var(--z-ease-out),
-    border-color var(--z-duration-fast) var(--z-ease-out),
-    background-color var(--z-duration-fast) var(--z-ease-out);
-}
-
-.z-langue:hover {
-  color: var(--z-text);
-  border-color: var(--z-honey-500);
-}
-
-.z-langue[aria-current='true'] {
-  color: var(--z-slate-900);
-  background: var(--z-honey-300);
-  border-color: var(--z-honey-500);
-}
-
-.z-langue:focus-visible {
-  outline: 2px solid var(--z-honey-600);
-  outline-offset: 2px;
+  line-height: 1.5;
 }
