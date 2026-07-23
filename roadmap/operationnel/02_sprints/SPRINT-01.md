@@ -22,8 +22,8 @@
 
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
-| US-001 | CRUD Fermier | 5 | ⬜ À faire | - |
-| US-002 | CRUD Ferme | 5 | ⬜ À faire | - |
+| US-001 | CRUD Fermier | 5 | 🟢 Livré (code + IT) | - |
+| US-002 | CRUD Ferme | 5 | 🟢 Livré (code + IT) | - |
 | US-003 | CRUD Site (avec géolocalisation) | 8 | ⬜ À faire | - |
 | US-005 | CRUD Agent avec rôles | 5 | ⬜ À faire | - |
 | US-006 | Contraintes de composition (règles métier) | 8 | ⬜ À faire | - |
@@ -42,6 +42,13 @@ Démonstration CRUD Fermier/Ferme/Site/Agent + seuils lus depuis ConfigZumm.ini
 ## ⚠️ Risques Identifiés
 
 Complexité PostGIS, configuration Spring Boot / Docker — spike technique de 2–3 jours en ouverture de sprint
+
+> ℹ️ **Avance prise avant l'ouverture** : la fondation technique (modèle de données,
+> multi-tenant `tenant_id` + RLS, durcissement du rôle applicatif, lecture de
+> `ConfigZumm.ini`) et le **CRUD Fermier/Ferme (US-001/002)** sont déjà livrés et
+> testés (cf. `docs/SPRINT-01-FONDATION.md`, `docs/JOURNAL.md`). Le spike PostGIS
+> est largement absorbé. Restent, pour clore US-001/002 : matrice RBAC par rôle
+> (US-022) et pagination des listes si le volume l'exige.
 
 ---
 
