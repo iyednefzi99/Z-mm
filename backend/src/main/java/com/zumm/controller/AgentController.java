@@ -1,8 +1,8 @@
 package com.zumm.controller;
 
-import com.zumm.service.FermeService;
-import com.zumm.web.dto.FermeCorps;
-import com.zumm.web.dto.FermeReponse;
+import com.zumm.service.AgentService;
+import com.zumm.web.dto.AgentCorps;
+import com.zumm.web.dto.AgentReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * API CRUD des fermes (US-002), rattachees a un fermier du meme tenant.
+ * API CRUD des agents (US-005), avec role metier.
  */
 @RestController
-@RequestMapping("/api/fermes")
-public class FermeController {
+@RequestMapping("/api/agents")
+public class AgentController {
 
-    private final FermeService service;
+    private final AgentService service;
 
-    public FermeController(FermeService service) {
+    public AgentController(AgentService service) {
         this.service = service;
     }
 
     @PostMapping
-    public ResponseEntity<FermeReponse> creer(@Valid @RequestBody FermeCorps corps) {
-        FermeReponse reponse = service.creer(corps);
-        return ResponseEntity.created(URI.create("/api/fermes/" + reponse.id())).body(reponse);
+    public ResponseEntity<AgentReponse> creer(@Valid @RequestBody AgentCorps corps) {
+        AgentReponse reponse = service.creer(corps);
+        return ResponseEntity.created(URI.create("/api/agents/" + reponse.id())).body(reponse);
     }
 
     @GetMapping
-    public List<FermeReponse> lister() {
+    public List<AgentReponse> lister() {
         return service.lister();
     }
 
     @GetMapping("/{id}")
-    public FermeReponse obtenir(@PathVariable Long id) {
+    public AgentReponse obtenir(@PathVariable Long id) {
         return service.obtenir(id);
     }
 
     @PutMapping("/{id}")
-    public FermeReponse mettreAJour(@PathVariable Long id, @Valid @RequestBody FermeCorps corps) {
+    public AgentReponse mettreAJour(@PathVariable Long id, @Valid @RequestBody AgentCorps corps) {
         return service.mettreAJour(id, corps);
     }
 

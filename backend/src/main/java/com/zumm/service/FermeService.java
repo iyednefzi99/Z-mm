@@ -7,6 +7,7 @@ import com.zumm.repository.FermierRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.FermeCorps;
+import com.zumm.web.dto.FermeReponse;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
  * verifie explicitement pour renvoyer un 400 clair, plutot que de laisser
  * remonter une violation de cle etrangere. La cle composite en base
  * {@code (fermier_id, tenant_id)} reste le garde-fou ultime contre un rattachement
- * inter-tenant.
+ * inter-tenant. Les DTO sont construits dans la transaction (pas d'initialisation
+ * paresseuse hors session).
  */
 @Service
 @Transactional
@@ -32,29 +34,33 @@ public class FermeService {
         this.fermiers = fermiers;
     }
 
-    public Ferme creer(FermeCorps corps) {
-        return fermes.save(new Ferme(corps.nom(), fermierRequis(corps.fermierId())));
+    public FermeReponse creer(FermeCorps corps) {
+        return FermeReponse.de(fermes.save(new Ferme(corps.nom(), fermierRequis(corps.fermierId()))));
     }
 
     @Transactional(readOnly = true)
-    public List<Ferme> lister() {
-        return fermes.findAll();
+    public List<FermeReponse> lister() {
+        return fermes.findAll().stream().map(FermeReponse::de).toList();
     }
 
     @Transactional(readOnly = true)
-    public Ferme obtenir(Long id) {
-        return fermes.findById(id).orElseThrow(() -> RessourceIntrouvable.de("Ferme", id));
+    public FermeReponse obtenir(Long id) {
+        return FermeReponse.de(entite(id));
     }
 
-    public Ferme mettreAJour(Long id, FermeCorps corps) {
-        Ferme ferme = obtenir(id);
+    public FermeReponse mettreAJour(Long id, FermeCorps corps) {
+        Ferme ferme = entite(id);
         ferme.setNom(corps.nom());
         ferme.setFermier(fermierRequis(corps.fermierId()));
-        return ferme;
+        return FermeReponse.de(ferme);
     }
 
     public void supprimer(Long id) {
-        fermes.delete(obtenir(id));
+        fermes.delete(entite(id));
+    }
+
+    Ferme entite(Long id) {
+        return fermes.findById(id).orElseThrow(() -> RessourceIntrouvable.de("Ferme", id));
     }
 
     /** Resout un fermier du tenant courant, ou refuse la requete (400). */

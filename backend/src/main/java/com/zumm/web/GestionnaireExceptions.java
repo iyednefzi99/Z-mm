@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -36,6 +37,16 @@ public class GestionnaireExceptions {
     ProblemDetail integrite(DataIntegrityViolationException e) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
                 "Operation impossible : la ressource est referencee par d'autres donnees.");
+    }
+
+    /**
+     * Corps illisible : JSON malforme ou valeur d'enumeration inconnue (par
+     * exemple un role d'agent hors liste). 400, sans exposer la cause technique.
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ProblemDetail illisible(HttpMessageNotReadableException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST,
+                "Le corps de la requete est illisible ou contient une valeur non reconnue.");
     }
 
     /** Erreurs de validation Bean Validation sur le corps de requete : 400 detaille. */

@@ -36,23 +36,23 @@ public class FermierController {
 
     @PostMapping
     public ResponseEntity<FermierReponse> creer(@Valid @RequestBody FermierCorps corps) {
-        FermierReponse reponse = FermierReponse.de(service.creer(corps));
+        FermierReponse reponse = service.creer(corps);
         return ResponseEntity.created(URI.create("/api/fermiers/" + reponse.id())).body(reponse);
     }
 
     @GetMapping
     public List<FermierReponse> lister() {
-        return service.lister().stream().map(FermierReponse::de).toList();
+        return service.lister();
     }
 
     @GetMapping("/{id}")
     public FermierReponse obtenir(@PathVariable Long id) {
-        return FermierReponse.de(service.obtenir(id));
+        return service.obtenir(id);
     }
 
     @PutMapping("/{id}")
     public FermierReponse mettreAJour(@PathVariable Long id, @Valid @RequestBody FermierCorps corps) {
-        return FermierReponse.de(service.mettreAJour(id, corps));
+        return service.mettreAJour(id, corps);
     }
 
     @DeleteMapping("/{id}")

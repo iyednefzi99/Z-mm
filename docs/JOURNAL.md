@@ -412,3 +412,45 @@ Bilan : **11 tests unitaires + 14 d'intégration, `Skipped: 0`**.
 - Contrôleurs REST + services des 4 CRUD, RBAC par rôle, suppression de `ping`,
   arrondi des positions sensibles : **travail d'exécution du SPRINT-01**.
 - Validation de bout en bout de `zumm_app` en montant la pile `compose`.
+
+---
+
+## 2026-07-23 (suite) — SPRINT-01 mené à terme : 6 US livrées, rétrospective
+
+Le SPRINT-01 est **entièrement livré** : CRUD Fermier/Ferme/Site/Agent, contraintes
+de composition, seuils de `ConfigZumm.ini` exposés. **36 SP / 36.**
+**11 tests unitaires + 29 d'intégration, `Skipped: 0`.**
+
+### Livré (au-delà de la fondation)
+
+- **US-001/002 — CRUD Fermier & Ferme** : DTO validés, services transactionnels,
+  contrôleurs REST, erreurs normalisées (ProblemDetail). Isolation par tenant
+  prouvée à travers l'API (jeton porteur du claim `tenant_id`).
+- **US-003 — CRUD Site + PostGIS** : géolocalisation, recherche de proximité
+  (`ST_DWithin` + index GiST) filtrée explicitement par tenant.
+- **US-005 — CRUD Agent + rôles** : énumération alignée base / Keycloak / JSON.
+- **US-006 — contraintes de composition** : Bean Validation + règles de service
+  (ordre des dates) + `CHECK` en base, chacune testée.
+- **US-025 — config** : endpoint de lecture des seuils, en plus de la lecture de
+  fichier et de la relecture à chaud déjà posées.
+
+### Défaut corrigé en cours de route
+
+Les contrôleurs mappaient les entités en DTO **hors transaction** →
+`LazyInitializationException` sur la première association `LAZY` réellement lue (la
+ferme d'un site en recherche de proximité). Corrigé en déplaçant la **construction
+des DTO dans les services**, dans la transaction — la bonne frontière. Les autres
+entités à relations en bénéficient.
+
+### Nouveau piège consigné
+
+21. **Ne jamais mapper une entité en DTO hors de la transaction** (open-in-view est
+    désactivé) : la première association `LAZY` lue lève une
+    `LazyInitializationException`. Construire les DTO dans le service, dans la
+    transaction.
+
+### Rétrospective
+
+Consignée dans `SPRINT-01.md`. Actions pour la suite : nettoyer `ping`, matrice
+RBAC par rôle (US-022), valider `zumm_app` via `compose`, pagination, arrondi des
+positions sensibles.
