@@ -413,6 +413,24 @@
   flex: 1;
 }
 
+.z-actions-inline {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.z-photo-ref {
+  flex: 1;
+  font-size: 0.85rem;
+  color: var(--z-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-input--texte {
+  resize: vertical;
+}
+
 .z-champ {
   display: flex;
   flex-direction: column;

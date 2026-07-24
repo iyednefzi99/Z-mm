@@ -218,6 +218,28 @@ export function ChampDate({
   );
 }
 
+export function ChampZone({
+  libelle,
+  valeur,
+  onChange,
+}: {
+  libelle: string;
+  valeur: string;
+  onChange: (valeur: string) => void;
+}): ReactElement {
+  return (
+    <label className="z-champ">
+      <span className="z-champ__libelle">{libelle}</span>
+      <textarea
+        className="z-input z-input--texte"
+        rows={2}
+        value={valeur}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  );
+}
+
 export interface Option {
   valeur: string;
   libelle: string;

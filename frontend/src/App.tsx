@@ -8,19 +8,40 @@ import { ConfigVue } from './vues/ConfigVue';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { FermesVue } from './vues/FermesVue';
 import { FermiersVue } from './vues/FermiersVue';
+import { PlanningsVue } from './vues/PlanningsVue';
 import { RuchesVue } from './vues/RuchesVue';
 import { SitesVue } from './vues/SitesVue';
+import { VisitesVue } from './vues/VisitesVue';
 import './App.css';
 
-type Onglet = 'fermiers' | 'fermes' | 'sites' | 'ruches' | 'agents' | 'config';
+type Onglet =
+  | 'fermiers'
+  | 'fermes'
+  | 'sites'
+  | 'ruches'
+  | 'plannings'
+  | 'visites'
+  | 'agents'
+  | 'config';
 
-const ONGLETS: Onglet[] = ['fermiers', 'fermes', 'sites', 'ruches', 'agents', 'config'];
+const ONGLETS: Onglet[] = [
+  'fermiers',
+  'fermes',
+  'sites',
+  'ruches',
+  'plannings',
+  'visites',
+  'agents',
+  'config',
+];
 
 const VUES: Record<Onglet, ReactElement> = {
   fermiers: <FermiersVue />,
   fermes: <FermesVue />,
   sites: <SitesVue />,
   ruches: <RuchesVue />,
+  plannings: <PlanningsVue />,
+  visites: <VisitesVue />,
   agents: <AgentsVue />,
   config: <ConfigVue />,
 };

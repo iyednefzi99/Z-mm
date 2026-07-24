@@ -139,6 +139,106 @@ export interface RucheCorps {
   compartiments: CompartimentCorps[];
 }
 
+export type RaisonVisite =
+  | 'controle'
+  | 'recolte'
+  | 'traitement'
+  | 'nourrissage'
+  | 'division'
+  | 'autre';
+export const RAISONS_VISITE: readonly RaisonVisite[] = [
+  'controle',
+  'recolte',
+  'traitement',
+  'nourrissage',
+  'division',
+  'autre',
+];
+
+export type StatutPlanning = 'propose' | 'approuve' | 'refuse';
+export type EffectifQualitatif = 'faible' | 'moyen' | 'fort';
+export type EtatSante = 'bon' | 'moyen' | 'mauvais';
+
+export interface Planning {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  agentId: number;
+  agentNom: string;
+  superviseurId: number | null;
+  superviseurNom: string | null;
+  datePrevue: string;
+  heurePrevue: string | null;
+  dureeMin: number | null;
+  raison: RaisonVisite;
+  statut: StatutPlanning;
+  motifRefus: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface PlanningCorps {
+  rucheId: number;
+  agentId: number;
+  superviseurId: number | null;
+  datePrevue: string;
+  heurePrevue: string | null;
+  dureeMin: number | null;
+  raison: RaisonVisite;
+}
+
+export interface Photo {
+  id: number;
+  url: string;
+  legende: string | null;
+  creeLe: string;
+}
+
+export interface PhotoCorps {
+  url: string;
+  legende: string | null;
+}
+
+export interface Visite {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  agentId: number;
+  agentNom: string;
+  planningId: number | null;
+  dateVisite: string;
+  heureVisite: string | null;
+  dureeMin: number | null;
+  raison: RaisonVisite;
+  constatations: string | null;
+  actionsPrevues: string | null;
+  actionsEffectuees: string | null;
+  recommandations: string | null;
+  effectifQualitatif: EffectifQualitatif | null;
+  etatSante: EtatSante | null;
+  productivite: number | null;
+  photos: Photo[];
+  creeLe: string;
+  majLe: string;
+}
+
+export interface VisiteCorps {
+  rucheId: number;
+  agentId: number;
+  planningId: number | null;
+  dateVisite: string;
+  heureVisite: string | null;
+  dureeMin: number | null;
+  raison: RaisonVisite;
+  constatations: string | null;
+  actionsPrevues: string | null;
+  actionsEffectuees: string | null;
+  recommandations: string | null;
+  effectifQualitatif: EffectifQualitatif | null;
+  etatSante: EtatSante | null;
+  productivite: number | null;
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];

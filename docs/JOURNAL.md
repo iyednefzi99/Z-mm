@@ -524,3 +524,31 @@ Backend : 11 unitaires + 36 d'intégration, `Skipped: 0`. Frontend : build vert.
 Dans `SPRINT-02.md`. Actions suivantes : nettoyer `ping`, i18n des messages
 d'erreur API, matrice RBAC (US-022), flux OIDC Keycloak, préparer l'ingestion de
 mesures (EPIC-004).
+
+---
+
+## 2026-07-24 (suite) — SPRINT-03 : workflow de visite, rétrospective
+
+SPRINT-03 **entièrement livré** : planification, approbation, réalisation +
+rapport, photos. **36 SP / 36.** Backend : 11 unitaires + 39 d'intégration,
+`Skipped: 0`. Frontend : build vert.
+
+### Livré
+
+- **US-007/008 — Planning + décision** : entité Planning (V6), statuts
+  proposé/approuvé/refusé, endpoints `/api/plannings/{id}/approuver|refuser`
+  (refus motivé obligatoire). Vue Plannings avec boutons de décision.
+- **US-009 — Visite + rapport** : entité Visite (constatations, actions,
+  effectif, état sanitaire, productivité 1-3), rattachable à un planning approuvé.
+  Vue Visites avec formulaire de rapport.
+- **US-010/028 — Photos d'inspection** : sous-ressource `/api/visites/{id}/photos`,
+  appartenance vérifiée avant suppression. Gestion des photos dans la vue Visite.
+- **i18n** : raisons, statuts, effectifs, états sanitaires traduits FR/EN/AR.
+
+`WorkflowVisiteIT` prouve la chaîne complète + l'isolation inter-tenant.
+
+### Rétrospective
+
+Dans `SPRINT-03.md`. Actions suivantes : mode hors-ligne (US-011), RBAC (US-022,
+notamment l'approbation réservée au superviseur), nettoyer `ping`, upload binaire
+des photos.

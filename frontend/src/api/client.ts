@@ -14,11 +14,17 @@ import type {
   FermeCorps,
   Fermier,
   FermierCorps,
+  Photo,
+  PhotoCorps,
+  Planning,
+  PlanningCorps,
   Ruche,
   RucheCorps,
   Seuils,
   Site,
   SiteCorps,
+  Visite,
+  VisiteCorps,
 } from './types';
 
 export interface Info {
@@ -97,6 +103,22 @@ export const fermes = ressource<Ferme, FermeCorps>('/api/fermes');
 export const sites = ressource<Site, SiteCorps>('/api/sites');
 export const agents = ressource<Agent, AgentCorps>('/api/agents');
 export const ruches = ressource<Ruche, RucheCorps>('/api/ruches');
+export const plannings = ressource<Planning, PlanningCorps>('/api/plannings');
+export const visites = ressource<Visite, VisiteCorps>('/api/visites');
+
+/** US-008 : décision du superviseur sur un planning. */
+export const approuverPlanning = (id: number) =>
+  requete<Planning>(`/api/plannings/${id}/approuver`, { method: 'POST' });
+export const refuserPlanning = (id: number, motif: string) =>
+  requete<Planning>(`/api/plannings/${id}/refuser`, { method: 'POST', ...corpsJson({ motif }) });
+
+/** US-010/028 : photos d'une visite. */
+export const listerPhotos = (visiteId: number) =>
+  requete<Photo[]>(`/api/visites/${visiteId}/photos`);
+export const ajouterPhoto = (visiteId: number, corps: PhotoCorps) =>
+  requete<Photo>(`/api/visites/${visiteId}/photos`, { method: 'POST', ...corpsJson(corps) });
+export const supprimerPhoto = (visiteId: number, photoId: number) =>
+  requete<void>(`/api/visites/${visiteId}/photos/${photoId}`, { method: 'DELETE' });
 
 /** Sites du tenant a proximite d'un point (US-003, PostGIS). */
 export const sitesProches = (latitude: number, longitude: number, rayonMetres: number) =>
