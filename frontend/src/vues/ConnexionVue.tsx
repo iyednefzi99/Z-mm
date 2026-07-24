@@ -1,4 +1,5 @@
 import { useState, type ReactElement } from 'react';
+import { demarrerConnexion, oidcConfigure } from '../auth/oidc';
 import { ouvrirSession } from '../auth/session';
 import { useT } from '../i18n/langue';
 import { Bouton } from '../ui/composants';
@@ -21,6 +22,16 @@ export function ConnexionVue(): ReactElement {
         </div>
         <h1 className="z-connexion__titre">{t.session.titre}</h1>
         <p className="z-connexion__texte">{t.session.explication}</p>
+
+        {oidcConfigure() && (
+          <>
+            <Bouton variante="primaire" onClick={() => void demarrerConnexion()}>
+              {t.session.connexionKeycloak}
+            </Bouton>
+            <p className="z-connexion__ou">{t.session.ou}</p>
+          </>
+        )}
+
         <label className="z-champ">
           <span className="z-champ__libelle">{t.session.jeton}</span>
           <textarea

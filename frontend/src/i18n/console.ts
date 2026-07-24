@@ -11,6 +11,7 @@ const fr = {
   marque: 'Zümm',
   baseline: 'Gestion et suivi apicole',
   langue: 'Langue',
+  sync: { horsLigne: 'Hors ligne', enAttente: '{n} à synchroniser' },
   onglets: {
     fermiers: 'Fermiers',
     fermes: 'Fermes',
@@ -79,6 +80,8 @@ const fr = {
   },
   session: {
     titre: 'Session requise',
+    connexionKeycloak: 'Se connecter avec Keycloak',
+    ou: '— ou —',
     explication:
       "La console interroge une API protégée. En production, la connexion passe par Keycloak (OIDC). Pour le développement, collez un jeton d'accès valide portant le claim tenant_id.",
     jeton: "Jeton d'accès (JWT)",
@@ -127,6 +130,7 @@ const en: typeof fr = {
   marque: 'Zümm',
   baseline: 'Beekeeping management & monitoring',
   langue: 'Language',
+  sync: { horsLigne: 'Offline', enAttente: '{n} to sync' },
   onglets: {
     fermiers: 'Farmers',
     fermes: 'Farms',
@@ -195,6 +199,8 @@ const en: typeof fr = {
   },
   session: {
     titre: 'Session required',
+    connexionKeycloak: 'Sign in with Keycloak',
+    ou: '— or —',
     explication:
       'The console calls a protected API. In production, sign-in goes through Keycloak (OIDC). For development, paste a valid access token carrying the tenant_id claim.',
     jeton: 'Access token (JWT)',
@@ -243,6 +249,7 @@ const ar: typeof fr = {
   marque: 'Zümm',
   baseline: 'إدارة ومتابعة تربية النحل',
   langue: 'اللغة',
+  sync: { horsLigne: 'دون اتصال', enAttente: '{n} للمزامنة' },
   onglets: {
     fermiers: 'المربّون',
     fermes: 'المزارع',
@@ -311,6 +318,8 @@ const ar: typeof fr = {
   },
   session: {
     titre: 'الجلسة مطلوبة',
+    connexionKeycloak: 'الدخول عبر Keycloak',
+    ou: '— أو —',
     explication:
       'تتصل الواجهة بواجهة برمجية محميّة. في الإنتاج تمرّ المصادقة عبر Keycloak (OIDC). للتطوير، الصق رمز وصول صالحًا يحمل الادّعاء tenant_id.',
     jeton: 'رمز الوصول (JWT)',

@@ -53,7 +53,29 @@ public class SecurityConfig {
                         .permitAll()
                         // Identite de l'application : page d'accueil publique.
                         .requestMatchers(HttpMethod.GET, "/api/info").permitAll()
-                        // Tout le reste exige un jeton valide.
+
+                        // ── Matrice RBAC (US-022), derivee des roles du cahier ──
+                        // L'approbation d'un planning est reservee au superviseur
+                        // (et au-dessus) : c'est sa fonction propre (cahier, chap. 4).
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/plannings/*/approuver", "/api/plannings/*/refuser")
+                        .hasAnyRole("superviseur", "responsable", "admin")
+                        // Le referentiel (fermier, ferme, site, agent, ruche) et la
+                        // configuration sont geres par le responsable / administrateur ;
+                        // les autres roles y ont un acces en LECTURE seule.
+                        .requestMatchers(HttpMethod.POST, "/api/fermiers/**", "/api/fermes/**",
+                                "/api/sites/**", "/api/agents/**", "/api/ruches/**")
+                        .hasAnyRole("responsable", "admin")
+                        .requestMatchers(HttpMethod.PUT, "/api/fermiers/**", "/api/fermes/**",
+                                "/api/sites/**", "/api/agents/**", "/api/ruches/**")
+                        .hasAnyRole("responsable", "admin")
+                        .requestMatchers(HttpMethod.DELETE, "/api/fermiers/**", "/api/fermes/**",
+                                "/api/sites/**", "/api/agents/**", "/api/ruches/**")
+                        .hasAnyRole("responsable", "admin")
+
+                        // Le reste (plannings hors decision, visites, photos, mesures,
+                        // lectures) est ouvert a tout role authentifie : l'apiculteur
+                        // planifie, realise les visites et remplit les rapports.
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())))

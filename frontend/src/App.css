@@ -531,3 +531,26 @@
   color: var(--z-text-muted);
   line-height: 1.5;
 }
+
+.z-connexion__ou {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--z-text-muted);
+}
+
+/* Indicateur de synchronisation / hors-ligne (US-011). */
+.z-sync {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--z-radius-pill);
+  background: color-mix(in srgb, var(--z-warning) 22%, var(--z-surface));
+  color: var(--z-text);
+  white-space: nowrap;
+}
+
+.z-sync--hors-ligne {
+  background: color-mix(in srgb, var(--z-danger) 20%, var(--z-surface));
+}

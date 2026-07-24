@@ -7,6 +7,7 @@
  */
 
 import { jetonCourant, fermerSession } from '../auth/session';
+import { enfiler, rejouer, type MutationEnAttente } from '../offline/file';
 import type {
   Agent,
   AgentCorps,
@@ -45,6 +46,16 @@ export class ErreurApi extends Error {
   }
 }
 
+/** Mutation mise en file faute de réseau (US-011) : sera synchronisée plus tard. */
+export class ErreurHorsLigne extends Error {
+  constructor() {
+    super('Hors ligne : opération mise en file pour synchronisation.');
+    this.name = 'ErreurHorsLigne';
+  }
+}
+
+const MUTATIONS = new Set(['POST', 'PUT', 'DELETE']);
+
 async function requete<T>(url: string, options: RequestInit = {}): Promise<T> {
   const jeton = jetonCourant();
   const enTetes = new Headers(options.headers);
@@ -56,7 +67,22 @@ async function requete<T>(url: string, options: RequestInit = {}): Promise<T> {
     enTetes.set('Authorization', `Bearer ${jeton}`);
   }
 
-  const reponse = await fetch(url, { ...options, headers: enTetes });
+  const methode = (options.method ?? 'GET').toUpperCase();
+  let reponse: Response;
+  try {
+    reponse = await fetch(url, { ...options, headers: enTetes });
+  } catch (cause) {
+    // Panne réseau : une mutation est mise en file (US-011) ; une lecture échoue.
+    if (MUTATIONS.has(methode)) {
+      enfiler({
+        methode: methode as MutationEnAttente['methode'],
+        url,
+        corps: typeof options.body === 'string' ? options.body : undefined,
+      });
+      throw new ErreurHorsLigne();
+    }
+    throw cause;
+  }
 
   // Un jeton expire ou absent : on ferme la session pour ramener a l'ecran de
   // connexion, plutot que de laisser l'utilisateur devant des erreurs muettes.
@@ -128,6 +154,28 @@ export const sitesProches = (latitude: number, longitude: number, rayonMetres: n
 
 /** Seuils metier lus depuis ConfigZumm.ini (US-025). */
 export const recupererSeuils = () => requete<Seuils>('/api/configuration/seuils');
+
+/**
+ * Rejoue les mutations mises en file hors-ligne (US-011). À brancher sur
+ * l'événement `online`. Chaque mutation est renvoyée avec le jeton courant.
+ */
+export const synchroniser = (): Promise<void> =>
+  rejouer(async (m) => {
+    const enTetes: Record<string, string> = { Accept: 'application/json' };
+    if (m.corps) {
+      enTetes['Content-Type'] = 'application/json';
+    }
+    const jeton = jetonCourant();
+    if (jeton) {
+      enTetes.Authorization = `Bearer ${jeton}`;
+    }
+    try {
+      const r = await fetch(m.url, { method: m.methode, headers: enTetes, body: m.corps });
+      return { ok: r.ok || (r.status >= 400 && r.status < 500), reseau: false };
+    } catch {
+      return { ok: false, reseau: true };
+    }
+  });
 
 export const recupererInfo = async (langue: string, signal?: AbortSignal): Promise<Info> => {
   const reponse = await fetch('/api/info', { headers: { 'Accept-Language': langue }, signal });

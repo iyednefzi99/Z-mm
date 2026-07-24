@@ -1,7 +1,11 @@
 import { useEffect, useState, type ReactElement } from 'react';
+import { synchroniser } from './api/client';
+import { terminerConnexion } from './auth/oidc';
 import { fermerSession, jetonCourant, surSession } from './auth/session';
+import { gabarit } from './i18n/console';
 import { LANGUES } from './i18n/messages';
 import { useLangue, useT } from './i18n/langue';
+import { surFile } from './offline/file';
 import { Bouton } from './ui/composants';
 import { AgentsVue } from './vues/AgentsVue';
 import { ConfigVue } from './vues/ConfigVue';
@@ -56,8 +60,35 @@ export default function App(): ReactElement {
   const { langue, definirLangue } = useLangue();
   const [jeton, setJeton] = useState<string | null>(jetonCourant());
   const [onglet, setOnglet] = useState<Onglet>('fermiers');
+  const [enAttente, setEnAttente] = useState(0);
+  const [horsLigne, setHorsLigne] = useState(!navigator.onLine);
 
   useEffect(() => surSession(setJeton), []);
+
+  // Retour de connexion OIDC (US-020) : échange le code contre un jeton.
+  useEffect(() => {
+    void terminerConnexion().catch(() => undefined);
+  }, []);
+
+  // Synchronisation différée (US-011) : file d'attente + retour du réseau.
+  useEffect(() => {
+    const desabonner = surFile(setEnAttente);
+    const enLigne = () => {
+      setHorsLigne(false);
+      void synchroniser();
+    };
+    const deconnecte = () => setHorsLigne(true);
+    window.addEventListener('online', enLigne);
+    window.addEventListener('offline', deconnecte);
+    if (navigator.onLine) {
+      void synchroniser();
+    }
+    return () => {
+      desabonner();
+      window.removeEventListener('online', enLigne);
+      window.removeEventListener('offline', deconnecte);
+    };
+  }, []);
 
   if (!jeton) {
     return <ConnexionVue />;
@@ -72,6 +103,11 @@ export default function App(): ReactElement {
           <span className="z-marque__baseline">{t.baseline}</span>
         </div>
         <div className="z-topbar__actions">
+          {(horsLigne || enAttente > 0) && (
+            <span className={`z-sync ${horsLigne ? 'z-sync--hors-ligne' : ''}`} role="status">
+              {horsLigne ? t.sync.horsLigne : gabarit(t.sync.enAttente, { n: String(enAttente) })}
+            </span>
+          )}
           <nav className="z-langues" aria-label={t.langue}>
             {LANGUES.map((code) => (
               <button

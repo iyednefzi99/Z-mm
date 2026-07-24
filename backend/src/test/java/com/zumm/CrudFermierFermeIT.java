@@ -54,7 +54,14 @@ class CrudFermierFermeIT {
 
     /** Jeton d'un tenant donne : seul le claim tenant_id compte pour l'isolation. */
     private JwtRequestPostProcessor tenant(String tenantId) {
-        return jwt().jwt(builder -> builder.claim("tenant_id", tenantId));
+        // jwt() court-circuite le convertisseur applicatif : on fixe les autorites
+        // directement. Ces tests s'executent avec tous les roles (acces complet).
+        return jwt().jwt(builder -> builder.claim("tenant_id", tenantId))
+                .authorities(
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_admin"),
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_responsable"),
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_superviseur"),
+                        new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_apiculteur"));
     }
 
     @Test

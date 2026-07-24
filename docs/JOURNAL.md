@@ -552,3 +552,45 @@ rapport, photos. **36 SP / 36.** Backend : 11 unitaires + 39 d'intégration,
 Dans `SPRINT-03.md`. Actions suivantes : mode hors-ligne (US-011), RBAC (US-022,
 notamment l'approbation réservée au superviseur), nettoyer `ping`, upload binaire
 des photos.
+
+---
+
+## 2026-07-24 (suite) — SPRINT-04 : hors-ligne, auth OIDC, RBAC, conversion — rétrospective
+
+SPRINT-04 **entièrement livré** (39 SP). Backend : 14 unitaires + 41 d'intégration,
+`Skipped: 0`. Frontend : build vert.
+
+### Livré
+
+- **US-022 RBAC** : matrice centralisée dans la config de sécurité (méthode +
+  chemin). Approbation d'un planning réservée au superviseur ; écriture du
+  référentiel au responsable/admin. `RbacIT` prouve les deux règles. Les jetons des
+  tests existants portent désormais leurs rôles via `.authorities("ROLE_…")` —
+  `jwt()` court-circuitant le convertisseur applicatif (piège consigné).
+- **US-019 conversion d'unités** : service passant par une unité de référence par
+  famille (masse/température), endpoint `/api/conversions`, test unitaire.
+- **US-020/021 auth OIDC** : flux « code + PKCE » sans dépendance (`auth/oidc.ts`),
+  écran de connexion Keycloak (comptes locaux + Google selon le realm), repli
+  « coller un jeton » en dev.
+- **US-011 hors-ligne** : file de mutations persistée (`offline/file.ts`), rejeu au
+  retour du réseau, indicateur de synchro dans la barre.
+
+### Nouveau piège consigné
+
+24. **`SecurityMockMvcRequestPostProcessors.jwt()` court-circuite le convertisseur
+    d'autorités applicatif** : le claim `realm_access` est ignoré en test. Pour
+    tester le RBAC, poser les rôles via `.authorities("ROLE_<role>")`.
+
+### Limites assumées
+
+- Fédération **Google = configuration Keycloak** (IdP à créer avec client id/secret),
+  pas du code ; non vérifiable ici.
+- Synchro hors-ligne **sans résolution de conflits ni idempotence** : un rejeu peut
+  dupliquer. Le cahier prévoit la résolution de conflits — évolution identifiée.
+- Flux OIDC **non testé en CI** (build seulement) : à valider avec un navigateur sur
+  la pile complète.
+
+### Rétrospective
+
+Dans `SPRINT-04.md`. Actions suivantes : idempotence + conflits pour la synchro,
+configurer l'IdP Google, nettoyer `ping`, gérer le refresh token OIDC.
