@@ -585,3 +585,55 @@
   display: flex;
   align-items: flex-end;
 }
+
+/* ─── Synthèse & capteurs (SPRINT-06) ─────────────────────────────────────── */
+
+.z-cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.z-carte {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--z-surface);
+  border: 1px solid color-mix(in srgb, var(--z-text-muted) 20%, transparent);
+}
+
+.z-carte__valeur {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--z-honey);
+}
+
+.z-carte__libelle {
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+}
+
+.z-carte--alerte {
+  border-color: var(--z-danger);
+}
+
+.z-carte--roi .z-carte__valeur {
+  color: var(--z-success);
+}
+
+.z-liste-alertes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.z-liste-alertes li {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+}

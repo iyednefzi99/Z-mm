@@ -1,9 +1,11 @@
 package com.zumm.controller;
 
+import com.zumm.service.SyntheseService;
 import com.zumm.service.TableauDeBordService;
 import com.zumm.web.dto.AlerteSanitaire;
 import com.zumm.web.dto.CalendrierCellule;
 import com.zumm.web.dto.LigneProduction;
+import com.zumm.web.dto.SyntheseReponse;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TableauDeBordController {
 
     private final TableauDeBordService service;
+    private final SyntheseService synthese;
 
-    public TableauDeBordController(TableauDeBordService service) {
+    public TableauDeBordController(TableauDeBordService service, SyntheseService synthese) {
         this.service = service;
+        this.synthese = synthese;
     }
 
     /** US-012 : {@code GET /api/tableaux/calendrier?debut=2026-09-01&fin=2026-09-30}. */
@@ -45,5 +49,11 @@ public class TableauDeBordController {
     @GetMapping("/alertes-sanitaires")
     public List<AlerteSanitaire> alertesSanitaires() {
         return service.alertesSanitaires();
+    }
+
+    /** US-015 : synthese de pilotage et ROI. */
+    @GetMapping("/synthese")
+    public SyntheseReponse synthese() {
+        return synthese.synthese();
     }
 }

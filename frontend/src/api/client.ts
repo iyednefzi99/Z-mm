@@ -17,16 +17,22 @@ import type {
   FermeCorps,
   Fermier,
   FermierCorps,
+  AlerteMesure,
   LigneProduction,
+  Meteo,
+  MesureCorps,
+  MesureReponse,
   Photo,
   PhotoCorps,
   Planning,
   PlanningCorps,
+  QuantiteMiel,
   Ruche,
   RucheCorps,
   Seuils,
   Site,
   SiteCorps,
+  Synthese,
   Tache,
   TacheCorps,
   Visite,
@@ -151,6 +157,25 @@ export const chargerProduction = () => requete<LigneProduction[]>('/api/tableaux
 /** US-014 : alertes sanitaires par ruche. */
 export const chargerAlertesSanitaires = () =>
   requete<AlerteSanitaire[]>('/api/tableaux/alertes-sanitaires');
+
+/** US-015 : synthèse de pilotage et ROI. */
+export const chargerSynthese = () => requete<Synthese>('/api/tableaux/synthese');
+
+/** US-017 : ingestion d'une mesure de capteur. */
+export const ingererMesure = (corps: MesureCorps) =>
+  requete<MesureReponse>('/api/mesures', { method: 'POST', ...corpsJson(corps) });
+
+/** US-018 : alertes de seuils actuellement ouvertes. */
+export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesures/alertes');
+
+/** US-026 : service tierce getZummHoneyActualQuantity. */
+export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string) =>
+  requete<QuantiteMiel>(
+    `/api/services/getZummHoneyActualQuantity?${rucheId != null ? `rucheId=${rucheId}&` : ''}unite=${unite}`,
+  );
+
+/** US-029 : contexte météo d'un site. */
+export const chargerMeteo = (siteId: number) => requete<Meteo>(`/api/meteo?siteId=${siteId}`);
 
 /**
  * US-027 : export CSV/TXT. L'API exige le jeton en en-tête, donc on télécharge via

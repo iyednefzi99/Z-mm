@@ -53,6 +53,10 @@ public class SecurityConfig {
                         .permitAll()
                         // Identite de l'application : page d'accueil publique.
                         .requestMatchers(HttpMethod.GET, "/api/info").permitAll()
+                        // Contrat OpenAPI 3 (US-026) et son explorateur : publics en lecture.
+                        .requestMatchers(HttpMethod.GET,
+                                "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .permitAll()
 
                         // ── Matrice RBAC (US-022), derivee des roles du cahier ──
                         // L'approbation d'un planning est reservee au superviseur

@@ -3,14 +3,20 @@ import {
   chargerAlertesSanitaires,
   chargerCalendrier,
   chargerProduction,
+  chargerSynthese,
   telechargerExport,
 } from '../api/client';
-import type { AlerteSanitaire, CalendrierCellule, LigneProduction } from '../api/types';
+import type {
+  AlerteSanitaire,
+  CalendrierCellule,
+  LigneProduction,
+  Synthese,
+} from '../api/types';
 import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate } from '../ui/composants';
 
-type Sous = 'calendrier' | 'production' | 'alertes';
+type Sous = 'calendrier' | 'production' | 'alertes' | 'synthese';
 
 /** Premier et dernier jour du mois courant, au format ISO (valeurs par défaut du calendrier). */
 function moisCourant(): { debut: string; fin: string } {
@@ -33,6 +39,7 @@ export function TableauxVue(): ReactElement {
   const [calendrier, setCalendrier] = useState<CalendrierCellule[]>([]);
   const [production, setProduction] = useState<LigneProduction[]>([]);
   const [alertes, setAlertes] = useState<AlerteSanitaire[]>([]);
+  const [synthese, setSynthese] = useState<Synthese | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const chargerCal = useCallback(() => {
@@ -46,13 +53,16 @@ export function TableauxVue(): ReactElement {
     } else if (sous === 'production') {
       setErreur(null);
       void chargerProduction().then(setProduction).catch((c) => setErreur(messageErreur(c)));
-    } else {
+    } else if (sous === 'alertes') {
       setErreur(null);
       void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c)));
+    } else {
+      setErreur(null);
+      void chargerSynthese().then(setSynthese).catch((c) => setErreur(messageErreur(c)));
     }
   }, [sous, chargerCal]);
 
-  const sousOnglets: Sous[] = ['calendrier', 'production', 'alertes'];
+  const sousOnglets: Sous[] = ['calendrier', 'production', 'alertes', 'synthese'];
 
   return (
     <section className="z-section">
@@ -194,6 +204,57 @@ export function TableauxVue(): ReactElement {
             </table>
           </div>
         )
+      )}
+
+      {sous === 'synthese' && synthese && (
+        <div className="z-synthese">
+          <div className="z-cartes">
+            <div className="z-carte">
+              <span className="z-carte__valeur">{synthese.nombreRuches}</span>
+              <span className="z-carte__libelle">{t.tableau.nombreRuches}</span>
+            </div>
+            <div className="z-carte">
+              <span className="z-carte__valeur">{synthese.nombreVisites}</span>
+              <span className="z-carte__libelle">{t.tableau.nombreVisites}</span>
+            </div>
+            <div className="z-carte">
+              <span className="z-carte__valeur">{synthese.poidsTotalActuelKg}</span>
+              <span className="z-carte__libelle">{t.tableau.poidsTotal}</span>
+            </div>
+            <div className={`z-carte ${synthese.alertesOuvertes > 0 ? 'z-carte--alerte' : ''}`}>
+              <span className="z-carte__valeur">{synthese.alertesOuvertes}</span>
+              <span className="z-carte__libelle">{t.tableau.alertesOuvertes}</span>
+            </div>
+            <div className="z-carte z-carte--roi">
+              <span className="z-carte__valeur">
+                {synthese.roi.roiPourcent != null ? `${synthese.roi.roiPourcent} %` : '—'}
+              </span>
+              <span className="z-carte__libelle">{t.tableau.roiPourcent}</span>
+            </div>
+          </div>
+          <div className="z-table-enveloppe">
+            <table className="z-table">
+              <tbody>
+                <tr>
+                  <td>{t.tableau.valeurProduction}</td>
+                  <td>{synthese.roi.valeurProductionEur}</td>
+                </tr>
+                <tr>
+                  <td>{t.tableau.coutInterventions}</td>
+                  <td>{synthese.roi.coutInterventionsEur}</td>
+                </tr>
+                <tr>
+                  <td>{t.tableau.visitesParRaison}</td>
+                  <td>
+                    {Object.entries(synthese.visitesParRaison)
+                      .map(([raison, n]) => `${raison} : ${n}`)
+                      .join(' · ') || '—'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </section>
   );

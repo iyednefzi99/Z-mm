@@ -304,6 +304,78 @@ export interface AlerteSanitaire {
   motif: string;
 }
 
+export type TypeIndicateur = 'poids' | 'temperature' | 'humidite' | 'activite';
+export const TYPES_INDICATEUR: readonly TypeIndicateur[] = [
+  'poids',
+  'temperature',
+  'humidite',
+  'activite',
+];
+
+/** Alerte de seuil déclenchée par une mesure (US-018). */
+export interface AlerteMesure {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  typeIndicateur: TypeIndicateur;
+  niveau: 'attention' | 'critique';
+  message: string;
+  valeurDeclenchement: number;
+  ouverte: boolean;
+  ouverteLe: string;
+  fermeeLe: string | null;
+}
+
+/** Mesure ingérée et alertes déclenchées (US-017/018). */
+export interface MesureReponse {
+  rucheId: number;
+  typeIndicateur: TypeIndicateur;
+  instant: string;
+  valeur: number;
+  alertes: AlerteMesure[];
+}
+
+export interface MesureCorps {
+  rucheId: number;
+  typeIndicateur: TypeIndicateur;
+  valeur: number;
+  instant: string | null;
+}
+
+/** Synthèse de pilotage et ROI (US-015). */
+export interface Synthese {
+  nombreRuches: number;
+  nombreVisites: number;
+  visitesParRaison: Record<string, number>;
+  productiviteMoyenne: number | null;
+  poidsTotalActuelKg: number;
+  alertesOuvertes: number;
+  roi: {
+    valeurProductionEur: number;
+    coutInterventionsEur: number;
+    roiPourcent: number | null;
+  };
+}
+
+/** Réponse du service getZummHoneyActualQuantity (US-026). */
+export interface QuantiteMiel {
+  rucheId: number | null;
+  quantite: number;
+  unite: string;
+}
+
+/** Contexte météo local d'un site (US-029). */
+export interface Meteo {
+  siteId: number;
+  latitude: number;
+  longitude: number;
+  temperatureCelsius: number;
+  humiditePourcent: number | null;
+  ventKmh: number | null;
+  source: string;
+  instant: string;
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];
