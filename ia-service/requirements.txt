@@ -1,0 +1,6 @@
+# Microservice IA Zümm (US-035).
+#
+# Aucune dépendance externe : le service n'utilise que la bibliothèque standard
+# Python (http.server, json, math). Ce fichier est laissé volontairement vide —
+# il matérialise l'emplacement où déclarer scikit-learn / numpy / torch lorsque
+# le moteur de scoring évoluera vers de l'apprentissage automatique.

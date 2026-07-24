@@ -19,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
  * est signalee comme anomalie. La ligne de base s'adapte a la derive lente (saison,
  * croissance de la colonie) tout en detectant les ruptures brutales.
  *
- * <p>Approche statistique legere et sans dependance : le microservice IA Python
- * (US-035) prendra le relais pour des modeles plus riches.
+ * <p>Approche statistique legere et sans dependance, calculee localement. Si un
+ * microservice IA Python (US-035) est configure ({@code zumm.ia.url}), la detection
+ * lui est deleguee ; a defaut ou en cas d'indisponibilite, on retombe sur ce calcul
+ * EWMA local — le couplage reste donc optionnel et non bloquant.
  */
 @Service
 @Transactional(readOnly = true)
@@ -32,13 +34,24 @@ public class AnomalieService {
     private static final double SEUIL_Z = 3.0;
 
     private final MesureRepository mesures;
+    private final ClientAnomalieIA ia;
 
-    public AnomalieService(MesureRepository mesures) {
+    public AnomalieService(MesureRepository mesures, ClientAnomalieIA ia) {
         this.mesures = mesures;
+        this.ia = ia;
     }
 
     public AnomalieReponse detecter(Long rucheId, TypeIndicateur type) {
         List<Mesure> serie = mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(rucheId, type);
+
+        // Délégation au microservice IA si configuré (US-035) ; sinon calcul local.
+        if (ia.actif()) {
+            var deleguee = ia.scorer(rucheId, type, serie);
+            if (deleguee.isPresent()) {
+                return deleguee.get();
+            }
+        }
+
         List<PointAnomalie> anomalies = new ArrayList<>();
 
         if (serie.isEmpty()) {
