@@ -18,6 +18,7 @@ import type {
   Fermier,
   FermierCorps,
   AlerteMesure,
+  Anomalie,
   LigneProduction,
   Meteo,
   MesureCorps,
@@ -27,6 +28,10 @@ import type {
   Planning,
   PlanningCorps,
   QuantiteMiel,
+  Recolte,
+  RecolteCorps,
+  Reine,
+  ReineCorps,
   Ruche,
   RucheCorps,
   Seuils,
@@ -35,6 +40,8 @@ import type {
   Synthese,
   Tache,
   TacheCorps,
+  Trace,
+  TypeIndicateur,
   Visite,
   VisiteCorps,
 } from './types';
@@ -176,6 +183,23 @@ export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string
 
 /** US-029 : contexte météo d'un site. */
 export const chargerMeteo = (siteId: number) => requete<Meteo>(`/api/meteo?siteId=${siteId}`);
+
+/** US-032 : suivi de la reine. */
+export const listerReines = (rucheId: number) =>
+  requete<Reine[]>(`/api/reines?rucheId=${rucheId}`);
+export const enregistrerReine = (corps: ReineCorps) =>
+  requete<Reine>('/api/reines', { method: 'POST', ...corpsJson(corps) });
+export const supprimerReine = (id: number) =>
+  requete<void>(`/api/reines/${id}`, { method: 'DELETE' });
+
+/** US-033 : récoltes et traçabilité. */
+export const recoltes = ressource<Recolte, RecolteCorps>('/api/recoltes');
+export const tracerLot = (lot: string) =>
+  requete<Trace>(`/api/recoltes/tracabilite/${encodeURIComponent(lot)}`);
+
+/** US-034 : détection d'anomalie EWMA. */
+export const detecterAnomalie = (rucheId: number, type: TypeIndicateur) =>
+  requete<Anomalie>(`/api/anomalies?rucheId=${rucheId}&type=${type}`);
 
 /**
  * US-027 : export CSV/TXT. L'API exige le jeton en en-tête, donc on télécharge via

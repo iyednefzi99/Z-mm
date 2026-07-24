@@ -376,6 +376,89 @@ export interface Meteo {
   instant: string;
 }
 
+export type StatutReine = 'introduite' | 'en_ponte' | 'remplacee' | 'disparue' | 'essaimee';
+export const STATUTS_REINE: readonly StatutReine[] = [
+  'introduite',
+  'en_ponte',
+  'remplacee',
+  'disparue',
+  'essaimee',
+];
+export type CouleurReine = 'blanc' | 'jaune' | 'rouge' | 'vert' | 'bleu';
+export const COULEURS_REINE: readonly CouleurReine[] = ['blanc', 'jaune', 'rouge', 'vert', 'bleu'];
+
+/** Événement du journal de la reine (US-032). */
+export interface Reine {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  dateEvenement: string;
+  statut: StatutReine;
+  couleurMarquage: CouleurReine | null;
+  anneeNaissance: number | null;
+  race: string | null;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface ReineCorps {
+  rucheId: number;
+  dateEvenement: string;
+  statut: StatutReine;
+  couleurMarquage: CouleurReine | null;
+  anneeNaissance: number | null;
+  race: string | null;
+  note: string | null;
+}
+
+/** Récolte avec lot et payload QR (US-033). */
+export interface Recolte {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  dateRecolte: string;
+  quantiteKg: number;
+  typeMiel: string | null;
+  lot: string;
+  note: string | null;
+  qrPayload: string;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface RecolteCorps {
+  rucheId: number;
+  dateRecolte: string;
+  quantiteKg: number;
+  typeMiel: string | null;
+  note: string | null;
+}
+
+/** Fiche de traçabilité d'un lot (US-033). */
+export interface Trace {
+  lot: string;
+  rucheId: number;
+  rucheModele: string;
+  siteNom: string;
+  fermeNom: string;
+  dateRecolte: string;
+  quantiteKg: number;
+  typeMiel: string | null;
+}
+
+/** Détection d'anomalie EWMA (US-034). */
+export interface Anomalie {
+  rucheId: number;
+  typeIndicateur: TypeIndicateur;
+  alpha: number;
+  seuilZ: number;
+  baseline: number | null;
+  ecartType: number | null;
+  nombrePoints: number;
+  anomalies: { instant: string; valeur: number; zScore: number }[];
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];

@@ -637,3 +637,9 @@
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
 }
+
+/* ─── Carte des ruchers (SPRINT-07, US-030) ───────────────────────────────── */
+.z-carte-svg {
+  color: var(--z-text);
+  min-width: 320px;
+}

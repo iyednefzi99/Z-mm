@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import {
   chargerAlertesOuvertes,
   chargerMeteo,
+  detecterAnomalie,
   getZummHoneyActualQuantity,
   ingererMesure,
   ruches,
@@ -9,6 +10,7 @@ import {
 } from '../api/client';
 import type {
   AlerteMesure,
+  Anomalie,
   Meteo,
   QuantiteMiel,
   Ruche,
@@ -36,6 +38,9 @@ export function CapteursVue(): ReactElement {
   const [mielRuche, setMielRuche] = useState('');
   const [unite, setUnite] = useState('kg');
   const [miel, setMiel] = useState<QuantiteMiel | null>(null);
+  const [anomRuche, setAnomRuche] = useState('');
+  const [anomType, setAnomType] = useState<TypeIndicateur>('poids');
+  const [anomalie, setAnomalie] = useState<Anomalie | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optIndicateur: Option[] = TYPES_INDICATEUR.map((i) => ({
@@ -86,6 +91,16 @@ export function CapteursVue(): ReactElement {
     setErreur(null);
     try {
       setMiel(await getZummHoneyActualQuantity(mielRuche === '' ? null : Number(mielRuche), unite));
+    } catch (cause) {
+      setErreur(messageErreur(cause));
+    }
+  };
+
+  const analyser = async () => {
+    if (anomRuche === '') return;
+    setErreur(null);
+    try {
+      setAnomalie(await detecterAnomalie(Number(anomRuche), anomType));
     } catch (cause) {
       setErreur(messageErreur(cause));
     }
@@ -177,6 +192,44 @@ export function CapteursVue(): ReactElement {
           )}
         </fieldset>
       </div>
+
+      <fieldset className="z-composition">
+        <legend className="z-champ__libelle">{t.anomalie.titre}</legend>
+        <div className="z-form__grille">
+          <ChampSelect libelle={t.capteur.ruche} valeur={anomRuche} options={optRuches} onChange={setAnomRuche} />
+          <ChampSelect
+            libelle={t.anomalie.indicateur}
+            valeur={anomType}
+            options={optIndicateur}
+            onChange={(v) => setAnomType(v as TypeIndicateur)}
+          />
+          <div className="z-champ z-champ--aligne-bas">
+            <Bouton variante="secondaire" onClick={() => void analyser()}>
+              {t.anomalie.detecter}
+            </Bouton>
+          </div>
+        </div>
+        {anomalie && (
+          <div>
+            <p className="z-info">
+              {t.anomalie.baseline} : {anomalie.baseline ?? '—'} · {t.anomalie.ecartType} :{' '}
+              {anomalie.ecartType ?? '—'} · {t.anomalie.nombrePoints} : {anomalie.nombrePoints} ·{' '}
+              {t.anomalie.seuilZ} : {anomalie.seuilZ}
+            </p>
+            {anomalie.anomalies.length === 0 ? (
+              <p className="z-info">{t.anomalie.aucune}</p>
+            ) : (
+              <ul className="z-liste-alertes">
+                {anomalie.anomalies.map((a) => (
+                  <li key={a.instant} className="z-ligne--critique">
+                    {a.instant} — {t.anomalie.valeur} {a.valeur} · {t.anomalie.zscore} {a.zScore}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </fieldset>
     </section>
   );
 }
