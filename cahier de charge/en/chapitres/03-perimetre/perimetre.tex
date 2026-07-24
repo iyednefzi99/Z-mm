@@ -115,4 +115,47 @@ Beyond the scope of this phase, the following evolution may be considered:
   It would reuse the TypeScript business core and the REST API, but would
   constitute a second interface codebase to maintain --- to be undertaken only on
   the client's explicit request.
+  \item \textbf{Hive production and harvest module.}
+  Harvest tracking (weight, yield, grading), central to apiary management, is
+  currently out of scope. This module would allow recording harvests per hive and
+  per season, calculating yields, monitoring honey quality (pollen, moisture,
+  conductivity) and generating production reports for subsidies and sanitary
+  inspections.
+
+  \item \textbf{Honey traceability --- EU Breakfast Directive (2026).}
+  The European directive mandates full honey traceability by June 2026: batch
+  numbering, phytosanitary treatment history, certifications (organic, PGI, PDO),
+  QR code on the jar linked to the hive record. No competing platform offers an
+  integrated traceability module, representing a major differentiator for Zümm.
+
+  \item \textbf{Weather data integration.}
+  Temperature, humidity, wind and sunshine directly affect colony behaviour
+  (swarming, foraging, provision consumption). Correlating weather data with hive
+  sensors would enable contextualised alerts and improved visit planning.
+
+  \item \textbf{PostGIS cartographic visualisation.}
+  The backend relies on PostgreSQL/PostGIS, a capability unmatched among
+  competitors. Leveraging the spatial database for an interactive apiary map
+  (clustering, inter-hive distances, optimised visit routes, satellite-based
+  floral mapping) would constitute a significant competitive advantage.
+
+  \item \textbf{Standardised IoT connector.}
+  Rather than developing hardware, create a standardised ingestion endpoint
+  (\texttt{/api/v1/telemetry}) with device-token authentication and a normalised
+  data schema (weight, temperature, humidity, acoustic). This would enable
+  integration of existing sensors (BroodMinder, ApisProtect, BEEP, DIY ESP32)
+  without developing the hardware itself.
+
+  \item \textbf{Acoustic detection and computer vision.}
+  Recent research shows 85--99\,\% accuracy for acoustic detection of varroa and
+  swarming, as well as automated varroa counting on sticky boards via vision
+  (YOLOv11 Nano, $R^2 = 0.99$). These open-source models could be integrated
+  into a photo-inspection module and an acoustic analyser, enriching visit reports
+  with automated indicators.
+
+  \item \textbf{Digital colony twin and carbon credits.}
+  Longer term, predictive modelling (digital twins) would enable what-if
+  simulations on varroa treatment, feeding or migration. Precision pollination
+  tracking and apian carbon footprint calculation would open access to carbon
+  credit markets and European Green Deal subsidies.
 \end{itemize}
