@@ -554,3 +554,34 @@
 .z-sync--hors-ligne {
   background: color-mix(in srgb, var(--z-danger) 20%, var(--z-surface));
 }
+
+/* ─── Tableaux de bord de pilotage (SPRINT-05) ───────────────────────────── */
+
+/* Bandeau des rappels de tâches échues (US-031). */
+.z-rappels {
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: var(--z-radius-pill, 8px);
+  background: color-mix(in srgb, var(--z-warning) 18%, var(--z-surface));
+  font-size: 0.85rem;
+}
+
+/* Lignes des tableaux production / alertes selon leur gravité (US-013/US-014). */
+.z-ligne--alerte td,
+.z-ligne--critique td {
+  background: color-mix(in srgb, var(--z-danger) 12%, transparent);
+}
+
+.z-ligne--attention td {
+  background: color-mix(in srgb, var(--z-warning) 14%, transparent);
+}
+
+.z-ligne--ok td {
+  background: color-mix(in srgb, var(--z-success) 10%, transparent);
+}
+
+/* Aligne un bouton sur la ligne de base d'une grille de champs. */
+.z-champ--aligne-bas {
+  display: flex;
+  align-items: flex-end;
+}

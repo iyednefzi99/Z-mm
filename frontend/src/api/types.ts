@@ -239,6 +239,71 @@ export interface VisiteCorps {
   productivite: number | null;
 }
 
+/** Tâche ou rappel de l'apiculteur (US-031). */
+export interface Tache {
+  id: number;
+  libelle: string;
+  rucheId: number | null;
+  rucheModele: string | null;
+  agentId: number | null;
+  agentNom: string | null;
+  echeance: string | null;
+  faite: boolean;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface TacheCorps {
+  libelle: string;
+  rucheId: number | null;
+  agentId: number | null;
+  echeance: string | null;
+  faite: boolean;
+}
+
+/** Résumé d'une visite dans une cellule du calendrier (US-012). */
+export interface VisiteBreve {
+  id: number;
+  date: string;
+  raison: RaisonVisite;
+  etatSante: EtatSante | null;
+}
+
+/** Cellule du calendrier matriciel agents × ruches (US-012). */
+export interface CalendrierCellule {
+  agentId: number;
+  agentNom: string;
+  rucheId: number;
+  rucheModele: string;
+  nombreVisites: number;
+  visites: VisiteBreve[];
+}
+
+/** Ligne du tableau de bord production (US-013). */
+export interface LigneProduction {
+  rucheId: number;
+  rucheModele: string;
+  poidsActuelKg: number | null;
+  poidsMinKg: number | null;
+  poidsMaxKg: number | null;
+  nombreMesures: number;
+  sousSeuil: boolean;
+  productiviteMoyenne: number | null;
+}
+
+export type NiveauAlerte = 'ok' | 'attention' | 'critique';
+
+/** Alerte du tableau de bord sanitaire (US-014). */
+export interface AlerteSanitaire {
+  rucheId: number;
+  rucheModele: string;
+  dernierEtatSante: EtatSante | null;
+  derniereVisite: string | null;
+  joursDepuisVisite: number | null;
+  niveau: NiveauAlerte;
+  motif: string;
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];

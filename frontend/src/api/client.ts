@@ -11,10 +11,13 @@ import { enfiler, rejouer, type MutationEnAttente } from '../offline/file';
 import type {
   Agent,
   AgentCorps,
+  AlerteSanitaire,
+  CalendrierCellule,
   Ferme,
   FermeCorps,
   Fermier,
   FermierCorps,
+  LigneProduction,
   Photo,
   PhotoCorps,
   Planning,
@@ -24,6 +27,8 @@ import type {
   Seuils,
   Site,
   SiteCorps,
+  Tache,
+  TacheCorps,
   Visite,
   VisiteCorps,
 } from './types';
@@ -131,6 +136,47 @@ export const agents = ressource<Agent, AgentCorps>('/api/agents');
 export const ruches = ressource<Ruche, RucheCorps>('/api/ruches');
 export const plannings = ressource<Planning, PlanningCorps>('/api/plannings');
 export const visites = ressource<Visite, VisiteCorps>('/api/visites');
+export const taches = ressource<Tache, TacheCorps>('/api/taches');
+
+/** US-031 : rappels en cours (tâches non faites déjà échues). */
+export const listerRappels = () => requete<Tache[]>('/api/taches/rappels');
+
+/** US-012 : calendrier matriciel agents × ruches sur une période. */
+export const chargerCalendrier = (debut: string, fin: string) =>
+  requete<CalendrierCellule[]>(`/api/tableaux/calendrier?debut=${debut}&fin=${fin}`);
+
+/** US-013 : tableau de bord production (poids par ruche). */
+export const chargerProduction = () => requete<LigneProduction[]>('/api/tableaux/production');
+
+/** US-014 : alertes sanitaires par ruche. */
+export const chargerAlertesSanitaires = () =>
+  requete<AlerteSanitaire[]>('/api/tableaux/alertes-sanitaires');
+
+/**
+ * US-027 : export CSV/TXT. L'API exige le jeton en en-tête, donc on télécharge via
+ * fetch + blob plutôt qu'un simple lien, puis on déclenche l'enregistrement.
+ */
+export const telechargerExport = async (
+  ressourceExport: 'visites' | 'ruches',
+  format: 'csv' | 'txt',
+): Promise<void> => {
+  const jeton = jetonCourant();
+  const reponse = await fetch(`/api/export/${ressourceExport}?format=${format}`, {
+    headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const blob = await reponse.blob();
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = `zumm-${ressourceExport}.${format}`;
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+};
 
 /** US-008 : décision du superviseur sur un planning. */
 export const approuverPlanning = (id: number) =>

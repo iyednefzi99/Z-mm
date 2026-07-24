@@ -15,6 +15,8 @@ import { FermiersVue } from './vues/FermiersVue';
 import { PlanningsVue } from './vues/PlanningsVue';
 import { RuchesVue } from './vues/RuchesVue';
 import { SitesVue } from './vues/SitesVue';
+import { TableauxVue } from './vues/TableauxVue';
+import { TachesVue } from './vues/TachesVue';
 import { VisitesVue } from './vues/VisitesVue';
 import './App.css';
 
@@ -25,6 +27,8 @@ type Onglet =
   | 'ruches'
   | 'plannings'
   | 'visites'
+  | 'taches'
+  | 'tableaux'
   | 'agents'
   | 'config';
 
@@ -35,6 +39,8 @@ const ONGLETS: Onglet[] = [
   'ruches',
   'plannings',
   'visites',
+  'taches',
+  'tableaux',
   'agents',
   'config',
 ];
@@ -46,6 +52,8 @@ const VUES: Record<Onglet, ReactElement> = {
   ruches: <RuchesVue />,
   plannings: <PlanningsVue />,
   visites: <VisitesVue />,
+  taches: <TachesVue />,
+  tableaux: <TableauxVue />,
   agents: <AgentsVue />,
   config: <ConfigVue />,
 };
