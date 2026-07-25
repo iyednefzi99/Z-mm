@@ -3,13 +3,24 @@ package com.zumm.service;
 import com.zumm.domain.Ferme;
 import com.zumm.domain.Site;
 import com.zumm.repository.FermeRepository;
+import com.zumm.repository.RucheRepository;
 import com.zumm.repository.SiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
+import com.zumm.web.dto.GrappeSites;
 import com.zumm.web.dto.SiteCorps;
 import com.zumm.web.dto.SiteReponse;
+import com.zumm.web.dto.VoisinSite;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +39,12 @@ public class SiteService {
 
     private final SiteRepository sites;
     private final FermeRepository fermes;
+    private final RucheRepository ruches;
 
-    public SiteService(SiteRepository sites, FermeRepository fermes) {
+    public SiteService(SiteRepository sites, FermeRepository fermes, RucheRepository ruches) {
         this.sites = sites;
         this.fermes = fermes;
+        this.ruches = ruches;
     }
 
     public SiteReponse creer(SiteCorps corps) {
@@ -72,6 +85,96 @@ public class SiteService {
     public List<SiteReponse> proches(double latitude, double longitude, double rayonMetres) {
         return sites.findAllById(sites.idsProches(latitude, longitude, rayonMetres))
                 .stream().map(SiteReponse::de).toList();
+    }
+
+    /**
+     * Regroupe les sites du tenant par proximite geographique (US-045).
+     *
+     * <p>Le calcul est fait en base par {@code ST_ClusterDBSCAN}. Deux precautions :
+     *
+     * <ul>
+     *   <li>le rayon est donne en metres reels, mais DBSCAN travaille sur la
+     *       projection Web Mercator, qui dilate les distances d'un facteur
+     *       {@code 1/cos(latitude)} — d'ou la calibration sur la latitude moyenne ;
+     *   <li>DBSCAN classe en « bruit » les sites qui n'atteignent pas
+     *       {@code minimumSites} voisins. Les perdre serait un contresens metier : ils
+     *       ressortent en grappes d'un seul membre.
+     * </ul>
+     *
+     * <p>Les grappes sont numerotees par taille decroissante, a egalite par plus petit
+     * identifiant de site — l'ordre ne depend donc pas de celui rendu par la base.
+     */
+    @Transactional(readOnly = true)
+    public List<GrappeSites> grappes(double distanceMetres, int minimumSites) {
+        BigDecimal latitudeMoyenne = sites.latitudeMoyenne();
+        if (latitudeMoyenne == null) {
+            return List.of();
+        }
+        double eps = distanceMetres / Math.cos(Math.toRadians(latitudeMoyenne.doubleValue()));
+
+        // Cle de groupe : le numero DBSCAN pour les sites agreges, l'identifiant du
+        // site (negatif, pour ne pas collisionner) pour les isoles.
+        Map<Long, List<Long>> parGroupe = new LinkedHashMap<>();
+        for (SiteRepository.AffectationGrappe ligne : sites.affectationsGrappes(eps, minimumSites)) {
+            Long cle = ligne.getGrappe() == null ? -ligne.getSiteId() : ligne.getGrappe().longValue();
+            parGroupe.computeIfAbsent(cle, c -> new ArrayList<>()).add(ligne.getSiteId());
+        }
+
+        Map<Long, SiteReponse> parId = sites.findAllById(
+                        parGroupe.values().stream().flatMap(List::stream).toList())
+                .stream().collect(Collectors.toMap(Site::getId, SiteReponse::de));
+        Map<Long, Long> ruchesParSite = ruches.comptesParSite().stream()
+                .collect(Collectors.toMap(l -> (Long) l[0], l -> (Long) l[1]));
+
+        List<List<SiteReponse>> groupes = parGroupe.values().stream()
+                .map(ids -> ids.stream().map(parId::get).filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(SiteReponse::id)).toList())
+                .filter(membres -> !membres.isEmpty())
+                .sorted(Comparator.comparingInt((List<SiteReponse> m) -> m.size()).reversed()
+                        .thenComparing(m -> m.get(0).id()))
+                .toList();
+
+        List<GrappeSites> grappes = new ArrayList<>();
+        for (int i = 0; i < groupes.size(); i++) {
+            grappes.add(enGrappe(i + 1, groupes.get(i), ruchesParSite));
+        }
+        return grappes;
+    }
+
+    /** Les {@code limite} sites du tenant les plus proches de {@code id} (US-046). */
+    @Transactional(readOnly = true)
+    public List<VoisinSite> voisins(Long id, int limite) {
+        if (limite < 1) {
+            throw new RequeteInvalide("La limite de voisins doit valoir au moins 1.");
+        }
+        Site reference = entite(id);
+        List<SiteRepository.VoisinProche> lignes = sites.voisins(
+                reference.getLatitude().doubleValue(),
+                reference.getLongitude().doubleValue(),
+                id,
+                limite);
+        Map<Long, SiteReponse> parId = sites.findAllById(
+                        lignes.stream().map(SiteRepository.VoisinProche::getSiteId).toList())
+                .stream().collect(Collectors.toMap(Site::getId, SiteReponse::de));
+        // L'ordre vient de la base (parcours d'index KNN) : on le conserve.
+        return lignes.stream()
+                .filter(ligne -> parId.containsKey(ligne.getSiteId()))
+                .map(ligne -> new VoisinSite(parId.get(ligne.getSiteId()),
+                        BigDecimal.valueOf(ligne.getDistanceMetres()).setScale(1, RoundingMode.HALF_UP)))
+                .toList();
+    }
+
+    private GrappeSites enGrappe(int numero, List<SiteReponse> membres, Map<Long, Long> ruchesParSite) {
+        BigDecimal nombre = BigDecimal.valueOf(membres.size());
+        BigDecimal latitude = membres.stream().map(SiteReponse::latitude)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(nombre, 6, RoundingMode.HALF_UP);
+        BigDecimal longitude = membres.stream().map(SiteReponse::longitude)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(nombre, 6, RoundingMode.HALF_UP);
+        long ruchesCumulees = membres.stream()
+                .mapToLong(site -> ruchesParSite.getOrDefault(site.id(), 0L)).sum();
+        return new GrappeSites(numero, latitude, longitude, membres.size(), ruchesCumulees, membres);
     }
 
     Site entite(Long id) {

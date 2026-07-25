@@ -386,8 +386,105 @@
           "Jour 14"
         ]
       }
+    },
+    {
+      "id": "SPRINT-09",
+      "nom": "Exploitation & durcissement",
+      "theme": "Notifications, restitution documentaire, tracabilite et anticipation",
+      "objectif": "Completer le produit par des fonctionnalites d'exploitation a valeur immediate et fiabiliser le deploiement de production",
+      "numero": 9,
+      "date_debut": "2026-11-17",
+      "date_fin": "2026-11-30",
+      "duree_jours": 14,
+      "story_points": 26,
+      "velocity": 26,
+      "capacity": 40,
+      "stories": [
+        "US-041",
+        "US-042",
+        "US-043",
+        "US-044"
+      ],
+      "review_demo": "Notification d'alerte, export PDF d'un rapport de visite, journal d'audit et widget de prevision de recolte",
+      "risques": "Dependances tierces (SMTP, bibliotheque PDF) et durcissement de production (isolation de la base Keycloak, validation de l'emetteur des jetons)",
+      "ceremonies": {
+        "sprint_planning": "2026-11-17 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-11-30 14:00-16:00",
+        "sprint_retrospective": "2026-11-30 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          26.0,
+          20.0,
+          13.0,
+          7.0,
+          0.0
+        ],
+        "actual": [
+          26.0,
+          18.0,
+          13.0,
+          5.0,
+          0.0
+        ],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-10",
+      "nom": "Intelligence spatiale & remise a niveau",
+      "theme": "Exploitation de la base spatiale PostGIS et rattrapage de la dette documentaire et de test",
+      "objectif": "Transformer la carte descriptive en outil d'aide a la decision terrain, et remettre la roadmap publiee en phase avec le produit livre",
+      "numero": 10,
+      "date_debut": "2026-12-01",
+      "date_fin": "2026-12-14",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "stories": [
+        "US-045",
+        "US-046",
+        "US-047",
+        "US-048",
+        "US-049"
+      ],
+      "review_demo": "Grappes de sites sur la carte, voisins d'un site, tournee ordonnee d'un agent, roadmap recompilee et CI front (lint + tests)",
+      "risques": "Rendu des grappes sur la carte SVG autonome (MapLibre non integre depuis le SPRINT-07) ; attente d'un routage routier reel sur US-047",
+      "ceremonies": {
+        "sprint_planning": "2026-12-01 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-12-14 14:00-16:00",
+        "sprint_retrospective": "2026-12-14 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          26.0,
+          18.0,
+          10.0,
+          5.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
     }
   ],
-  "total_sprints": 8,
-  "total_points": 304
+  "total_sprints": 11,
+  "total_points": 364
 }

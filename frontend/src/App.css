@@ -298,6 +298,38 @@
   color: var(--z-danger);
 }
 
+/* Encart secondaire d'une vue (tournée du jour sous la table des plannings). */
+.z-encart {
+  margin-block-start: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  background: var(--z-surface);
+}
+
+.z-encart__titre {
+  margin: 0 0 0.9rem;
+  font-size: 1.05rem;
+  color: var(--z-text);
+}
+
+/* Listes de détail (voisins d'un site, étapes d'une tournée). */
+.z-liste-simple {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  color: var(--z-text);
+}
+
+/* Bascule de vue (sites / grappes) : l'onglet actif se lit sans couleur seule. */
+.z-lien--actif {
+  color: var(--z-text);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--z-honey-500);
+}
+
 /* ─── Modale ───────────────────────────────────────────────────────────── */
 
 .z-overlay {
@@ -608,7 +640,7 @@
 .z-carte__valeur {
   font-size: 1.6rem;
   font-weight: 800;
-  color: var(--z-honey);
+  color: var(--z-honey-500);
 }
 
 .z-carte__libelle {

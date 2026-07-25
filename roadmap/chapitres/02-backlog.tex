@@ -4,9 +4,13 @@
 \chapter{Product Backlog}
 \label{chap:backlog}
 
-Le backlog est structuré en \textbf{10 epics} couvrant l'intégralité du
-périmètre du cahier des charges, pour un total de \textbf{40 user stories}
-et \textbf{304 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
+Le backlog est structuré en \textbf{12 epics} couvrant l'intégralité du
+périmètre du cahier des charges, pour un total de \textbf{49 user stories}
+et \textbf{364 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
+
+Les epics 011 et 012 ont été ouverts après la livraison des dix premiers : le
+produit avait dépassé le périmètre inscrit au backlog, que la roadmap publiée
+sous-déclarait d'un sprint entier.
 
 \section{Vue d'ensemble des epics}
 
@@ -24,9 +28,11 @@ EPIC-006 & Internationalisation et configuration    & Haute   & \S8.2, \S8.3    
 EPIC-007 & Service web API tierce                   & Moyenne & \S6.5, \S8.2          & 10 \\
 EPIC-008 & Fonctionnalités avancées (marché)        & Moyenne & \S4.6, \S4.7          & 36 \\
 EPIC-009 & Intelligence artificielle (préparation)  & Moyenne & Annexe~H              & 21 \\
-EPIC-010 & Tests, qualité et documentation          & Haute   & Chap.~10, 11, Ann.~F  & 39 \\
+EPIC-010 & Tests, qualité et documentation          & Haute   & Chap.~10, 11, Ann.~F  & 52 \\
+EPIC-011 & Exploitation et restitution              & Moyenne & \S4.3, \S6.5, Ann.~G  & 26 \\
+EPIC-012 & Intelligence spatiale (PostGIS)          & Moyenne & \S3.5, Annexe~B       & 21 \\
 \midrule
-\multicolumn{4}{r}{\textbf{Total}} & \textbf{304} \\
+\multicolumn{4}{r}{\textbf{Total}} & \textbf{364} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -198,6 +204,43 @@ US-037 & Tests d'intégration (Testcontainers)    & 5  & Haute   & Tests \emph{i
 US-038 & Tests de charge k6                  & 5  & Moyenne & p95 $<$ 500 ms, erreurs $<$ 1\,\% \\
 US-039 & Diagrammes UML complets             & 13 & Haute   & 10 diagrammes requis \\
 US-040 & Rapport + poster + présentation     & 8  & Haute   & Livrables de soutenance \\
+US-048 & Alignement du backlog et de la roadmap & 5 & Haute  & Backlog et chapitres en phase avec le livré \\
+US-049 & Socle de tests et de lint du front  & 8  & Haute   & Vitest, ESLint et Prettier joués par la CI \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-011 --- Exploitation et restitution}
+
+Notifications d'alerte, restitution documentaire, traçabilité des actions et
+anticipation de la récolte.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-041 & Notifications e-mail des alertes    & 5  & Moyenne & Envoi sur franchissement de seuil, désactivable \\
+US-042 & Prévision de récolte (poids)        & 8  & Moyenne & Régression linéaire + projection à 7 jours \\
+US-043 & Journal d'audit                     & 8  & Haute   & Aspect AOP, table dédiée avec RLS \\
+US-044 & Rapport de visite au format PDF     & 5  & Moyenne & Téléchargement conforme à la charte \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-012 --- Intelligence spatiale (PostGIS)}
+
+Exploitation de la base spatiale au-delà de l'affichage : regroupement des
+sites, voisinage et ordonnancement des déplacements.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-045 & Regroupement spatial des sites      & 8  & Moyenne & \texttt{ST\_ClusterDBSCAN} en base, isolés conservés \\
+US-046 & Distances et plus proches voisins   & 5  & Moyenne & Parcours d'index KNN, distance géodésique \\
+US-047 & Ordre de tournée optimisé           & 8  & Moyenne & Plus proche voisin + 2-opt, ordre indicatif \\
 \bottomrule
 \end{tabular}
 \end{center}

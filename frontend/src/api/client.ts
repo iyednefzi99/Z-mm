@@ -17,6 +17,7 @@ import type {
   FermeCorps,
   Fermier,
   FermierCorps,
+  GrappeSites,
   AlerteMesure,
   Anomalie,
   LigneProduction,
@@ -42,10 +43,12 @@ import type {
   Synthese,
   Tache,
   TacheCorps,
+  Tournee,
   Trace,
   TypeIndicateur,
   Visite,
   VisiteCorps,
+  VoisinSite,
 } from './types';
 
 export interface Info {
@@ -278,6 +281,22 @@ export const sitesProches = (latitude: number, longitude: number, rayonMetres: n
   requete<Site[]>(
     `/api/sites/proches?latitude=${latitude}&longitude=${longitude}&rayonMetres=${rayonMetres}`,
   );
+
+/** Regroupement des sites par proximite, calcule par PostGIS (US-045). */
+export const grappesSites = (distanceMetres = 15000, minimumSites = 2) =>
+  requete<GrappeSites[]>(
+    `/api/sites/grappes?distanceMetres=${distanceMetres}&minimumSites=${minimumSites}`,
+  );
+
+/** Sites les plus proches d'un site donne, distance a l'appui (US-046). */
+export const voisinsSite = (siteId: number, limite = 3) =>
+  requete<VoisinSite[]>(`/api/sites/${siteId}/voisins?limite=${limite}`);
+
+/** Ordre de tournee propose a un agent pour une journee (US-047). */
+export const tourneeAgent = (agentId: number, date: string, departSiteId?: number) => {
+  const depart = departSiteId === undefined ? '' : `&departSiteId=${departSiteId}`;
+  return requete<Tournee>(`/api/plannings/tournee?agentId=${agentId}&date=${date}${depart}`);
+};
 
 /** Seuils metier lus depuis ConfigZumm.ini (US-025). */
 export const recupererSeuils = () => requete<Seuils>('/api/configuration/seuils');

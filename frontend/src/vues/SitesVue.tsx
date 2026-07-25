@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { fermes, sites } from '../api/client';
-import type { Ferme, Site, SiteCorps } from '../api/types';
+import { fermes, sites, voisinsSite } from '../api/client';
+import type { Ferme, Site, SiteCorps, VoisinSite } from '../api/types';
 import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
@@ -34,13 +34,34 @@ export function SitesVue(): ReactElement {
   const [demenagement, setDemenagement] = useState('');
   const [cloture, setCloture] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
+  const [siteVoisine, setSiteVoisine] = useState<Site | null>(null);
+  const [voisins, setVoisins] = useState<VoisinSite[] | null>(null);
 
   const colonnes: Colonne<Site>[] = [
     { entete: t.champs.nom, rendu: (s) => s.nom },
     { entete: t.champs.ferme, rendu: (s) => s.fermeNom },
     { entete: t.champs.latitude, rendu: (s) => s.latitude.toFixed(4) },
     { entete: t.champs.longitude, rendu: (s) => s.longitude.toFixed(4) },
+    {
+      entete: t.voisins.titre,
+      rendu: (s) => (
+        <button type="button" className="z-lien" onClick={() => void afficherVoisins(s)}>
+          {t.voisins.charger}
+        </button>
+      ),
+    },
   ];
+
+  /** US-046 : les trois sites les plus proches, distance calculée par PostGIS. */
+  const afficherVoisins = async (s: Site) => {
+    setSiteVoisine(s);
+    setVoisins(null);
+    try {
+      setVoisins(await voisinsSite(s.id, 3));
+    } catch {
+      setVoisins([]);
+    }
+  };
 
   useEffect(() => {
     fermes
@@ -98,6 +119,25 @@ export function SitesVue(): ReactElement {
     <CorpsSection titre={t.onglets.sites} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+      )}
+      {siteVoisine && (
+        <Modale
+          titre={`${t.voisins.titre} — ${siteVoisine.nom}`}
+          onFermer={() => setSiteVoisine(null)}
+        >
+          {voisins === null && <p className="z-info">{t.etats.chargement}</p>}
+          {voisins !== null && voisins.length === 0 && <p className="z-info">{t.voisins.aucun}</p>}
+          {voisins !== null && voisins.length > 0 && (
+            <ul className="z-liste-simple">
+              {voisins.map((v) => (
+                <li key={v.site.id}>
+                  <strong>{v.site.nom}</strong> — {t.voisins.distance} :{' '}
+                  {(v.distanceMetres / 1000).toFixed(2)} km
+                </li>
+              ))}
+            </ul>
+          )}
+        </Modale>
       )}
       {ouvert && (
         <Modale titre={t.onglets.sites} onFermer={() => setOuvert(false)}>

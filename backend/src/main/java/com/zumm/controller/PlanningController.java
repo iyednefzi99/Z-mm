@@ -4,9 +4,12 @@ import com.zumm.service.PlanningService;
 import com.zumm.web.dto.DecisionCorps;
 import com.zumm.web.dto.PlanningCorps;
 import com.zumm.web.dto.PlanningReponse;
+import com.zumm.web.dto.TourneeReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -39,6 +43,21 @@ public class PlanningController {
     @GetMapping
     public List<PlanningReponse> lister() {
         return service.lister();
+    }
+
+    /**
+     * Ordre de tournee propose a un agent pour une journee (US-047).
+     * Exemple : {@code GET /api/plannings/tournee?agentId=3&date=2026-12-04}.
+     *
+     * <p>L'ordre est une proposition issue d'une heuristique sur des distances a vol
+     * d'oiseau : ni optimal, ni routier. Rien ne contraint l'agent a le suivre.
+     */
+    @GetMapping("/tournee")
+    public TourneeReponse tournee(
+            @RequestParam Long agentId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Long departSiteId) {
+        return service.tournee(agentId, date, departSiteId);
     }
 
     @GetMapping("/{id}")

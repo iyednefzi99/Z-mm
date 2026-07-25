@@ -487,6 +487,45 @@ export interface Anomalie {
   anomalies: { instant: string; valeur: number; zScore: number }[];
 }
 
+/** Grappe de sites proches, calculée par PostGIS (US-045). */
+export interface GrappeSites {
+  numero: number;
+  latitudeCentre: number;
+  longitudeCentre: number;
+  nombreSites: number;
+  nombreRuches: number;
+  sites: Site[];
+}
+
+/** Site voisin d'un site de référence, distance géodésique en mètres (US-046). */
+export interface VoisinSite {
+  site: Site;
+  distanceMetres: number;
+}
+
+/** Étape d'une tournée : un site et les plannings à y honorer (US-047). */
+export interface EtapeTournee {
+  ordre: number;
+  siteId: number;
+  siteNom: string;
+  latitude: number;
+  longitude: number;
+  planningIds: number[];
+  nombreVisites: number;
+  distanceDepuisPrecedenteMetres: number;
+}
+
+/** Tournée proposée à un agent pour une journée (US-047). */
+export interface Tournee {
+  agentId: number;
+  agentNom: string;
+  date: string;
+  nombreSites: number;
+  nombreVisites: number;
+  distanceTotaleMetres: number;
+  etapes: EtapeTournee[];
+}
+
 export interface Seuils {
   langueParDefaut: string;
   languesActives: string[];

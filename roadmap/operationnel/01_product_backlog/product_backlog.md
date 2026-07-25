@@ -3,7 +3,7 @@
 **Projet:** Zümm - Système de gestion apicole  
 **Date:** 2026-07-13  
 **Méthode:** Scrum + DevOps  
-**Total Story Points:** 304  
+**Total Story Points:** 364 (49 user stories, 12 epics)  
 
 ---
 
@@ -137,7 +137,7 @@ Détection d'anomalie adaptative, pipeline IA
 | US-035 | Interface microservice IA Python | 8 | Moyenne | REST/JSON découplé |
 
 ### EPIC-010: Tests, qualité et documentation
-**Priorité:** Haute | **Source CdC:** Chapitre 10, 11, Annexe F | **Total Points:** 39
+**Priorité:** Haute | **Source CdC:** Chapitre 10, 11, Annexe F | **Total Points:** 52
 
 Plan de tests, UML, rapport, poster
 
@@ -148,3 +148,28 @@ Plan de tests, UML, rapport, poster
 | US-038 | Tests de charge k6 | 5 | Moyenne | p95 < 500ms, erreurs < 1% |
 | US-039 | Diagrammes UML complets | 13 | Haute | 10 diagrammes requis |
 | US-040 | Rapport + Poster + Présentation | 8 | Haute | Livrables soutenance |
+| US-048 | Alignement du backlog produit et de la roadmap | 5 | Haute | Backlog, `sprints.json` et chapitres LaTeX en phase avec le produit livré |
+| US-049 | Socle de tests et de linting du front-end | 8 | Haute | Vitest + Testing Library, ESLint + Prettier, joués par la CI |
+
+### EPIC-011: Exploitation et restitution
+**Priorité:** Moyenne | **Source CdC:** §4.3, §6.5, Annexe G | **Total Points:** 26
+
+Notifications d'alerte, restitution documentaire, traçabilité des actions et anticipation de la récolte
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-041 | Notifications e-mail des alertes de seuil | 5 | Moyenne | Envoi sur franchissement de seuil, désactivable par configuration |
+| US-042 | Prévision de récolte (tendance du poids) | 8 | Moyenne | Régression linéaire sur la série de poids + projection 7 jours |
+| US-043 | Journal d'audit (qui a fait quoi, quand) | 8 | Haute | Aspect AOP sur les services, table dédiée avec RLS, consultation restreinte |
+| US-044 | Rapport de visite au format PDF | 5 | Moyenne | Téléchargement du rapport d'une visite, mise en page conforme à la charte |
+
+### EPIC-012: Intelligence spatiale (PostGIS)
+**Priorité:** Moyenne | **Source CdC:** §3.5 Perspectives, Annexe B | **Total Points:** 21
+
+Exploitation de la base spatiale au-delà de l'affichage : regroupement, voisinage et ordonnancement des déplacements
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-045 | Regroupement spatial des sites (clustering) | 8 | Moyenne | `ST_ClusterDBSCAN` en base, sites isolés conservés en grappe singleton |
+| US-046 | Distances inter-sites et plus proches voisins | 5 | Moyenne | Parcours d'index KNN, distance géodésique en mètres |
+| US-047 | Ordre de tournée optimisé pour les visites planifiées | 8 | Moyenne | Heuristique plus proche voisin + 2-opt, ordre indicatif et non contraignant |

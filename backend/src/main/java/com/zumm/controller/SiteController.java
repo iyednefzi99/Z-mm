@@ -1,8 +1,10 @@
 package com.zumm.controller;
 
 import com.zumm.service.SiteService;
+import com.zumm.web.dto.GrappeSites;
 import com.zumm.web.dto.SiteCorps;
 import com.zumm.web.dto.SiteReponse;
+import com.zumm.web.dto.VoisinSite;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
@@ -53,9 +55,34 @@ public class SiteController {
         return service.proches(latitude, longitude, rayonMetres);
     }
 
+    /**
+     * Regroupement des sites du tenant par proximite (US-045).
+     * Exemple : {@code GET /api/sites/grappes?distanceMetres=15000&minimumSites=2}.
+     *
+     * <p>{@code distanceMetres} est la distance reelle en-deca de laquelle deux sites
+     * sont voisins ; {@code minimumSites} le nombre de voisins qu'il faut pour former
+     * un noyau. Les sites qui n'en font partie d'aucun ressortent en grappe singleton.
+     */
+    @GetMapping("/grappes")
+    public List<GrappeSites> grappes(
+            @RequestParam(defaultValue = "15000") double distanceMetres,
+            @RequestParam(defaultValue = "2") int minimumSites) {
+        return service.grappes(distanceMetres, minimumSites);
+    }
+
     @GetMapping("/{id}")
     public SiteReponse obtenir(@PathVariable Long id) {
         return service.obtenir(id);
+    }
+
+    /**
+     * Sites les plus proches d'un site donne, distance geodesique a l'appui (US-046).
+     * Exemple : {@code GET /api/sites/12/voisins?limite=3}.
+     */
+    @GetMapping("/{id}/voisins")
+    public List<VoisinSite> voisins(@PathVariable Long id,
+                                    @RequestParam(defaultValue = "3") int limite) {
+        return service.voisins(id, limite);
     }
 
     @PutMapping("/{id}")

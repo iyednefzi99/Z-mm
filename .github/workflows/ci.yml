@@ -70,7 +70,7 @@ jobs:
           path: backend/target/zumm.jar
 
   frontend:
-    name: Frontend — build
+    name: Frontend — lint, tests et build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -88,6 +88,17 @@ jobs:
       - name: Verification des types
         working-directory: frontend
         run: npm run typecheck
+
+      # US-049 : le front n'avait ni lint ni test avant le SPRINT-10. Les deux
+      # etapes precedent le build — un test rouge doit arreter la chaine avant
+      # qu'un artefact ne soit produit.
+      - name: Lint (ESLint)
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Tests unitaires (Vitest)
+        working-directory: frontend
+        run: npm test
 
       - name: Build de production
         working-directory: frontend

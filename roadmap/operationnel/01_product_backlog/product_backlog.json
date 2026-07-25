@@ -380,12 +380,93 @@
           "points": 8,
           "priorite": "Haute",
           "critere_acceptation": "Livrables soutenance"
+        },
+        {
+          "id": "US-048",
+          "titre": "Alignement du backlog produit et de la roadmap",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Backlog, sprints.json et chapitres LaTeX en phase avec le produit livre"
+        },
+        {
+          "id": "US-049",
+          "titre": "Socle de tests et de linting du front-end",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Vitest + Testing Library, ESLint + Prettier, joues par la CI"
         }
       ],
       "total_points": 39
+    },
+    {
+      "id": "EPIC-011",
+      "titre": "Exploitation et restitution",
+      "description": "Notifications d'alerte, restitution documentaire, tracabilite des actions et anticipation de la recolte",
+      "priorite": "Moyenne",
+      "source_cdc": "§4.3, §6.5, Annexe G",
+      "stories": [
+        {
+          "id": "US-041",
+          "titre": "Notifications e-mail des alertes de seuil",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Envoi sur franchissement de seuil, desactivable par configuration"
+        },
+        {
+          "id": "US-042",
+          "titre": "Prevision de recolte (tendance du poids)",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Regression lineaire sur la serie de poids + projection 7 jours"
+        },
+        {
+          "id": "US-043",
+          "titre": "Journal d'audit (qui a fait quoi, quand)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Aspect AOP sur les services, table dediee avec RLS, consultation restreinte"
+        },
+        {
+          "id": "US-044",
+          "titre": "Rapport de visite au format PDF",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Telechargement du rapport d'une visite, mise en page conforme a la charte"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-012",
+      "titre": "Intelligence spatiale (PostGIS)",
+      "description": "Exploitation de la base spatiale au-dela de l'affichage : regroupement, voisinage et ordonnancement des deplacements",
+      "priorite": "Moyenne",
+      "source_cdc": "§3.5 Perspectives, Annexe B",
+      "stories": [
+        {
+          "id": "US-045",
+          "titre": "Regroupement spatial des sites (clustering)",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "ST_ClusterDBSCAN en base, sites isoles conserves en grappe singleton"
+        },
+        {
+          "id": "US-046",
+          "titre": "Distances inter-sites et plus proches voisins",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Parcours d'index KNN, distance geodesique en metres"
+        },
+        {
+          "id": "US-047",
+          "titre": "Ordre de tournee optimise pour les visites planifiees",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Heuristique plus proche voisin + 2-opt, ordre indicatif et non contraignant"
+        }
+      ]
     }
   ],
-  "total_story_points": 304,
+  "total_story_points": 364,
   "definition_of_ready": [
     "La story a un titre clair et une description",
     "Les critères d'acceptation sont définis",

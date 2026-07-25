@@ -1,24 +1,41 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { ruches, sites } from '../api/client';
-import type { Ruche, Site } from '../api/types';
+import { grappesSites, ruches, sites } from '../api/client';
+import type { GrappeSites, Ruche, Site } from '../api/types';
+import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
+import { ChampSelect } from '../ui/composants';
+
+/** Rayon de regroupement proposé, en kilomètres (US-045). */
+const RAYONS_REGROUPEMENT = [5, 10, 15, 30];
 
 /**
- * Carte des ruchers et rayons de butinage (US-030).
+ * Carte des ruchers et rayons de butinage (US-030), avec regroupement spatial
+ * des sites (US-045).
  *
  * <p>Rendu SVG autonome (sans tuiles externes) : chaque site est positionné selon
  * ses coordonnées, entouré des cercles de butinage à 1, 2 et 3 km. L'intégration
  * MapLibre GL + OpenStreetMap (fond cartographique réel) est l'évolution prévue.
+ *
+ * <p>En vue « grappes », le regroupement n'est pas recalculé ici : il vient de
+ * PostGIS (`ST_ClusterDBSCAN`), la vue ne fait que placer les centroïdes reçus.
  */
 export function CarteVue(): ReactElement {
   const t = useT();
   const [listeSites, setListeSites] = useState<Site[]>([]);
   const [listeRuches, setListeRuches] = useState<Ruche[]>([]);
+  const [grappes, setGrappes] = useState<GrappeSites[]>([]);
+  const [vueGrappes, setVueGrappes] = useState(false);
+  const [rayonKm, setRayonKm] = useState(15);
 
   useEffect(() => {
     void sites.lister().then(setListeSites).catch(() => setListeSites([]));
     void ruches.lister().then(setListeRuches).catch(() => setListeRuches([]));
   }, []);
+
+  useEffect(() => {
+    if (!vueGrappes) return;
+    void grappesSites(rayonKm * 1000).then(setGrappes).catch(() => setGrappes([]));
+  }, [vueGrappes, rayonKm]);
 
   const projection = useMemo(() => {
     if (listeSites.length === 0) return null;
@@ -60,12 +77,46 @@ export function CarteVue(): ReactElement {
   const largeur = Math.max(...points.map((p) => p.x)) + marge;
   const hauteur = Math.max(...points.map((p) => p.y)) + marge;
 
+  // Les centroïdes reçus sont projetés avec la même échelle que les sites : les
+  // deux vues restent superposables.
+  const pointsGrappes = grappes.map((g) => ({
+    grappe: g,
+    x: (g.longitudeCentre - Math.min(...lons)) * kmParDegreLon * pxParKm + marge,
+    y: (Math.max(...lats) - g.latitudeCentre) * kmParDegreLat * pxParKm + marge,
+  }));
+
   return (
     <section className="z-section">
       <header className="z-section__entete">
         <h1 className="z-section__titre">{t.onglets.carte}</h1>
+        <div className="z-actions-inline">
+          <button
+            type="button"
+            className={`z-lien${vueGrappes ? '' : ' z-lien--actif'}`}
+            aria-pressed={!vueGrappes}
+            onClick={() => setVueGrappes(false)}
+          >
+            {t.carte.vueSites}
+          </button>
+          <button
+            type="button"
+            className={`z-lien${vueGrappes ? ' z-lien--actif' : ''}`}
+            aria-pressed={vueGrappes}
+            onClick={() => setVueGrappes(true)}
+          >
+            {t.carte.vueGrappes}
+          </button>
+        </div>
       </header>
-      <p className="z-info">{t.carte.legende}</p>
+      {vueGrappes && (
+        <ChampSelect
+          libelle={t.carte.rayonRegroupement}
+          valeur={String(rayonKm)}
+          options={RAYONS_REGROUPEMENT.map((km) => ({ valeur: String(km), libelle: String(km) }))}
+          onChange={(v) => setRayonKm(Number(v))}
+        />
+      )}
+      <p className="z-info">{vueGrappes ? t.carte.legendeGrappes : t.carte.legende}</p>
       <div className="z-table-enveloppe">
         <svg
           className="z-carte-svg"
@@ -73,28 +124,58 @@ export function CarteVue(): ReactElement {
           height={hauteur}
           viewBox={`0 0 ${largeur} ${hauteur}`}
           role="img"
-          aria-label={t.carte.rayons}
+          aria-label={vueGrappes ? t.carte.vueGrappes : t.carte.rayons}
         >
-          {points.map((p) => (
-            <g key={p.site.id}>
-              {[3, 2, 1].map((km) => (
-                <circle
-                  key={km}
-                  cx={p.x}
-                  cy={p.y}
-                  r={km * pxParKm}
-                  fill="none"
-                  stroke="var(--z-honey)"
-                  strokeOpacity={0.25 + (3 - km) * 0.2}
-                  strokeDasharray="4 3"
-                />
+          {vueGrappes
+            ? pointsGrappes.map((p) => (
+                <g key={p.grappe.numero}>
+                  {/* Pastille proportionnelle au nombre de sites, plancher lisible. */}
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={12 + Math.sqrt(p.grappe.nombreSites) * 6}
+                    fill="var(--z-honey-500)"
+                    fillOpacity={0.25}
+                    stroke="var(--z-honey-500)"
+                  />
+                  <text
+                    x={p.x}
+                    y={p.y + 4}
+                    fontSize={13}
+                    textAnchor="middle"
+                    fill="currentColor"
+                  >
+                    {p.grappe.nombreSites}
+                  </text>
+                  <text x={p.x + 8} y={p.y - 18} fontSize={12} fill="currentColor">
+                    {gabarit(t.carte.grappe, { n: String(p.grappe.numero) })} —{' '}
+                    {gabarit(t.carte.resumeGrappe, {
+                      sites: String(p.grappe.nombreSites),
+                      ruches: String(p.grappe.nombreRuches),
+                    })}
+                  </text>
+                </g>
+              ))
+            : points.map((p) => (
+                <g key={p.site.id}>
+                  {[3, 2, 1].map((km) => (
+                    <circle
+                      key={km}
+                      cx={p.x}
+                      cy={p.y}
+                      r={km * pxParKm}
+                      fill="none"
+                      stroke="var(--z-honey-500)"
+                      strokeOpacity={0.25 + (3 - km) * 0.2}
+                      strokeDasharray="4 3"
+                    />
+                  ))}
+                  <circle cx={p.x} cy={p.y} r={5} fill="var(--z-honey-500)" />
+                  <text x={p.x + 8} y={p.y - 8} fontSize={12} fill="currentColor">
+                    {p.site.nom} ({ruchesParSite.get(p.site.id) ?? 0})
+                  </text>
+                </g>
               ))}
-              <circle cx={p.x} cy={p.y} r={5} fill="var(--z-honey)" />
-              <text x={p.x + 8} y={p.y - 8} fontSize={12} fill="currentColor">
-                {p.site.nom} ({ruchesParSite.get(p.site.id) ?? 0})
-              </text>
-            </g>
-          ))}
         </svg>
       </div>
     </section>

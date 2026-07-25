@@ -5,9 +5,11 @@
 \label{chap:sprints}
 
 Le projet est découpé en un \textbf{sprint de cadrage} (S0) suivi de
-\textbf{8 sprints de construction de 14 jours} (18 semaines au total), du
-14 juillet au 16 novembre 2026, avec une capacité de référence de
-40 points par sprint. Chaque sprint est décrit ci-dessous avec son
+\textbf{10 sprints de construction de 14 jours} (22 semaines au total), du
+14 juillet au 14 décembre 2026, avec une capacité de référence de
+40 points par sprint. Les sprints 9 et 10 prolongent le plan initial, arrêté
+à S8 : le premier livre les fonctions d'exploitation, le second exploite la
+base spatiale et solde la dette de test du front. Chaque sprint est décrit ci-dessous avec son
 \emph{plan d'exécution} : décomposition en tâches techniques, estimation en
 jours-homme (j-h), livrables et parades aux risques.
 
@@ -48,13 +50,14 @@ $\approx \textbf{0,79 j-h par story point}$.
     milestone label font=\scriptsize\bfseries\color{vertsauge},
     vgrid={*6{draw=none}, *1{draw=grisdoux!80!gray, line width=.4pt}},
     time slot format=isodate
-  ]{2026-07-14}{2026-11-17}
-  % Titres de mois en français (juil. : 18 j, nov. : 17 j)
+  ]{2026-07-14}{2026-12-14}
+  % Titres de mois en français (juil. : 18 j, déc. : 14 j)
   \gantttitle{juillet}{18}
   \gantttitle{août}{31}
   \gantttitle{septembre}{30}
   \gantttitle{octobre}{31}
-  \gantttitle{novembre}{17} \\
+  \gantttitle{novembre}{30}
+  \gantttitle{décembre}{14} \\
   \ganttbar[bar/.append style={fill=vertsauge!40}]{S0 -- Cadrage \& walking skeleton (hors vélocité)}{2026-07-14}{2026-07-27} \\
   \ganttbar{S1 -- Fondation \& configuration (36 pts)}{2026-07-28}{2026-08-10} \\
   \ganttbar{S2 -- Ruche, i18n \& qualité (39 pts)}{2026-08-11}{2026-08-24} \\
@@ -67,9 +70,11 @@ $\approx \textbf{0,79 j-h par story point}$.
   \ganttmilestone{v0.3.0}{2026-10-20} \\
   \ganttbar{S7 -- Fonctions avancées \& IA (39 pts)}{2026-10-20}{2026-11-02} \\
   \ganttbar{S8 -- Qualité \& livraison (37 pts)}{2026-11-03}{2026-11-16} \\
-  \ganttmilestone{v1.0.0}{2026-11-16}
+  \ganttmilestone{v1.0.0}{2026-11-16} \\
+  \ganttbar{S9 -- Exploitation \& durcissement (26 pts)}{2026-11-17}{2026-11-30} \\
+  \ganttbar{S10 -- Intelligence spatiale (34 pts)}{2026-12-01}{2026-12-14}
 \end{ganttchart}
-\caption{Diagramme de Gantt du sprint de cadrage, des 8 sprints de
+\caption{Diagramme de Gantt du sprint de cadrage, des 10 sprints de
 construction et des 4 jalons de release.}
 \label{fig:gantt-sprints}
 \end{figure}
@@ -90,8 +95,10 @@ construction et des 4 jalons de release.}
 6 & 06/10 $\rightarrow$ 19/10 & Synthèse, capteurs \& API        & 39 & US-015/017/018/026/029 \\
 7 & 20/10 $\rightarrow$ 02/11 & Fonctions avancées \& IA         & 39 & US-030/032/033/034/038 \\
 8 & 03/11 $\rightarrow$ 16/11 & Qualité \& livraison             & 37 & US-035/036/039/040 \\
+9 & 17/11 $\rightarrow$ 30/11 & Exploitation \& durcissement     & 26 & US-041/042/043/044 \\
+10 & 01/12 $\rightarrow$ 14/12 & Intelligence spatiale \& remise à niveau & 34 & US-045/046/047/048/049 \\
 \midrule
-\multicolumn{3}{r}{\textbf{Total}} & \textbf{304} & \textbf{40 stories} \\
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{364} & \textbf{49 stories} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -810,6 +817,81 @@ Le sprint final ne conserve ainsi que ce qui ne peut pas être anticipé --- la
 campagne de couverture, la mise en cohérence documentaire et la soutenance
 --- au lieu de cumuler infrastructure de sécurité, harnais de test et
 documentation dans les deux dernières semaines.
+
+\section{Sprint 9 --- Exploitation \& durcissement}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Compléter le produit par des fonctionnalités d'exploitation à
+            valeur immédiate et fiabiliser le déploiement de production. \\
+Période   & 17/11/2026 $\rightarrow$ 30/11/2026 (14 jours) --- 26 pts / capacité 40. \\
+Démo      & Notification d'alerte, export PDF d'un rapport de visite, journal
+            d'audit et widget de prévision de récolte. \\
+Risques   & Dépendances tierces (SMTP, bibliothèque PDF) ; durcissement de
+            production --- isolation de la base Keycloak, validation de
+            l'émetteur des jetons. \\
+Burndown idéal & J1 : 26 --- J4 : 20 --- J7 : 13 --- J10 : 7 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-041 & Notifications e-mail des alertes de seuil & 5 \\
+US-042 & Prévision de récolte (tendance du poids)  & 8 \\
+US-043 & Journal d'audit                           & 8 \\
+US-044 & Rapport de visite au format PDF           & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} les notifications sont désactivées par défaut
+--- aucune dépendance SMTP en local ni en intégration continue, l'activation
+se fait par configuration en production. L'isolation de la base Keycloak
+n'est effective que sur volume vierge : la procédure de reprise l'indique.
+
+\section{Sprint 10 --- Intelligence spatiale \& remise à niveau}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Transformer la carte descriptive en outil d'aide à la décision
+            terrain, et remettre la roadmap publiée en phase avec le produit
+            réellement livré. \\
+Période   & 01/12/2026 $\rightarrow$ 14/12/2026 (14 jours) --- 34 pts / capacité 40. \\
+Démo      & Grappes de sites sur la carte, voisins d'un site, tournée ordonnée
+            d'un agent ; roadmap recompilée et CI front (lint + tests). \\
+Risques   & Rendu des grappes sur la carte SVG autonome (MapLibre non intégré
+            depuis S7) ; attente d'un routage routier réel sur US-047. \\
+Burndown idéal & J1 : 34 --- J4 : 26 --- J7 : 18 --- J10 : 10 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-045 & Regroupement spatial des sites (clustering)      & 8 \\
+US-046 & Distances inter-sites et plus proches voisins    & 5 \\
+US-047 & Ordre de tournée optimisé                        & 8 \\
+US-048 & Alignement du backlog produit et de la roadmap   & 5 \\
+US-049 & Socle de tests et de linting du front-end        & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Parades aux risques :} le regroupement et l'ordonnancement sont
+calculés côté serveur et couverts par des tests d'intégration sur un PostGIS
+réel --- ils restent démontrables indépendamment du rendu cartographique. Le
+caractère \emph{indicatif} de l'ordre de tournée (distances à vol d'oiseau,
+heuristique non optimale) est affiché dans l'interface et documenté dans le
+contrat OpenAPI, pour ne pas laisser croire à un calcul d'itinéraire routier.
 
 \section{Suivi en cours de sprint}
 

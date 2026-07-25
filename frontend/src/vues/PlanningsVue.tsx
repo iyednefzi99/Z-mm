@@ -1,6 +1,13 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { agents, approuverPlanning, plannings, refuserPlanning, ruches } from '../api/client';
-import type { Agent, Planning, PlanningCorps, RaisonVisite, Ruche } from '../api/types';
+import {
+  agents,
+  approuverPlanning,
+  plannings,
+  refuserPlanning,
+  ruches,
+  tourneeAgent,
+} from '../api/client';
+import type { Agent, Planning, PlanningCorps, RaisonVisite, Ruche, Tournee } from '../api/types';
 import { RAISONS_VISITE } from '../api/types';
 import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
@@ -32,6 +39,10 @@ export function PlanningsVue(): ReactElement {
   const [datePrevue, setDatePrevue] = useState('');
   const [raison, setRaison] = useState<RaisonVisite>('controle');
   const [erreur, setErreur] = useState<string | null>(null);
+  const [agentTournee, setAgentTournee] = useState('');
+  const [dateTournee, setDateTournee] = useState('');
+  const [tournee, setTournee] = useState<Tournee | null>(null);
+  const [tourneeDemandee, setTourneeDemandee] = useState(false);
 
   const optRaison: Option[] = RAISONS_VISITE.map((r) => ({ valeur: r, libelle: t.visite.raisons[r] }));
 
@@ -121,11 +132,72 @@ export function PlanningsVue(): ReactElement {
     }
   };
 
+  /** US-047 : demande au serveur l'ordre de tournée du jour pour un agent. */
+  const calculerTournee = async () => {
+    if (agentTournee === '' || dateTournee === '') return;
+    setTournee(null);
+    setTourneeDemandee(true);
+    try {
+      setTournee(await tourneeAgent(Number(agentTournee), dateTournee));
+    } catch (cause) {
+      window.alert(cause instanceof Error ? cause.message : t.etats.erreur);
+      setTourneeDemandee(false);
+    }
+  };
+
   return (
     <CorpsSection titre={t.onglets.plannings} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
       )}
+
+      <section className="z-encart">
+        <h2 className="z-encart__titre">{t.tournee.titre}</h2>
+        <div className="z-form__grille">
+          <ChampSelect
+            libelle={t.visite.agent}
+            valeur={agentTournee}
+            options={optAgents}
+            onChange={setAgentTournee}
+          />
+          <ChampDate libelle={t.visite.date} valeur={dateTournee} onChange={setDateTournee} />
+          <div className="z-champ z-champ--aligne-bas">
+            <Bouton
+              variante="secondaire"
+              onClick={() => void calculerTournee()}
+              disabled={agentTournee === '' || dateTournee === ''}
+            >
+              {t.tournee.calculer}
+            </Bouton>
+          </div>
+        </div>
+        {tourneeDemandee && tournee !== null && tournee.etapes.length === 0 && (
+          <p className="z-info">{t.tournee.aucune}</p>
+        )}
+        {tournee !== null && tournee.etapes.length > 0 && (
+          <>
+            <ol className="z-liste-simple">
+              {tournee.etapes.map((e) => (
+                <li key={e.siteId}>
+                  <strong>{e.siteNom}</strong> — {t.tournee.visites} : {e.nombreVisites}
+                  {e.ordre > 1 && (
+                    <>
+                      {' · '}
+                      {t.tournee.depuisPrecedente} :{' '}
+                      {(e.distanceDepuisPrecedenteMetres / 1000).toFixed(2)} km
+                    </>
+                  )}
+                </li>
+              ))}
+            </ol>
+            <p className="z-info">
+              {t.tournee.total} : {(tournee.distanceTotaleMetres / 1000).toFixed(2)} km —{' '}
+              {t.tournee.avertissement}
+            </p>
+          </>
+        )}
+      </section>
+
       {ouvert && (
         <Modale titre={t.onglets.plannings} onFermer={() => setOuvert(false)}>
           <form

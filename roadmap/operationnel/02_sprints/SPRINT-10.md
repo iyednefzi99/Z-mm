@@ -22,11 +22,11 @@
 
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
-| US-045 | Regroupement spatial des sites (clustering) | 8 | 📋 À faire | - |
-| US-046 | Distances inter-sites et plus proches voisins | 5 | 📋 À faire | - |
-| US-047 | Ordre de tournée optimisé pour les visites planifiées | 8 | 📋 À faire | - |
-| US-048 | Alignement du backlog produit et de la roadmap | 5 | 📋 À faire | - |
-| US-049 | Socle de tests et de linting du front-end | 8 | 📋 À faire | - |
+| US-045 | Regroupement spatial des sites (clustering) | 8 | 🟢 Livré (`GET /api/sites/grappes`, `ST_ClusterDBSCAN` calibré Web Mercator, vue « Grappes » de la carte) | - |
+| US-046 | Distances inter-sites et plus proches voisins | 5 | 🟢 Livré (`GET /api/sites/{id}/voisins`, KNN `<->` + `ST_Distance`, modale dans la vue Sites) | - |
+| US-047 | Ordre de tournée optimisé pour les visites planifiées | 8 | 🟢 Livré (`GET /api/plannings/tournee`, `OptimiseurTournee` : plus proche voisin + 2-opt, encart dans la vue Plannings) | - |
+| US-048 | Alignement du backlog produit et de la roadmap | 5 | 🟢 Livré (EPIC-011/012 ouverts, `sprints.json` à 11 sprints / 364 pts, chapitres LaTeX et PDF régénérés) | - |
+| US-049 | Socle de tests et de linting du front-end | 8 | 🟢 Livré (Vitest + Testing Library : **42 tests**, ESLint + Prettier, CI front étendue) | - |
 
 **Répartition :** 21 SP de valeur métier (US-045 → US-047, épic 008) + 13 SP de dette
 et de conformité documentaire (US-048, US-049, épic 010).
@@ -166,22 +166,65 @@ la CI front (lint + tests) sur un commit volontairement fautif.
 
 ---
 
-## 📊 Burndown Chart (prévisionnel)
+## 📊 Burndown Chart
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 34 | - | Clustering serveur (US-045) |
-| Jour 4 | 26 | - | Grappes affichées sur la carte + voisins (US-046) |
-| Jour 7 | 18 | - | Heuristique de tournée (US-047) |
-| Jour 10 | 10 | - | Alignement roadmap et backlog (US-048) |
-| Jour 12 | 5 | - | Socle de tests front (US-049) |
-| Jour 14 | 0 | - | CI front branchée, roadmap recompilée |
+| Jour 1 | 34 | 34 | Clustering serveur (US-045) |
+| Jour 4 | 26 | 26 | Grappes affichées sur la carte + voisins (US-046) |
+| Jour 7 | 18 | 21 | Heuristique de tournée (US-047) |
+| Jour 10 | 10 | 13 | Alignement roadmap et backlog (US-048) |
+| Jour 12 | 5 | 8 | Socle de tests front (US-049) |
+| Jour 14 | 0 | 0 | CI front branchée, roadmap recompilée |
 
 ---
 
 ## 📝 Rétrospective
 
-*À compléter en fin de sprint (2026-12-14).*
+**Résultat : les 5 user stories livrées et testées.**
+Backend : **44 tests unitaires + 69 d'intégration, `Skipped: 0`**, `BUILD SUCCESS`.
+Front : **42 tests Vitest**, `lint` sans erreur, `typecheck` et `build` verts.
+
+### Ce qui a bien fonctionné
+
+- **Le calcul spatial est resté en base.** Regroupement, voisinage et matrice de
+  distances sont trois requêtes PostGIS ; le navigateur ne recalcule rien. C'est ce
+  qui permet de démontrer US-045 même si le rendu cartographique reste un SVG.
+- **L'heuristique de tournée a été isolée du modèle métier** (`OptimiseurTournee` ne
+  connaît qu'une matrice de distances) : elle est testée sur des cas dont l'optimum
+  se calcule à la main, dont celui où le glouton seul coûte 10 et l'optimum 8.
+- **14 tests d'intégration verts au premier lancement** contre un PostGIS réel, y
+  compris l'isolation inter-tenant du regroupement — le point de sécurité du sprint.
+
+### Ce qui peut être amélioré / limites assumées
+
+- **`ST_ClusterDBSCAN` n'utilise pas l'index GiST** : il construit son propre index
+  en mémoire. Le critère d'acceptation initial parlait d'un `EXPLAIN` exploitant
+  `ix_site_geog` ; cela vaut pour US-046, pas pour US-045. Corrigé ici plutôt que
+  maquillé.
+- **Rayon de regroupement calibré sur la latitude moyenne** : Web Mercator dilate les
+  distances de `1/cos(latitude)`. L'approximation est bonne pour une exploitation
+  régionale, fausse pour des ruchers répartis sur plusieurs continents.
+- **Ordre de tournée à vol d'oiseau** : ni pgRouting, ni réseau routier. L'avertissement
+  est affiché dans l'interface, pas seulement dans la documentation.
+- **Prettier configuré mais non imposé en CI** : 28 fichiers existants ne sont pas au
+  format. Le reformatage de masse mérite un commit dédié, pas d'être noyé dans celui-ci.
+- **8 vulnérabilités `high` en dépendances de développement** (`brace-expansion`, via
+  ESLint 9). Correction disponible seulement en passant à ESLint 10 — rupture non
+  engagée ici. Aucune de ces dépendances n'est livrée au navigateur.
+
+### Défaut trouvé en chemin
+
+Le jeton CSS `--z-honey` n'a **jamais existé** : la carte et deux règles de `App.css`
+référençaient une variable non définie, donc les cercles de butinage se rendaient sans
+couleur de trait. Remplacé par `--z-honey-500` (le jeton réel de la charte).
+
+---
+
+## 🔎 Écarts avec le plan initial
+
+Le plan annonçait un `EXPLAIN` sur `ix_site_geog` pour US-045 : abandonné, DBSCAN ne
+lit pas cet index (cf. rétrospective). Le reste des critères a été tenu tel qu'écrit.
 
 ---
 
