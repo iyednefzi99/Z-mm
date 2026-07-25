@@ -105,7 +105,16 @@ Administrateur & Gère les paramètres système, les unités de mesure, les seui
 \end{itemize}
 
 \section{Perspectives d'évolution}
-Au-delà du périmètre de cette phase, l'évolution suivante pourra être étudiée :
+Plusieurs perspectives initialement envisagées ont été \emph{concrétisées} au fil des
+sprints et font désormais partie du produit livré : le module de production et de
+récolte, la traçabilité du miel par lot et QR code (anticipant la directive EU
+Petit-Déjeuner 2026), le contexte météorologique, la carte des ruchers avec rayons
+de butinage, l'ingestion de mesures de capteurs (REST/MQTT) et la détection
+d'anomalie sur les séries de poids. Un dernier incrément a ajouté les notifications
+d'alerte par e-mail, le rapport de visite en PDF, le journal d'audit et la prévision
+de récolte.
+
+Au-delà du périmètre livré, les évolutions suivantes pourront être étudiées :
 \begin{itemize}
   \item \textbf{Application mobile native (React Native), distincte de la PWA.}
   La solution retenue est une PWA, qui assure déjà la parité web / mobile et le
@@ -115,45 +124,28 @@ Au-delà du périmètre de cette phase, l'évolution suivante pourra être étud
   distribution par les magasins d'applications. Elle réutiliserait le noyau métier
   TypeScript et l'API REST, mais constituerait une seconde base de code d'interface
   à maintenir --- à n'engager que sur exigence explicite du client.
-  \item \textbf{Module production et récolte.}
-  Le suivi des récoltes (pesée, rendement, classification), central dans la gestion
-  apicole, est absent du périmètre actuel. Ce module permettrait d'enregistrer les
-  récoltes par ruche et par saison, de calculer les rendements, de suivre la qualité
-  du miel (pollen, humidité, conductivité) et de produire des rapports de production
-  pour les subventions et le contrôle sanitaire.
 
-  \item \textbf{Traçabilité du miel --- Directive EU Petit-Déjeuner (2026).}
-  La directive européenne impose la traçabilité complète du miel d'ici juin 2026 :
-  numérotation des lots, historique des traitements phytosanitaires, certifications
-  (bio, IGP, AOP), QR code sur le pot relié à la fiche ruche. Aucune plateforme
-  concurrente n'offre de module intégré de traçabilité, ce qui représente un
-  différenciateur majeur pour Zümm.
+  \item \textbf{Cartographie spatiale avancée (PostGIS).}
+  La carte des ruchers et les rayons de butinage sont livrés. Restent à exploiter
+  pleinement la base spatiale PostGIS : clustering des ruchers, distances
+  inter-ruchers, optimisation des routes de visite et cartographie florale par
+  satellite --- un avantage concurrentiel inédit chez les plateformes existantes.
 
-  \item \textbf{Intégration des données météorologiques.}
-  La température, l'humidité, le vent et l'ensoleillement impactent directement le
-  comportement des colonies (essaimage, butinage, consommation de provisions). Une
-  corrélation des données météo avec les capteurs de ruche permettrait des alertes
-  contextualisées et une meilleure planification des visites.
-
-  \item \textbf{Visualisation cartographique PostGIS.}
-  Le backend repose sur PostgreSQL/PostGIS, une capacité inédite chez les
-  concurrents. Exploiter cette base spatiale pour une carte interactive des ruchers
-  (clustering, distances inter-ruchers, routes de visite optimisées, cartographie
-  florale par satellite) constituerait un avantage concurrentiel significatif.
-
-  \item \textbf{Connecteur IoT standardisé.}
-  Plutôt que de développer du matériel, créer un endpoint d'ingestion standardisé
-  (\texttt{/api/v1/telemetry}) avec authentification par token device et schéma de
-  données normalisé (poids, température, humidité, acoustique). Cela permettrait
-  l'intégration de capteurs existants (BroodMinder, ApisProtect, BEEP, ESP32 DIY)
-  sans développer le hardware.
+  \item \textbf{Connecteur IoT standardisé et durci.}
+  L'ingestion REST/MQTT des mesures est livrée. Un endpoint de télémétrie dédié
+  (\texttt{/api/v1/telemetry}) avec authentification par token \emph{device} et
+  schéma de données normalisé (poids, température, humidité, acoustique) permettrait
+  d'intégrer les capteurs du marché (BroodMinder, ApisProtect, BEEP, ESP32 DIY)
+  sans développer de matériel.
 
   \item \textbf{Détection acoustique et vision par ordinateur.}
-  Les recherches récentes montrent une précision de 85 à 99\,\% pour la détection
-  acoustique du varroa et de l'essaimage, ainsi que le comptage automatisé de varroa
-  sur planche collante par vision (YOLOv11 Nano, $R^2 = 0{,}99$). Ces modèles
-  open-source pourraient être intégrés dans un module d'inspection photo et un
-  analyseur acoustique, enrichissant les rapports de visite d'indicateurs automatisés.
+  La détection d'anomalie statistique (EWMA) est livrée ; l'étape suivante relève de
+  l'apprentissage automatique. Les recherches récentes montrent une précision de 85 à
+  99\,\% pour la détection acoustique du varroa et de l'essaimage, ainsi que le
+  comptage automatisé de varroa sur planche collante par vision (YOLOv11 Nano,
+  $R^2 = 0{,}99$). Ces modèles open-source pourraient être intégrés dans un module
+  d'inspection photo et un analyseur acoustique, enrichissant les rapports de visite
+  d'indicateurs automatisés.
 
   \item \textbf{Jumeau numérique de colonie et crédits carbone.}
   À plus long terme, la modélisation prédictive (jumeaux numériques) permettrait des
