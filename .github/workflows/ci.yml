@@ -138,7 +138,20 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Audit des dependances npm
+      # Garde BLOQUANT, sur les dependances livrees au navigateur uniquement.
+      # C'est celui qui compte : une faille dans react, react-dom ou qrcode part
+      # chez l'utilisateur. Sans `--omit=dev`, l'etape ne pouvait pas bloquer —
+      # d'ou le `continue-on-error` qui la rendait decorative.
+      - name: Audit des dependances de production (bloquant)
+        working-directory: frontend
+        run: npm audit --omit=dev --audit-level=high
+
+      # Informatif : l'outillage de developpement (ESLint, Vitest) tire des
+      # vulnerabilites transitives via brace-expansion/minimatch. Elles ne sont
+      # jamais servies au navigateur, et leur correction exige ESLint 10, que
+      # eslint-plugin-jsx-a11y ne supporte pas encore. Visible, non bloquant,
+      # a rejuger quand le plugin aura suivi.
+      - name: Audit des dependances de developpement (informatif)
         working-directory: frontend
         continue-on-error: true
         run: npm audit --audit-level=high
