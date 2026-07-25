@@ -1,5 +1,6 @@
 package com.zumm.controller;
 
+import com.zumm.service.RapportVisitePdfService;
 import com.zumm.service.VisiteService;
 import com.zumm.web.dto.PhotoCorps;
 import com.zumm.web.dto.PhotoReponse;
@@ -8,6 +9,8 @@ import com.zumm.web.dto.VisiteReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,9 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class VisiteController {
 
     private final VisiteService service;
+    private final RapportVisitePdfService pdf;
 
-    public VisiteController(VisiteService service) {
+    public VisiteController(VisiteService service, RapportVisitePdfService pdf) {
         this.service = service;
+        this.pdf = pdf;
     }
 
     @PostMapping
@@ -46,6 +51,18 @@ public class VisiteController {
     @GetMapping("/{id}")
     public VisiteReponse obtenir(@PathVariable Long id) {
         return service.obtenir(id);
+    }
+
+    /** US-044 (SPRINT-09) : rapport de visite au format PDF, en téléchargement. */
+    @GetMapping(value = "/{id}/rapport.pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> rapportPdf(@PathVariable Long id) {
+        byte[] contenu = pdf.generer(service.obtenir(id));
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment()
+                                .filename("rapport-visite-" + id + ".pdf").build().toString())
+                .body(contenu);
     }
 
     @PutMapping("/{id}")

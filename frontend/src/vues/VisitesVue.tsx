@@ -5,6 +5,7 @@ import {
   listerPhotos,
   ruches,
   supprimerPhoto,
+  telechargerRapportVisite,
   visites,
 } from '../api/client';
 import type {
@@ -70,6 +71,14 @@ export function VisitesVue(): ReactElement {
     { entete: t.visite.date, rendu: (v) => v.dateVisite },
     { entete: t.visite.sante, rendu: (v) => (v.etatSante ? t.visite.santes[v.etatSante] : '—') },
     { entete: t.visite.photos, rendu: (v) => String(v.photos.length) },
+    {
+      entete: t.visite.rapport,
+      rendu: (v) => (
+        <Bouton variante="fantome" onClick={() => void telechargerRapportVisite(v.id)}>
+          ⬇ {t.visite.rapportPdf}
+        </Bouton>
+      ),
+    },
   ];
 
   useEffect(() => {

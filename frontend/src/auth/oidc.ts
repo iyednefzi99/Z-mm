@@ -14,7 +14,7 @@
  * simplement absente et l'écran de session propose le repli « coller un jeton »
  * (pratique en développement).
  */
-import { ouvrirSession } from './session';
+import { fermerSession, ouvrirSession } from './session';
 
 const ISSUER = import.meta.env.VITE_OIDC_ISSUER ?? '';
 const CLIENT = import.meta.env.VITE_OIDC_CLIENT ?? 'zumm-frontend';
@@ -22,6 +22,9 @@ const REDIRECT = import.meta.env.VITE_OIDC_REDIRECT ?? window.location.origin + 
 
 const CLE_VERIFIER = 'zumm.pkce.verifier';
 const CLE_ETAT = 'zumm.pkce.etat';
+// Jeton d'identité conservé pour le `id_token_hint` de la déconnexion OIDC :
+// il permet à Keycloak de clôturer la bonne session sans réafficher d'écran.
+const CLE_ID_TOKEN = 'zumm.oidc.id_token';
 
 /** L'authentification Keycloak est-elle configurée ? */
 export const oidcConfigure = (): boolean => ISSUER !== '';
@@ -95,11 +98,31 @@ export async function terminerConnexion(): Promise<boolean> {
   if (!reponse.ok) {
     throw new Error(`Échange du code échoué (${reponse.status}).`);
   }
-  const jetons = (await reponse.json()) as { access_token: string };
+  const jetons = (await reponse.json()) as { access_token: string; id_token?: string };
   sessionStorage.removeItem(CLE_VERIFIER);
   sessionStorage.removeItem(CLE_ETAT);
+  if (jetons.id_token) {
+    localStorage.setItem(CLE_ID_TOKEN, jetons.id_token);
+  }
   // Nettoie les paramètres OIDC de l'URL.
   window.history.replaceState({}, document.title, REDIRECT);
   ouvrirSession(jetons.access_token);
   return true;
+}
+
+/**
+ * Déconnexion OIDC (US-021) : clôt la session applicative ET la session SSO
+ * Keycloak via l'endpoint de fin de session (RP-Initiated Logout). Sans cela,
+ * effacer le seul jeton local laisserait la session Keycloak ouverte — un clic
+ * sur « se connecter » reconnecterait alors silencieusement l'utilisateur.
+ */
+export function deconnexionOidc(): void {
+  const idToken = localStorage.getItem(CLE_ID_TOKEN);
+  localStorage.removeItem(CLE_ID_TOKEN);
+  fermerSession();
+  const params = new URLSearchParams({ post_logout_redirect_uri: REDIRECT, client_id: CLIENT });
+  if (idToken) {
+    params.set('id_token_hint', idToken);
+  }
+  window.location.assign(`${ISSUER}/protocol/openid-connect/logout?${params}`);
 }

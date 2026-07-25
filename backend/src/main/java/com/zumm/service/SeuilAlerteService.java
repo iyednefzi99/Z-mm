@@ -40,10 +40,13 @@ public class SeuilAlerteService {
 
     private final AlerteRepository alertes;
     private final ConfigurationMetier configuration;
+    private final NotificationAlerteService notifications;
 
-    public SeuilAlerteService(AlerteRepository alertes, ConfigurationMetier configuration) {
+    public SeuilAlerteService(AlerteRepository alertes, ConfigurationMetier configuration,
+            NotificationAlerteService notifications) {
         this.alertes = alertes;
         this.configuration = configuration;
+        this.notifications = notifications;
     }
 
     /**
@@ -57,14 +60,20 @@ public class SeuilAlerteService {
 
         return switch (d.zone()) {
             case ALERTE -> ouverte.isPresent() ? List.of()
-                    : List.of(AlerteReponse.de(alertes.save(
-                            new Alerte(ruche, type, d.niveau(), d.message(), valeur))));
+                    : List.of(AlerteReponse.de(ouvrir(ruche, type, d, valeur)));
             case SURE -> ouverte.map(a -> {
                 a.fermer();
                 return List.of(AlerteReponse.de(a));
             }).orElseGet(List::of);
             case NEUTRE -> List.of();
         };
+    }
+
+    /** Ouvre et persiste une alerte, puis déclenche la notification e-mail (US-041). */
+    private Alerte ouvrir(Ruche ruche, TypeIndicateur type, Depassement d, BigDecimal valeur) {
+        Alerte alerte = alertes.save(new Alerte(ruche, type, d.niveau(), d.message(), valeur));
+        notifications.notifierOuverture(alerte);
+        return alerte;
     }
 
     private record Depassement(Zone zone, String niveau, String message) {

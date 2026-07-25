@@ -38,13 +38,16 @@ class SeuilAlerteServiceTest {
     @Mock
     private ConfigurationMetier configuration;
 
+    @Mock
+    private NotificationAlerteService notifications;
+
     private SeuilAlerteService service;
     private final Ruche ruche = new Ruche("M", null, null, EtatRuche.CREEE);
 
     @BeforeEach
     void init() {
         when(configuration.seuils()).thenReturn(SeuilsMetier.defauts());
-        service = new SeuilAlerteService(alertes, configuration);
+        service = new SeuilAlerteService(alertes, configuration, notifications);
     }
 
     @Test
@@ -59,6 +62,8 @@ class SeuilAlerteServiceTest {
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).niveau()).isEqualTo(Alerte.CRITIQUE);
         verify(alertes).save(any());
+        // US-041 : l'ouverture d'une alerte déclenche une notification.
+        verify(notifications).notifierOuverture(any(Alerte.class));
     }
 
     @Test

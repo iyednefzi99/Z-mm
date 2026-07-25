@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -33,6 +34,12 @@ public class Agent extends EntiteTenant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ferme_id")
     private Ferme ferme;
+
+    /** Adresse de notification (SPRINT-09), facultative. */
+    @Email
+    @Size(max = 180)
+    @Column(name = "email", length = 180)
+    private String email;
 
     protected Agent() {
         // Requis par JPA.
@@ -66,5 +73,13 @@ public class Agent extends EntiteTenant {
 
     public void setFerme(Ferme ferme) {
         this.ferme = ferme;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

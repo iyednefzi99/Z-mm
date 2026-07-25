@@ -26,6 +26,10 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (cf. .env.example)}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      # Scripts d'initialisation joues UNE fois, sur volume vierge : cree la base
+      # dediee `keycloak` pour que le schema `public` de `zumm` reste la propriete
+      # exclusive de Flyway (cf. postgres-init/10-create-keycloak-db.sql).
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
     # Aucun port publie sur l'hote : la base n'est joignable que par le reseau
     # interne. Acces ponctuel via `docker compose exec postgres psql`.
     expose:
@@ -48,7 +52,9 @@ services:
     command: ["start-dev", "--import-realm"]
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://postgres:5432/zumm
+      # Base DEDIEE (cf. postgres-init/10-create-keycloak-db.sql) : Keycloak ne
+      # partage plus le schema `public` de `zumm`, ce qui debloquait Flyway.
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
       KC_DB_USERNAME: zumm
       KC_DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
       KC_HTTP_ENABLED: "true"
@@ -93,7 +99,17 @@ services:
       SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/zumm
       SPRING_FLYWAY_USER: zumm
       SPRING_FLYWAY_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis}
-      ZUMM_OIDC_ISSUER_URI: http://keycloak:8080/realms/zumm
+      # Validation des jetons. Les CLES sont recuperees paresseusement via le JWKS
+      # INTERNE (jwk-set-uri) : le back-end ne fait donc aucun appel a Keycloak au
+      # demarrage et ne depend plus de sa disponibilite (evite la course de
+      # demarrage de la decouverte OIDC eager). L'« iss » est valide contre
+      # l'emetteur REEL des jetons (ZUMM_OIDC_ISSUER_URI) : identique a l'URL
+      # interne en mono-hote, mais A DEFINIR sur l'URL PUBLIQUE derriere le proxy
+      # en production (celle que portent les jetons emis pour le navigateur ;
+      # regler aussi KC_HOSTNAME sur cette meme URL). Ne jamais laisser vide :
+      # Spring construirait un validateur attendant une chaine « iss » vide.
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/zumm/protocol/openid-connect/certs
+      ZUMM_OIDC_ISSUER_URI: ${ZUMM_OIDC_ISSUER_URI:-http://keycloak:8080/realms/zumm}
     volumes:
       - ../config/ConfigZumm.ini:/app/config/ConfigZumm.ini:ro
     # Aucun port publie : l'application n'est atteignable qu'a travers le proxy

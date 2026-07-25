@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # ═══════════════════════════════════════════════════════════
 # Image de l'application Zümm (Spring Boot)
 # Build multi-etapes : compilation Maven puis image d'execution JRE.
@@ -10,12 +11,15 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /build
 
 # Cache des dependances : le POM avant les sources, pour ne re-telecharger
-# que lorsque les dependances changent reellement.
+# que lorsque les dependances changent reellement. Le cache BuildKit du depot
+# local `~/.m2` persiste entre deux builds : sur une liaison instable, une
+# reprise ne re-telecharge que les artefacts encore manquants au lieu de tout
+# recommencer.
 COPY pom.xml .
-RUN mvn -q -B dependency:go-offline
+RUN --mount=type=cache,target=/root/.m2 mvn -q -B dependency:go-offline
 
 COPY src ./src
-RUN mvn -q -B clean package -DskipTests
+RUN --mount=type=cache,target=/root/.m2 mvn -q -B clean package -DskipTests
 
 # ─── Etape 2 : execution ───
 FROM eclipse-temurin:17-jre-jammy

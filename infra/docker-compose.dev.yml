@@ -1,0 +1,35 @@
+# ═══════════════════════════════════════════════════════════
+# Surcouche de DÉVELOPPEMENT — comptes de test et realm importé
+#
+# Le docker-compose.yml de base importe le realm de PRODUCTION
+# (realm-zumm.json), sans comptes de test. Cette surcouche le remplace par le
+# realm de développement (realm-zumm.dev.json), qui embarque quatre comptes de
+# test à mot de passe en clair (« test »), un par rôle, tous sur le tenant
+# « exploitation-demo » — celui du jeu de données de démonstration (seed-demo.sql).
+#
+# ⚠️ JAMAIS en production : mots de passe factices et comptes préprovisionnés.
+#
+# Usage :
+#   docker compose --env-file .env \
+#     -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up -d --build
+#   bash infra/seed-demo.sh
+# ═══════════════════════════════════════════════════════════
+
+services:
+  keycloak:
+    volumes:
+      - ./keycloak/realm-zumm.dev.json:/opt/keycloak/data/import/realm-zumm.json:ro
+
+  backend:
+    # Publié sur l'hôte pour que le serveur de dev Vite (proxy /api → :8080)
+    # atteigne directement l'API, sans passer par le proxy TLS.
+    ports:
+      - "8080:8080"
+    environment:
+      # En dev, l'émetteur des jetons vu par le navigateur est http://localhost:8081,
+      # alors que la valeur par défaut du compose de base est l'URL interne
+      # (keycloak:8080). On surcharge donc l'« iss » attendu par l'émetteur RÉEL des
+      # jetons émis pour le navigateur. Les clés restent récupérées via le JWKS
+      # interne (hérité du compose de base). Ne jamais laisser vide : Spring Boot
+      # construirait un validateur attendant une chaîne « iss » vide.
+      ZUMM_OIDC_ISSUER_URI: http://localhost:8081/realms/zumm

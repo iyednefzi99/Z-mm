@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import {
   chargerAlertesSanitaires,
   chargerCalendrier,
+  chargerPrevisions,
   chargerProduction,
   chargerSynthese,
   telechargerExport,
@@ -10,13 +11,14 @@ import type {
   AlerteSanitaire,
   CalendrierCellule,
   LigneProduction,
+  PrevisionRecolte,
   Synthese,
 } from '../api/types';
 import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate } from '../ui/composants';
 
-type Sous = 'calendrier' | 'production' | 'alertes' | 'synthese';
+type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese';
 
 /** Premier et dernier jour du mois courant, au format ISO (valeurs par défaut du calendrier). */
 function moisCourant(): { debut: string; fin: string } {
@@ -38,6 +40,7 @@ export function TableauxVue(): ReactElement {
   const [fin, setFin] = useState(defaut.fin);
   const [calendrier, setCalendrier] = useState<CalendrierCellule[]>([]);
   const [production, setProduction] = useState<LigneProduction[]>([]);
+  const [previsions, setPrevisions] = useState<PrevisionRecolte[]>([]);
   const [alertes, setAlertes] = useState<AlerteSanitaire[]>([]);
   const [synthese, setSynthese] = useState<Synthese | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -53,6 +56,9 @@ export function TableauxVue(): ReactElement {
     } else if (sous === 'production') {
       setErreur(null);
       void chargerProduction().then(setProduction).catch((c) => setErreur(messageErreur(c)));
+    } else if (sous === 'previsions') {
+      setErreur(null);
+      void chargerPrevisions().then(setPrevisions).catch((c) => setErreur(messageErreur(c)));
     } else if (sous === 'alertes') {
       setErreur(null);
       void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c)));
@@ -62,7 +68,7 @@ export function TableauxVue(): ReactElement {
     }
   }, [sous, chargerCal]);
 
-  const sousOnglets: Sous[] = ['calendrier', 'production', 'alertes', 'synthese'];
+  const sousOnglets: Sous[] = ['calendrier', 'production', 'previsions', 'alertes', 'synthese'];
 
   return (
     <section className="z-section">
@@ -163,6 +169,39 @@ export function TableauxVue(): ReactElement {
                     <td>{p.poidsMaxKg ?? '—'}</td>
                     <td>{p.nombreMesures}</td>
                     <td>{p.productiviteMoyenne ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      )}
+
+      {sous === 'previsions' && (
+        previsions.length === 0 ? (
+          <p className="z-info">{t.etats.vide}</p>
+        ) : (
+          <div className="z-table-enveloppe">
+            <table className="z-table">
+              <thead>
+                <tr>
+                  <th>{t.tableau.ruche}</th>
+                  <th>{t.tableau.poidsActuel}</th>
+                  <th>{t.tableau.tendance}</th>
+                  <th>{t.tableau.gainJour}</th>
+                  <th>{t.tableau.projection7j}</th>
+                  <th>{t.tableau.nbMesures}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {previsions.map((p) => (
+                  <tr key={p.rucheId} className={p.tendance === 'baisse' ? 'z-ligne--alerte' : ''}>
+                    <td>{p.rucheModele}</td>
+                    <td>{p.poidsActuelKg ?? t.tableau.aucuneMesure}</td>
+                    <td>{t.tableau.tendances[p.tendance]}</td>
+                    <td>{p.tendanceKgParJour ?? '—'}</td>
+                    <td>{p.projection7jKg ?? '—'}</td>
+                    <td>{p.nombreMesures}</td>
                   </tr>
                 ))}
               </tbody>

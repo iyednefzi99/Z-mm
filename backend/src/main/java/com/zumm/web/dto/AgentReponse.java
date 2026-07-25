@@ -13,6 +13,7 @@ public record AgentReponse(
         RoleAgent role,
         Long fermeId,
         String fermeNom,
+        String email,
         Instant creeLe,
         Instant majLe) {
 
@@ -24,6 +25,7 @@ public record AgentReponse(
                 agent.getRole(),
                 ferme == null ? null : ferme.getId(),
                 ferme == null ? null : ferme.getNom(),
+                agent.getEmail(),
                 agent.getCreeLe(),
                 agent.getMajLe());
     }

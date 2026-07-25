@@ -23,10 +23,12 @@ import type {
   Meteo,
   MesureCorps,
   MesureReponse,
+  AuditEntree,
   Photo,
   PhotoCorps,
   Planning,
   PlanningCorps,
+  PrevisionRecolte,
   QuantiteMiel,
   Recolte,
   RecolteCorps,
@@ -168,6 +170,13 @@ export const chargerAlertesSanitaires = () =>
 /** US-015 : synthèse de pilotage et ROI. */
 export const chargerSynthese = () => requete<Synthese>('/api/tableaux/synthese');
 
+/** US-042 (SPRINT-09) : prévisions de récolte (tendance du poids par ruche). */
+export const chargerPrevisions = () =>
+  requete<PrevisionRecolte[]>('/api/tableaux/previsions');
+
+/** US-043 (SPRINT-09) : journal d'audit (responsable/admin). */
+export const chargerAudit = () => requete<AuditEntree[]>('/api/audit');
+
 /** US-017 : ingestion d'une mesure de capteur. */
 export const ingererMesure = (corps: MesureCorps) =>
   requete<MesureReponse>('/api/mesures', { method: 'POST', ...corpsJson(corps) });
@@ -221,6 +230,29 @@ export const telechargerExport = async (
   const lien = document.createElement('a');
   lien.href = url;
   lien.download = `zumm-${ressourceExport}.${format}`;
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * US-044 (SPRINT-09) : télécharge le rapport de visite en PDF. Comme l'export, le
+ * jeton doit voyager en en-tête, d'où le fetch + blob plutôt qu'un simple lien.
+ */
+export const telechargerRapportVisite = async (visiteId: number): Promise<void> => {
+  const jeton = jetonCourant();
+  const reponse = await fetch(`/api/visites/${visiteId}/rapport.pdf`, {
+    headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const blob = await reponse.blob();
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = `rapport-visite-${visiteId}.pdf`;
   document.body.appendChild(lien);
   lien.click();
   lien.remove();

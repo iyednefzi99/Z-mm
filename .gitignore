@@ -81,6 +81,9 @@ Desktop.ini
 # Sauvegardes locales : jamais versionnees (donnees, volumineuses).
 sauvegardes/
 
+# Rapports d'analyse internes : jamais versionnes.
+rapports/
+
 # Certificats TLS : jamais versionnes, meme auto-signes de developpement.
 # Ils sont regeneres par infra/generer-certificat-dev.sh.
 infra/nginx/ssl/

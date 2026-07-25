@@ -29,8 +29,9 @@ public class AgentService {
     }
 
     public AgentReponse creer(AgentCorps corps) {
-        return AgentReponse.de(agents.save(
-                new Agent(corps.nom(), corps.role(), fermeEventuelle(corps.fermeId()))));
+        Agent agent = new Agent(corps.nom(), corps.role(), fermeEventuelle(corps.fermeId()));
+        agent.setEmail(corps.email());
+        return AgentReponse.de(agents.save(agent));
     }
 
     @Transactional(readOnly = true)
@@ -48,6 +49,7 @@ public class AgentService {
         agent.setNom(corps.nom());
         agent.setRole(corps.role());
         agent.setFerme(fermeEventuelle(corps.fermeId()));
+        agent.setEmail(corps.email());
         return AgentReponse.de(agent);
     }
 

@@ -1,10 +1,12 @@
 package com.zumm.controller;
 
+import com.zumm.service.PrevisionRecolteService;
 import com.zumm.service.SyntheseService;
 import com.zumm.service.TableauDeBordService;
 import com.zumm.web.dto.AlerteSanitaire;
 import com.zumm.web.dto.CalendrierCellule;
 import com.zumm.web.dto.LigneProduction;
+import com.zumm.web.dto.PrevisionRecolte;
 import com.zumm.web.dto.SyntheseReponse;
 import java.time.LocalDate;
 import java.util.List;
@@ -25,10 +27,13 @@ public class TableauDeBordController {
 
     private final TableauDeBordService service;
     private final SyntheseService synthese;
+    private final PrevisionRecolteService previsions;
 
-    public TableauDeBordController(TableauDeBordService service, SyntheseService synthese) {
+    public TableauDeBordController(TableauDeBordService service, SyntheseService synthese,
+            PrevisionRecolteService previsions) {
         this.service = service;
         this.synthese = synthese;
+        this.previsions = previsions;
     }
 
     /** US-012 : {@code GET /api/tableaux/calendrier?debut=2026-09-01&fin=2026-09-30}. */
@@ -55,5 +60,11 @@ public class TableauDeBordController {
     @GetMapping("/synthese")
     public SyntheseReponse synthese() {
         return synthese.synthese();
+    }
+
+    /** US-042 (SPRINT-09) : prevision de recolte par ruche (tendance du poids). */
+    @GetMapping("/previsions")
+    public List<PrevisionRecolte> previsions() {
+        return previsions.previsions();
     }
 }

@@ -69,6 +69,13 @@ management:
 zumm:
   nom: Zumm
   version: 0.1.0-SNAPSHOT
+  # Notifications e-mail des alertes (SPRINT-09, US-041). Désactivées par défaut :
+  # aucune dépendance SMTP en local ni en test. En production, activer et fournir
+  # spring.mail.* (host/port/credentials) via l'environnement.
+  notifications:
+    email:
+      enabled: ${ZUMM_NOTIF_EMAIL_ENABLED:false}
+      expediteur: ${ZUMM_NOTIF_EMAIL_FROM:alertes@zumm.local}
   # Le francais est la langue source ; en/ar en sont des traductions.
   langues-actives:
     - fr

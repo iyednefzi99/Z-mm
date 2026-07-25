@@ -17,6 +17,7 @@ export function AgentsVue(): ReactElement {
   const [nom, setNom] = useState('');
   const [role, setRole] = useState<RoleAgent>('apiculteur');
   const [fermeId, setFermeId] = useState('');
+  const [email, setEmail] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optionsRole: Option[] = ROLES_AGENT.map((r) => ({ valeur: r, libelle: t.roles[r] }));
@@ -25,6 +26,7 @@ export function AgentsVue(): ReactElement {
     { entete: t.champs.nom, rendu: (a) => a.nom },
     { entete: t.champs.role, rendu: (a) => t.roles[a.role] },
     { entete: t.champs.ferme, rendu: (a) => a.fermeNom ?? '—' },
+    { entete: t.champs.email, rendu: (a) => a.email ?? '—' },
   ];
 
   useEffect(() => {
@@ -46,12 +48,18 @@ export function AgentsVue(): ReactElement {
     setNom(a?.nom ?? '');
     setRole(a?.role ?? 'apiculteur');
     setFermeId(a?.fermeId != null ? String(a.fermeId) : '');
+    setEmail(a?.email ?? '');
     setErreur(null);
     setOuvert(true);
   };
 
   const enregistrer = async () => {
-    const corps: AgentCorps = { nom, role, fermeId: fermeId === '' ? null : Number(fermeId) };
+    const corps: AgentCorps = {
+      nom,
+      role,
+      fermeId: fermeId === '' ? null : Number(fermeId),
+      email: email.trim() === '' ? null : email.trim(),
+    };
     try {
       await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
       setOuvert(false);
@@ -94,6 +102,7 @@ export function AgentsVue(): ReactElement {
               options={optionsFerme}
               onChange={setFermeId}
             />
+            <ChampTexte libelle={t.champs.email} valeur={email} onChange={setEmail} />
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>

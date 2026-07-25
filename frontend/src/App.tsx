@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { synchroniser } from './api/client';
-import { terminerConnexion } from './auth/oidc';
+import { deconnexionOidc, oidcConfigure, terminerConnexion } from './auth/oidc';
 import { fermerSession, jetonCourant, surSession } from './auth/session';
 import { gabarit } from './i18n/console';
 import { LANGUES } from './i18n/messages';
@@ -8,6 +8,7 @@ import { useLangue, useT } from './i18n/langue';
 import { surFile } from './offline/file';
 import { Bouton } from './ui/composants';
 import { AgentsVue } from './vues/AgentsVue';
+import { AuditVue } from './vues/AuditVue';
 import { ConfigVue } from './vues/ConfigVue';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { FermesVue } from './vues/FermesVue';
@@ -38,7 +39,8 @@ type Onglet =
   | 'recoltes'
   | 'carte'
   | 'agents'
-  | 'config';
+  | 'config'
+  | 'audit';
 
 const ONGLETS: Onglet[] = [
   'fermiers',
@@ -55,6 +57,7 @@ const ONGLETS: Onglet[] = [
   'carte',
   'agents',
   'config',
+  'audit',
 ];
 
 const VUES: Record<Onglet, ReactElement> = {
@@ -72,6 +75,7 @@ const VUES: Record<Onglet, ReactElement> = {
   carte: <CarteVue />,
   agents: <AgentsVue />,
   config: <ConfigVue />,
+  audit: <AuditVue />,
 };
 
 /**
@@ -145,7 +149,10 @@ export default function App(): ReactElement {
               </button>
             ))}
           </nav>
-          <Bouton variante="fantome" onClick={fermerSession}>
+          <Bouton
+            variante="fantome"
+            onClick={() => (oidcConfigure() ? deconnexionOidc() : fermerSession())}
+          >
             {t.actions.seDeconnecter}
           </Bouton>
         </div>

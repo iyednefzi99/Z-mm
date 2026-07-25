@@ -74,6 +74,7 @@ export interface Agent {
   role: RoleAgent;
   fermeId: number | null;
   fermeNom: string | null;
+  email: string | null;
   creeLe: string;
   majLe: string;
 }
@@ -82,6 +83,7 @@ export interface AgentCorps {
   nom: string;
   role: RoleAgent;
   fermeId: number | null;
+  email?: string | null;
 }
 
 export type EtatRuche =
@@ -289,6 +291,32 @@ export interface LigneProduction {
   nombreMesures: number;
   sousSeuil: boolean;
   productiviteMoyenne: number | null;
+}
+
+/** Prévision de récolte d'une ruche (US-042, SPRINT-09). */
+export type TendanceRecolte = 'hausse' | 'stable' | 'baisse' | 'inconnue';
+
+export interface PrevisionRecolte {
+  rucheId: number;
+  rucheModele: string;
+  poidsActuelKg: number | null;
+  tendanceKgParJour: number | null;
+  projection7jKg: number | null;
+  tendance: TendanceRecolte;
+  nombreMesures: number;
+}
+
+/** Entrée du journal d'audit (US-043, SPRINT-09). */
+export type ActionAudit = 'creation' | 'modification' | 'suppression';
+
+export interface AuditEntree {
+  id: number;
+  instant: string;
+  acteur: string;
+  action: ActionAudit;
+  entite: string;
+  entiteId: number | null;
+  resume: string | null;
 }
 
 export type NiveauAlerte = 'ok' | 'attention' | 'critique';

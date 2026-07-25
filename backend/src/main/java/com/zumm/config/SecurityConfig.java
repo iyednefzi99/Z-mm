@@ -59,6 +59,10 @@ public class SecurityConfig {
                         .permitAll()
 
                         // ── Matrice RBAC (US-022), derivee des roles du cahier ──
+                        // Le journal d'audit (US-043) est reserve au pilotage :
+                        // responsable et administrateur uniquement.
+                        .requestMatchers(HttpMethod.GET, "/api/audit", "/api/audit/**")
+                        .hasAnyRole("responsable", "admin")
                         // L'approbation d'un planning est reservee au superviseur
                         // (et au-dessus) : c'est sa fonction propre (cahier, chap. 4).
                         .requestMatchers(HttpMethod.POST,
