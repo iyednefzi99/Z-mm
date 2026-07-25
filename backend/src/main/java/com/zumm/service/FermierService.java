@@ -6,6 +6,8 @@ import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.FermierCorps;
 import com.zumm.web.dto.FermierReponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,12 @@ public class FermierService {
     @Transactional(readOnly = true)
     public List<FermierReponse> lister() {
         return fermiers.findAll().stream().map(FermierReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<FermierReponse> lister(Pageable pagination) {
+        return fermiers.findAll(pagination).map(FermierReponse::de);
     }
 
     @Transactional(readOnly = true)

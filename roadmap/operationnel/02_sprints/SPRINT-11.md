@@ -27,11 +27,11 @@
 
 | ID | Story | Points | Statut | Assigné |
 |:---|:---|:---:|:---|:---|
-| US-050 | Rafraîchissement du jeton OIDC | 8 | 📋 À faire | - |
-| US-051 | Navigation adressable par URL | 8 | 📋 À faire | - |
-| US-052 | Pagination des listes | 8 | 📋 À faire | - |
-| US-053 | Formatage localisé des dates et des nombres | 5 | 📋 À faire | - |
-| US-054 | Dialogues du design system à la place des dialogues natifs | 5 | 📋 À faire | - |
+| US-050 | Rafraîchissement du jeton OIDC | 8 | 🟢 Livré (`auth/rafraichissement.ts` : échéance JWT, verrou, planification ; rejeu du 401 dans le client) | - |
+| US-051 | Navigation adressable par URL | 8 | 🟢 Livré (routeur maison sur l'API History, 15 routes, `React.lazy` par route, écran 404) | - |
+| US-052 | Pagination des listes | 8 | 🟢 Livré (`page`/`taille`/`tri` optionnels, total en `X-Total-Count`, barre dans `CorpsSection`) | - |
+| US-053 | Formatage localisé des dates et des nombres | 5 | 🟢 Livré (`i18n/formats.ts` adossé à `Intl`, appliqué aux 6 colonnes de date et aux distances) | - |
+| US-054 | Dialogues du design system à la place des dialogues natifs | 5 | 🟢 Livré (`ui/dialogues.tsx`, 12 appels natifs supprimés, piège de focus, `jsx-a11y`) | - |
 
 **Origine :** audit du front réalisé après le SPRINT-10. US-050 et US-051 forment un
 tout — corriger la session sans rendre les écrans adressables reconnecte
@@ -188,18 +188,64 @@ reformatés. Suppression confirmée par le dialogue maison, au clavier seul.
 
 | Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
 |:---|:---:|:---:|:---|
-| Jour 1 | 34 | - | Vérification du realm, module de rafraîchissement (US-050) |
-| Jour 4 | 26 | - | Session durable branchée et testée |
-| Jour 7 | 18 | - | Routes adressables + chargement paresseux (US-051) |
-| Jour 10 | 10 | - | Pagination bout en bout (US-052) |
-| Jour 12 | 5 | - | Formatage localisé (US-053) |
-| Jour 14 | 0 | - | Dialogues maison et focus trap (US-054) |
+| Jour 1 | 34 | 34 | Vérification du realm, module de rafraîchissement (US-050) |
+| Jour 4 | 26 | 26 | Session durable branchée et testée |
+| Jour 7 | 18 | 18 | Routes adressables + chargement paresseux (US-051) |
+| Jour 10 | 10 | 13 | Formatage localisé (US-053) puis dialogues (US-054) |
+| Jour 12 | 5 | 8 | Pagination bout en bout (US-052), passée en dernier |
+| Jour 14 | 0 | 0 | Vérifications complètes, CI verte |
 
 ---
 
 ## 📝 Rétrospective
 
-*À compléter en fin de sprint (2027-01-18).*
+**Résultat : les 5 user stories livrées et testées.**
+Backend : **44 tests unitaires + 77 d'intégration, `Skipped: 0`**, `BUILD SUCCESS`.
+Front : **108 tests Vitest** (42 avant ce sprint), `lint` sans erreur, `typecheck` et
+`build` verts.
+
+### Ce qui a bien fonctionné
+
+- **La mécanique de session a été isolée avant d'être branchée.** `rafraichissement.ts`
+  ne connaît ni Keycloak ni le client d'API : échéance, verrou et planification sont
+  testés sans réseau ni horloge réelle (13 tests). Le branchement dans `client.ts` n'a
+  ensuite demandé que six lignes, elles-mêmes couvertes par 6 tests de rejeu.
+- **Le routeur maison a tenu la promesse de l'ADR** : 60 lignes, zéro dépendance, et le
+  chargement paresseux par route a fait tomber le paquet d'entrée de **302 à 235 kB**
+  (`qrcode` sort du chemin critique avec `RecoltesVue`).
+- **La pagination n'a rien cassé** : sans `page` ni `taille`, la réponse est exactement
+  celle d'avant. Aucun test d'intégration existant n'a eu à être retouché.
+
+### Ce qui peut être amélioré / limites assumées
+
+- **Le total voyage dans un en-tête** (`X-Total-Count`) plutôt que dans une enveloppe
+  JSON. C'est un choix : envelopper la liste aurait changé la forme de la réponse selon
+  la présence d'un paramètre, contrat indescriptible en OpenAPI. Le revers est qu'un
+  client qui ignore les en-têtes ne voit pas le total.
+- **Pagination livrée sur 7 listes** (fermiers, fermes, sites, ruches, agents,
+  plannings, tâches). Visites et récoltes ont un chargement composite (photos, tri
+  métier) : leur pagination demande un passage dédié.
+- **Le flux OIDC reste non joué en CI.** US-050 est couverte par 19 tests, mais tous
+  avec un Keycloak simulé — c'est précisément l'angle mort qui avait laissé passer
+  l'absence de rafraîchissement.
+- **Prettier toujours pas imposé** ; les 8 vulnérabilités `high` de développement
+  (`brace-expansion` via ESLint 9) sont inchangées.
+
+### Défauts trouvés en chemin
+
+1. **`Modale` volait le focus à chaque frappe.** Le piège de focus ajouté par US-054
+   restituait le focus au déclencheur dans le nettoyage d'un `useEffect` dépendant de
+   `onFermer` — une lambda recréée à chaque rendu. Taper dans un dialogue de saisie
+   perdait donc le curseur à chaque caractère. Corrigé par une référence sur le
+   callback et un effet monté une seule fois. **Trouvé par un test**, pas à l'œil.
+2. **Deux boutons « Fermer » dans le même dialogue** : la croix de l'en-tête et
+   l'action du dialogue d'information portaient le même nom accessible. L'action
+   devient « J'ai compris ».
+
+### Écart avec le plan
+
+Le plan prévoyait la pagination au jour 10 et les dialogues au jour 14 ; l'ordre a été
+inversé, US-052 touchant à la fois le back, la configuration métier et le front.
 
 ---
 

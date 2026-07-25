@@ -20,7 +20,7 @@ import type {
 } from '../api/types';
 import { RAISONS_VISITE } from '../api/types';
 import { gabarit } from '../i18n/console';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
@@ -33,6 +33,7 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const EFFECTIFS: EffectifQualitatif[] = ['faible', 'moyen', 'fort'];
@@ -41,6 +42,8 @@ const PRODUCTIVITES = ['1', '2', '3'];
 
 export function VisitesVue(): ReactElement {
   const t = useT();
+  const { confirmer } = useDialogues();
+  const f = useFormats();
   const etat = useRessource<Visite, VisiteCorps>(visites);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
@@ -68,7 +71,7 @@ export function VisitesVue(): ReactElement {
   const colonnes: Colonne<Visite>[] = [
     { entete: t.champs.modele, rendu: (v) => v.rucheModele },
     { entete: t.visite.agent, rendu: (v) => v.agentNom },
-    { entete: t.visite.date, rendu: (v) => v.dateVisite },
+    { entete: t.visite.date, rendu: (v) => f.date(v.dateVisite) },
     { entete: t.visite.sante, rendu: (v) => (v.etatSante ? t.visite.santes[v.etatSante] : '—') },
     { entete: t.visite.photos, rendu: (v) => String(v.photos.length) },
     {
@@ -152,16 +155,16 @@ export function VisitesVue(): ReactElement {
     etat.recharger();
   };
 
-  const supprimer = (v: Visite) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: v.rucheModele }))) {
-      void etat.supprimer(v.id);
+  const supprimer = async (v: Visite) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: v.rucheModele }))) {
+      await etat.supprimer(v.id);
     }
   };
 
   return (
     <CorpsSection titre={t.onglets.visites} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.visites} onFermer={() => setOuvert(false)}>

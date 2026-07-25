@@ -1,6 +1,7 @@
 package com.zumm.controller;
 
 import com.zumm.service.AgentService;
+import com.zumm.web.Pagination;
 import com.zumm.web.dto.AgentCorps;
 import com.zumm.web.dto.AgentReponse;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -24,9 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AgentController {
 
     private final AgentService service;
+    private final Pagination pagination;
 
-    public AgentController(AgentService service) {
+    public AgentController(AgentService service, Pagination pagination) {
         this.service = service;
+        this.pagination = pagination;
     }
 
     @PostMapping
@@ -35,9 +39,17 @@ public class AgentController {
         return ResponseEntity.created(URI.create("/api/agents/" + reponse.id())).body(reponse);
     }
 
+    /**
+     * Liste, paginee si le client le demande (US-052). Sans {@code page} ni
+     * {@code taille}, le comportement est celui d'avant : la liste complete.
+     * Le total est toujours porte par l'en-tete {@code X-Total-Count}.
+     */
     @GetMapping
-    public List<AgentReponse> lister() {
-        return service.lister();
+    public ResponseEntity<List<AgentReponse>> lister(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer taille,
+            @RequestParam(required = false) String tri) {
+        return pagination.reponse(page, taille, tri, service::lister, service::lister);
     }
 
     @GetMapping("/{id}")

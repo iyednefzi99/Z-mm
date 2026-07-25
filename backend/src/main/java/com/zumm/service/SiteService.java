@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -58,6 +60,12 @@ public class SiteService {
     @Transactional(readOnly = true)
     public List<SiteReponse> lister() {
         return sites.findAll().stream().map(SiteReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<SiteReponse> lister(Pageable pagination) {
+        return sites.findAll(pagination).map(SiteReponse::de);
     }
 
     @Transactional(readOnly = true)

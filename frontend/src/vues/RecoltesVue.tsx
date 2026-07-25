@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import { recoltes, ruches, tracerLot } from '../api/client';
 import type { Recolte, RecolteCorps, Ruche, Trace } from '../api/types';
 import { gabarit } from '../i18n/console';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
@@ -16,6 +16,7 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 /** Image QR d'un payload de traçabilité (US-033). */
@@ -34,6 +35,8 @@ function QrImage({ payload }: { payload: string }): ReactElement {
 /** Récoltes, numéro de lot et QR de traçabilité (US-033). */
 export function RecoltesVue(): ReactElement {
   const t = useT();
+  const { confirmer } = useDialogues();
+  const f = useFormats();
   const etat = useRessource<Recolte, RecolteCorps>(recoltes);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [ouvert, setOuvert] = useState(false);
@@ -46,7 +49,7 @@ export function RecoltesVue(): ReactElement {
   const [trace, setTrace] = useState<Trace | null>(null);
 
   const colonnes: Colonne<Recolte>[] = [
-    { entete: t.recolte.date, rendu: (r) => r.dateRecolte },
+    { entete: t.recolte.date, rendu: (r) => f.date(r.dateRecolte) },
     { entete: t.recolte.ruche, rendu: (r) => r.rucheModele },
     { entete: t.recolte.quantite, rendu: (r) => String(r.quantiteKg) },
     { entete: t.recolte.lot, rendu: (r) => r.lot },
@@ -89,16 +92,16 @@ export function RecoltesVue(): ReactElement {
     }
   };
 
-  const supprimer = (r: Recolte) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: r.lot }))) {
-      void etat.supprimer(r.id);
+  const supprimer = async (r: Recolte) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: r.lot }))) {
+      await etat.supprimer(r.id);
     }
   };
 
   return (
     <CorpsSection titre={t.onglets.recoltes} etat={etat} onNouveau={ouvrir}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={() => undefined} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={() => undefined} onSupprimer={(e) => void supprimer(e)} />
       )}
 
       {ouvert && (

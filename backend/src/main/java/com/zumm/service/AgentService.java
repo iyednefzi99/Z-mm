@@ -9,6 +9,8 @@ import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.AgentCorps;
 import com.zumm.web.dto.AgentReponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,12 @@ public class AgentService {
     @Transactional(readOnly = true)
     public List<AgentReponse> lister() {
         return agents.findAll().stream().map(AgentReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<AgentReponse> lister(Pageable pagination) {
+        return agents.findAll(pagination).map(AgentReponse::de);
     }
 
     @Transactional(readOnly = true)

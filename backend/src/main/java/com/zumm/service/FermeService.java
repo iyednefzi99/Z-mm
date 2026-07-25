@@ -9,6 +9,8 @@ import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.FermeCorps;
 import com.zumm.web.dto.FermeReponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,12 @@ public class FermeService {
     @Transactional(readOnly = true)
     public List<FermeReponse> lister() {
         return fermes.findAll().stream().map(FermeReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<FermeReponse> lister(Pageable pagination) {
+        return fermes.findAll(pagination).map(FermeReponse::de);
     }
 
     @Transactional(readOnly = true)

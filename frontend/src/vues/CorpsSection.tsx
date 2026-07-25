@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { useT } from '../i18n/langue';
-import { Bouton } from '../ui/composants';
+import { Bouton, Pagination } from '../ui/composants';
 
 /** Etat minimal attendu par la section (sous-ensemble de EtatRessource). */
 export interface EtatSection {
@@ -8,6 +8,11 @@ export interface EtatSection {
   erreur: string | null;
   elements: unknown[];
   recharger: () => void;
+  /** Pagination (US-052) : optionnelle, la barre ne s'affiche que si elle est la. */
+  page?: number;
+  taille?: number;
+  total?: number;
+  allerPage?: (page: number) => void;
 }
 
 /**
@@ -53,6 +58,18 @@ export function CorpsSection({
       {vide && <p className="z-info">{t.etats.vide}</p>}
 
       {children}
+
+      {etat.allerPage !== undefined &&
+        etat.page !== undefined &&
+        etat.taille !== undefined &&
+        etat.total !== undefined && (
+          <Pagination
+            page={etat.page}
+            taille={etat.taille}
+            total={etat.total}
+            onPage={etat.allerPage}
+          />
+        )}
     </section>
   );
 }

@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { agents, listerRappels, ruches, taches } from '../api/client';
 import type { Agent, Ruche, Tache, TacheCorps } from '../api/types';
 import { gabarit } from '../i18n/console';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
@@ -14,11 +14,14 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 /** Liste de tâches et rappels de l'apiculteur (US-031). */
 export function TachesVue(): ReactElement {
   const t = useT();
+  const { confirmer } = useDialogues();
+  const f = useFormats();
   const etat = useRessource<Tache, TacheCorps>(taches);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
@@ -42,7 +45,7 @@ export function TachesVue(): ReactElement {
     { entete: t.tache.libelle, rendu: (x) => x.libelle },
     { entete: t.tache.ruche, rendu: (x) => x.rucheModele ?? '—' },
     { entete: t.tache.agent, rendu: (x) => x.agentNom ?? '—' },
-    { entete: t.tache.echeance, rendu: (x) => x.echeance ?? t.tache.sansEcheance },
+    { entete: t.tache.echeance, rendu: (x) => (x.echeance ? f.date(x.echeance) : t.tache.sansEcheance) },
     { entete: t.tache.faite, rendu: (x) => (x.faite ? t.tache.oui : t.tache.non) },
   ];
 
@@ -80,9 +83,9 @@ export function TachesVue(): ReactElement {
     }
   };
 
-  const supprimer = (x: Tache) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: x.libelle }))) {
-      void etat.supprimer(x.id);
+  const supprimer = async (x: Tache) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: x.libelle }))) {
+      await etat.supprimer(x.id);
     }
   };
 
@@ -95,7 +98,7 @@ export function TachesVue(): ReactElement {
         </div>
       )}
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.taches} onFermer={() => setOuvert(false)}>

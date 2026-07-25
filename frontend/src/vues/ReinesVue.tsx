@@ -7,7 +7,7 @@ import {
 } from '../api/client';
 import type { CouleurReine, Reine, Ruche, StatutReine } from '../api/types';
 import { COULEURS_REINE, STATUTS_REINE } from '../api/types';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import {
   Bouton,
@@ -23,6 +23,7 @@ import {
 /** Suivi de la reine par ruche : historique + ajout d'événement (US-032). */
 export function ReinesVue(): ReactElement {
   const t = useT();
+  const f = useFormats();
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [rucheId, setRucheId] = useState('');
   const [historique, setHistorique] = useState<Reine[]>([]);
@@ -38,7 +39,7 @@ export function ReinesVue(): ReactElement {
   const optCouleur: Option[] = [vide, ...COULEURS_REINE.map((c) => ({ valeur: c, libelle: t.reine.couleurs[c] }))];
 
   const colonnes: Colonne<Reine>[] = [
-    { entete: t.reine.date, rendu: (r) => r.dateEvenement },
+    { entete: t.reine.date, rendu: (r) => f.date(r.dateEvenement) },
     { entete: t.reine.statut, rendu: (r) => t.reine.statuts[r.statut] },
     { entete: t.reine.couleur, rendu: (r) => (r.couleurMarquage ? t.reine.couleurs[r.couleurMarquage] : '—') },
     { entete: t.reine.annee, rendu: (r) => (r.anneeNaissance != null ? String(r.anneeNaissance) : '—') },
@@ -54,7 +55,7 @@ export function ReinesVue(): ReactElement {
     setRucheId(id);
     setHistorique([]);
     if (id !== '') {
-      void listerReines(Number(id)).then(setHistorique).catch((c) => setErreur(messageErreur(c)));
+      void listerReines(Number(id)).then(setHistorique).catch((c) => setErreur(messageErreur(c, t.etats.serviceIndisponible)));
     }
   };
 
@@ -77,12 +78,12 @@ export function ReinesVue(): ReactElement {
       setRace('');
       charger(rucheId);
     } catch (cause) {
-      setErreur(messageErreur(cause));
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
 
   const retirer = (r: Reine) => {
-    void supprimerReine(r.id).then(() => charger(rucheId)).catch((c) => setErreur(messageErreur(c)));
+    void supprimerReine(r.id).then(() => charger(rucheId)).catch((c) => setErreur(messageErreur(c, t.etats.serviceIndisponible)));
   };
 
   return (

@@ -6,10 +6,12 @@ import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import { Bouton, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 export function AgentsVue(): ReactElement {
   const t = useT();
+  const { confirmer } = useDialogues();
   const etat = useRessource<Agent, AgentCorps>(agents);
   const [optionsFerme, setOptionsFerme] = useState<Option[]>([]);
   const [edition, setEdition] = useState<Agent | null>(null);
@@ -68,16 +70,16 @@ export function AgentsVue(): ReactElement {
     }
   };
 
-  const supprimer = (a: Agent) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: a.nom }))) {
-      void etat.supprimer(a.id);
+  const supprimer = async (a: Agent) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: a.nom }))) {
+      await etat.supprimer(a.id);
     }
   };
 
   return (
     <CorpsSection titre={t.onglets.agents} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.agents} onFermer={() => setOuvert(false)}>

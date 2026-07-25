@@ -6,12 +6,14 @@ import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import { Bouton, ChampNombre, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const MAX_HAUSSES = 5;
 
 export function RuchesVue(): ReactElement {
   const t = useT();
+  const { confirmer } = useDialogues();
   const etat = useRessource<Ruche, RucheCorps>(ruches);
   const [optSites, setOptSites] = useState<Option[]>([]);
   const [optFermes, setOptFermes] = useState<Option[]>([]);
@@ -86,9 +88,9 @@ export function RuchesVue(): ReactElement {
     }
   };
 
-  const supprimer = (r: Ruche) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: r.modele }))) {
-      void etat.supprimer(r.id);
+  const supprimer = async (r: Ruche) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: r.modele }))) {
+      await etat.supprimer(r.id);
     }
   };
 
@@ -98,7 +100,7 @@ export function RuchesVue(): ReactElement {
   return (
     <CorpsSection titre={t.onglets.ruches} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.ruches} onFermer={() => setOuvert(false)}>

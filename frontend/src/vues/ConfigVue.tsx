@@ -8,6 +8,7 @@ import { Bouton } from '../ui/composants';
 /** Affiche, en lecture seule, les seuils metier de ConfigZumm.ini (US-025). */
 export function ConfigVue(): ReactElement {
   const t = useT();
+  const indisponible = t.etats.serviceIndisponible;
   const [seuils, setSeuils] = useState<Seuils | null>(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -17,11 +18,12 @@ export function ConfigVue(): ReactElement {
     setErreur(null);
     recupererSeuils()
       .then(setSeuils)
-      .catch((cause: unknown) => setErreur(messageErreur(cause)))
+      .catch((cause: unknown) => setErreur(messageErreur(cause, indisponible)))
       .finally(() => setChargement(false));
   };
 
-  useEffect(charger, []);
+  // `charger` lit le message d'indisponibilite : le recharger si la langue change.
+  useEffect(charger, [indisponible]);
 
   return (
     <section className="z-section">

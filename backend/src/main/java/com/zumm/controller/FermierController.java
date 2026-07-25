@@ -1,6 +1,7 @@
 package com.zumm.controller;
 
 import com.zumm.service.FermierService;
+import com.zumm.web.Pagination;
 import com.zumm.web.dto.FermierCorps;
 import com.zumm.web.dto.FermierReponse;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -29,9 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class FermierController {
 
     private final FermierService service;
+    private final Pagination pagination;
 
-    public FermierController(FermierService service) {
+    public FermierController(FermierService service, Pagination pagination) {
         this.service = service;
+        this.pagination = pagination;
     }
 
     @PostMapping
@@ -40,9 +44,17 @@ public class FermierController {
         return ResponseEntity.created(URI.create("/api/fermiers/" + reponse.id())).body(reponse);
     }
 
+    /**
+     * Liste, paginee si le client le demande (US-052). Sans {@code page} ni
+     * {@code taille}, le comportement est celui d'avant : la liste complete.
+     * Le total est toujours porte par l'en-tete {@code X-Total-Count}.
+     */
     @GetMapping
-    public List<FermierReponse> lister() {
-        return service.lister();
+    public ResponseEntity<List<FermierReponse>> lister(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer taille,
+            @RequestParam(required = false) String tri) {
+        return pagination.reponse(page, taille, tri, service::lister, service::lister);
     }
 
     @GetMapping("/{id}")

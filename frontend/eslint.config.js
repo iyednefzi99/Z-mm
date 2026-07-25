@@ -13,6 +13,7 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
@@ -29,9 +30,13 @@ export default tseslint.config(
     plugins: {
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
+      'jsx-a11y': jsxA11y,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
+      // US-054 : garde-fou d'accessibilité. Le piège de focus et les libellés de
+      // dialogue ont été corrigés à la main ; la règle empêche la régression.
+      ...jsxA11y.flatConfigs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       // Le prefixe `_` marque un parametre volontairement inutilise.
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

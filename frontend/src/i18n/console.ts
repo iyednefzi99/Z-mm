@@ -46,6 +46,7 @@ const fr = {
     annuler: 'Annuler',
     fermer: 'Fermer',
     reessayer: 'Réessayer',
+    confirmer: 'Confirmer',
     seConnecter: 'Ouvrir la session',
     seDeconnecter: 'Fermer la session',
     ajouterHausse: 'Ajouter une hausse',
@@ -58,6 +59,7 @@ const fr = {
     vide: 'Aucun élément pour le moment.',
     confirmerSuppression: 'Confirmer la suppression de « {nom} » ?',
     erreur: 'Une erreur est survenue.',
+    serviceIndisponible: 'Service indisponible. Vérifiez votre connexion.',
   },
   champs: {
     nom: 'Nom',
@@ -264,6 +266,24 @@ const fr = {
     resumeGrappe: '{sites} site(s) · {ruches} ruche(s)',
     legendeGrappes: 'Sites regroupés par proximité (PostGIS). Un site isolé forme sa propre grappe.',
   },
+  pagination: {
+    titre: 'Pagination',
+    precedent: 'Précédent',
+    suivant: 'Suivant',
+    etat: 'Page {page} sur {pages} — {total} éléments',
+  },
+  dialogue: {
+    confirmation: 'Confirmation',
+    saisie: 'Saisie',
+    information: 'Information',
+    compris: "J'ai compris",
+  },
+  introuvable: {
+    titre: 'Page introuvable',
+    explication:
+      "Cette adresse ne correspond a aucun ecran de la console. Le lien est peut-etre incomplet ou perime.",
+    retour: "Revenir a l'accueil",
+  },
   voisins: {
     titre: 'Sites les plus proches',
     aucun: 'Aucun autre site géolocalisé.',
@@ -336,6 +356,7 @@ const en: typeof fr = {
     annuler: 'Cancel',
     fermer: 'Close',
     reessayer: 'Retry',
+    confirmer: 'Confirm',
     seConnecter: 'Open session',
     seDeconnecter: 'Close session',
     ajouterHausse: 'Add a super',
@@ -348,6 +369,7 @@ const en: typeof fr = {
     vide: 'Nothing here yet.',
     confirmerSuppression: 'Confirm deletion of “{nom}”?',
     erreur: 'An error occurred.',
+    serviceIndisponible: 'Service unavailable. Check your connection.',
   },
   champs: {
     nom: 'Name',
@@ -554,6 +576,24 @@ const en: typeof fr = {
     resumeGrappe: '{sites} site(s) · {ruches} hive(s)',
     legendeGrappes: 'Sites clustered by proximity (PostGIS). An isolated site forms its own cluster.',
   },
+  pagination: {
+    titre: 'Pagination',
+    precedent: 'Previous',
+    suivant: 'Next',
+    etat: 'Page {page} of {pages} — {total} items',
+  },
+  dialogue: {
+    confirmation: 'Confirmation',
+    saisie: 'Input',
+    information: 'Information',
+    compris: 'Got it',
+  },
+  introuvable: {
+    titre: 'Page not found',
+    explication:
+      'This address matches no screen of the console. The link may be incomplete or outdated.',
+    retour: 'Back to home',
+  },
   voisins: {
     titre: 'Nearest sites',
     aucun: 'No other geolocated site.',
@@ -626,6 +666,7 @@ const ar: typeof fr = {
     annuler: 'إلغاء',
     fermer: 'إغلاق',
     reessayer: 'إعادة المحاولة',
+    confirmer: 'تأكيد',
     seConnecter: 'فتح الجلسة',
     seDeconnecter: 'إغلاق الجلسة',
     ajouterHausse: 'إضافة عاسلة',
@@ -638,6 +679,7 @@ const ar: typeof fr = {
     vide: 'لا عناصر بعد.',
     confirmerSuppression: 'تأكيد حذف «{nom}»؟',
     erreur: 'حدث خطأ.',
+    serviceIndisponible: 'الخدمة غير متاحة. تحقّق من اتصالك.',
   },
   champs: {
     nom: 'الاسم',
@@ -843,6 +885,23 @@ const ar: typeof fr = {
     grappe: 'التجمّع {n}',
     resumeGrappe: '{sites} موقع · {ruches} خلية',
     legendeGrappes: 'مواقع مجمّعة حسب القرب (PostGIS). الموقع المعزول يشكّل تجمّعًا خاصًّا به.',
+  },
+  pagination: {
+    titre: 'ترقيم الصفحات',
+    precedent: 'السابق',
+    suivant: 'التالي',
+    etat: 'الصفحة {page} من {pages} — {total} عنصر',
+  },
+  dialogue: {
+    confirmation: 'تأكيد',
+    saisie: 'إدخال',
+    information: 'معلومة',
+    compris: 'فهمت',
+  },
+  introuvable: {
+    titre: 'الصفحة غير موجودة',
+    explication: 'لا يقابل هذا العنوان أيّ شاشة في وحدة التحكّم. قد يكون الرابط ناقصًا أو منتهيًا.',
+    retour: 'العودة إلى البداية',
   },
   voisins: {
     titre: 'أقرب المواقع',

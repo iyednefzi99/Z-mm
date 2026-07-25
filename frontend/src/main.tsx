@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { LangueProvider } from './i18n/langue';
+import { DialoguesProvider } from './ui/dialogues';
 import './theme/tokens.css';
 import './theme/base.css';
 
@@ -13,7 +14,9 @@ if (!racine) {
 createRoot(racine).render(
   <StrictMode>
     <LangueProvider>
-      <App />
+      <DialoguesProvider>
+        <App />
+      </DialoguesProvider>
     </LangueProvider>
   </StrictMode>,
 );

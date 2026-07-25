@@ -313,6 +313,27 @@
   color: var(--z-text);
 }
 
+/* Barre de pagination sous une liste (US-052). */
+.z-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-block-start: 1rem;
+}
+
+.z-pagination__etat {
+  font-size: 0.88rem;
+  color: var(--z-text-muted);
+}
+
+/* Message d'un dialogue (confirmation, saisie, information). */
+.z-dialogue__message {
+  margin: 0 0 1rem;
+  color: var(--z-text);
+  line-height: 1.5;
+}
+
 /* Listes de détail (voisins d'un site, étapes d'une tournée). */
 .z-liste-simple {
   margin: 0;

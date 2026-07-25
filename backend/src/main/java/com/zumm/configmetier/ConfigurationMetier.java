@@ -93,6 +93,7 @@ public class ConfigurationMetier {
         Map<String, String> seuilsIni = ini.getOrDefault("seuils", Map.of());
         Map<String, String> visites = ini.getOrDefault("visites", Map.of());
         Map<String, String> carte = ini.getOrDefault("carte", Map.of());
+        Map<String, String> listes = ini.getOrDefault("listes", Map.of());
 
         return new SeuilsMetier(
                 application.getOrDefault("langue_par_defaut", defauts.langueParDefaut()),
@@ -102,7 +103,8 @@ public class ConfigurationMetier {
                 entier(seuilsIni.get("temperature_max_celsius"), defauts.temperatureMaxCelsius()),
                 entier(seuilsIni.get("humidite_max_pourcent"), defauts.humiditeMaxPourcent()),
                 entier(visites.get("delai_alerte_jours"), defauts.delaiAlerteJours()),
-                entier(carte.get("arrondi_degres_public"), defauts.arrondiDegresPublic()));
+                entier(carte.get("arrondi_degres_public"), defauts.arrondiDegresPublic()),
+                entier(listes.get("taille_page_defaut"), defauts.taillePageParDefaut()));
     }
 
     private static int entier(String valeur, int defaut) {

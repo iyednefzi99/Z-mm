@@ -1,17 +1,25 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ErreurApi } from './api/client';
+import { ErreurApi, type PageResultat } from './api/client';
+import { useT } from './i18n/langue';
 
-/** Message lisible a partir d'une erreur d'API ou reseau. */
-export function messageErreur(cause: unknown): string {
+/**
+ * Message lisible a partir d'une erreur d'API ou reseau.
+ *
+ * <p>Le detail d'une {@link ErreurApi} vient du serveur (ProblemDetail) ; le repli
+ * reseau, lui, est une chaine de l'interface et doit donc etre traduit — d'ou le
+ * parametre, plutot qu'un francais en dur (US-053).
+ */
+export function messageErreur(cause: unknown, replReseau: string): string {
   if (cause instanceof ErreurApi) {
     return cause.detail;
   }
-  return 'Service indisponible. Vérifiez votre connexion.';
+  return replReseau;
 }
 
 /** Contrat CRUD minimal d'une ressource, tel qu'expose par le client d'API. */
 export interface ApiRessource<E, C> {
   lister: () => Promise<E[]>;
+  listerPage?: (page: number, taille: number) => Promise<PageResultat<E>>;
   creer: (corps: C) => Promise<E>;
   mettreAJour: (id: number, corps: C) => Promise<E>;
   supprimer: (id: number) => Promise<void>;
@@ -25,7 +33,15 @@ export interface EtatRessource<E, C> {
   creer: (corps: C) => Promise<void>;
   mettreAJour: (id: number, corps: C) => Promise<void>;
   supprimer: (id: number) => Promise<void>;
+  /** Pagination (US-052) : absente si la ressource ne la propose pas. */
+  page: number;
+  taille: number;
+  total: number;
+  allerPage: (page: number) => void;
 }
+
+/** Taille de page du client. Le serveur impose la sienne par defaut, et plafonne. */
+const TAILLE_PAGE = 25;
 
 /**
  * Gere l'etat d'une liste CRUD : chargement, erreurs, et rechargement apres
@@ -34,19 +50,30 @@ export interface EtatRessource<E, C> {
 export function useRessource<E extends { id: number }, C>(
   api: ApiRessource<E, C>,
 ): EtatRessource<E, C> {
+  const t = useT();
   const [elements, setElements] = useState<E[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [total, setTotal] = useState(0);
+  const indisponible = t.etats.serviceIndisponible;
 
   const recharger = useCallback(() => {
     setChargement(true);
     setErreur(null);
-    api
-      .lister()
-      .then(setElements)
-      .catch((cause: unknown) => setErreur(messageErreur(cause)))
+    const chargement = api.listerPage
+      ? api.listerPage(page, TAILLE_PAGE).then((p: PageResultat<E>) => {
+          setElements(p.elements);
+          setTotal(p.total);
+        })
+      : api.lister().then((liste) => {
+          setElements(liste);
+          setTotal(liste.length);
+        });
+    chargement
+      .catch((cause: unknown) => setErreur(messageErreur(cause, indisponible)))
       .finally(() => setChargement(false));
-  }, [api]);
+  }, [api, indisponible, page]);
 
   useEffect(recharger, [recharger]);
 
@@ -63,5 +90,9 @@ export function useRessource<E extends { id: number }, C>(
     creer: (corps: C) => muter(api.creer(corps)),
     mettreAJour: (id: number, corps: C) => muter(api.mettreAJour(id, corps)),
     supprimer: (id: number) => muter(api.supprimer(id)),
+    page,
+    taille: TAILLE_PAGE,
+    total,
+    allerPage: setPage,
   };
 }

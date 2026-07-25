@@ -17,6 +17,8 @@ import com.zumm.web.dto.CompartimentCorps;
 import com.zumm.web.dto.RucheCorps;
 import com.zumm.web.dto.RucheReponse;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +65,12 @@ public class RucheService {
     @Transactional(readOnly = true)
     public List<RucheReponse> lister() {
         return ruches.findAll().stream().map(RucheReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<RucheReponse> lister(Pageable pagination) {
+        return ruches.findAll(pagination).map(RucheReponse::de);
     }
 
     @Transactional(readOnly = true)

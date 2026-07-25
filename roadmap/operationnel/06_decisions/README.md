@@ -28,6 +28,7 @@ de savoir plus tard si la décision reste valable.
 | [ADR-002](ADR-002-volumetrie.md) | Volumétrie cible et choix TimescaleDB | 🟢 Accepté (hypothèses) | Dimensionnement, EPIC-004 |
 | [ADR-003](ADR-003-exploitation.md) | Exploitation après livraison | 🟢 Accepté (hypothèses) | Cible de déploiement, budget transfert |
 | [ADR-004](ADR-004-reprise-donnees.md) | Reprise de l'existant | 🟢 Accepté (hypothèses) | Périmètre, planning de fin de projet |
+| [ADR-005](ADR-005-routage-front.md) | Routage du front (maison vs `react-router`) | 🟢 Accepté | US-051, découpage du paquet |
 
 > ✅ **Les quatre ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
 > Faute d'arbitrage client dans les délais du Sprint 0 (escalade J+5 échue),

@@ -12,6 +12,8 @@ import com.zumm.web.dto.TacheCorps;
 import com.zumm.web.dto.TacheReponse;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,12 @@ public class TacheService {
     @Transactional(readOnly = true)
     public List<TacheReponse> lister() {
         return taches.findAll().stream().map(TacheReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<TacheReponse> lister(Pageable pagination) {
+        return taches.findAll(pagination).map(TacheReponse::de);
     }
 
     /** Rappels en cours : taches non faites echues au plus tard aujourd'hui (US-031). */

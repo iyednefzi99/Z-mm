@@ -1,102 +1,80 @@
-import { useEffect, useState, type ReactElement } from 'react';
-import { synchroniser } from './api/client';
+import { Suspense, lazy, useEffect, useState, type ReactElement } from 'react';
+import { rafraichirJeton, synchroniser } from './api/client';
 import { deconnexionOidc, oidcConfigure, terminerConnexion } from './auth/oidc';
+import { planifier } from './auth/rafraichissement';
 import { fermerSession, jetonCourant, surSession } from './auth/session';
 import { gabarit } from './i18n/console';
 import { LANGUES } from './i18n/messages';
 import { useLangue, useT } from './i18n/langue';
 import { surFile } from './offline/file';
+import { useNavigation } from './routage/navigation';
+import { ONGLETS, cheminDepuisOnglet, ongletDepuisChemin, type Onglet } from './routage/routes';
 import { Bouton } from './ui/composants';
-import { AgentsVue } from './vues/AgentsVue';
-import { AuditVue } from './vues/AuditVue';
-import { ConfigVue } from './vues/ConfigVue';
 import { ConnexionVue } from './vues/ConnexionVue';
-import { FermesVue } from './vues/FermesVue';
-import { FermiersVue } from './vues/FermiersVue';
-import { PlanningsVue } from './vues/PlanningsVue';
-import { CapteursVue } from './vues/CapteursVue';
-import { CarteVue } from './vues/CarteVue';
-import { RecoltesVue } from './vues/RecoltesVue';
-import { ReinesVue } from './vues/ReinesVue';
-import { RuchesVue } from './vues/RuchesVue';
-import { SitesVue } from './vues/SitesVue';
-import { TableauxVue } from './vues/TableauxVue';
-import { TachesVue } from './vues/TachesVue';
-import { VisitesVue } from './vues/VisitesVue';
+import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
 
-type Onglet =
-  | 'fermiers'
-  | 'fermes'
-  | 'sites'
-  | 'ruches'
-  | 'plannings'
-  | 'visites'
-  | 'taches'
-  | 'tableaux'
-  | 'capteurs'
-  | 'reines'
-  | 'recoltes'
-  | 'carte'
-  | 'agents'
-  | 'config'
-  | 'audit';
-
-const ONGLETS: Onglet[] = [
-  'fermiers',
-  'fermes',
-  'sites',
-  'ruches',
-  'plannings',
-  'visites',
-  'taches',
-  'tableaux',
-  'capteurs',
-  'reines',
-  'recoltes',
-  'carte',
-  'agents',
-  'config',
-  'audit',
-];
-
-const VUES: Record<Onglet, ReactElement> = {
-  fermiers: <FermiersVue />,
-  fermes: <FermesVue />,
-  sites: <SitesVue />,
-  ruches: <RuchesVue />,
-  plannings: <PlanningsVue />,
-  visites: <VisitesVue />,
-  taches: <TachesVue />,
-  tableaux: <TableauxVue />,
-  capteurs: <CapteursVue />,
-  reines: <ReinesVue />,
-  recoltes: <RecoltesVue />,
-  carte: <CarteVue />,
-  agents: <AgentsVue />,
-  config: <ConfigVue />,
-  audit: <AuditVue />,
+/**
+ * Chargement paresseux par route (US-051) : sans lui, les quinze vues partent
+ * dans le même paquet, alors qu'une session n'en visite que quelques-unes.
+ */
+const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
+  fermiers: lazy(() => import('./vues/FermiersVue').then((m) => ({ default: m.FermiersVue }))),
+  fermes: lazy(() => import('./vues/FermesVue').then((m) => ({ default: m.FermesVue }))),
+  sites: lazy(() => import('./vues/SitesVue').then((m) => ({ default: m.SitesVue }))),
+  ruches: lazy(() => import('./vues/RuchesVue').then((m) => ({ default: m.RuchesVue }))),
+  plannings: lazy(() => import('./vues/PlanningsVue').then((m) => ({ default: m.PlanningsVue }))),
+  visites: lazy(() => import('./vues/VisitesVue').then((m) => ({ default: m.VisitesVue }))),
+  taches: lazy(() => import('./vues/TachesVue').then((m) => ({ default: m.TachesVue }))),
+  tableaux: lazy(() => import('./vues/TableauxVue').then((m) => ({ default: m.TableauxVue }))),
+  capteurs: lazy(() => import('./vues/CapteursVue').then((m) => ({ default: m.CapteursVue }))),
+  reines: lazy(() => import('./vues/ReinesVue').then((m) => ({ default: m.ReinesVue }))),
+  recoltes: lazy(() => import('./vues/RecoltesVue').then((m) => ({ default: m.RecoltesVue }))),
+  carte: lazy(() => import('./vues/CarteVue').then((m) => ({ default: m.CarteVue }))),
+  agents: lazy(() => import('./vues/AgentsVue').then((m) => ({ default: m.AgentsVue }))),
+  config: lazy(() => import('./vues/ConfigVue').then((m) => ({ default: m.ConfigVue }))),
+  audit: lazy(() => import('./vues/AuditVue').then((m) => ({ default: m.AuditVue }))),
 };
 
 /**
- * Console de gestion Zümm (SPRINT-01/02). Ossature : barre de navigation entre
- * les ressources metier, selecteur de langue (FR/EN/AR, RTL en arabe) et zone de
- * contenu. Sans session, l'ecran de connexion prend toute la place.
+ * Console de gestion Zümm. Ossature : barre de navigation entre les ressources
+ * metier, selecteur de langue (FR/EN/AR, RTL en arabe) et zone de contenu. Chaque
+ * ecran a son adresse (US-051). Sans session, l'ecran de connexion prend toute la
+ * place — l'URL, elle, est conservee, pour y revenir apres reconnexion.
  */
 export default function App(): ReactElement {
   const t = useT();
   const { langue, definirLangue } = useLangue();
+  const { chemin, naviguer } = useNavigation();
   const [jeton, setJeton] = useState<string | null>(jetonCourant());
-  const [onglet, setOnglet] = useState<Onglet>('fermiers');
   const [enAttente, setEnAttente] = useState(0);
   const [horsLigne, setHorsLigne] = useState(!navigator.onLine);
+
+  const onglet = ongletDepuisChemin(chemin);
 
   useEffect(() => surSession(setJeton), []);
 
   // Retour de connexion OIDC (US-020) : échange le code contre un jeton.
   useEffect(() => {
-    void terminerConnexion().catch(() => undefined);
-  }, []);
+    void terminerConnexion()
+      .then((traite) => {
+        // La route de retour a été restaurée dans l'historique : la vue doit suivre.
+        if (traite) {
+          naviguer(window.location.pathname);
+        }
+      })
+      .catch(() => undefined);
+  }, [naviguer]);
+
+  // Session durable (US-050) : renouveler le jeton AVANT son échéance. Le 401 et
+  // son rejeu restent le filet de sécurité ; ici, on évite d'y arriver. La
+  // planification suit le jeton — chaque renouvellement en programme le suivant.
+  useEffect(() => {
+    if (!jeton) {
+      return undefined;
+    }
+    return planifier(jeton, () => void rafraichirJeton());
+  }, [jeton]);
 
   // Synchronisation différée (US-011) : file d'attente + retour du réseau.
   useEffect(() => {
@@ -121,6 +99,8 @@ export default function App(): ReactElement {
   if (!jeton) {
     return <ConnexionVue />;
   }
+
+  const Vue = onglet === null ? null : VUES[onglet];
 
   return (
     <div className="z-app">
@@ -165,14 +145,28 @@ export default function App(): ReactElement {
             type="button"
             className="z-onglet"
             aria-current={cle === onglet}
-            onClick={() => setOnglet(cle)}
+            onClick={() => naviguer(cheminDepuisOnglet(cle))}
           >
             {t.onglets[cle]}
           </button>
         ))}
       </nav>
 
-      <main className="z-vue">{VUES[onglet]}</main>
+      <main className="z-vue">
+        <Suspense
+          fallback={
+            <p className="z-info" role="status">
+              {t.etats.chargement}
+            </p>
+          }
+        >
+          {Vue === null ? (
+            <IntrouvableVue onRetour={() => naviguer('/')} />
+          ) : (
+            <Vue />
+          )}
+        </Suspense>
+      </main>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { chargerAudit } from '../api/client';
 import type { AuditEntree } from '../api/types';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 
 /**
@@ -10,13 +10,15 @@ import { messageErreur } from '../hooks';
  */
 export function AuditVue(): ReactElement {
   const t = useT();
+  const indisponible = t.etats.serviceIndisponible;
+  const f = useFormats();
   const [entrees, setEntrees] = useState<AuditEntree[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
 
   useEffect(() => {
     setErreur(null);
-    void chargerAudit().then(setEntrees).catch((c) => setErreur(messageErreur(c)));
-  }, []);
+    void chargerAudit().then(setEntrees).catch((c) => setErreur(messageErreur(c, indisponible)));
+  }, [indisponible]);
 
   return (
     <section className="z-section">
@@ -47,7 +49,7 @@ export function AuditVue(): ReactElement {
             <tbody>
               {entrees.map((e) => (
                 <tr key={e.id}>
-                  <td>{new Date(e.instant).toLocaleString()}</td>
+                  <td>{f.dateHeure(e.instant)}</td>
                   <td>{e.acteur}</td>
                   <td>{t.audit.actions[e.action]}</td>
                   <td>{e.entite}{e.entiteId != null ? ` #${e.entiteId}` : ''}</td>

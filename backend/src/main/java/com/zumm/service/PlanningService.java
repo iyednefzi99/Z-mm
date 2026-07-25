@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,12 @@ public class PlanningService {
     @Transactional(readOnly = true)
     public List<PlanningReponse> lister() {
         return plannings.findAll().stream().map(PlanningReponse::de).toList();
+    }
+
+    /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
+    @Transactional(readOnly = true)
+    public Page<PlanningReponse> lister(Pageable pagination) {
+        return plannings.findAll(pagination).map(PlanningReponse::de);
     }
 
     @Transactional(readOnly = true)

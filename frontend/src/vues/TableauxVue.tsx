@@ -34,6 +34,7 @@ function moisCourant(): { debut: string; fin: string } {
  */
 export function TableauxVue(): ReactElement {
   const t = useT();
+  const indisponible = t.etats.serviceIndisponible;
   const [sous, setSous] = useState<Sous>('calendrier');
   const defaut = moisCourant();
   const [debut, setDebut] = useState(defaut.debut);
@@ -47,26 +48,26 @@ export function TableauxVue(): ReactElement {
 
   const chargerCal = useCallback(() => {
     setErreur(null);
-    void chargerCalendrier(debut, fin).then(setCalendrier).catch((c) => setErreur(messageErreur(c)));
-  }, [debut, fin]);
+    void chargerCalendrier(debut, fin).then(setCalendrier).catch((c) => setErreur(messageErreur(c, indisponible)));
+  }, [debut, fin, indisponible]);
 
   useEffect(() => {
     if (sous === 'calendrier') {
       chargerCal();
     } else if (sous === 'production') {
       setErreur(null);
-      void chargerProduction().then(setProduction).catch((c) => setErreur(messageErreur(c)));
+      void chargerProduction().then(setProduction).catch((c) => setErreur(messageErreur(c, indisponible)));
     } else if (sous === 'previsions') {
       setErreur(null);
-      void chargerPrevisions().then(setPrevisions).catch((c) => setErreur(messageErreur(c)));
+      void chargerPrevisions().then(setPrevisions).catch((c) => setErreur(messageErreur(c, indisponible)));
     } else if (sous === 'alertes') {
       setErreur(null);
-      void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c)));
+      void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c, indisponible)));
     } else {
       setErreur(null);
-      void chargerSynthese().then(setSynthese).catch((c) => setErreur(messageErreur(c)));
+      void chargerSynthese().then(setSynthese).catch((c) => setErreur(messageErreur(c, indisponible)));
     }
-  }, [sous, chargerCal]);
+  }, [sous, chargerCal, indisponible]);
 
   const sousOnglets: Sous[] = ['calendrier', 'production', 'previsions', 'alertes', 'synthese'];
 

@@ -10,7 +10,7 @@ import {
 import type { Agent, Planning, PlanningCorps, RaisonVisite, Ruche, Tournee } from '../api/types';
 import { RAISONS_VISITE } from '../api/types';
 import { gabarit } from '../i18n/console';
-import { useT } from '../i18n/langue';
+import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
@@ -21,12 +21,15 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const ouVide = (v: string): string => v;
 
 export function PlanningsVue(): ReactElement {
   const t = useT();
+  const { confirmer, demander, signaler } = useDialogues();
+  const f = useFormats();
   const etat = useRessource<Planning, PlanningCorps>(plannings);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
@@ -51,20 +54,20 @@ export function PlanningsVue(): ReactElement {
       if (approuve) {
         await approuverPlanning(p.id);
       } else {
-        const motif = window.prompt(t.visite.motifRefus) ?? '';
+        const motif = (await demander(t.visite.motifRefus)) ?? '';
         if (motif.trim() === '') return;
         await refuserPlanning(p.id, motif);
       }
       etat.recharger();
     } catch (cause) {
-      window.alert(cause instanceof Error ? cause.message : t.etats.erreur);
+      await signaler(cause instanceof Error ? cause.message : t.etats.erreur);
     }
   };
 
   const colonnes: Colonne<Planning>[] = [
     { entete: t.champs.modele, rendu: (p) => p.rucheModele },
     { entete: t.visite.agent, rendu: (p) => p.agentNom },
-    { entete: t.visite.date, rendu: (p) => p.datePrevue },
+    { entete: t.visite.date, rendu: (p) => f.date(p.datePrevue) },
     { entete: t.visite.statut, rendu: (p) => t.visite.statuts[p.statut] },
     {
       entete: '',
@@ -126,9 +129,9 @@ export function PlanningsVue(): ReactElement {
     }
   };
 
-  const supprimer = (p: Planning) => {
-    if (window.confirm(gabarit(t.etats.confirmerSuppression, { nom: p.rucheModele }))) {
-      void etat.supprimer(p.id);
+  const supprimer = async (p: Planning) => {
+    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: p.rucheModele }))) {
+      await etat.supprimer(p.id);
     }
   };
 
@@ -140,7 +143,7 @@ export function PlanningsVue(): ReactElement {
     try {
       setTournee(await tourneeAgent(Number(agentTournee), dateTournee));
     } catch (cause) {
-      window.alert(cause instanceof Error ? cause.message : t.etats.erreur);
+      await signaler(cause instanceof Error ? cause.message : t.etats.erreur);
       setTourneeDemandee(false);
     }
   };
@@ -148,7 +151,7 @@ export function PlanningsVue(): ReactElement {
   return (
     <CorpsSection titre={t.onglets.plannings} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={supprimer} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
       )}
 
       <section className="z-encart">
@@ -183,15 +186,14 @@ export function PlanningsVue(): ReactElement {
                   {e.ordre > 1 && (
                     <>
                       {' · '}
-                      {t.tournee.depuisPrecedente} :{' '}
-                      {(e.distanceDepuisPrecedenteMetres / 1000).toFixed(2)} km
+                      {t.tournee.depuisPrecedente} : {f.distance(e.distanceDepuisPrecedenteMetres)}
                     </>
                   )}
                 </li>
               ))}
             </ol>
             <p className="z-info">
-              {t.tournee.total} : {(tournee.distanceTotaleMetres / 1000).toFixed(2)} km —{' '}
+              {t.tournee.total} : {f.distance(tournee.distanceTotaleMetres)} —{' '}
               {t.tournee.avertissement}
             </p>
           </>

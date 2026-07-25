@@ -1,6 +1,7 @@
 package com.zumm.controller;
 
 import com.zumm.service.SiteService;
+import com.zumm.web.Pagination;
 import com.zumm.web.dto.GrappeSites;
 import com.zumm.web.dto.SiteCorps;
 import com.zumm.web.dto.SiteReponse;
@@ -27,9 +28,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SiteController {
 
     private final SiteService service;
+    private final Pagination pagination;
 
-    public SiteController(SiteService service) {
+    public SiteController(SiteService service, Pagination pagination) {
         this.service = service;
+        this.pagination = pagination;
     }
 
     @PostMapping
@@ -38,9 +41,17 @@ public class SiteController {
         return ResponseEntity.created(URI.create("/api/sites/" + reponse.id())).body(reponse);
     }
 
+    /**
+     * Liste, paginee si le client le demande (US-052). Sans {@code page} ni
+     * {@code taille}, le comportement est celui d'avant : la liste complete.
+     * Le total est toujours porte par l'en-tete {@code X-Total-Count}.
+     */
     @GetMapping
-    public List<SiteReponse> lister() {
-        return service.lister();
+    public ResponseEntity<List<SiteReponse>> lister(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer taille,
+            @RequestParam(required = false) String tri) {
+        return pagination.reponse(page, taille, tri, service::lister, service::lister);
     }
 
     /**

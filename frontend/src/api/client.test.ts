@@ -64,7 +64,7 @@ describe('client d’API', () => {
     await expect(sites.obtenir(42)).rejects.toBeInstanceOf(ErreurApi);
   });
 
-  it('ferme la session sur 401 pour ramener à l’écran de connexion', async () => {
+  it('ferme la session sur 401 quand aucun rafraîchissement n’est possible', async () => {
     ouvrirSession('jeton-expire');
     vi.mocked(fetch).mockResolvedValue(reponse({}, 401));
 

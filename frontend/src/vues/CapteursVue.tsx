@@ -73,7 +73,7 @@ export function CapteursVue(): ReactElement {
       setValeur('');
       rafraichirAlertes();
     } catch (cause) {
-      setErreur(messageErreur(cause));
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
 
@@ -83,7 +83,7 @@ export function CapteursVue(): ReactElement {
     try {
       setMeteo(await chargerMeteo(Number(siteId)));
     } catch (cause) {
-      setErreur(messageErreur(cause));
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
 
@@ -92,7 +92,7 @@ export function CapteursVue(): ReactElement {
     try {
       setMiel(await getZummHoneyActualQuantity(mielRuche === '' ? null : Number(mielRuche), unite));
     } catch (cause) {
-      setErreur(messageErreur(cause));
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
 
@@ -102,7 +102,7 @@ export function CapteursVue(): ReactElement {
     try {
       setAnomalie(await detecterAnomalie(Number(anomRuche), anomType));
     } catch (cause) {
-      setErreur(messageErreur(cause));
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
 

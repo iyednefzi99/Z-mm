@@ -14,7 +14,8 @@
  * simplement absente et l'écran de session propose le repli « coller un jeton »
  * (pratique en développement).
  */
-import { fermerSession, ouvrirSession } from './session';
+import { consommerRouteDeRetour, memoriserRouteDeRetour } from '../routage/navigation';
+import { fermerSession, jetonRafraichissement, ouvrirSession } from './session';
 
 const ISSUER = import.meta.env.VITE_OIDC_ISSUER ?? '';
 const CLIENT = import.meta.env.VITE_OIDC_CLIENT ?? 'zumm-frontend';
@@ -55,6 +56,9 @@ export async function demarrerConnexion(): Promise<void> {
   const etat = alea(16);
   sessionStorage.setItem(CLE_VERIFIER, verifier);
   sessionStorage.setItem(CLE_ETAT, etat);
+  // La redirection Keycloak ramène toujours à la racine : on retient d'où l'on
+  // part pour y revenir (US-051).
+  memoriserRouteDeRetour();
 
   const params = new URLSearchParams({
     client_id: CLIENT,
@@ -98,15 +102,60 @@ export async function terminerConnexion(): Promise<boolean> {
   if (!reponse.ok) {
     throw new Error(`Échange du code échoué (${reponse.status}).`);
   }
-  const jetons = (await reponse.json()) as { access_token: string; id_token?: string };
+  const jetons = (await reponse.json()) as JetonsOidc;
   sessionStorage.removeItem(CLE_VERIFIER);
   sessionStorage.removeItem(CLE_ETAT);
   if (jetons.id_token) {
     localStorage.setItem(CLE_ID_TOKEN, jetons.id_token);
   }
-  // Nettoie les paramètres OIDC de l'URL.
-  window.history.replaceState({}, document.title, REDIRECT);
-  ouvrirSession(jetons.access_token);
+  // Nettoie les paramètres OIDC de l'URL, et revient sur la route quittée avant
+  // la connexion plutôt que sur la racine (US-051).
+  window.history.replaceState({}, document.title, consommerRouteDeRetour() ?? REDIRECT);
+  ouvrirSession(jetons.access_token, jetons.refresh_token ?? null);
+  return true;
+}
+
+interface JetonsOidc {
+  access_token: string;
+  refresh_token?: string;
+  id_token?: string;
+}
+
+/**
+ * Renouvelle le jeton d'accès à partir du jeton de rafraîchissement (US-050).
+ * Renvoie false — sans lever — quand il n'y a rien à rafraîchir ou que Keycloak
+ * refuse : l'appelant décide alors s'il ferme la session.
+ *
+ * <p>Cette fonction n'est PAS à appeler directement : passer par
+ * {@code rafraichirJeton()} du client d'API, qui la protège d'un verrou.
+ */
+export async function echangerRafraichissement(): Promise<boolean> {
+  const rafraichissement = jetonRafraichissement();
+  if (!oidcConfigure() || !rafraichissement) {
+    return false;
+  }
+  let reponse: Response;
+  try {
+    reponse = await fetch(`${ISSUER}/protocol/openid-connect/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        client_id: CLIENT,
+        refresh_token: rafraichissement,
+      }),
+    });
+  } catch {
+    // Panne réseau : la session n'est pas invalide pour autant, on réessaiera.
+    return false;
+  }
+  if (!reponse.ok) {
+    return false;
+  }
+  const jetons = (await reponse.json()) as JetonsOidc;
+  // `undefined` et non `null` : sans rotation, Keycloak ne renvoie pas de
+  // nouveau jeton de rafraîchissement et il faut conserver l'ancien.
+  ouvrirSession(jetons.access_token, jetons.refresh_token);
   return true;
 }
 
@@ -118,7 +167,21 @@ export async function terminerConnexion(): Promise<boolean> {
  */
 export function deconnexionOidc(): void {
   const idToken = localStorage.getItem(CLE_ID_TOKEN);
+  const rafraichissement = jetonRafraichissement();
   localStorage.removeItem(CLE_ID_TOKEN);
+  // Révoquer explicitement le jeton de rafraîchissement (US-050) : la fin de
+  // session SSO ne suffit pas, un jeton non révoqué reste utilisable.
+  if (rafraichissement) {
+    void fetch(`${ISSUER}/protocol/openid-connect/revoke`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: CLIENT,
+        token: rafraichissement,
+        token_type_hint: 'refresh_token',
+      }),
+    }).catch(() => undefined);
+  }
   fermerSession();
   const params = new URLSearchParams({ post_logout_redirect_uri: REDIRECT, client_id: CLIENT });
   if (idToken) {

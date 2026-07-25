@@ -7,6 +7,8 @@
  */
 
 import { jetonCourant, fermerSession } from '../auth/session';
+import { echangerRafraichissement } from '../auth/oidc';
+import { creerVerrou } from '../auth/rafraichissement';
 import { enfiler, rejouer, type MutationEnAttente } from '../offline/file';
 import type {
   Agent,
@@ -79,7 +81,14 @@ export class ErreurHorsLigne extends Error {
 
 const MUTATIONS = new Set(['POST', 'PUT', 'DELETE']);
 
-async function requete<T>(url: string, options: RequestInit = {}): Promise<T> {
+/**
+ * Rafraîchissement du jeton, sous verrou (US-050). Plusieurs requêtes qui
+ * reçoivent un 401 en même temps partagent le même échange : sans cela, elles
+ * consommeraient le même jeton de rafraîchissement en parallèle.
+ */
+export const rafraichirJeton = creerVerrou(echangerRafraichissement);
+
+async function requete<T>(url: string, options: RequestInit = {}, rejeu = false): Promise<T> {
   const jeton = jetonCourant();
   const enTetes = new Headers(options.headers);
   enTetes.set('Accept', 'application/json');
@@ -107,8 +116,16 @@ async function requete<T>(url: string, options: RequestInit = {}): Promise<T> {
     throw cause;
   }
 
-  // Un jeton expire ou absent : on ferme la session pour ramener a l'ecran de
-  // connexion, plutot que de laisser l'utilisateur devant des erreurs muettes.
+  // Jeton expire : une seule tentative de rafraichissement, puis rejeu de la
+  // requete (US-050). Le drapeau `rejeu` empeche la boucle si le serveur repond
+  // 401 avec un jeton pourtant frais.
+  if (reponse.status === 401 && !rejeu && (await rafraichirJeton())) {
+    return requete<T>(url, options, true);
+  }
+
+  // Rafraichissement impossible ou insuffisant : on ferme la session pour ramener
+  // a l'ecran de connexion, plutot que de laisser l'utilisateur devant des
+  // erreurs muettes.
   if (reponse.status === 401) {
     fermerSession();
     throw new ErreurApi(401, 'Session expirée ou absente.');
@@ -135,10 +152,51 @@ async function detailErreur(reponse: Response): Promise<string> {
 
 const corpsJson = (donnees: unknown): RequestInit => ({ body: JSON.stringify(donnees) });
 
+/** Page de resultats : le contenu, et le total porte par l'en-tete (US-052). */
+export interface PageResultat<E> {
+  elements: E[];
+  total: number;
+  page: number;
+  taille: number;
+}
+
+/**
+ * Variante de {@link requete} qui lit aussi les en-tetes de pagination (US-052).
+ *
+ * <p>Le corps reste un tableau JSON : c'est `X-Total-Count` qui porte le total.
+ * Cote serveur, ce choix evite de changer la forme de la reponse selon la presence
+ * d'un parametre.
+ */
+async function requetePaginee<E>(url: string, page: number, taille: number): Promise<PageResultat<E>> {
+  const jeton = jetonCourant();
+  const enTetes = new Headers({ Accept: 'application/json' });
+  if (jeton) {
+    enTetes.set('Authorization', `Bearer ${jeton}`);
+  }
+  const reponse = await fetch(`${url}?page=${page}&taille=${taille}`, { headers: enTetes });
+
+  if (reponse.status === 401 && (await rafraichirJeton())) {
+    return requetePaginee<E>(url, page, taille);
+  }
+  if (reponse.status === 401) {
+    fermerSession();
+    throw new ErreurApi(401, 'Session expirée ou absente.');
+  }
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+
+  const elements = (await reponse.json()) as E[];
+  // En-tete absent (serveur ancien) : le total se rabat sur ce qui est arrive.
+  const total = Number(reponse.headers.get('X-Total-Count') ?? elements.length);
+  return { elements, total, page, taille };
+}
+
 /** Fabrique les operations CRUD d'une ressource, pour eviter la repetition. */
 function ressource<E, C>(base: string) {
   return {
     lister: () => requete<E[]>(base),
+    listerPage: (page: number, taille: number) => requetePaginee<E>(base, page, taille),
     obtenir: (id: number) => requete<E>(`${base}/${id}`),
     creer: (corps: C) => requete<E>(base, { method: 'POST', ...corpsJson(corps) }),
     mettreAJour: (id: number, corps: C) =>

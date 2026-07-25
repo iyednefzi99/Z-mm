@@ -1,6 +1,7 @@
 package com.zumm.controller;
 
 import com.zumm.service.PlanningService;
+import com.zumm.web.Pagination;
 import com.zumm.web.dto.DecisionCorps;
 import com.zumm.web.dto.PlanningCorps;
 import com.zumm.web.dto.PlanningReponse;
@@ -29,9 +30,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlanningController {
 
     private final PlanningService service;
+    private final Pagination pagination;
 
-    public PlanningController(PlanningService service) {
+    public PlanningController(PlanningService service, Pagination pagination) {
         this.service = service;
+        this.pagination = pagination;
     }
 
     @PostMapping
@@ -40,9 +43,17 @@ public class PlanningController {
         return ResponseEntity.created(URI.create("/api/plannings/" + reponse.id())).body(reponse);
     }
 
+    /**
+     * Liste, paginee si le client le demande (US-052). Sans {@code page} ni
+     * {@code taille}, le comportement est celui d'avant : la liste complete.
+     * Le total est toujours porte par l'en-tete {@code X-Total-Count}.
+     */
     @GetMapping
-    public List<PlanningReponse> lister() {
-        return service.lister();
+    public ResponseEntity<List<PlanningReponse>> lister(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer taille,
+            @RequestParam(required = false) String tri) {
+        return pagination.reponse(page, taille, tri, service::lister, service::lister);
     }
 
     /**

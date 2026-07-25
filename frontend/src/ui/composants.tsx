@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactElement, type ReactNode } from 'react';
+import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 
 // ─── Bouton ───────────────────────────────────────────────────────────────
@@ -44,19 +45,68 @@ export function Modale({
   const t = useT();
   const boite = useRef<HTMLDivElement>(null);
 
+  // `onFermer` est souvent une lambda recréée à chaque rendu du parent. La garder
+  // dans les dépendances de l'effet le ferait rejouer à chaque frappe — donc
+  // restituer le focus au déclencheur pendant que l'utilisateur tape. La référence
+  // découple la fraîcheur du callback du cycle de vie de l'effet.
+  const fermerRef = useRef(onFermer);
+  fermerRef.current = onFermer;
+
   useEffect(() => {
+    // Le focus doit revenir d'où il venait à la fermeture : sans cela, l'utilisateur
+    // au clavier repart du début du document à chaque dialogue (US-054).
+    const origine = document.activeElement as HTMLElement | null;
+
     const surTouche = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onFermer();
+        fermerRef.current();
+        return;
+      }
+      if (e.key !== 'Tab' || !boite.current) {
+        return;
+      }
+      // Piège de focus : Tab boucle À L'INTÉRIEUR du dialogue. Sans cela, la
+      // tabulation s'échappe vers la page de fond, qui est pourtant inerte.
+      const focusables = boite.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) {
+        return;
+      }
+      const premier = focusables[0];
+      const dernier = focusables[focusables.length - 1];
+      if (!e.shiftKey && document.activeElement === dernier) {
+        e.preventDefault();
+        premier.focus();
+      } else if (e.shiftKey && (document.activeElement === premier || document.activeElement === boite.current)) {
+        e.preventDefault();
+        dernier.focus();
       }
     };
+
     document.addEventListener('keydown', surTouche);
     boite.current?.focus();
-    return () => document.removeEventListener('keydown', surTouche);
-  }, [onFermer]);
+    return () => {
+      document.removeEventListener('keydown', surTouche);
+      origine?.focus?.();
+    };
+    // Volontairement monté une seule fois : cf. `fermerRef` ci-dessus.
+  }, []);
 
   return (
-    <div className="z-overlay" onMouseDown={onFermer}>
+    // `presentation` : le fond n'est pas un contrôle, il n'apporte qu'un raccourci
+    // à la souris. Le clavier ferme par Échap, géré ci-dessus. La comparaison
+    // `target === currentTarget` évite d'avoir à intercepter l'événement dans le
+    // dialogue lui-même — un clic dedans ne remonte pas jusqu'au fond.
+    <div
+      className="z-overlay"
+      role="presentation"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) {
+          onFermer();
+        }
+      }}
+    >
       <div
         className="z-modale"
         role="dialog"
@@ -64,7 +114,6 @@ export function Modale({
         aria-label={titre}
         tabIndex={-1}
         ref={boite}
-        onMouseDown={(e) => e.stopPropagation()}
       >
         <header className="z-modale__entete">
           <h2 className="z-modale__titre">{titre}</h2>
@@ -80,6 +129,51 @@ export function Modale({
         {children}
       </div>
     </div>
+  );
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────
+
+/**
+ * Barre de pagination d'une liste (US-052).
+ *
+ * <p>Ne s'affiche pas quand tout tient sur une page : une commande inerte est du
+ * bruit. Les deux boutons sont de vrais boutons — donc atteignables au clavier —
+ * et le compteur est annoncé aux lecteurs d'écran par `role="status"`.
+ */
+export function Pagination({
+  page,
+  taille,
+  total,
+  onPage,
+}: {
+  page: number;
+  taille: number;
+  total: number;
+  onPage: (page: number) => void;
+}): ReactElement | null {
+  const t = useT();
+  const pages = Math.max(1, Math.ceil(total / taille));
+  if (total <= taille) {
+    return null;
+  }
+
+  return (
+    <nav className="z-pagination" aria-label={t.pagination.titre}>
+      <Bouton onClick={() => onPage(page - 1)} disabled={page <= 0}>
+        {t.pagination.precedent}
+      </Bouton>
+      <span className="z-pagination__etat" role="status">
+        {gabarit(t.pagination.etat, {
+          page: String(page + 1),
+          pages: String(pages),
+          total: String(total),
+        })}
+      </span>
+      <Bouton onClick={() => onPage(page + 1)} disabled={page + 1 >= pages}>
+        {t.pagination.suivant}
+      </Bouton>
+    </nav>
   );
 }
 

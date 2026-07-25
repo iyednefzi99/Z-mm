@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LangueProvider } from '../i18n/langue';
+import { DialoguesProvider } from '../ui/dialogues';
 import { CarteVue } from './CarteVue';
 import type { GrappeSites, Ruche, Site } from '../api/types';
 
@@ -49,7 +50,9 @@ const GRAPPE: GrappeSites = {
 const monter = () =>
   render(
     <LangueProvider>
-      <CarteVue />
+      <DialoguesProvider>
+        <CarteVue />
+      </DialoguesProvider>
     </LangueProvider>,
   );
 

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LangueProvider } from '../i18n/langue';
+import { DialoguesProvider } from '../ui/dialogues';
 import { SitesVue } from './SitesVue';
 import type { Site } from '../api/types';
 
@@ -46,7 +47,9 @@ const VOISIN = site(2, 'Rucher du Causse', 44.45, 1.45);
 const monter = () =>
   render(
     <LangueProvider>
-      <SitesVue />
+      <DialoguesProvider>
+        <SitesVue />
+      </DialoguesProvider>
     </LangueProvider>,
   );
 
@@ -90,8 +93,8 @@ describe('vue Sites', () => {
 
     expect(voisinsSite).toHaveBeenCalledWith(1, 3);
     expect(await screen.findByText('Rucher du Causse')).toBeInTheDocument();
-    // 1573,4 m arrondis au centième de kilomètre.
-    expect(screen.getByText(/1\.57 km/)).toBeInTheDocument();
+    // 1573,4 m rendus par le formatage français (US-053) : virgule décimale.
+    expect(screen.getByText(/1,57 km/)).toBeInTheDocument();
   });
 
   it('annonce l’absence de voisin plutôt qu’une liste vide silencieuse', async () => {

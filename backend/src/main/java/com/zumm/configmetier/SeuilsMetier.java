@@ -16,6 +16,7 @@ package com.zumm.configmetier;
  * @param humiditeMaxPourcent  seuil haut d'humidite
  * @param delaiAlerteJours     jours sans visite avant signalement
  * @param arrondiDegresPublic  arrondi des positions pour les profils non proprietaires
+ * @param taillePageParDefaut  nombre d'elements par page des listes (US-052)
  */
 public record SeuilsMetier(
         String langueParDefaut,
@@ -25,7 +26,8 @@ public record SeuilsMetier(
         int temperatureMaxCelsius,
         int humiditeMaxPourcent,
         int delaiAlerteJours,
-        int arrondiDegresPublic) {
+        int arrondiDegresPublic,
+        int taillePageParDefaut) {
 
     /** Valeurs de repli, alignees sur le gabarit versionne. */
     public static SeuilsMetier defauts() {
@@ -37,6 +39,7 @@ public record SeuilsMetier(
                 36,
                 70,
                 21,
-                2);
+                2,
+                25);
     }
 }

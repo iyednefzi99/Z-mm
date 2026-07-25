@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { CONSOLE, type Traductions } from './console';
+import { formatsDe, type Formats } from './formats';
 import { LANGUES, direction, type Langue } from './messages';
 
 interface ContexteLangue {
@@ -61,6 +62,12 @@ function useContexteLangue(): ContexteLangue {
 
 /** Traductions de la langue courante. */
 export const useT = (): Traductions => useContexteLangue().t;
+
+/** Formateurs de dates et de nombres de la langue courante (US-053). */
+export function useFormats(): Formats {
+  const { langue } = useContexteLangue();
+  return useMemo(() => formatsDe(langue), [langue]);
+}
 
 /** Langue courante et sélecteur. */
 export function useLangue(): { langue: Langue; definirLangue: (l: Langue) => void } {
