@@ -3,7 +3,7 @@
 **Projet:** Zümm - Système de gestion apicole  
 **Date:** 2026-07-13  
 **Méthode:** Scrum + DevOps  
-**Total Story Points:** 364 (49 user stories, 12 epics)  
+**Total Story Points:** 398 (54 user stories, 13 epics)  
 
 ---
 
@@ -93,7 +93,7 @@ Keycloak (OIDC, fédération Google), RBAC, TLS/X.509
 | US-023 | Chiffrement TLS 1.3 / X.509 | 5 | Haute | HTTPS forcé + certificats |
 
 ### EPIC-006: Internationalisation et configuration
-**Priorité:** Haute | **Source CdC:** §8.2, §8.3 | **Total Points:** 13
+**Priorité:** Haute | **Source CdC:** §8.2, §8.3 | **Total Points:** 18
 
 i18n FR/EN/AR, ConfigZumm.ini
 
@@ -101,6 +101,7 @@ i18n FR/EN/AR, ConfigZumm.ini
 |:---|:---|:---:|:---|:---|
 | US-024 | Internationalisation (FR/EN/AR) | 8 | Haute | RTL arabe + extensible |
 | US-025 | Configuration ConfigZumm.ini | 5 | Haute | Seuils, unités, modules sans recompilation |
+| US-053 | Formatage localisé des dates et des nombres | 5 | Haute | `Intl` par locale, messages d'erreur traduits, rendu vérifié dans les trois langues |
 
 ### EPIC-007: Service web API tierce
 **Priorité:** Moyenne | **Source CdC:** §6.5, §8.2 | **Total Points:** 10
@@ -173,3 +174,15 @@ Exploitation de la base spatiale au-delà de l'affichage : regroupement, voisina
 | US-045 | Regroupement spatial des sites (clustering) | 8 | Moyenne | `ST_ClusterDBSCAN` en base, sites isolés conservés en grappe singleton |
 | US-046 | Distances inter-sites et plus proches voisins | 5 | Moyenne | Parcours d'index KNN, distance géodésique en mètres |
 | US-047 | Ordre de tournée optimisé pour les visites planifiées | 8 | Moyenne | Heuristique plus proche voisin + 2-opt, ordre indicatif et non contraignant |
+
+### EPIC-013: Robustesse et ergonomie du front
+**Priorité:** Haute | **Source CdC:** §8.2, §8.3, Annexe I | **Total Points:** 29
+
+Session durable, navigation adressable, listes paginées et dialogues cohérents avec le design system. Épic ouvert à la suite de l'audit du front mené après le SPRINT-10.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-050 | Rafraîchissement du jeton OIDC | 8 | Haute | Jeton renouvelé avant expiration, verrou sur les rafraîchissements concurrents, saisie préservée |
+| US-051 | Navigation adressable par URL | 8 | Haute | Une route par écran, bouton retour fonctionnel, retour sur la route demandée après reconnexion |
+| US-052 | Pagination des listes | 8 | Haute | Paramètres `page`/`taille` côtés serveur et client, taille par défaut issue de `ConfigZumm.ini` |
+| US-054 | Dialogues du design system | 5 | Moyenne | Plus aucun `window.alert/confirm/prompt`, dialogues traduits, pilotés au clavier avec piège de focus |

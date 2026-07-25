@@ -58,6 +58,8 @@ dist-ssr/
 *.local
 .vite/
 *.tsbuildinfo
+# Rapports de couverture Vitest (regeneres par `npm run test:couverture`).
+coverage/
 
 # Secrets et configuration locale : seuls les gabarits *.example.* sont versionnes.
 .env

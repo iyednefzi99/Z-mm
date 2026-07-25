@@ -5,11 +5,15 @@
 \label{chap:sprints}
 
 Le projet est découpé en un \textbf{sprint de cadrage} (S0) suivi de
-\textbf{10 sprints de construction de 14 jours} (22 semaines au total), du
-14 juillet au 14 décembre 2026, avec une capacité de référence de
-40 points par sprint. Les sprints 9 et 10 prolongent le plan initial, arrêté
-à S8 : le premier livre les fonctions d'exploitation, le second exploite la
-base spatiale et solde la dette de test du front. Chaque sprint est décrit ci-dessous avec son
+\textbf{11 sprints de construction de 14 jours}, du 14 juillet 2026 au
+18 janvier 2027, avec une capacité de référence de 40 points par sprint. Les
+sprints 9 à 11 prolongent le plan initial, arrêté à S8 : le premier livre les
+fonctions d'exploitation, le deuxième exploite la base spatiale et solde la
+dette de test du front, le troisième corrige ce qu'un audit du front a révélé.
+
+Le S11 ne suit pas la cadence mécanique de 14 jours, qui l'aurait placé du 15
+au 28 décembre, à cheval sur la trêve de fin d'année : il est décalé à janvier
+plutôt que planifié sur une capacité indisponible. Chaque sprint est décrit ci-dessous avec son
 \emph{plan d'exécution} : décomposition en tâches techniques, estimation en
 jours-homme (j-h), livrables et parades aux risques.
 
@@ -50,14 +54,15 @@ $\approx \textbf{0,79 j-h par story point}$.
     milestone label font=\scriptsize\bfseries\color{vertsauge},
     vgrid={*6{draw=none}, *1{draw=grisdoux!80!gray, line width=.4pt}},
     time slot format=isodate
-  ]{2026-07-14}{2026-12-14}
-  % Titres de mois en français (juil. : 18 j, déc. : 14 j)
+  ]{2026-07-14}{2027-01-18}
+  % Titres de mois en français (juil. : 18 j, janv. : 18 j)
   \gantttitle{juillet}{18}
   \gantttitle{août}{31}
   \gantttitle{septembre}{30}
   \gantttitle{octobre}{31}
   \gantttitle{novembre}{30}
-  \gantttitle{décembre}{14} \\
+  \gantttitle{décembre}{31}
+  \gantttitle{janvier}{18} \\
   \ganttbar[bar/.append style={fill=vertsauge!40}]{S0 -- Cadrage \& walking skeleton (hors vélocité)}{2026-07-14}{2026-07-27} \\
   \ganttbar{S1 -- Fondation \& configuration (36 pts)}{2026-07-28}{2026-08-10} \\
   \ganttbar{S2 -- Ruche, i18n \& qualité (39 pts)}{2026-08-11}{2026-08-24} \\
@@ -72,10 +77,13 @@ $\approx \textbf{0,79 j-h par story point}$.
   \ganttbar{S8 -- Qualité \& livraison (37 pts)}{2026-11-03}{2026-11-16} \\
   \ganttmilestone{v1.0.0}{2026-11-16} \\
   \ganttbar{S9 -- Exploitation \& durcissement (26 pts)}{2026-11-17}{2026-11-30} \\
-  \ganttbar{S10 -- Intelligence spatiale (34 pts)}{2026-12-01}{2026-12-14}
+  \ganttbar{S10 -- Intelligence spatiale (34 pts)}{2026-12-01}{2026-12-14} \\
+  % Trêve de fin d'année : le S11 reprend le 5 janvier.
+  \ganttbar{S11 -- Fiabilité session \& front (34 pts)}{2027-01-05}{2027-01-18}
 \end{ganttchart}
-\caption{Diagramme de Gantt du sprint de cadrage, des 10 sprints de
-construction et des 4 jalons de release.}
+\caption{Diagramme de Gantt du sprint de cadrage, des 11 sprints de
+construction et des 4 jalons de release. Le décrochage entre S10 et S11
+correspond à la trêve de fin d'année.}
 \label{fig:gantt-sprints}
 \end{figure}
 
@@ -97,8 +105,9 @@ construction et des 4 jalons de release.}
 8 & 03/11 $\rightarrow$ 16/11 & Qualité \& livraison             & 37 & US-035/036/039/040 \\
 9 & 17/11 $\rightarrow$ 30/11 & Exploitation \& durcissement     & 26 & US-041/042/043/044 \\
 10 & 01/12 $\rightarrow$ 14/12 & Intelligence spatiale \& remise à niveau & 34 & US-045/046/047/048/049 \\
+11 & 05/01 $\rightarrow$ 18/01 & Fiabilité de la session et du front & 34 & US-050/051/052/053/054 \\
 \midrule
-\multicolumn{3}{r}{\textbf{Total}} & \textbf{364} & \textbf{49 stories} \\
+\multicolumn{3}{r}{\textbf{Total}} & \textbf{398} & \textbf{54 stories} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -892,6 +901,53 @@ réel --- ils restent démontrables indépendamment du rendu cartographique. Le
 caractère \emph{indicatif} de l'ordre de tournée (distances à vol d'oiseau,
 heuristique non optimale) est affiché dans l'interface et documenté dans le
 contrat OpenAPI, pour ne pas laisser croire à un calcul d'itinéraire routier.
+
+\section{Sprint 11 --- Fiabilité de la session et du front}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Rendre la console utilisable une journée entière sur le terrain
+            sans déconnexion ni perte de saisie, et lever les approximations
+            d'interface héritées du prototypage. \\
+Période   & 05/01/2027 $\rightarrow$ 18/01/2027 (14 jours) --- 34 pts / capacité 40. \\
+Démo      & Session tenue plus de trente minutes, navigation au bouton retour et
+            partage d'URL, liste paginée, bascule FR $\rightarrow$ AR des dates et
+            des nombres, suppression confirmée au clavier seul. \\
+Risques   & Le rafraîchissement du jeton touche le chemin critique de toutes les
+            requêtes ; première dépendance de routage à trancher par ADR ;
+            \texttt{offline\_access} à vérifier sur le realm dès le jour 1. \\
+Burndown idéal & J1 : 34 --- J4 : 26 --- J7 : 18 --- J10 : 10 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-050 & Rafraîchissement du jeton OIDC                   & 8 \\
+US-051 & Navigation adressable par URL                    & 8 \\
+US-052 & Pagination des listes                            & 8 \\
+US-053 & Formatage localisé des dates et des nombres      & 5 \\
+US-054 & Dialogues du \emph{design system}                & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} Ce sprint ne vient pas du cahier des charges mais d'un audit
+du front mené après le SPRINT-10. Le défaut qui le motive : le flux OIDC ne
+conserve pas le \emph{refresh token}, et le realm laisse la durée de vie du
+jeton d'accès à son défaut de cinq minutes --- l'utilisateur est donc déconnecté
+toutes les cinq minutes, en perdant sa saisie. Rien ne l'avait révélé : le flux
+OIDC n'est joué ni en intégration continue, ni en test.
+
+\textbf{Parades aux risques :} la logique de rafraîchissement est isolée dans un
+module testé unitairement \emph{avant} d'être branchée dans le client d'API ---
+elle traverse sinon toutes les requêtes de l'application. US-050 et US-051 sont
+menées ensemble : rétablir la session sans rendre les écrans adressables
+ramènerait l'utilisateur sur le premier onglet à chaque reconnexion.
 
 \section{Suivi en cours de sprint}
 

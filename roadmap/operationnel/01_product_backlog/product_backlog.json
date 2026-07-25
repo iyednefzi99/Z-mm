@@ -235,6 +235,13 @@
           "points": 5,
           "priorite": "Haute",
           "critere_acceptation": "Seuils, unités, modules sans recompilation"
+        },
+        {
+          "id": "US-053",
+          "titre": "Formatage localise des dates et des nombres",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Intl par locale, messages d'erreur traduits, rendu verifie dans les trois langues"
         }
       ],
       "total_points": 13
@@ -464,9 +471,46 @@
           "critere_acceptation": "Heuristique plus proche voisin + 2-opt, ordre indicatif et non contraignant"
         }
       ]
+    },
+    {
+      "id": "EPIC-013",
+      "titre": "Robustesse et ergonomie du front",
+      "description": "Session durable, navigation adressable, listes paginees et dialogues coherents avec le design system",
+      "priorite": "Haute",
+      "source_cdc": "§8.2, §8.3, Annexe I",
+      "stories": [
+        {
+          "id": "US-050",
+          "titre": "Rafraichissement du jeton OIDC",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Jeton renouvele avant expiration, verrou sur les rafraichissements concurrents, saisie preservee"
+        },
+        {
+          "id": "US-051",
+          "titre": "Navigation adressable par URL",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Une route par ecran, bouton retour fonctionnel, retour sur la route demandee apres reconnexion"
+        },
+        {
+          "id": "US-052",
+          "titre": "Pagination des listes",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Parametres page/taille cotes serveur et client, taille par defaut issue de ConfigZumm.ini"
+        },
+        {
+          "id": "US-054",
+          "titre": "Dialogues du design system",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Plus aucun window.alert/confirm/prompt, dialogues traduits, pilotes au clavier et avec piege de focus"
+        }
+      ]
     }
   ],
-  "total_story_points": 364,
+  "total_story_points": 398,
   "definition_of_ready": [
     "La story a un titre clair et une description",
     "Les critères d'acceptation sont définis",

@@ -4,13 +4,15 @@
 \chapter{Product Backlog}
 \label{chap:backlog}
 
-Le backlog est structuré en \textbf{12 epics} couvrant l'intégralité du
-périmètre du cahier des charges, pour un total de \textbf{49 user stories}
-et \textbf{364 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
+Le backlog est structuré en \textbf{13 epics} couvrant l'intégralité du
+périmètre du cahier des charges, pour un total de \textbf{54 user stories}
+et \textbf{398 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
 
 Les epics 011 et 012 ont été ouverts après la livraison des dix premiers : le
 produit avait dépassé le périmètre inscrit au backlog, que la roadmap publiée
-sous-déclarait d'un sprint entier.
+sous-déclarait d'un sprint entier. L'epic 013 est né d'un audit du front mené
+après le SPRINT-10, qui a mis au jour une session expirant en cinq minutes sans
+rafraîchissement possible.
 
 \section{Vue d'ensemble des epics}
 
@@ -24,15 +26,16 @@ EPIC-002 & Planification et suivi des visites       & Haute   & \S4.2, \S6.1, \S
 EPIC-003 & Tableaux de bord et visualisation        & Haute   & \S4.3                 & 42 \\
 EPIC-004 & Indicateurs et capteurs (préparation)    & Moyenne & \S4.4                 & 29 \\
 EPIC-005 & Authentification et sécurité             & Haute   & \S8.2, \S8.3, Ann.~I  & 26 \\
-EPIC-006 & Internationalisation et configuration    & Haute   & \S8.2, \S8.3          & 13 \\
+EPIC-006 & Internationalisation et configuration    & Haute   & \S8.2, \S8.3          & 18 \\
 EPIC-007 & Service web API tierce                   & Moyenne & \S6.5, \S8.2          & 10 \\
 EPIC-008 & Fonctionnalités avancées (marché)        & Moyenne & \S4.6, \S4.7          & 36 \\
 EPIC-009 & Intelligence artificielle (préparation)  & Moyenne & Annexe~H              & 21 \\
 EPIC-010 & Tests, qualité et documentation          & Haute   & Chap.~10, 11, Ann.~F  & 52 \\
 EPIC-011 & Exploitation et restitution              & Moyenne & \S4.3, \S6.5, Ann.~G  & 26 \\
 EPIC-012 & Intelligence spatiale (PostGIS)          & Moyenne & \S3.5, Annexe~B       & 21 \\
+EPIC-013 & Robustesse et ergonomie du front         & Haute   & \S8.2, \S8.3, Ann.~I  & 29 \\
 \midrule
-\multicolumn{4}{r}{\textbf{Total}} & \textbf{364} \\
+\multicolumn{4}{r}{\textbf{Total}} & \textbf{398} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -137,6 +140,7 @@ i18n FR/EN/AR, \texttt{ConfigZumm.ini}.
 \midrule
 US-024 & Internationalisation (FR/EN/AR) & 8 & Haute & RTL arabe + extensible \\
 US-025 & Configuration \texttt{ConfigZumm.ini} & 5 & Haute & Seuils, unités, modules sans recompilation \\
+US-053 & Formatage localisé des dates et nombres & 5 & Haute & \texttt{Intl} par locale, erreurs traduites \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -241,6 +245,25 @@ sites, voisinage et ordonnancement des déplacements.
 US-045 & Regroupement spatial des sites      & 8  & Moyenne & \texttt{ST\_ClusterDBSCAN} en base, isolés conservés \\
 US-046 & Distances et plus proches voisins   & 5  & Moyenne & Parcours d'index KNN, distance géodésique \\
 US-047 & Ordre de tournée optimisé           & 8  & Moyenne & Plus proche voisin + 2-opt, ordre indicatif \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-013 --- Robustesse et ergonomie du front}
+
+Session durable, navigation adressable, listes paginées et dialogues cohérents
+avec le \emph{design system}. Cet epic est né d'un audit du front mené après le
+SPRINT-10.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-050 & Rafraîchissement du jeton OIDC      & 8  & Haute   & Renouvellement avant expiration, saisie préservée \\
+US-051 & Navigation adressable par URL       & 8  & Haute   & Une route par écran, retour navigateur fonctionnel \\
+US-052 & Pagination des listes               & 8  & Haute   & \texttt{page}/\texttt{taille} serveur et client \\
+US-054 & Dialogues du \emph{design system}   & 5  & Moyenne & Plus aucun dialogue natif, clavier et piège de focus \\
 \bottomrule
 \end{tabular}
 \end{center}

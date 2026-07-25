@@ -483,8 +483,55 @@
           "Jour 14"
         ]
       }
+    },
+    {
+      "id": "SPRINT-11",
+      "nom": "Fiabilite de la session et du front",
+      "theme": "Session durable, navigation adressable et restitution localisee",
+      "objectif": "Rendre la console utilisable une journee entiere sur le terrain sans deconnexion ni perte de saisie, et lever les approximations d'interface heritees du prototypage",
+      "numero": 11,
+      "date_debut": "2027-01-05",
+      "date_fin": "2027-01-18",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "stories": [
+        "US-050",
+        "US-051",
+        "US-052",
+        "US-053",
+        "US-054"
+      ],
+      "review_demo": "Session tenue plus de 30 minutes, navigation au bouton retour et partage d'URL, liste paginee, bascule FR/AR des dates et nombres, suppression confirmee au clavier",
+      "risques": "Le rafraichissement touche le chemin critique de toutes les requetes ; premiere dependance de routage a trancher par ADR ; offline_access a verifier sur le realm des le jour 1",
+      "ceremonies": {
+        "sprint_planning": "2027-01-05 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-01-18 14:00-16:00",
+        "sprint_retrospective": "2027-01-18 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          26.0,
+          18.0,
+          10.0,
+          5.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
     }
   ],
-  "total_sprints": 11,
-  "total_points": 364
+  "total_sprints": 12,
+  "total_points": 398
 }
