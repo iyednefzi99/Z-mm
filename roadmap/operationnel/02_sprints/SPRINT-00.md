@@ -7,6 +7,21 @@
 
 ---
 
+## 📅 Cérémonies Scrum
+
+| Cérémonie | Date/Heure | Durée |
+|:---|:---|:---|
+| Sprint Planning | 2026-07-14 09:00-13:00 | 4h |
+| Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
+| Sprint Review | 2026-07-27 14:00-16:00 | 2h |
+| Sprint Retrospective | 2026-07-27 16:00-17:00 | 1h |
+
+> **Pas de burndown.** Ce sprint ne porte aucune user story métier et reste hors
+> du calcul de vélocité : il n'y a pas de points à faire décroître. Son
+> avancement se lit dans « État en fin de sprint », par livrable de la DoD.
+
+---
+
 ## ⚠️ Pourquoi ce sprint existe
 
 La roadmap initiale attaquait directement le CRUD en SPRINT-01. Trois problèmes :
@@ -62,7 +77,9 @@ Un unique endpoint trivial (`GET /actuator/health` + une entité factice persist
 
 ---
 
-## 🎯 Revue de fin de sprint
+## 🎯 Sprint Review - Démonstration
+
+**Date:** 2026-07-27 14:00-16:00
 
 Démonstration en conditions réelles :
 
@@ -72,7 +89,7 @@ Démonstration en conditions réelles :
 4. **Restaurer la base depuis une sauvegarde** et montrer la donnée intacte.
 5. Présenter les 4 ADR au statut « Accepté ».
 
-## ⚠️ Risques
+## ⚠️ Risques Identifiés
 
 | Risque | Mitigation |
 |:---|:---|

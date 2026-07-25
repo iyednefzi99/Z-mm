@@ -25,7 +25,13 @@
       ],
       "review_demo": "Connexion HTTPS via Keycloak en production, persistance d'une entité, réaction du tableau de bord Grafana, restauration de la base depuis une sauvegarde, présentation des 4 ADR acceptés",
       "risques": "Non-arbitrage des ADR par le client (escalade à J+5) ; assemblage Keycloak + Spring Security ; indisponibilité d'un référent métier pour valider les maquettes",
-      "critere_sortie": "Si le walking skeleton n'est pas en production à la fin du sprint, le planning est renégocié et non absorbé en heures supplémentaires."
+      "critere_sortie": "Si le walking skeleton n'est pas en production à la fin du sprint, le planning est renégocié et non absorbé en heures supplémentaires.",
+      "ceremonies": {
+        "sprint_planning": "2026-07-14 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2026-07-27 14:00-16:00",
+        "sprint_retrospective": "2026-07-27 16:00-17:00"
+      }
     },
     {
       "id": "SPRINT-01",
