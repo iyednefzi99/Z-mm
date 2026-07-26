@@ -104,7 +104,6 @@ n'aurait signalé : l'utilisateur aurait conclu qu'il avait oublié de saisir.
 et incompatibles ensemble. Les appliquer réellement est le seul test qui le montre.
 
 **Ce qui reste ouvert.**
-- traductions front encore compilées en dur (`i18n/console.ts`, 944 lignes) ;
 - agrégats des tableaux de bord toujours calculés en Java plutôt qu'en SQL ;
 - portée d'autorisation par affectation d'agent (US-057) : la RLS isole les
   exploitations, pas les agents entre eux ;

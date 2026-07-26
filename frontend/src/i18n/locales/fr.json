@@ -1,0 +1,391 @@
+{
+  "marque": "Zümm",
+  "baseline": "Gestion et suivi apicole",
+  "audit": {
+    "titre": "Journal d’audit",
+    "instant": "Date",
+    "acteur": "Acteur",
+    "action": "Action",
+    "entite": "Entité",
+    "resume": "Résumé",
+    "actions": {
+      "creation": "Création",
+      "modification": "Modification",
+      "suppression": "Suppression"
+    }
+  },
+  "langue": "Langue",
+  "pwa": {
+    "majDisponible": "Une nouvelle version est disponible.",
+    "actualiser": "Actualiser"
+  },
+  "sync": {
+    "horsLigne": "Hors ligne",
+    "enAttente": "{n} à synchroniser"
+  },
+  "onglets": {
+    "fermiers": "Fermiers",
+    "fermes": "Fermes",
+    "sites": "Sites",
+    "ruches": "Ruches",
+    "plannings": "Plannings",
+    "visites": "Visites",
+    "taches": "Tâches",
+    "tableaux": "Tableaux de bord",
+    "capteurs": "Capteurs",
+    "reines": "Reines",
+    "recoltes": "Récoltes",
+    "lots": "Lots & origines",
+    "carte": "Carte",
+    "agents": "Agents",
+    "config": "Configuration",
+    "audit": "Audit"
+  },
+  "actions": {
+    "nouveau": "Nouveau",
+    "modifier": "Modifier",
+    "supprimer": "Supprimer",
+    "enregistrer": "Enregistrer",
+    "annuler": "Annuler",
+    "fermer": "Fermer",
+    "reessayer": "Réessayer",
+    "confirmer": "Confirmer",
+    "seConnecter": "Ouvrir la session",
+    "seDeconnecter": "Fermer la session",
+    "ajouterHausse": "Ajouter une hausse",
+    "approuver": "Approuver",
+    "refuser": "Refuser",
+    "ajouterPhoto": "Ajouter une photo"
+  },
+  "etats": {
+    "chargement": "Chargement…",
+    "vide": "Aucun élément pour le moment.",
+    "confirmerSuppression": "Confirmer la suppression de « {nom} » ?",
+    "erreur": "Une erreur est survenue.",
+    "serviceIndisponible": "Service indisponible. Vérifiez votre connexion."
+  },
+  "champs": {
+    "nom": "Nom",
+    "contact": "Contact",
+    "fermier": "Fermier",
+    "ferme": "Ferme",
+    "email": "E-mail",
+    "site": "Site",
+    "role": "Rôle",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "altitude": "Altitude (m)",
+    "dateMiseEnOeuvre": "Mise en œuvre",
+    "dateDemenagement": "Déménagement",
+    "dateCloture": "Clôture",
+    "modele": "Modèle",
+    "etat": "État",
+    "agentResponsable": "Agent responsable",
+    "corps": "Corps",
+    "hausses": "Hausses",
+    "cadres": "cadres",
+    "aucun": "— aucun —"
+  },
+  "roles": {
+    "apiculteur": "Apiculteur",
+    "superviseur": "Superviseur",
+    "responsable": "Responsable",
+    "admin": "Administrateur"
+  },
+  "etatsRuche": {
+    "creee": "Créée",
+    "peuplee": "Peuplée",
+    "active": "Active",
+    "en_division": "En division",
+    "en_collecte": "En collecte",
+    "cloturee": "Clôturée"
+  },
+  "session": {
+    "titre": "Session requise",
+    "connexionKeycloak": "Se connecter avec Keycloak",
+    "ou": "— ou —",
+    "explication": "La console interroge une API protégée. En production, la connexion passe par Keycloak (OIDC). Pour le développement, collez un jeton d'accès valide portant le claim tenant_id.",
+    "jeton": "Jeton d'accès (JWT)",
+    "placeholder": "eyJhbGciOi…"
+  },
+  "config": {
+    "titre": "Seuils métier",
+    "sousTitre": "Lus depuis ConfigZumm.ini — modifiables sans redémarrage.",
+    "poids": "Poids d'alerte (kg)",
+    "tempMin": "Température min (°C)",
+    "tempMax": "Température max (°C)",
+    "humidite": "Humidité max (%)",
+    "delai": "Délai sans visite (j)",
+    "arrondi": "Arrondi position publique (°)",
+    "langues": "Langues actives"
+  },
+  "visite": {
+    "planning": "Planning",
+    "visite": "Visite",
+    "date": "Date",
+    "heure": "Heure",
+    "duree": "Durée (min)",
+    "raison": "Motif",
+    "statut": "Statut",
+    "agent": "Agent",
+    "superviseur": "Superviseur",
+    "constatations": "Constatations",
+    "actionsPrevues": "Actions prévues",
+    "actionsEffectuees": "Actions effectuées",
+    "recommandations": "Recommandations",
+    "effectif": "Effectif",
+    "sante": "État sanitaire",
+    "productivite": "Productivité (1-3)",
+    "motifRefus": "Motif du refus",
+    "photos": "Photos",
+    "rapport": "Rapport",
+    "rapportPdf": "PDF",
+    "url": "URL de la photo",
+    "legende": "Légende",
+    "raisons": {
+      "controle": "Contrôle",
+      "recolte": "Récolte",
+      "traitement": "Traitement",
+      "nourrissage": "Nourrissage",
+      "division": "Division",
+      "autre": "Autre"
+    },
+    "statuts": {
+      "propose": "Proposé",
+      "approuve": "Approuvé",
+      "refuse": "Refusé"
+    },
+    "effectifs": {
+      "faible": "Faible",
+      "moyen": "Moyen",
+      "fort": "Fort"
+    },
+    "santes": {
+      "bon": "Bon",
+      "moyen": "Moyen",
+      "mauvais": "Mauvais"
+    }
+  },
+  "tache": {
+    "libelle": "Intitulé",
+    "echeance": "Échéance",
+    "faite": "Faite",
+    "oui": "Oui",
+    "non": "Non",
+    "rappels": "Rappels en cours",
+    "ruche": "Ruche",
+    "agent": "Agent",
+    "sansEcheance": "Sans échéance"
+  },
+  "tableau": {
+    "calendrier": "Calendrier",
+    "production": "Production",
+    "alertes": "Alertes sanitaires",
+    "periode": "Période",
+    "du": "Du",
+    "au": "Au",
+    "afficher": "Afficher",
+    "agent": "Agent",
+    "ruche": "Ruche",
+    "nbVisites": "Visites",
+    "poidsActuel": "Poids actuel (kg)",
+    "poidsMin": "Min (kg)",
+    "poidsMax": "Max (kg)",
+    "nbMesures": "Mesures",
+    "productivite": "Productivité",
+    "sousSeuil": "Sous le seuil",
+    "aucuneMesure": "Aucune mesure",
+    "etatSante": "État sanitaire",
+    "derniereVisite": "Dernière visite",
+    "jours": "jours",
+    "niveau": "Niveau",
+    "motif": "Motif",
+    "jamais": "Jamais visitée",
+    "niveaux": {
+      "ok": "OK",
+      "attention": "Attention",
+      "critique": "Critique"
+    },
+    "export": "Export",
+    "exporterVisites": "Exporter les visites",
+    "exporterRuches": "Exporter les ruches",
+    "synthese": "Synthèse",
+    "previsions": "Prévisions",
+    "tendance": "Tendance",
+    "gainJour": "Gain / jour (kg)",
+    "projection7j": "Projection 7 j (kg)",
+    "tendances": {
+      "hausse": "Hausse",
+      "stable": "Stable",
+      "baisse": "Baisse",
+      "inconnue": "Inconnue"
+    },
+    "nombreRuches": "Ruches",
+    "nombreVisites": "Visites",
+    "poidsTotal": "Poids total (kg)",
+    "alertesOuvertes": "Alertes ouvertes",
+    "roi": "Retour sur investissement",
+    "valeurProduction": "Valorisation production (€)",
+    "coutInterventions": "Coût interventions (€)",
+    "roiPourcent": "ROI",
+    "visitesParRaison": "Visites par motif"
+  },
+  "graphique": {
+    "tableauEquivalent": "Voir les données sous forme de tableau",
+    "productionTitre": "Poids actuel par ruche",
+    "productionDescription": "Une barre par ruche, classée du plus lourd au plus léger. Les ruches sous le seuil de poids sont en rouge.",
+    "previsionTitre": "Tendance de poids (kg / jour)",
+    "previsionDescription": "Barres partant de zéro : à droite un gain, à gauche une perte. C’est le signe qui compte, pas seulement l’amplitude.",
+    "serieTitre": "Série de mesures",
+    "serieDescription": "Valeurs relevées par le capteur, et moyenne mobile de référence. Survolez pour lire une date.",
+    "moyenneMobile": "Moyenne de référence",
+    "mesuree": "Valeur mesurée",
+    "aucuneDonnee": "Pas encore assez de mesures pour tracer une courbe."
+  },
+  "lot": {
+    "rappelDirective": "Directive (UE) 2024/1438, applicable au 14 juin 2026 : l’étiquette porte le ou les pays d’origine, par ordre décroissant, avec leur pourcentage.",
+    "reference": "Référence du lot",
+    "date": "Date de conditionnement",
+    "quantite": "Quantité (kg)",
+    "typeMiel": "Type de miel",
+    "origines": "Origines",
+    "recolte": "Récolte",
+    "pays": "Pays d’origine",
+    "pourcentage": "Part (%)",
+    "ajouterOrigine": "Ajouter une origine",
+    "total": "Total",
+    "mention": "Mention d’origine",
+    "mielAchete": "Miel acquis (hors exploitation)",
+    "estMelange": "Mélange : les pourcentages sont obligatoires sur l’étiquette.",
+    "monoOrigine": "Origine unique : le pourcentage n’est pas exigé.",
+    "confirmerSuppression": "Confirmer la suppression du lot « {ref} » ?"
+  },
+  "capteur": {
+    "ingestion": "Ingestion d’une mesure",
+    "indicateur": "Indicateur",
+    "valeur": "Valeur",
+    "ingerer": "Ingérer",
+    "alertes": "Alertes de seuils ouvertes",
+    "aucuneAlerte": "Aucune alerte ouverte.",
+    "meteo": "Contexte météo",
+    "site": "Site",
+    "temperature": "Température (°C)",
+    "humidite": "Humidité (%)",
+    "vent": "Vent (km/h)",
+    "source": "Source",
+    "quantiteMiel": "Quantité de miel (getZummHoneyActualQuantity)",
+    "unite": "Unité",
+    "calculer": "Calculer",
+    "ruche": "Ruche",
+    "total": "Rucher entier",
+    "indicateurs": {
+      "poids": "Poids",
+      "temperature": "Température",
+      "humidite": "Humidité",
+      "activite": "Activité"
+    },
+    "niveaux": {
+      "attention": "Attention",
+      "critique": "Critique"
+    }
+  },
+  "reine": {
+    "ruche": "Ruche",
+    "date": "Date",
+    "statut": "Statut",
+    "couleur": "Couleur de marquage",
+    "annee": "Année de naissance",
+    "race": "Race",
+    "note": "Note",
+    "ajouter": "Ajouter un événement",
+    "historique": "Historique de la reine",
+    "choisirRuche": "Choisir une ruche",
+    "statuts": {
+      "introduite": "Introduite",
+      "en_ponte": "En ponte",
+      "remplacee": "Remplacée",
+      "disparue": "Disparue",
+      "essaimee": "Essaimée"
+    },
+    "couleurs": {
+      "blanc": "Blanc",
+      "jaune": "Jaune",
+      "rouge": "Rouge",
+      "vert": "Vert",
+      "bleu": "Bleu"
+    }
+  },
+  "recolte": {
+    "ruche": "Ruche",
+    "date": "Date",
+    "quantite": "Quantité (kg)",
+    "typeMiel": "Type de miel",
+    "lot": "Lot",
+    "note": "Note",
+    "qr": "QR de traçabilité",
+    "tracabilite": "Traçabilité",
+    "tracerLot": "Rechercher un lot",
+    "site": "Site",
+    "ferme": "Ferme",
+    "origine": "Origine"
+  },
+  "carte": {
+    "rayons": "Rayons de butinage",
+    "legende": "Cercles à 1, 2 et 3 km autour de chaque rucher",
+    "aucunSite": "Aucun site géolocalisé.",
+    "vueSites": "Sites",
+    "vueGrappes": "Grappes",
+    "fondReel": "Fond cartographique",
+    "rayonRegroupement": "Rayon de regroupement (km)",
+    "grappe": "Grappe {n}",
+    "resumeGrappe": "{sites} site(s) · {ruches} ruche(s)",
+    "legendeGrappes": "Sites regroupés par proximité (PostGIS). Un site isolé forme sa propre grappe."
+  },
+  "pagination": {
+    "titre": "Pagination",
+    "precedent": "Précédent",
+    "suivant": "Suivant",
+    "etat": "Page {page} sur {pages} — {total} éléments"
+  },
+  "dialogue": {
+    "confirmation": "Confirmation",
+    "saisie": "Saisie",
+    "information": "Information",
+    "compris": "J'ai compris"
+  },
+  "introuvable": {
+    "titre": "Page introuvable",
+    "explication": "Cette adresse ne correspond a aucun ecran de la console. Le lien est peut-etre incomplet ou perime.",
+    "retour": "Revenir a l'accueil"
+  },
+  "voisins": {
+    "titre": "Sites les plus proches",
+    "aucun": "Aucun autre site géolocalisé.",
+    "distance": "Distance",
+    "charger": "Voir les voisins"
+  },
+  "tournee": {
+    "titre": "Ordre de tournée",
+    "calculer": "Proposer un ordre",
+    "aucune": "Aucune visite planifiée ce jour-là.",
+    "ordre": "Ordre",
+    "site": "Site",
+    "visites": "Visites",
+    "depuisPrecedente": "Depuis l’étape précédente",
+    "total": "Distance totale",
+    "avertissement": "Ordre indicatif : distances à vol d’oiseau, heuristique non optimale. Aucun itinéraire routier."
+  },
+  "anomalie": {
+    "titre": "Détection d’anomalie (EWMA)",
+    "indicateur": "Indicateur",
+    "detecter": "Analyser",
+    "baseline": "Ligne de base",
+    "ecartType": "Écart-type",
+    "nombrePoints": "Points analysés",
+    "seuilZ": "Seuil z",
+    "aucune": "Aucune anomalie détectée.",
+    "valeur": "Valeur",
+    "zscore": "z-score",
+    "instant": "Instant"
+  }
+}

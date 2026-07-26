@@ -1,7 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { CONSOLE } from './console';
+import ar from './locales/ar.json';
+import en from './locales/en.json';
+import fr from './locales/fr.json';
 import { LangueProvider, useLangue, useT } from './langue';
 import { LANGUES, direction } from './messages';
 
@@ -12,7 +14,18 @@ import { LANGUES, direction } from './messages';
  * pour l'arabe (pas seulement la traduction des libellés), et les trois langues
  * couvrent exactement les mêmes clés — l'équivalent, côté front, de
  * `scripts/check-sync.sh` pour le cahier des charges.
+ *
+ * <p>Depuis le SPRINT-15, l'anglais et l'arabe sont chargés paresseusement : les
+ * assertions portant sur des libellés TRADUITS attendent donc l'arrivée de la
+ * ressource. Celles qui portent sur la direction du document, elle, restent
+ * synchrones — la mise en page ne dépend d'aucun chargement.
+ *
+ * <p>La parité de STRUCTURE est déjà tenue par le typage (`CHARGEURS` impose la
+ * forme du français). Ce que ces tests ajoutent est ce que le typage laisse
+ * passer : les clés EN TROP dans une traduction, et les valeurs vides.
  */
+
+const RESSOURCES = { fr, en, ar } as const;
 
 function Sonde(): React.ReactElement {
   const t = useT();
@@ -64,7 +77,7 @@ describe('contexte de langue', () => {
     await userEvent.click(screen.getByRole('button', { name: 'anglais' }));
 
     expect(document.documentElement.dir).toBe('ltr');
-    expect(screen.getByTestId('titre-carte')).toHaveTextContent('Map');
+    await waitFor(() => expect(screen.getByTestId('titre-carte')).toHaveTextContent('Map'));
   });
 
   it('persiste le choix de langue pour la prochaine visite', async () => {
@@ -112,8 +125,8 @@ describe('parité des traductions de la console', () => {
   it.each(LANGUES.filter((l) => l !== 'fr'))(
     'la langue %s couvre exactement les clés du français',
     (langue) => {
-      const source = cles(CONSOLE.fr).sort();
-      const traduites = cles(CONSOLE[langue]).sort();
+      const source = cles(RESSOURCES.fr).sort();
+      const traduites = cles(RESSOURCES[langue]).sort();
 
       expect(traduites).toEqual(source);
     },
@@ -121,10 +134,10 @@ describe('parité des traductions de la console', () => {
 
   it('ne laisse aucune traduction vide', () => {
     for (const langue of LANGUES) {
-      const vides = cles(CONSOLE[langue]).filter((chemin) => {
+      const vides = cles(RESSOURCES[langue]).filter((chemin) => {
         const valeur = chemin
           .split('.')
-          .reduce<unknown>((noeud, cle) => (noeud as Record<string, unknown>)[cle], CONSOLE[langue]);
+          .reduce<unknown>((noeud, cle) => (noeud as Record<string, unknown>)[cle], RESSOURCES[langue]);
         return typeof valeur === 'string' && valeur.trim() === '';
       });
       expect(vides, `traductions vides en ${langue}`).toEqual([]);

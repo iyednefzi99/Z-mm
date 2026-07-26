@@ -1,0 +1,391 @@
+{
+  "marque": "Zümm",
+  "baseline": "إدارة ومتابعة تربية النحل",
+  "audit": {
+    "titre": "سجل التدقيق",
+    "instant": "التاريخ",
+    "acteur": "الفاعل",
+    "action": "الإجراء",
+    "entite": "الكيان",
+    "resume": "ملخص",
+    "actions": {
+      "creation": "إنشاء",
+      "modification": "تعديل",
+      "suppression": "حذف"
+    }
+  },
+  "langue": "اللغة",
+  "pwa": {
+    "majDisponible": "تتوفر نسخة جديدة.",
+    "actualiser": "تحديث"
+  },
+  "sync": {
+    "horsLigne": "دون اتصال",
+    "enAttente": "{n} للمزامنة"
+  },
+  "onglets": {
+    "fermiers": "المربّون",
+    "fermes": "المزارع",
+    "sites": "المواقع",
+    "ruches": "الخلايا",
+    "plannings": "البرامج",
+    "visites": "الزيارات",
+    "taches": "المهام",
+    "tableaux": "لوحات القيادة",
+    "capteurs": "أجهزة الاستشعار",
+    "reines": "الملكات",
+    "recoltes": "الجني",
+    "lots": "الدفعات والمناشئ",
+    "carte": "الخريطة",
+    "agents": "الأعوان",
+    "config": "الإعدادات",
+    "audit": "التدقيق"
+  },
+  "actions": {
+    "nouveau": "جديد",
+    "modifier": "تعديل",
+    "supprimer": "حذف",
+    "enregistrer": "حفظ",
+    "annuler": "إلغاء",
+    "fermer": "إغلاق",
+    "reessayer": "إعادة المحاولة",
+    "confirmer": "تأكيد",
+    "seConnecter": "فتح الجلسة",
+    "seDeconnecter": "إغلاق الجلسة",
+    "ajouterHausse": "إضافة عاسلة",
+    "approuver": "مصادقة",
+    "refuser": "رفض",
+    "ajouterPhoto": "إضافة صورة"
+  },
+  "etats": {
+    "chargement": "جارٍ التحميل…",
+    "vide": "لا عناصر بعد.",
+    "confirmerSuppression": "تأكيد حذف «{nom}»؟",
+    "erreur": "حدث خطأ.",
+    "serviceIndisponible": "الخدمة غير متاحة. تحقّق من اتصالك."
+  },
+  "champs": {
+    "nom": "الاسم",
+    "contact": "الاتصال",
+    "fermier": "المربّي",
+    "ferme": "المزرعة",
+    "email": "البريد الإلكتروني",
+    "site": "الموقع",
+    "role": "الدور",
+    "latitude": "خط العرض",
+    "longitude": "خط الطول",
+    "altitude": "الارتفاع (م)",
+    "dateMiseEnOeuvre": "تاريخ التشغيل",
+    "dateDemenagement": "تاريخ النقل",
+    "dateCloture": "تاريخ الإغلاق",
+    "modele": "الطراز",
+    "etat": "الحالة",
+    "agentResponsable": "العون المسؤول",
+    "corps": "الصندوق",
+    "hausses": "العاسلات",
+    "cadres": "إطارات",
+    "aucun": "— لا شيء —"
+  },
+  "roles": {
+    "apiculteur": "نحّال",
+    "superviseur": "مشرف",
+    "responsable": "مسؤول",
+    "admin": "مدير النظام"
+  },
+  "etatsRuche": {
+    "creee": "أُنشئت",
+    "peuplee": "مأهولة",
+    "active": "نشطة",
+    "en_division": "قيد التقسيم",
+    "en_collecte": "قيد الجني",
+    "cloturee": "مُغلقة"
+  },
+  "session": {
+    "titre": "الجلسة مطلوبة",
+    "connexionKeycloak": "الدخول عبر Keycloak",
+    "ou": "— أو —",
+    "explication": "تتصل الواجهة بواجهة برمجية محميّة. في الإنتاج تمرّ المصادقة عبر Keycloak (OIDC). للتطوير، الصق رمز وصول صالحًا يحمل الادّعاء tenant_id.",
+    "jeton": "رمز الوصول (JWT)",
+    "placeholder": "eyJhbGciOi…"
+  },
+  "config": {
+    "titre": "العتبات المهنية",
+    "sousTitre": "مقروءة من ConfigZumm.ini — قابلة للتعديل دون إعادة تشغيل.",
+    "poids": "وزن التنبيه (كغ)",
+    "tempMin": "أدنى حرارة (°م)",
+    "tempMax": "أقصى حرارة (°م)",
+    "humidite": "أقصى رطوبة (%)",
+    "delai": "أيام دون زيارة",
+    "arrondi": "تقريب الموقع العام (°)",
+    "langues": "اللغات المفعّلة"
+  },
+  "visite": {
+    "planning": "برنامج",
+    "visite": "زيارة",
+    "date": "التاريخ",
+    "heure": "الساعة",
+    "duree": "المدة (دقيقة)",
+    "raison": "السبب",
+    "statut": "الحالة",
+    "agent": "العون",
+    "superviseur": "المشرف",
+    "constatations": "الملاحظات",
+    "actionsPrevues": "الإجراءات المقرّرة",
+    "actionsEffectuees": "الإجراءات المنجزة",
+    "recommandations": "التوصيات",
+    "effectif": "التعداد",
+    "sante": "الحالة الصحية",
+    "productivite": "الإنتاجية (1-3)",
+    "motifRefus": "سبب الرفض",
+    "photos": "الصور",
+    "rapport": "التقرير",
+    "rapportPdf": "PDF",
+    "url": "رابط الصورة",
+    "legende": "تعليق",
+    "raisons": {
+      "controle": "مراقبة",
+      "recolte": "جني",
+      "traitement": "معالجة",
+      "nourrissage": "تغذية",
+      "division": "تقسيم",
+      "autre": "أخرى"
+    },
+    "statuts": {
+      "propose": "مُقترح",
+      "approuve": "مُصادق",
+      "refuse": "مرفوض"
+    },
+    "effectifs": {
+      "faible": "ضعيف",
+      "moyen": "متوسط",
+      "fort": "قوي"
+    },
+    "santes": {
+      "bon": "جيّد",
+      "moyen": "متوسط",
+      "mauvais": "سيّئ"
+    }
+  },
+  "tache": {
+    "libelle": "العنوان",
+    "echeance": "الأجل",
+    "faite": "منجزة",
+    "oui": "نعم",
+    "non": "لا",
+    "rappels": "التذكيرات الجارية",
+    "ruche": "الخلية",
+    "agent": "العون",
+    "sansEcheance": "دون أجل"
+  },
+  "tableau": {
+    "calendrier": "الروزنامة",
+    "production": "الإنتاج",
+    "alertes": "التنبيهات الصحية",
+    "periode": "الفترة",
+    "du": "من",
+    "au": "إلى",
+    "afficher": "عرض",
+    "agent": "العون",
+    "ruche": "الخلية",
+    "nbVisites": "الزيارات",
+    "poidsActuel": "الوزن الحالي (كغ)",
+    "poidsMin": "الأدنى (كغ)",
+    "poidsMax": "الأقصى (كغ)",
+    "nbMesures": "القياسات",
+    "productivite": "الإنتاجية",
+    "sousSeuil": "تحت العتبة",
+    "aucuneMesure": "لا قياس",
+    "etatSante": "الحالة الصحية",
+    "derniereVisite": "آخر زيارة",
+    "jours": "أيام",
+    "niveau": "المستوى",
+    "motif": "السبب",
+    "jamais": "لم تُزر قط",
+    "niveaux": {
+      "ok": "سليم",
+      "attention": "تنبيه",
+      "critique": "حرج"
+    },
+    "export": "تصدير",
+    "exporterVisites": "تصدير الزيارات",
+    "exporterRuches": "تصدير الخلايا",
+    "synthese": "الخلاصة",
+    "previsions": "التوقعات",
+    "tendance": "الاتجاه",
+    "gainJour": "الكسب / يوم (كغ)",
+    "projection7j": "توقع 7 أيام (كغ)",
+    "tendances": {
+      "hausse": "صعود",
+      "stable": "مستقر",
+      "baisse": "هبوط",
+      "inconnue": "غير معروف"
+    },
+    "nombreRuches": "الخلايا",
+    "nombreVisites": "الزيارات",
+    "poidsTotal": "الوزن الإجمالي (كغ)",
+    "alertesOuvertes": "التنبيهات المفتوحة",
+    "roi": "العائد على الاستثمار",
+    "valeurProduction": "قيمة الإنتاج (€)",
+    "coutInterventions": "كلفة التدخلات (€)",
+    "roiPourcent": "العائد",
+    "visitesParRaison": "الزيارات حسب السبب"
+  },
+  "graphique": {
+    "tableauEquivalent": "عرض البيانات في جدول",
+    "productionTitre": "الوزن الحالي لكل خلية",
+    "productionDescription": "شريط لكل خلية، من الأثقل إلى الأخف. الخلايا دون عتبة الوزن بالأحمر.",
+    "previsionTitre": "اتجاه الوزن (كغ / يوم)",
+    "previsionDescription": "تبدأ الأشرطة من الصفر: يمينًا مكسب، يسارًا خسارة. الإشارة مهمة بقدر المقدار.",
+    "serieTitre": "سلسلة القياسات",
+    "serieDescription": "قراءات المستشعر مع المتوسط المتحرك المرجعي. مرّر لقراءة التاريخ.",
+    "moyenneMobile": "المتوسط المرجعي",
+    "mesuree": "القيمة المقيسة",
+    "aucuneDonnee": "لا توجد قياسات كافية بعد لرسم منحنى."
+  },
+  "lot": {
+    "rappelDirective": "التوجيه (الاتحاد الأوروبي) 2024/1438، الساري من 14 يونيو 2026: يحمل الملصق بلد أو بلدان المنشأ بترتيب تنازلي مع النسبة المئوية.",
+    "reference": "مرجع الدفعة",
+    "date": "تاريخ التعبئة",
+    "quantite": "الكمية (كغ)",
+    "typeMiel": "نوع العسل",
+    "origines": "المناشئ",
+    "recolte": "الجني",
+    "pays": "بلد المنشأ",
+    "pourcentage": "النسبة (%)",
+    "ajouterOrigine": "إضافة منشأ",
+    "total": "المجموع",
+    "mention": "بيان المنشأ",
+    "mielAchete": "عسل مُشترى (خارج المستثمرة)",
+    "estMelange": "خليط: النسب المئوية إلزامية على الملصق.",
+    "monoOrigine": "منشأ واحد: النسبة غير مطلوبة.",
+    "confirmerSuppression": "تأكيد حذف الدفعة « {ref} » ؟"
+  },
+  "capteur": {
+    "ingestion": "إدخال قياس",
+    "indicateur": "المؤشر",
+    "valeur": "القيمة",
+    "ingerer": "إدخال",
+    "alertes": "تنبيهات العتبات المفتوحة",
+    "aucuneAlerte": "لا تنبيه مفتوح.",
+    "meteo": "السياق المناخي",
+    "site": "الموقع",
+    "temperature": "الحرارة (°م)",
+    "humidite": "الرطوبة (%)",
+    "vent": "الرياح (كم/س)",
+    "source": "المصدر",
+    "quantiteMiel": "كمية العسل (getZummHoneyActualQuantity)",
+    "unite": "الوحدة",
+    "calculer": "احسب",
+    "ruche": "الخلية",
+    "total": "المنحل بأكمله",
+    "indicateurs": {
+      "poids": "الوزن",
+      "temperature": "الحرارة",
+      "humidite": "الرطوبة",
+      "activite": "النشاط"
+    },
+    "niveaux": {
+      "attention": "تنبيه",
+      "critique": "حرج"
+    }
+  },
+  "reine": {
+    "ruche": "الخلية",
+    "date": "التاريخ",
+    "statut": "الحالة",
+    "couleur": "لون التعليم",
+    "annee": "سنة الميلاد",
+    "race": "السلالة",
+    "note": "ملاحظة",
+    "ajouter": "إضافة حدث",
+    "historique": "سجل الملكة",
+    "choisirRuche": "اختر خلية",
+    "statuts": {
+      "introduite": "مُدخَلة",
+      "en_ponte": "في الوضع",
+      "remplacee": "مُستبدَلة",
+      "disparue": "مفقودة",
+      "essaimee": "طرَدت"
+    },
+    "couleurs": {
+      "blanc": "أبيض",
+      "jaune": "أصفر",
+      "rouge": "أحمر",
+      "vert": "أخضر",
+      "bleu": "أزرق"
+    }
+  },
+  "recolte": {
+    "ruche": "الخلية",
+    "date": "التاريخ",
+    "quantite": "الكمية (كغ)",
+    "typeMiel": "نوع العسل",
+    "lot": "الدفعة",
+    "note": "ملاحظة",
+    "qr": "رمز التتبّع",
+    "tracabilite": "التتبّع",
+    "tracerLot": "البحث عن دفعة",
+    "site": "الموقع",
+    "ferme": "المزرعة",
+    "origine": "الأصل"
+  },
+  "carte": {
+    "rayons": "نطاقات الرعي",
+    "legende": "دوائر على 1 و2 و3 كم حول كل منحل",
+    "aucunSite": "لا موقع محدَّد جغرافيًا.",
+    "vueSites": "المواقع",
+    "vueGrappes": "التجمّعات",
+    "fondReel": "خريطة الأساس",
+    "rayonRegroupement": "نصف قطر التجميع (كم)",
+    "grappe": "التجمّع {n}",
+    "resumeGrappe": "{sites} موقع · {ruches} خلية",
+    "legendeGrappes": "مواقع مجمّعة حسب القرب (PostGIS). الموقع المعزول يشكّل تجمّعًا خاصًّا به."
+  },
+  "pagination": {
+    "titre": "ترقيم الصفحات",
+    "precedent": "السابق",
+    "suivant": "التالي",
+    "etat": "الصفحة {page} من {pages} — {total} عنصر"
+  },
+  "dialogue": {
+    "confirmation": "تأكيد",
+    "saisie": "إدخال",
+    "information": "معلومة",
+    "compris": "فهمت"
+  },
+  "introuvable": {
+    "titre": "الصفحة غير موجودة",
+    "explication": "لا يقابل هذا العنوان أيّ شاشة في وحدة التحكّم. قد يكون الرابط ناقصًا أو منتهيًا.",
+    "retour": "العودة إلى البداية"
+  },
+  "voisins": {
+    "titre": "أقرب المواقع",
+    "aucun": "لا يوجد موقع آخر محدَّد جغرافيًا.",
+    "distance": "المسافة",
+    "charger": "عرض الجيران"
+  },
+  "tournee": {
+    "titre": "ترتيب الجولة",
+    "calculer": "اقتراح ترتيب",
+    "aucune": "لا زيارة مبرمجة في ذلك اليوم.",
+    "ordre": "الترتيب",
+    "site": "الموقع",
+    "visites": "الزيارات",
+    "depuisPrecedente": "من المحطة السابقة",
+    "total": "المسافة الإجمالية",
+    "avertissement": "ترتيب إرشادي: مسافات على خط مستقيم وخوارزمية تقريبية. ليس مسارًا طرقيًّا."
+  },
+  "anomalie": {
+    "titre": "كشف الشذوذ (EWMA)",
+    "indicateur": "المؤشر",
+    "detecter": "تحليل",
+    "baseline": "الخط المرجعي",
+    "ecartType": "الانحراف المعياري",
+    "nombrePoints": "النقاط المحلَّلة",
+    "seuilZ": "عتبة z",
+    "aucune": "لا شذوذ مكتشَف.",
+    "valeur": "القيمة",
+    "zscore": "z-score",
+    "instant": "اللحظة"
+  }
+}

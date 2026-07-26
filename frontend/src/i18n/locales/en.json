@@ -1,0 +1,391 @@
+{
+  "marque": "Zümm",
+  "baseline": "Beekeeping management & monitoring",
+  "audit": {
+    "titre": "Audit log",
+    "instant": "Date",
+    "acteur": "Actor",
+    "action": "Action",
+    "entite": "Entity",
+    "resume": "Summary",
+    "actions": {
+      "creation": "Creation",
+      "modification": "Modification",
+      "suppression": "Deletion"
+    }
+  },
+  "langue": "Language",
+  "pwa": {
+    "majDisponible": "A new version is available.",
+    "actualiser": "Refresh"
+  },
+  "sync": {
+    "horsLigne": "Offline",
+    "enAttente": "{n} to sync"
+  },
+  "onglets": {
+    "fermiers": "Farmers",
+    "fermes": "Farms",
+    "sites": "Sites",
+    "ruches": "Hives",
+    "plannings": "Schedules",
+    "visites": "Visits",
+    "taches": "Tasks",
+    "tableaux": "Dashboards",
+    "capteurs": "Sensors",
+    "reines": "Queens",
+    "recoltes": "Harvests",
+    "lots": "Lots & origins",
+    "carte": "Map",
+    "agents": "Agents",
+    "config": "Configuration",
+    "audit": "Audit"
+  },
+  "actions": {
+    "nouveau": "New",
+    "modifier": "Edit",
+    "supprimer": "Delete",
+    "enregistrer": "Save",
+    "annuler": "Cancel",
+    "fermer": "Close",
+    "reessayer": "Retry",
+    "confirmer": "Confirm",
+    "seConnecter": "Open session",
+    "seDeconnecter": "Close session",
+    "ajouterHausse": "Add a super",
+    "approuver": "Approve",
+    "refuser": "Reject",
+    "ajouterPhoto": "Add a photo"
+  },
+  "etats": {
+    "chargement": "Loading…",
+    "vide": "Nothing here yet.",
+    "confirmerSuppression": "Confirm deletion of “{nom}”?",
+    "erreur": "An error occurred.",
+    "serviceIndisponible": "Service unavailable. Check your connection."
+  },
+  "champs": {
+    "nom": "Name",
+    "contact": "Contact",
+    "fermier": "Farmer",
+    "ferme": "Farm",
+    "email": "Email",
+    "site": "Site",
+    "role": "Role",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "altitude": "Altitude (m)",
+    "dateMiseEnOeuvre": "Commissioned",
+    "dateDemenagement": "Relocated",
+    "dateCloture": "Closed",
+    "modele": "Model",
+    "etat": "State",
+    "agentResponsable": "Responsible agent",
+    "corps": "Brood box",
+    "hausses": "Supers",
+    "cadres": "frames",
+    "aucun": "— none —"
+  },
+  "roles": {
+    "apiculteur": "Beekeeper",
+    "superviseur": "Supervisor",
+    "responsable": "Manager",
+    "admin": "Administrator"
+  },
+  "etatsRuche": {
+    "creee": "Created",
+    "peuplee": "Populated",
+    "active": "Active",
+    "en_division": "Splitting",
+    "en_collecte": "Harvesting",
+    "cloturee": "Closed"
+  },
+  "session": {
+    "titre": "Session required",
+    "connexionKeycloak": "Sign in with Keycloak",
+    "ou": "— or —",
+    "explication": "The console calls a protected API. In production, sign-in goes through Keycloak (OIDC). For development, paste a valid access token carrying the tenant_id claim.",
+    "jeton": "Access token (JWT)",
+    "placeholder": "eyJhbGciOi…"
+  },
+  "config": {
+    "titre": "Business thresholds",
+    "sousTitre": "Read from ConfigZumm.ini — editable without a restart.",
+    "poids": "Alert weight (kg)",
+    "tempMin": "Min temperature (°C)",
+    "tempMax": "Max temperature (°C)",
+    "humidite": "Max humidity (%)",
+    "delai": "Days without a visit",
+    "arrondi": "Public position rounding (°)",
+    "langues": "Active languages"
+  },
+  "visite": {
+    "planning": "Schedule",
+    "visite": "Visit",
+    "date": "Date",
+    "heure": "Time",
+    "duree": "Duration (min)",
+    "raison": "Reason",
+    "statut": "Status",
+    "agent": "Agent",
+    "superviseur": "Supervisor",
+    "constatations": "Observations",
+    "actionsPrevues": "Planned actions",
+    "actionsEffectuees": "Actions taken",
+    "recommandations": "Recommendations",
+    "effectif": "Population",
+    "sante": "Health",
+    "productivite": "Productivity (1-3)",
+    "motifRefus": "Rejection reason",
+    "photos": "Photos",
+    "rapport": "Report",
+    "rapportPdf": "PDF",
+    "url": "Photo URL",
+    "legende": "Caption",
+    "raisons": {
+      "controle": "Inspection",
+      "recolte": "Harvest",
+      "traitement": "Treatment",
+      "nourrissage": "Feeding",
+      "division": "Split",
+      "autre": "Other"
+    },
+    "statuts": {
+      "propose": "Proposed",
+      "approuve": "Approved",
+      "refuse": "Rejected"
+    },
+    "effectifs": {
+      "faible": "Low",
+      "moyen": "Medium",
+      "fort": "High"
+    },
+    "santes": {
+      "bon": "Good",
+      "moyen": "Fair",
+      "mauvais": "Poor"
+    }
+  },
+  "tache": {
+    "libelle": "Title",
+    "echeance": "Due date",
+    "faite": "Done",
+    "oui": "Yes",
+    "non": "No",
+    "rappels": "Active reminders",
+    "ruche": "Hive",
+    "agent": "Agent",
+    "sansEcheance": "No due date"
+  },
+  "tableau": {
+    "calendrier": "Calendar",
+    "production": "Production",
+    "alertes": "Health alerts",
+    "periode": "Period",
+    "du": "From",
+    "au": "To",
+    "afficher": "Show",
+    "agent": "Agent",
+    "ruche": "Hive",
+    "nbVisites": "Visits",
+    "poidsActuel": "Current weight (kg)",
+    "poidsMin": "Min (kg)",
+    "poidsMax": "Max (kg)",
+    "nbMesures": "Measures",
+    "productivite": "Productivity",
+    "sousSeuil": "Below threshold",
+    "aucuneMesure": "No measure",
+    "etatSante": "Health",
+    "derniereVisite": "Last visit",
+    "jours": "days",
+    "niveau": "Level",
+    "motif": "Reason",
+    "jamais": "Never visited",
+    "niveaux": {
+      "ok": "OK",
+      "attention": "Warning",
+      "critique": "Critical"
+    },
+    "export": "Export",
+    "exporterVisites": "Export visits",
+    "exporterRuches": "Export hives",
+    "synthese": "Summary",
+    "previsions": "Forecast",
+    "tendance": "Trend",
+    "gainJour": "Gain / day (kg)",
+    "projection7j": "7-day projection (kg)",
+    "tendances": {
+      "hausse": "Rising",
+      "stable": "Stable",
+      "baisse": "Falling",
+      "inconnue": "Unknown"
+    },
+    "nombreRuches": "Hives",
+    "nombreVisites": "Visits",
+    "poidsTotal": "Total weight (kg)",
+    "alertesOuvertes": "Open alerts",
+    "roi": "Return on investment",
+    "valeurProduction": "Production value (€)",
+    "coutInterventions": "Interventions cost (€)",
+    "roiPourcent": "ROI",
+    "visitesParRaison": "Visits by reason"
+  },
+  "graphique": {
+    "tableauEquivalent": "View the data as a table",
+    "productionTitre": "Current weight per hive",
+    "productionDescription": "One bar per hive, heaviest first. Hives below the weight threshold are shown in red.",
+    "previsionTitre": "Weight trend (kg / day)",
+    "previsionDescription": "Bars start at zero: right is a gain, left is a loss. The sign matters as much as the magnitude.",
+    "serieTitre": "Measurement series",
+    "serieDescription": "Sensor readings with the reference moving average. Hover to read a date.",
+    "moyenneMobile": "Reference average",
+    "mesuree": "Measured value",
+    "aucuneDonnee": "Not enough measurements yet to draw a curve."
+  },
+  "lot": {
+    "rappelDirective": "Directive (EU) 2024/1438, applicable from 14 June 2026: the label carries the country or countries of origin, in decreasing order, with their percentage.",
+    "reference": "Lot reference",
+    "date": "Packing date",
+    "quantite": "Quantity (kg)",
+    "typeMiel": "Honey type",
+    "origines": "Origins",
+    "recolte": "Harvest",
+    "pays": "Country of origin",
+    "pourcentage": "Share (%)",
+    "ajouterOrigine": "Add an origin",
+    "total": "Total",
+    "mention": "Origin statement",
+    "mielAchete": "Purchased honey (outside the farm)",
+    "estMelange": "Blend: percentages are mandatory on the label.",
+    "monoOrigine": "Single origin: the percentage is not required.",
+    "confirmerSuppression": "Confirm deletion of lot “{ref}”?"
+  },
+  "capteur": {
+    "ingestion": "Ingest a measure",
+    "indicateur": "Indicator",
+    "valeur": "Value",
+    "ingerer": "Ingest",
+    "alertes": "Open threshold alerts",
+    "aucuneAlerte": "No open alert.",
+    "meteo": "Weather context",
+    "site": "Site",
+    "temperature": "Temperature (°C)",
+    "humidite": "Humidity (%)",
+    "vent": "Wind (km/h)",
+    "source": "Source",
+    "quantiteMiel": "Honey quantity (getZummHoneyActualQuantity)",
+    "unite": "Unit",
+    "calculer": "Compute",
+    "ruche": "Hive",
+    "total": "Whole apiary",
+    "indicateurs": {
+      "poids": "Weight",
+      "temperature": "Temperature",
+      "humidite": "Humidity",
+      "activite": "Activity"
+    },
+    "niveaux": {
+      "attention": "Warning",
+      "critique": "Critical"
+    }
+  },
+  "reine": {
+    "ruche": "Hive",
+    "date": "Date",
+    "statut": "Status",
+    "couleur": "Marking colour",
+    "annee": "Birth year",
+    "race": "Breed",
+    "note": "Note",
+    "ajouter": "Add an event",
+    "historique": "Queen history",
+    "choisirRuche": "Choose a hive",
+    "statuts": {
+      "introduite": "Introduced",
+      "en_ponte": "Laying",
+      "remplacee": "Replaced",
+      "disparue": "Lost",
+      "essaimee": "Swarmed"
+    },
+    "couleurs": {
+      "blanc": "White",
+      "jaune": "Yellow",
+      "rouge": "Red",
+      "vert": "Green",
+      "bleu": "Blue"
+    }
+  },
+  "recolte": {
+    "ruche": "Hive",
+    "date": "Date",
+    "quantite": "Quantity (kg)",
+    "typeMiel": "Honey type",
+    "lot": "Batch",
+    "note": "Note",
+    "qr": "Traceability QR",
+    "tracabilite": "Traceability",
+    "tracerLot": "Look up a batch",
+    "site": "Site",
+    "ferme": "Farm",
+    "origine": "Origin"
+  },
+  "carte": {
+    "rayons": "Foraging radii",
+    "legende": "1, 2 and 3 km circles around each apiary",
+    "aucunSite": "No geolocated site.",
+    "vueSites": "Sites",
+    "vueGrappes": "Clusters",
+    "fondReel": "Base map",
+    "rayonRegroupement": "Clustering radius (km)",
+    "grappe": "Cluster {n}",
+    "resumeGrappe": "{sites} site(s) · {ruches} hive(s)",
+    "legendeGrappes": "Sites clustered by proximity (PostGIS). An isolated site forms its own cluster."
+  },
+  "pagination": {
+    "titre": "Pagination",
+    "precedent": "Previous",
+    "suivant": "Next",
+    "etat": "Page {page} of {pages} — {total} items"
+  },
+  "dialogue": {
+    "confirmation": "Confirmation",
+    "saisie": "Input",
+    "information": "Information",
+    "compris": "Got it"
+  },
+  "introuvable": {
+    "titre": "Page not found",
+    "explication": "This address matches no screen of the console. The link may be incomplete or outdated.",
+    "retour": "Back to home"
+  },
+  "voisins": {
+    "titre": "Nearest sites",
+    "aucun": "No other geolocated site.",
+    "distance": "Distance",
+    "charger": "Show neighbours"
+  },
+  "tournee": {
+    "titre": "Visit route order",
+    "calculer": "Suggest an order",
+    "aucune": "No visit planned on that day.",
+    "ordre": "Order",
+    "site": "Site",
+    "visites": "Visits",
+    "depuisPrecedente": "From previous stop",
+    "total": "Total distance",
+    "avertissement": "Indicative order: straight-line distances, non-optimal heuristic. Not a road itinerary."
+  },
+  "anomalie": {
+    "titre": "Anomaly detection (EWMA)",
+    "indicateur": "Indicator",
+    "detecter": "Analyse",
+    "baseline": "Baseline",
+    "ecartType": "Std deviation",
+    "nombrePoints": "Points analysed",
+    "seuilZ": "z threshold",
+    "aucune": "No anomaly detected.",
+    "valeur": "Value",
+    "zscore": "z-score",
+    "instant": "Timestamp"
+  }
+}

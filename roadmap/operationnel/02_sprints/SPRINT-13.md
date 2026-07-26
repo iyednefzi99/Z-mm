@@ -91,4 +91,5 @@ personne.
 **Ce qui reste ouvert.** Les traductions restent compilées en dur
 (`i18n/console.ts`, 944 lignes) : à externaliser en ressources par locale, sans
 perdre le contrôle de parité qui casse aujourd'hui la compilation quand une clé
-manque.
+manque. → **Soldé au [SPRINT-15](SPRINT-15.md)**, la parité étant reportée sur le
+type de retour des chargeurs.
