@@ -76,6 +76,7 @@ public class TenantFilter extends OncePerRequestFilter {
             chaine.doFilter(requete, reponse);
         } finally {
             TenantContext.effacer();
+            PorteeContext.effacer();
         }
     }
 

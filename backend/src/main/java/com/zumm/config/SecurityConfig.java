@@ -1,5 +1,7 @@
 package com.zumm.config;
 
+import com.zumm.securite.FiltrePortee;
+import com.zumm.securite.ResolveurPortee;
 import com.zumm.tenant.TenantFilter;
 import com.zumm.web.FiltreIdempotence;
 import com.zumm.web.MagasinIdempotence;
@@ -96,6 +98,7 @@ public class SecurityConfig {
     @Order(1)
     SecurityFilterChain chaineJetonPorteur(HttpSecurity http,
             MagasinIdempotence magasinIdempotence,
+            ResolveurPortee resolveurPortee,
             @Value("${zumm.openapi.public:true}") boolean contratPublic) throws Exception {
         http
                 .securityMatcher(PORTEUR_DE_JETON)
@@ -108,7 +111,7 @@ public class SecurityConfig {
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())));
 
-        appliquerCommun(http, magasinIdempotence);
+        appliquerCommun(http, magasinIdempotence, resolveurPortee);
         return http.build();
     }
 
@@ -120,6 +123,7 @@ public class SecurityConfig {
     @Order(2)
     SecurityFilterChain chaineNavigateur(HttpSecurity http,
             MagasinIdempotence magasinIdempotence,
+            ResolveurPortee resolveurPortee,
             @Value("${zumm.openapi.public:true}") boolean contratPublic,
             @Value("${ZUMM_OIDC_ISSUER_URI:}") String emetteur,
             @Value("${zumm.bff.apres-deconnexion:/}") String apresDeconnexion) throws Exception {
@@ -160,7 +164,7 @@ public class SecurityConfig {
                                 new HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED),
                                 new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")));
 
-        appliquerCommun(http, magasinIdempotence);
+        appliquerCommun(http, magasinIdempotence, resolveurPortee);
         return http.build();
     }
 
@@ -221,15 +225,18 @@ public class SecurityConfig {
     }
 
     /** Filtres et en-tetes communs aux deux chaines. */
-    private void appliquerCommun(HttpSecurity http, MagasinIdempotence magasinIdempotence)
-            throws Exception {
+    private void appliquerCommun(HttpSecurity http, MagasinIdempotence magasinIdempotence,
+            ResolveurPortee resolveurPortee) throws Exception {
         http
                 // Le contexte tenant se lit sur l'identite : le filtre vient donc
                 // apres l'authentification, jeton ou session.
                 .addFilterAfter(new TenantFilter(), BasicAuthenticationFilter.class)
-                // L'idempotence vient APRES le tenant : le magasin ecrit dans une
-                // table sous RLS, il lui faut donc un tenant deja pose.
-                .addFilterAfter(new FiltreIdempotence(magasinIdempotence), TenantFilter.class)
+                // La portee (US-057) vient APRES le tenant : resoudre l'agent
+                // suppose une lecture en base, donc une exploitation deja fixee.
+                .addFilterAfter(new FiltrePortee(resolveurPortee), TenantFilter.class)
+                // L'idempotence vient en dernier : le magasin ecrit dans une table
+                // sous RLS, il lui faut tenant ET portee deja poses.
+                .addFilterAfter(new FiltreIdempotence(magasinIdempotence), FiltrePortee.class)
                 .headers(entetes -> entetes
                         .referrerPolicy(referrer -> referrer.policy(
                                 ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))

@@ -131,13 +131,10 @@ Une revue honnête liste aussi les dettes.
    `TableauDeBordService` itèrent en mémoire sur des `findAll()` là où une
    agrégation SQL (`time_bucket`) ferait le travail en base. Fonctionne, ne passe
    pas à l'échelle.
-3. **Pas d'autorisation horizontale.** La RLS isole les *tenants*, pas les agents
-   entre eux : un apiculteur voit toutes les ruches de l'exploitation, y compris
-   celles qui ne lui sont pas affectées. C'est l'US-057.
-4. **Le client d'API front est écrit à la main** alors que le contrat OpenAPI
+3. **Le client d'API front est écrit à la main** alors que le contrat OpenAPI
    existe. Le fichier le dit lui-même en en-tête ; la parité des types n'est
    garantie par rien d'autre que l'attention.
-5. **Pas de couche anticorruption vers le microservice IA.** `ClientAnomalieIA`
+4. **Pas de couche anticorruption vers le microservice IA.** `ClientAnomalieIA`
    adapte, mais le format de la série est celui du domaine Zümm : un changement de
    contrat côté Python se verrait à la compilation, pas à la conception.
 

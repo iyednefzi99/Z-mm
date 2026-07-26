@@ -41,6 +41,17 @@ public class Agent extends EntiteTenant {
     @Column(name = "email", length = 180)
     private String email;
 
+    /**
+     * Claim {@code sub} du fournisseur d'identite (US-057) : lien STABLE entre le
+     * compte qui se connecte et cet agent. Le courriel ne convient pas comme cle
+     * — il change, et un changement silencieux romprait l'affectation sans que
+     * rien ne le signale. Nul tant que l'agent ne s'est jamais connecte ;
+     * l'application l'inscrit alors, une fois, a partir du courriel.
+     */
+    @Size(max = 64)
+    @Column(name = "sujet_oidc", length = 64)
+    private String sujetOidc;
+
     protected Agent() {
         // Requis par JPA.
     }
@@ -77,6 +88,14 @@ public class Agent extends EntiteTenant {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getSujetOidc() {
+        return sujetOidc;
+    }
+
+    public void setSujetOidc(String sujetOidc) {
+        this.sujetOidc = sujetOidc;
     }
 
     public void setEmail(String email) {

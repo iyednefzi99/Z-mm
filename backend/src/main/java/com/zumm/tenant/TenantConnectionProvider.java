@@ -57,10 +57,32 @@ public class TenantConnectionProvider implements MultiTenantConnectionProvider<S
         }
     }
 
+    /**
+     * Pose sur la connexion les trois variables que lisent les politiques RLS :
+     * l'exploitation, et la portee de l'appelant a l'interieur de celle-ci
+     * (US-057).
+     *
+     * <p>Les trois sont posees ENSEMBLE, dans la meme requete preparee. Les
+     * dissocier ouvrirait une fenetre ou le tenant serait pose et la portee non —
+     * fenetre pendant laquelle une requete verrait toute l'exploitation.
+     *
+     * <p>Toutes passent en parametres lies, jamais par concatenation : elles
+     * proviennent d'un jeton, donc d'une source non fiable.
+     */
     private void definirTenant(Connection connexion, String tenantId) throws SQLException {
-        try (PreparedStatement requete =
-                connexion.prepareStatement("SELECT set_config('app.current_tenant', ?, false)")) {
+        PorteeContext.Portee portee = tenantId == null || tenantId.isEmpty()
+                // Liberation de la connexion : on efface tout, pour qu'une
+                // connexion reprise hors contexte ne voie rien.
+                ? PorteeContext.Portee.aucune()
+                : PorteeContext.courante();
+
+        try (PreparedStatement requete = connexion.prepareStatement(
+                "SELECT set_config('app.current_tenant', ?, false),"
+                        + " set_config('app.portee_globale', ?, false),"
+                        + " set_config('app.agent_courant', ?, false)")) {
             requete.setString(1, tenantId == null ? "" : tenantId);
+            requete.setString(2, Boolean.toString(portee.globale()));
+            requete.setString(3, portee.agentId() == null ? "" : String.valueOf(portee.agentId()));
             requete.execute();
         }
     }

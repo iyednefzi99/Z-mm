@@ -23,7 +23,12 @@ import java.math.BigDecimal;
  * ({@code EtapeTournee}) : un agent doit pouvoir se rendre sur les sites qui lui
  * sont assignes, et cette vue est bornee a un agent, une date et quelques sites.
  * C'est la difference entre « en savoir assez pour travailler » et « pouvoir tout
- * moissonner » ; l'US-057 (portee par affectation) refermera le dernier ecart.
+ * moissonner ».
+
+ * <p>Depuis l'US-057, ce masque n'est plus seul : la portee par affectation
+ * (migration V16) empeche un agent d'ENUMERER les sites qui ne portent aucune de
+ * ses ruches. Les deux se completent — l'une limite ce qu'on lit d'un site,
+ * l'autre limite quels sites existent pour l'appelant.
  */
 public interface PolitiquePositions {
 
