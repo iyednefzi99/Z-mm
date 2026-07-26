@@ -9,6 +9,12 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
 
+// jsdom n'implémente pas `getContext` et journalise une erreur bruyante à chaque
+// appel. La carte interroge WebGL pour décider entre le fond MapLibre et le repli
+// SVG (`webglDisponible`) : on répond « pas de contexte », ce qui est exactement
+// la situation d'un environnement de test — et le repli SVG est alors testé.
+HTMLCanvasElement.prototype.getContext = () => null;
+
 beforeEach(() => {
   localStorage.clear();
   document.documentElement.lang = 'fr';

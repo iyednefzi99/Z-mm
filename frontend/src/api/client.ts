@@ -245,6 +245,14 @@ export const ingererMesure = (corps: MesureCorps) =>
 /** US-018 : alertes de seuils actuellement ouvertes. */
 export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesures/alertes');
 
+/**
+ * Série temporelle d'un indicateur pour une ruche (US-016). Exposée par l'API
+ * depuis le SPRINT-02 ; le client ne la consommait pas, faute de graphique pour
+ * l'afficher (SPRINT-13).
+ */
+export const chargerSerieMesures = (rucheId: number, type: TypeIndicateur) =>
+  requete<MesureReponse[]>(`/api/mesures?rucheId=${rucheId}&type=${type}`);
+
 /** US-026 : service tierce getZummHoneyActualQuantity. */
 export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string) =>
   requete<QuantiteMiel>(

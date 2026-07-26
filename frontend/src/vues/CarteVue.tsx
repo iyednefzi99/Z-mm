@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState, type ReactElement } from 'react';
 import { grappesSites, ruches, sites } from '../api/client';
 import type { GrappeSites, Ruche, Site } from '../api/types';
 import { gabarit } from '../i18n/console';
@@ -7,6 +7,28 @@ import { ChampSelect } from '../ui/composants';
 
 /** Rayon de regroupement proposé, en kilomètres (US-045). */
 const RAYONS_REGROUPEMENT = [5, 10, 15, 30];
+
+/**
+ * Fond cartographique réel (SPRINT-13). Chargé à la demande : MapLibre pèse plus
+ * lourd que tout le reste de l'application, et la majorité des écrans n'en ont
+ * aucun besoin.
+ */
+const CarteFond = lazy(() => import('./CarteFond'));
+
+/**
+ * WebGL est-il disponible ? Un rucher n'a pas toujours de réseau, un poste de
+ * terrain pas toujours d'accélération graphique, et l'environnement de test pas
+ * de canvas WebGL du tout. Dans ces trois cas la carte SVG autonome prend le
+ * relais — elle ne dépend de rien.
+ */
+function webglDisponible(): boolean {
+  try {
+    const toile = document.createElement('canvas');
+    return Boolean(toile.getContext('webgl2') ?? toile.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Carte des ruchers et rayons de butinage (US-030), avec regroupement spatial
@@ -26,6 +48,9 @@ export function CarteVue(): ReactElement {
   const [grappes, setGrappes] = useState<GrappeSites[]>([]);
   const [vueGrappes, setVueGrappes] = useState(false);
   const [rayonKm, setRayonKm] = useState(15);
+  // Le fond réel est le défaut quand la machine le permet ; le repli SVG reste
+  // accessible d'un clic, y compris pour imprimer ou économiser la batterie.
+  const [fondReel, setFondReel] = useState(() => webglDisponible());
 
   useEffect(() => {
     void sites.lister().then(setListeSites).catch(() => setListeSites([]));
@@ -106,6 +131,14 @@ export function CarteVue(): ReactElement {
           >
             {t.carte.vueGrappes}
           </button>
+          <button
+            type="button"
+            className={`z-lien${fondReel ? ' z-lien--actif' : ''}`}
+            aria-pressed={fondReel}
+            onClick={() => setFondReel((actif) => !actif)}
+          >
+            {t.carte.fondReel}
+          </button>
         </div>
       </header>
       {vueGrappes && (
@@ -117,6 +150,17 @@ export function CarteVue(): ReactElement {
         />
       )}
       <p className="z-info">{vueGrappes ? t.carte.legendeGrappes : t.carte.legende}</p>
+      {fondReel ? (
+        <Suspense fallback={<p className="z-info">{t.etats.chargement}</p>}>
+          <CarteFond
+            sites={listeSites}
+            grappes={grappes}
+            vueGrappes={vueGrappes}
+            ruchesParSite={ruchesParSite}
+            etiquette={vueGrappes ? t.carte.vueGrappes : t.carte.rayons}
+          />
+        </Suspense>
+      ) : (
       <div className="z-table-enveloppe">
         <svg
           className="z-carte-svg"
@@ -178,6 +222,7 @@ export function CarteVue(): ReactElement {
               ))}
         </svg>
       </div>
+      )}
     </section>
   );
 }

@@ -696,3 +696,381 @@
   color: var(--z-text);
   min-width: 320px;
 }
+
+/* ─── Graphiques (SPRINT-13) ──────────────────────────────────────────────────
+   Habillage volontairement discret : la grille, les graduations et le cadre
+   s'effacent, l'encre va aux donnees. Toutes les couleurs viennent des jetons —
+   aucune valeur en dur, donc le mode sombre et le RTL suivent sans code en plus.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.z-graphique {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem 0.7rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+}
+
+.z-graphique__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.6rem;
+}
+
+.z-graphique__titre {
+  font-weight: 650;
+  font-size: 0.95rem;
+  color: var(--z-text);
+}
+
+.z-graphique__legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z-graphique__legende-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  /* Le texte de legende porte l'encre de texte, jamais la couleur de serie :
+     un libelle colore devient illisible des que la teinte s'eclaircit. */
+  color: var(--z-text-muted);
+  font-size: 0.78rem;
+}
+
+.z-graphique__toile {
+  position: relative;
+}
+
+.z-graphique__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+
+.z-graphique__graduation {
+  fill: var(--z-text-muted);
+  font-size: 10px;
+  font-family: var(--z-font-mono);
+}
+
+/* Infobulle du viseur : suit l'abscisse survolee, et reste dans le cadre grace
+   a la translation de -50 % puis au clamp du conteneur. */
+.z-graphique__infobulle {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0.55rem;
+  background: var(--z-bg);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
+  box-shadow: var(--z-shadow-2);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+[dir='rtl'] .z-graphique__infobulle {
+  transform: translateX(50%);
+}
+
+.z-graphique__infobulle i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: 0.35rem;
+  border-radius: 2px;
+}
+
+.z-graphique__description {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+}
+
+.z-graphique__tableau {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.z-graphique__tableau summary {
+  cursor: pointer;
+  color: var(--z-text-muted);
+}
+
+.z-graphique__vide {
+  margin: 0;
+  padding: 1.5rem 0;
+  text-align: center;
+  color: var(--z-text-muted);
+}
+
+/* ─── Barres horizontales ──────────────────────────────────────────────────── */
+
+.z-barres {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.z-barres__ligne {
+  display: grid;
+  grid-template-columns: minmax(6rem, 22%) 1fr minmax(4rem, auto);
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.z-barres__libelle {
+  font-size: 0.8rem;
+  color: var(--z-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-barres__piste {
+  position: relative;
+  display: block;
+  height: 14px;
+  background: var(--z-graph-grille);
+  border-radius: var(--z-radius-sm);
+}
+
+.z-barres__remplissage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  /* Extremite arrondie cote donnee, bord droit cote origine : la barre reste
+     ancree a sa ligne de base au lieu de flotter. */
+  border-radius: var(--z-radius-sm);
+  transition:
+    width var(--z-duration-base) var(--z-ease-out),
+    opacity var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-barres__zero {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  inset-inline-start: 50%;
+  width: 1px;
+  background: var(--z-graph-axe);
+}
+
+.z-barres__valeur {
+  font-family: var(--z-font-mono);
+  font-size: 0.78rem;
+  color: var(--z-text);
+  text-align: end;
+}
+
+/* ─── Tuiles de statistique ───────────────────────────────────────────────── */
+
+.z-tuile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.8rem 0.9rem 0.9rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  overflow: hidden;
+}
+
+.z-tuile__valeur {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--z-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.z-tuile__libelle {
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+}
+
+.z-tuile__precision {
+  font-size: 0.72rem;
+  color: var(--z-text-muted);
+}
+
+.z-tuile--succes .z-tuile__valeur {
+  color: var(--z-success);
+}
+
+.z-tuile--alerte .z-tuile__valeur {
+  color: var(--z-warning);
+}
+
+.z-tuile--danger .z-tuile__valeur {
+  color: var(--z-danger);
+}
+
+.z-tuile--alerte,
+.z-tuile--danger {
+  /* Le statut ne repose pas sur la seule couleur : un liseré epais le double. */
+  border-inline-start-width: 3px;
+  border-inline-start-color: currentColor;
+}
+
+.z-tuile--alerte {
+  color: var(--z-warning);
+}
+
+.z-tuile--danger {
+  color: var(--z-danger);
+}
+
+.z-tuile__etincelle {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  width: 100%;
+  height: 28px;
+  opacity: 0.55;
+}
+
+/* ─── Fond cartographique MapLibre (SPRINT-13) ────────────────────────────── */
+
+.z-carte-fond {
+  height: min(65vh, 520px);
+  min-height: 320px;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  overflow: hidden;
+}
+
+/* Marqueur de rucher : pastille miel portant le nombre de ruches. Le chiffre est
+   dans le marqueur, pas dans une infobulle — sur le terrain, on lit d'un coup
+   d'œil, sans viser une cible de 20 px avec un gant. */
+.z-carte-marqueur {
+  display: grid;
+  place-items: center;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-honey-500);
+  /* Ancrage visuel : le halo detache la pastille du fond cartographique, quelle
+     que soit la couleur des tuiles dessous. */
+  box-shadow: 0 0 0 2px var(--z-bg), var(--z-shadow-2);
+  color: var(--z-slate-900);
+  font-weight: 700;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+/* MapLibre pose ses contrôles avec ses propres couleurs : on les ramène aux
+   jetons Zümm plutôt que de laisser deux chartes cohabiter. */
+.z-carte-fond .maplibregl-ctrl-group {
+  background: var(--z-surface);
+  border-radius: var(--z-radius-sm);
+  box-shadow: var(--z-shadow-1);
+}
+
+.z-carte-fond .maplibregl-ctrl-attrib {
+  background: color-mix(in srgb, var(--z-bg) 85%, transparent);
+  font-size: 0.68rem;
+}
+
+/* ─── Bandeau de mise à jour de la PWA (SPRINT-13) ─────────────────────────── */
+.z-bandeau-maj {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: var(--z-gradient-signature);
+  color: var(--z-slate-900);
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: z-bandeau-entree var(--z-duration-base) var(--z-ease-out);
+}
+
+@keyframes z-bandeau-entree {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ─── Lots de conditionnement et mention d'origine (SPRINT-14) ────────────── */
+
+/* Le total des parts est un signal de conformité, pas une décoration : il doit
+   se lire d'un coup d'œil, et la couleur est doublée par le poids du texte —
+   l'information ne repose jamais sur la seule teinte. */
+.z-total {
+  font-family: var(--z-font-mono);
+  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--z-radius-pill);
+  font-weight: 700;
+}
+
+.z-total--juste {
+  color: var(--z-success);
+  background: color-mix(in srgb, var(--z-success) 12%, transparent);
+}
+
+.z-total--faux {
+  color: var(--z-danger);
+  background: color-mix(in srgb, var(--z-danger) 12%, transparent);
+}
+
+/* Aperçu de l'étiquette : c'est cette chaîne qui engage le producteur en
+   contrôle, elle mérite d'être présentée comme un document, pas comme un champ. */
+.z-etiquette {
+  margin: 1rem 0;
+  padding: 1.1rem 1.25rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-inline-start: 3px solid var(--z-honey-500);
+  border-radius: var(--z-radius-md);
+  animation: z-etiquette-entree var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-etiquette__titre {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--z-text-muted);
+  font-weight: 600;
+}
+
+.z-etiquette__mention {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--z-text);
+}
+
+@keyframes z-etiquette-entree {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

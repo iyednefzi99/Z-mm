@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { LangueProvider } from './i18n/langue';
 import { DialoguesProvider } from './ui/dialogues';
+import { enregistrerServiceWorker } from './pwa';
 import './theme/tokens.css';
 import './theme/base.css';
 
@@ -21,10 +22,9 @@ createRoot(racine).render(
   </StrictMode>,
 );
 
-// PWA : enregistrement du service worker en production uniquement (en dev, Vite
-// sert les modules et un SW gênerait le rechargement à chaud).
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js');
-  });
-}
+// PWA : le service worker et son précache sont GÉNÉRÉS au build (Workbox), ce
+// qui est la seule façon de connaître les noms de bundles hashés — donc la seule
+// façon que l'application démarre réellement hors ligne.
+window.addEventListener('load', () => {
+  void enregistrerServiceWorker();
+});

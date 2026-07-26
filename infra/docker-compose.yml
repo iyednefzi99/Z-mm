@@ -119,12 +119,35 @@ services:
     networks:
       - zumm-network
 
+  # ─── PWA Zümm (client React, servi statiquement) ───
+  # Jusqu'au SPRINT-13, le front n'existait que via `npm run dev` : la pile
+  # « complete » ne le deployait pas et le proxy envoyait la racine vers Keycloak.
+  # Les variables VITE_* sont figees a la CONSTRUCTION (Vite les inline) : elles
+  # sont donc des `args`, pas des `environment`.
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../infra/frontend.Dockerfile
+      args:
+        VITE_OIDC_ISSUER: ${VITE_OIDC_ISSUER:-https://localhost/realms/zumm}
+        VITE_OIDC_CLIENT: ${VITE_OIDC_CLIENT:-zumm-frontend}
+        VITE_OIDC_REDIRECT: ${VITE_OIDC_REDIRECT:-https://localhost/}
+    container_name: zumm-frontend
+    # Aucun port publie : seul le proxy inverse le sert, avec le TLS et les
+    # en-tetes de securite.
+    expose:
+      - "80"
+    networks:
+      - zumm-network
+
   # ─── Proxy inverse et terminaison TLS ───
   nginx:
     image: nginx:alpine
     container_name: zumm-nginx
     depends_on:
       - backend
+      - frontend
+      - keycloak
     ports:
       - "80:80"
       - "443:443"

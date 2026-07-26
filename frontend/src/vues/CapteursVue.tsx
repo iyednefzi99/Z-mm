@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import {
   chargerAlertesOuvertes,
   chargerMeteo,
+  chargerSerieMesures,
   detecterAnomalie,
   getZummHoneyActualQuantity,
   ingererMesure,
@@ -11,6 +12,7 @@ import {
 import type {
   AlerteMesure,
   Anomalie,
+  MesureReponse,
   Meteo,
   QuantiteMiel,
   Ruche,
@@ -18,15 +20,17 @@ import type {
   TypeIndicateur,
 } from '../api/types';
 import { TYPES_INDICATEUR } from '../api/types';
-import { useT } from '../i18n/langue';
+import { useLangue, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampNombre, ChampSelect, Option } from '../ui/composants';
+import { Courbe, type Serie } from '../ui/graphiques';
 
 const UNITES = ['kg', 'g', 'lb', 't'];
 
 /** Capteurs : ingestion de mesures (US-017), alertes (US-018), météo (US-029), miel (US-026). */
 export function CapteursVue(): ReactElement {
   const t = useT();
+  const { langue } = useLangue();
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optSites, setOptSites] = useState<Option[]>([]);
   const [alertes, setAlertes] = useState<AlerteMesure[]>([]);
@@ -41,6 +45,7 @@ export function CapteursVue(): ReactElement {
   const [anomRuche, setAnomRuche] = useState('');
   const [anomType, setAnomType] = useState<TypeIndicateur>('poids');
   const [anomalie, setAnomalie] = useState<Anomalie | null>(null);
+  const [serie, setSerie] = useState<MesureReponse[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optIndicateur: Option[] = TYPES_INDICATEUR.map((i) => ({
@@ -100,11 +105,42 @@ export function CapteursVue(): ReactElement {
     if (anomRuche === '') return;
     setErreur(null);
     try {
-      setAnomalie(await detecterAnomalie(Number(anomRuche), anomType));
+      // Les deux appels partent ensemble : la courbe et le verdict d'anomalie
+      // decrivent la MEME serie, les afficher a des instants differents
+      // laisserait un ecran incoherent le temps d'un aller-retour.
+      const [resultat, mesures] = await Promise.all([
+        detecterAnomalie(Number(anomRuche), anomType),
+        chargerSerieMesures(Number(anomRuche), anomType),
+      ]);
+      setAnomalie(resultat);
+      setSerie(mesures);
     } catch (cause) {
       setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
   };
+
+  /**
+   * Series tracees : la mesure brute, et la ligne de base EWMA en reference.
+   * Elles partagent une seule echelle de valeurs — c'est le meme indicateur,
+   * dans la meme unite. Deux axes Y seraient ici une faute de lecture.
+   */
+  const seriesCourbe: Serie[] = (() => {
+    if (serie.length === 0) return [];
+    const points = serie.map((m) => ({ x: Date.parse(m.instant), y: m.valeur }));
+    const series: Serie[] = [{ nom: t.graphique.mesuree, points, rang: 0 }];
+    if (anomalie?.baseline != null && points.length > 0) {
+      series.push({
+        nom: t.graphique.moyenneMobile,
+        rang: 1,
+        reference: true,
+        points: [
+          { x: points[0].x, y: anomalie.baseline },
+          { x: points[points.length - 1].x, y: anomalie.baseline },
+        ],
+      });
+    }
+    return series;
+  })();
 
   return (
     <section className="z-section">
@@ -209,6 +245,39 @@ export function CapteursVue(): ReactElement {
             </Bouton>
           </div>
         </div>
+        {anomalie && seriesCourbe.length > 0 && (
+          <Courbe
+            titre={`${t.graphique.serieTitre} — ${t.capteur.indicateurs[anomType]}`}
+            description={t.graphique.serieDescription}
+            series={seriesCourbe}
+            langue={langue}
+            formatX={(x) =>
+              new Intl.DateTimeFormat(langue, { day: '2-digit', month: 'short' }).format(new Date(x))
+            }
+            libelleTableau={t.graphique.tableauEquivalent}
+            tableau={
+              <div className="z-table-enveloppe">
+                <table className="z-table">
+                  <thead>
+                    <tr>
+                      <th>{t.visite.date}</th>
+                      <th>{t.capteur.valeur}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {serie.map((m) => (
+                      <tr key={m.instant}>
+                        <td>{m.instant}</td>
+                        <td>{m.valeur}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            }
+          />
+        )}
+
         {anomalie && (
           <div>
             <p className="z-info">

@@ -23,6 +23,33 @@
   --z-danger: #c0392b;
   --z-info: #2c7a7b;
 
+  /* --- Donnees : palette categorielle des series (mode clair) ---
+     Issue de DESIGN.md § 10, avec DEUX corrections mesurees (SPRINT-13) :
+
+     1. les emplacements 5 et 6 de la charte etaient intervertis. Cote a cote,
+        #EB6834 (orange) et #E87BA4 (rose) ne se distinguaient pas assez, meme
+        pour une vision normale (ΔE OKLab 12,9 — le plancher est 15). Les
+        permuter suffit : la palette entiere passe alors les six controles.
+     2. le mode sombre n'est PAS la meme palette : ces teintes-la, posees sur
+        #25423B, sortent de la bande de clarte lisible. Les pas sombres plus bas
+        sont recalcules a teinte constante, puis valides sur ce fond.
+
+     L'ordre est FIXE : une serie garde sa couleur quels que soient les filtres.
+     Jamais de huitieme teinte generee — au-dela, on regroupe en « autres ». */
+  --z-cat-1: #d9a521;
+  --z-cat-2: #2a78d6;
+  --z-cat-3: #2e9e3f;
+  --z-cat-4: #e87ba4;
+  --z-cat-5: #4a3aa7;
+  --z-cat-6: #eb6834;
+  --z-cat-7: #1baf7a;
+
+  /* Habillage des graphiques : recessif par construction. La grille se lit sans
+     se voir ; c'est la donnee qui porte l'encre. */
+  --z-graph-grille: rgba(44, 74, 66, 0.12);
+  --z-graph-axe: rgba(44, 74, 66, 0.32);
+  --z-graph-fond: transparent;
+
   /* --- Rayons, ombres --- */
   --z-radius-sm: 6px;
   --z-radius-md: 12px;
@@ -64,6 +91,18 @@
     --z-text: #eaf1ee;
     --z-text-muted: #a9bdb6;
     --z-line: rgba(255, 255, 255, 0.1);
+    /* Palette de series recalculee POUR le fond sombre : memes teintes, pas de
+       clarte differents. Un simple eclaircissement automatique sortirait de la
+       bande lisible ou effondrerait le contraste. */
+    --z-cat-1: #b58200;
+    --z-cat-2: #488de5;
+    --z-cat-3: #45a34f;
+    --z-cat-4: #ce648d;
+    --z-cat-5: #827de3;
+    --z-cat-6: #d6673e;
+    --z-cat-7: #00a671;
+    --z-graph-grille: rgba(234, 241, 238, 0.14);
+    --z-graph-axe: rgba(234, 241, 238, 0.38);
   }
 }
 
@@ -74,6 +113,18 @@
   --z-text: #eaf1ee;
   --z-text-muted: #a9bdb6;
   --z-line: rgba(255, 255, 255, 0.1);
+  /* Palette de series recalculee POUR le fond sombre : memes teintes, pas de
+     clarte differents. Un simple eclaircissement automatique sortirait de la
+     bande lisible ou effondrerait le contraste. */
+  --z-cat-1: #b58200;
+  --z-cat-2: #488de5;
+  --z-cat-3: #45a34f;
+  --z-cat-4: #ce648d;
+  --z-cat-5: #827de3;
+  --z-cat-6: #d6673e;
+  --z-cat-7: #00a671;
+  --z-graph-grille: rgba(234, 241, 238, 0.14);
+  --z-graph-axe: rgba(234, 241, 238, 0.38);
 }
 
 :root[data-theme='light'] {
@@ -82,6 +133,15 @@
   --z-text: #1b2320;
   --z-text-muted: #5b6b65;
   --z-line: #dce4e0;
+  --z-cat-1: #d9a521;
+  --z-cat-2: #2a78d6;
+  --z-cat-3: #2e9e3f;
+  --z-cat-4: #e87ba4;
+  --z-cat-5: #4a3aa7;
+  --z-cat-6: #eb6834;
+  --z-cat-7: #1baf7a;
+  --z-graph-grille: rgba(44, 74, 66, 0.12);
+  --z-graph-axe: rgba(44, 74, 66, 0.32);
 }
 
 /* Police arabe des que le document passe en arabe. */

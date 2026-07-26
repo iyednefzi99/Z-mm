@@ -17,6 +17,8 @@ import type {
 import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate } from '../ui/composants';
+import { Barres, Tuile } from '../ui/graphiques';
+import { useLangue } from '../i18n/langue';
 
 type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese';
 
@@ -34,6 +36,7 @@ function moisCourant(): { debut: string; fin: string } {
  */
 export function TableauxVue(): ReactElement {
   const t = useT();
+  const { langue } = useLangue();
   const indisponible = t.etats.serviceIndisponible;
   const [sous, setSous] = useState<Sous>('calendrier');
   const defaut = moisCourant();
@@ -149,6 +152,24 @@ export function TableauxVue(): ReactElement {
         production.length === 0 ? (
           <p className="z-info">{t.etats.vide}</p>
         ) : (
+          <>
+          {/* Le graphique porte la lecture, le tableau porte le detail : l'un ne
+              remplace pas l'autre. Le tableau reste la vue accessible de
+              reference (lecteur d'ecran, copie, tri par le navigateur). */}
+          <Barres
+            titre={t.graphique.productionTitre}
+            description={t.graphique.productionDescription}
+            langue={langue}
+            unite=" kg"
+            libelleTableau={t.graphique.tableauEquivalent}
+            donnees={production
+              .filter((p) => p.poidsActuelKg != null)
+              .map((p) => ({
+                libelle: p.rucheModele,
+                valeur: p.poidsActuelKg as number,
+                alerte: p.sousSeuil,
+              }))}
+          />
           <div className="z-table-enveloppe">
             <table className="z-table">
               <thead>
@@ -175,6 +196,7 @@ export function TableauxVue(): ReactElement {
               </tbody>
             </table>
           </div>
+          </>
         )
       )}
 
@@ -182,6 +204,24 @@ export function TableauxVue(): ReactElement {
         previsions.length === 0 ? (
           <p className="z-info">{t.etats.vide}</p>
         ) : (
+          <>
+          {/* Echelle divergente : ici le SIGNE est l'information. Une ruche qui
+              perd 200 g par jour et une qui en gagne 200 g ne sont pas « proches
+              en valeur absolue », elles sont opposees. */}
+          <Barres
+            titre={t.graphique.previsionTitre}
+            description={t.graphique.previsionDescription}
+            langue={langue}
+            unite=" kg/j"
+            divergente
+            libelleTableau={t.graphique.tableauEquivalent}
+            donnees={previsions
+              .filter((p) => p.tendanceKgParJour != null)
+              .map((p) => ({
+                libelle: p.rucheModele,
+                valeur: p.tendanceKgParJour as number,
+              }))}
+          />
           <div className="z-table-enveloppe">
             <table className="z-table">
               <thead>
@@ -208,6 +248,7 @@ export function TableauxVue(): ReactElement {
               </tbody>
             </table>
           </div>
+          </>
         )
       )}
 
@@ -248,29 +289,31 @@ export function TableauxVue(): ReactElement {
 
       {sous === 'synthese' && synthese && (
         <div className="z-synthese">
+          {/* Chiffres de pilotage : un nombre suffit, un graphique serait du
+              decor. Le ton porte le statut — et un lisere le double, pour que
+              l'alerte ne repose pas sur la seule couleur. */}
           <div className="z-cartes">
-            <div className="z-carte">
-              <span className="z-carte__valeur">{synthese.nombreRuches}</span>
-              <span className="z-carte__libelle">{t.tableau.nombreRuches}</span>
-            </div>
-            <div className="z-carte">
-              <span className="z-carte__valeur">{synthese.nombreVisites}</span>
-              <span className="z-carte__libelle">{t.tableau.nombreVisites}</span>
-            </div>
-            <div className="z-carte">
-              <span className="z-carte__valeur">{synthese.poidsTotalActuelKg}</span>
-              <span className="z-carte__libelle">{t.tableau.poidsTotal}</span>
-            </div>
-            <div className={`z-carte ${synthese.alertesOuvertes > 0 ? 'z-carte--alerte' : ''}`}>
-              <span className="z-carte__valeur">{synthese.alertesOuvertes}</span>
-              <span className="z-carte__libelle">{t.tableau.alertesOuvertes}</span>
-            </div>
-            <div className="z-carte z-carte--roi">
-              <span className="z-carte__valeur">
-                {synthese.roi.roiPourcent != null ? `${synthese.roi.roiPourcent} %` : '—'}
-              </span>
-              <span className="z-carte__libelle">{t.tableau.roiPourcent}</span>
-            </div>
+            <Tuile libelle={t.tableau.nombreRuches} valeur={synthese.nombreRuches} />
+            <Tuile libelle={t.tableau.nombreVisites} valeur={synthese.nombreVisites} />
+            <Tuile
+              libelle={t.tableau.poidsTotal}
+              valeur={synthese.poidsTotalActuelKg}
+              precision="kg"
+            />
+            <Tuile
+              libelle={t.tableau.alertesOuvertes}
+              valeur={synthese.alertesOuvertes}
+              ton={synthese.alertesOuvertes > 0 ? 'danger' : 'succes'}
+            />
+            <Tuile
+              libelle={t.tableau.roiPourcent}
+              valeur={synthese.roi.roiPourcent != null ? `${synthese.roi.roiPourcent} %` : '—'}
+              ton={
+                synthese.roi.roiPourcent != null && synthese.roi.roiPourcent < 0
+                  ? 'danger'
+                  : 'succes'
+              }
+            />
           </div>
           <div className="z-table-enveloppe">
             <table className="z-table">

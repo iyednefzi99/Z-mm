@@ -9,6 +9,7 @@ import { useLangue, useT } from './i18n/langue';
 import { surFile } from './offline/file';
 import { useNavigation } from './routage/navigation';
 import { ONGLETS, cheminDepuisOnglet, ongletDepuisChemin, type Onglet } from './routage/routes';
+import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
 import { Bouton } from './ui/composants';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
@@ -45,6 +46,7 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
 export default function App(): ReactElement {
   const t = useT();
   const { langue, definirLangue } = useLangue();
+  const majDisponible = useMiseAJourPwa();
   const { chemin, naviguer } = useNavigation();
   const [jeton, setJeton] = useState<string | null>(jetonCourant());
   const [enAttente, setEnAttente] = useState(0);
@@ -104,6 +106,16 @@ export default function App(): ReactElement {
 
   return (
     <div className="z-app">
+      {majDisponible && (
+        // Bandeau, pas rechargement automatique : sur un rucher, recharger sans
+        // prevenir ferait perdre un rapport de visite en cours de saisie.
+        <div className="z-bandeau-maj" role="status">
+          <span>{t.pwa.majDisponible}</span>
+          <Bouton variante="primaire" onClick={() => void appliquerMiseAJour()}>
+            {t.pwa.actualiser}
+          </Bouton>
+        </div>
+      )}
       <header className="z-topbar">
         <div className="z-marque">
           <span className="z-marque__pastille" aria-hidden="true" />
