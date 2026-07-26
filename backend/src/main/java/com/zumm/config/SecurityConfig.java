@@ -31,6 +31,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import com.zumm.tenant.TenantFilter;
+import com.zumm.web.FiltreIdempotence;
+import com.zumm.web.MagasinIdempotence;
 
 /**
  * Securite de l'API : serveur de ressources OAuth2 valide par Keycloak.
@@ -88,6 +90,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain chaineDeFiltres(HttpSecurity http,
+            MagasinIdempotence magasinIdempotence,
             @Value("${zumm.openapi.public:true}") boolean contratPublic) throws Exception {
         http
                 // API sans etat : aucun cookie de session, donc pas de CSRF a proteger.
@@ -155,6 +158,11 @@ public class SecurityConfig {
                 // Le contexte tenant se lit sur le jeton : le filtre vient donc
                 // apres l'authentification, une fois le JWT resolu.
                 .addFilterAfter(new TenantFilter(), BasicAuthenticationFilter.class)
+                // L'idempotence vient APRES le tenant : le magasin ecrit dans une
+                // table sous RLS, donc il lui faut un tenant deja pose. Elle vient
+                // aussi avant les controleurs, pour pouvoir court-circuiter le
+                // traitement quand la reponse est deja connue.
+                .addFilterAfter(new FiltreIdempotence(magasinIdempotence), TenantFilter.class)
                 .headers(entetes -> entetes
                         .referrerPolicy(referrer -> referrer.policy(
                                 ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN))

@@ -536,3 +536,55 @@ export interface Seuils {
   delaiAlerteJours: number;
   arrondiDegresPublic: number;
 }
+
+/**
+ * Lot de conditionnement et mention d'origine (US-056, SPRINT-14).
+ *
+ * Conformité à la directive (UE) 2024/1438, applicable au 14 juin 2026 : le pot
+ * porte le ou les pays d'origine, par ordre décroissant, en pourcentages. La
+ * maille est le LOT MIS EN POT — un mélange — et non la récolte.
+ */
+export interface OrigineDeclaree {
+  /** Récolte d'origine, ou `null` pour du miel acquis à un tiers. */
+  recolteId: number | null;
+  /** Code pays ISO 3166-1 alpha-2 : « FR », « ES »… */
+  paysOrigine: string;
+  pourcentage: number;
+}
+
+export interface LotCorps {
+  reference: string;
+  dateConditionnement: string;
+  quantiteKg: number;
+  typeMiel?: string | null;
+  note?: string | null;
+  origines: OrigineDeclaree[];
+}
+
+export interface PartLot {
+  id: number;
+  recolteId: number | null;
+  recolteLot: string | null;
+  paysOrigine: string;
+  pourcentage: number;
+}
+
+export interface Lot {
+  id: number;
+  reference: string;
+  dateConditionnement: string;
+  quantiteKg: number;
+  typeMiel: string | null;
+  note: string | null;
+  composition: PartLot[];
+  creeLe: string;
+  majLe: string;
+}
+
+export interface MentionOrigine {
+  /** Mention prête à imprimer, dans la langue demandée. */
+  texte: string;
+  origines: { paysOrigine: string; libelle: string; pourcentage: number }[];
+  /** Vrai dès que plus d'un pays entre dans le lot. */
+  melange: boolean;
+}

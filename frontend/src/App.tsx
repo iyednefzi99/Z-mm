@@ -31,6 +31,7 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
   capteurs: lazy(() => import('./vues/CapteursVue').then((m) => ({ default: m.CapteursVue }))),
   reines: lazy(() => import('./vues/ReinesVue').then((m) => ({ default: m.ReinesVue }))),
   recoltes: lazy(() => import('./vues/RecoltesVue').then((m) => ({ default: m.RecoltesVue }))),
+  lots: lazy(() => import('./vues/LotsVue').then((m) => ({ default: m.LotsVue }))),
   carte: lazy(() => import('./vues/CarteVue').then((m) => ({ default: m.CarteVue }))),
   agents: lazy(() => import('./vues/AgentsVue').then((m) => ({ default: m.AgentsVue }))),
   config: lazy(() => import('./vues/ConfigVue').then((m) => ({ default: m.ConfigVue }))),

@@ -46,6 +46,9 @@ import type {
   Tache,
   TacheCorps,
   Tournee,
+  Lot,
+  LotCorps,
+  MentionOrigine,
   Trace,
   TypeIndicateur,
   Visite,
@@ -88,7 +91,12 @@ const MUTATIONS = new Set(['POST', 'PUT', 'DELETE']);
  */
 export const rafraichirJeton = creerVerrou(echangerRafraichissement);
 
-async function requete<T>(url: string, options: RequestInit = {}, rejeu = false): Promise<T> {
+async function requete<T>(
+  url: string,
+  options: RequestInit = {},
+  rejeu = false,
+  cle?: string,
+): Promise<T> {
   const jeton = jetonCourant();
   const enTetes = new Headers(options.headers);
   enTetes.set('Accept', 'application/json');
@@ -100,16 +108,28 @@ async function requete<T>(url: string, options: RequestInit = {}, rejeu = false)
   }
 
   const methode = (options.method ?? 'GET').toUpperCase();
+  // Clé d'idempotence (US-055) : générée UNE fois par mutation logique, puis
+  // conservée à travers le rejeu après rafraîchissement du jeton et jusqu'à la
+  // synchronisation hors-ligne. Une clé regénérée à chaque tentative ne
+  // protégerait de rien — c'est justement la répétition qu'elle doit désigner.
+  const cleIdempotence = MUTATIONS.has(methode) ? (cle ?? crypto.randomUUID()) : undefined;
+  if (cleIdempotence) {
+    enTetes.set('Idempotency-Key', cleIdempotence);
+  }
+
   let reponse: Response;
   try {
     reponse = await fetch(url, { ...options, headers: enTetes });
   } catch (cause) {
     // Panne réseau : une mutation est mise en file (US-011) ; une lecture échoue.
+    // La clé part avec elle : `fetch` échoue aussi quand la requête est arrivée
+    // et que seule la réponse s'est perdue.
     if (MUTATIONS.has(methode)) {
       enfiler({
         methode: methode as MutationEnAttente['methode'],
         url,
         corps: typeof options.body === 'string' ? options.body : undefined,
+        cle: cleIdempotence,
       });
       throw new ErreurHorsLigne();
     }
@@ -120,7 +140,7 @@ async function requete<T>(url: string, options: RequestInit = {}, rejeu = false)
   // requete (US-050). Le drapeau `rejeu` empeche la boucle si le serveur repond
   // 401 avec un jeton pourtant frais.
   if (reponse.status === 401 && !rejeu && (await rafraichirJeton())) {
-    return requete<T>(url, options, true);
+    return requete<T>(url, options, true, cleIdempotence);
   }
 
   // Rafraichissement impossible ou insuffisant : on ferme la session pour ramener
@@ -275,6 +295,21 @@ export const recoltes = ressource<Recolte, RecolteCorps>('/api/recoltes');
 export const tracerLot = (lot: string) =>
   requete<Trace>(`/api/recoltes/tracabilite/${encodeURIComponent(lot)}`);
 
+/**
+ * US-056 : lots de conditionnement et mention d'origine (directive (UE) 2024/1438).
+ */
+export const lots = ressource<Lot, LotCorps>('/api/lots');
+
+/**
+ * Mention d'origine prête à imprimer. La langue est négociée par l'en-tête :
+ * un miel exporté s'étiquette dans la langue du marché, pas dans celle du
+ * producteur.
+ */
+export const chargerMentionOrigine = (id: number, langue: string) =>
+  requete<MentionOrigine>(`/api/lots/${id}/mention`, {
+    headers: { 'Accept-Language': langue },
+  });
+
 /** US-034 : détection d'anomalie EWMA. */
 export const detecterAnomalie = (rucheId: number, type: TypeIndicateur) =>
   requete<Anomalie>(`/api/anomalies?rucheId=${rucheId}&type=${type}`);
@@ -381,8 +416,17 @@ export const synchroniser = (): Promise<void> =>
     if (jeton) {
       enTetes.Authorization = `Bearer ${jeton}`;
     }
+    // Même clé qu'à la première tentative : si le serveur avait déjà traité la
+    // mutation, il rejoue sa réponse au lieu de créer un doublon.
+    enTetes['Idempotency-Key'] = m.cle;
     try {
       const r = await fetch(m.url, { method: m.methode, headers: enTetes, body: m.corps });
+      if (r.status === 401 || r.status === 403) {
+        // Session expirée pendant la coupure — le cas le plus courant après une
+        // journée sur le terrain. Ce n'est PAS un refus métier : on garde la
+        // saisie en file plutôt que de la détruire.
+        return { ok: false, reseau: false, session: true };
+      }
       return { ok: r.ok || (r.status >= 400 && r.status < 500), reseau: false };
     } catch {
       return { ok: false, reseau: true };

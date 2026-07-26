@@ -22,6 +22,7 @@ export const ONGLETS = [
   'capteurs',
   'reines',
   'recoltes',
+  'lots',
   'carte',
   'agents',
   'config',

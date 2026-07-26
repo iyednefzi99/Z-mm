@@ -26,6 +26,14 @@
          est anterieur a Docker Engine 29 (API minimale 1.40) et echoue avec un
          HTTP 400 a la decouverte du demon. -->
     <testcontainers.version>1.21.4</testcontainers.version>
+    <!-- Plancher de couverture (SPRINT-14). Regle sur la couverture REELLE
+         constatee, arrondie a l'inferieur : c'est un cliquet anti-regression, pas
+         une cible. Le relever se fait en meme temps qu'on ajoute des tests ; le
+         baisser demande un geste explicite et visible en revue. -->
+    <!-- Mesure du 26/07/2026 : 82,5 % (9 659 / 11 701 instructions), campagnes
+         unitaire et integration fusionnees. Plancher pose a 0,80 — sous la mesure,
+         pour tolerer le bruit d'un test, et tres au-dessus des 70 % de la DoD. -->
+    <couverture.minimale>0.80</couverture.minimale>
   </properties>
 
   <dependencies>
@@ -142,6 +150,94 @@
               <goal>integration-test</goal>
               <goal>verify</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Couverture de code (SPRINT-14). La Definition of Done du backlog exige
+           >= 70 % depuis le SPRINT-01 ; rien ne le MESURAIT, donc rien ne le
+           garantissait. JaCoCo instrumente les deux campagnes — unitaire
+           (surefire) et integration (failsafe) — et fusionne les deux releves :
+           compter la seule campagne unitaire sous-estimerait tres largement un
+           projet dont l'essentiel des regles est prouve par les tests
+           d'integration Testcontainers.
+
+           Le seuil est un PLANCHER de non-regression, pas un objectif. Il est
+           regle sur la couverture reelle constatee, arrondie a l'inferieur : le
+           faire descendre demande alors un geste explicite. -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.12</version>
+        <executions>
+          <execution>
+            <id>prepare-unitaires</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>prepare-integration</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>fusion</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>merge</goal>
+            </goals>
+            <configuration>
+              <fileSets>
+                <fileSet>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>jacoco.exec</include>
+                    <include>jacoco-it.exec</include>
+                  </includes>
+                </fileSet>
+              </fileSets>
+              <destFile>${project.build.directory}/jacoco-fusion.exec</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rapport</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/jacoco-fusion.exec</dataFile>
+              <outputDirectory>${project.build.directory}/site/jacoco</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>seuil</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <configuration>
+              <dataFile>${project.build.directory}/jacoco-fusion.exec</dataFile>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>INSTRUCTION</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${couverture.minimale}</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+              <excludes>
+                <!-- Point d'entree Spring Boot : une ligne, testee par le seul
+                     fait que le contexte demarre dans chaque test d'integration. -->
+                <exclude>com/zumm/ZummApplication.class</exclude>
+              </excludes>
+            </configuration>
           </execution>
         </executions>
       </plugin>
