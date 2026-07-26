@@ -728,11 +728,25 @@
           "points": 5,
           "priorite": "Haute",
           "critere_acceptation": "Schema cree par Flyway et non par Spring Session ; la session survit a un redemarrage du back-end ; exception a la convention multi-tenant motivee dans la migration"
+        },
+        {
+          "id": "US-079",
+          "titre": "Synthese de pilotage agregee en base",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Poids, motifs de visite et alertes ouvertes agreges en SQL ; la somme des poids reutilise l'agregat du tableau de bord"
+        },
+        {
+          "id": "US-080",
+          "titre": "Courbes journalieres agregees cote serveur",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Agregation time_bucket A LA DEMANDE — l'agregat continu est refuse sous RLS (ADR-008 generalise) ; volume transporte divise par ~95 ; serie brute conservee pour la detection d'anomalie"
         }
       ]
     }
   ],
-  "total_story_points": 569,
+  "total_story_points": 582,
   "definition_of_ready": [
     "La story a un titre clair et une description",
     "Les critères d'acceptation sont définis",

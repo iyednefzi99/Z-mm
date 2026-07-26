@@ -949,6 +949,394 @@ elle traverse sinon toutes les requêtes de l'application. US-050 et US-051 sont
 menées ensemble : rétablir la session sans rendre les écrans adressables
 ramènerait l'utilisateur sur le premier onglet à chaque reconnexion.
 
+\section{Sprint 12 --- Durcissement de la sécurité}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Qu'aucune garantie annoncée au cahier ne repose sur une
+            configuration absente, un contrôle manquant ou une règle jamais
+            appliquée. \\
+Période   & 19/01/2027 $\rightarrow$ 01/02/2027 (14 jours) --- 34 pts / capacité 40. \\
+Démo      & Six tentatives d'intrusion rejouées devant les parties prenantes,
+            sur l'image d'avant puis celle du jour : jeton sans
+            \texttt{tenant\_id} (403), jeton du client \texttt{account} (401),
+            position d'un site lue par un non-propriétaire (arrondie),
+            suppression par un compte sans rôle métier (403), script
+            \emph{inline} (bloqué par la CSP), dépendance vulnérable poussée
+            (chaîne rouge). \\
+Risques   & Le refus par défaut sur \emph{tous} les endpoints coupe une
+            fonctionnalité entière si un rôle est oublié ; le mapper
+            \texttt{tenant\_id} doit exister dans les \emph{deux} realms ; la
+            CSP peut casser la PWA sans échec côté serveur ; rendre une porte
+            d'intégration continue bloquante sans maîtriser sa source de
+            données. \\
+Burndown idéal & J1 : 34 --- J3 : 29 --- J6 : 22 --- J9 : 14 --- J11 : 8 --- J13 : 3 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-058 & Claim \texttt{tenant\_id} garanti et refus explicite & 5 \\
+US-059 & Validation d'audience du jeton                       & 3 \\
+US-060 & Confidentialité des positions de ruchers             & 8 \\
+US-061 & RBAC en refus par défaut et identité machine         & 8 \\
+US-062 & En-têtes de sécurité du proxy inverse                & 5 \\
+US-063 & Portes de sécurité bloquantes dans la CI             & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} Une revue d'architecture menée sur la branche principale a
+relevé six écarts entre ce que la documentation garantissait et ce que le code
+faisait. Aucun n'était visible en test : tous se manifestaient à l'exécution, en
+configuration de production.
+
+\textbf{Ce que la revue a rapporté, et qui n'était pas au programme.} La
+démonstration de la dernière porte, jouée sur l'arbre de dépendances réel, a
+rendu \textbf{29 vulnérabilités, dont trois de score 9.1 à 9.6} --- Spring Boot
+figé depuis dix-huit mois. La leçon consignée : aucune mesure de configuration
+ne compense une dépendance non tenue à jour, et l'absence de garde opérant
+l'avait laissé invisible.
+
+\textbf{Parades aux risques :} chaque correctif porte un test de régression qui
+échoue si on le retire --- un réglage de sécurité sans test n'est pas une
+garantie, c'est une intention. Une porte d'intégration continue n'est rendue
+bloquante que si son entrée est produite \emph{localement} (SBOM), jamais si
+elle dépend d'un registre tiers interrogé à chaud.
+
+\section{Sprint 13 --- PWA livrable, graphiques et carte}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Que la PWA soit servie par la pile, démarre sans réseau, et montre
+            les données au lieu de les tabuler. \\
+Période   & 02/02/2027 $\rightarrow$ 15/02/2027 (14 jours) --- 32 pts / capacité 40. \\
+Démo      & Revue jouée entièrement depuis la pile déployée : installation de la
+            PWA, démarrage à froid Wi-Fi coupé, graphiques doublés de leur
+            équivalent tabulaire, carte à rayons géodésiques comparée entre
+            Bizerte et la Norvège, bandeau de mise à jour déclenché en séance,
+            bascule clair/sombre puis FR $\rightarrow$ AR en RTL. \\
+Risques   & Un \emph{service worker} mal réglé sert indéfiniment une version
+            périmée ; le fond cartographique tiers expose les positions des
+            ruchers ; MapLibre alourdit le paquet initial ; graphiques maison et
+            accessibilité ; licence AGPL introduite par une dépendance. \\
+Burndown idéal & J1 : 32 --- J3 : 27 --- J6 : 20 --- J9 : 13 --- J12 : 5 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-064 & Déploiement de la PWA dans la pile           & 5 \\
+US-065 & Démarrage hors ligne réel (précache généré)  & 8 \\
+US-066 & Graphiques des tableaux de bord              & 8 \\
+US-067 & Fond cartographique réel (MapLibre + OSM)    & 8 \\
+US-068 & Bandeau de mise à jour de la PWA             & 3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} « Ça marche en développement » ne dit rien du déploiement : le
+front était complet et testé depuis trois sprints, et n'était servi par
+personne.
+
+\textbf{Ce que la revue a rapporté.} La palette catégorielle de la charte,
+validée \emph{par calcul} plutôt qu'à l'{\oe}il, s'est révélée avoir deux
+emplacements adjacents en deçà du plancher de distinction ($\Delta$E OKLab de
+12,9 pour un plancher de 15). Le défaut était rigoureusement invisible en
+relecture.
+
+\textbf{Parades aux risques :} \texttt{no-cache} sur la coquille et cache
+immuable réservé aux seuls fichiers dont le nom porte une empreinte ; tuiles
+cartographiques paramétrables, seule option qui garantisse qu'aucune position de
+rucher ne sorte du système ; MapLibre chargé paresseusement dans son propre
+morceau (78 ko initiaux, 252 ko à l'ouverture de la carte seulement).
+
+\section{Sprint 14 --- Idempotence, index et conformité miel}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Qu'une saisie hors ligne ne se duplique ni ne se perde, que les
+            lectures tiennent sur un parc réel, et que l'étiquette soit conforme
+            au 14 juin 2026. \\
+Période   & 16/02/2027 $\rightarrow$ 01/03/2027 (14 jours) --- 34 pts / capacité 40. \\
+Démo      & Revue jouée sur le scénario de terrain : coupure entre requête et
+            réponse (une seule visite créée), jeton expiré pendant la coupure
+            (saisie conservée au lieu d'être détruite), même clé et corps
+            différent (409), lot mêlant deux récoltes françaises, une
+            tunisienne et un miel acquis à un tiers, plan d'exécution avant et
+            après index, compteur de requêtes sur les six listages, couverture
+            mesurée à 82,6 \%. \\
+Risques   & Une clé d'idempotence régénérée au rejeu ne protège de rien ;
+            mémoriser les réponses en échec rendrait une erreur transitoire
+            définitive ; rendre la récolte obligatoire dans un lot rendrait la
+            mention légale fausse ; un plancher de couverture posé sur la seule
+            campagne unitaire serait trompeur. \\
+Burndown idéal & J1 : 34 --- J4 : 26 --- J7 : 18 --- J10 : 11 --- J12 : 6 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-055 & Idempotence des mutations rejouées               & 8 \\
+US-056 & Lot de conditionnement et mention d'origine      & 13 \\
+US-069 & Index et garde-fous d'exécution sur les mesures  & 5 \\
+US-070 & Suppression des N+1 sur les listages             & 5 \\
+US-071 & Mesure et plancher de couverture                 & 3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} Partir du scénario de terrain --- « le réseau tombe entre la
+requête et la réponse » --- plutôt que de la fonctionnalité. C'est ce cadrage
+qui a fait apparaître deux défauts du rejeu, dont un de \emph{perte de données}
+que personne n'aurait signalé : l'utilisateur aurait conclu qu'il avait oublié
+de saisir.
+
+\textbf{Ce que la revue a rapporté.} La démonstration de la compression
+temporelle, pourtant au programme, \textbf{a échoué en séance} : le SGBD refuse
+la compression sur une table soumise à la sécurité au niveau ligne. Les
+décisions ADR-001 et ADR-002 étaient incompatibles depuis leur rédaction ---
+personne n'avait tenté de les appliquer ensemble. Arbitrage rendu devant les
+parties prenantes et consigné en ADR-008.
+
+\textbf{Parades aux risques :} la clé d'idempotence est générée \emph{avant} la
+première tentative et conservée jusqu'au rejeu ; seules les réponses réussies
+sont mémorisées ; la référence à la récolte reste facultative, faute de quoi le
+miel acquis à un tiers deviendrait inreprésentable et les pourcentages ne
+totaliseraient jamais 100 \%.
+
+\section{Sprint 15 --- Ressources de langue externalisées}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Que les traductions soient des ressources qu'un traducteur peut
+            ouvrir, et qu'une session ne télécharge que la langue qu'elle
+            affiche. \\
+Période   & 02/03/2027 $\rightarrow$ 15/03/2027 (14 jours) --- 8 pts / capacité 40. \\
+Démo      & Une clé est \emph{réellement} supprimée d'une traduction en séance :
+            la compilation échoue en nommant la clé et la langue. Clé en trop et
+            valeur vide attrapées par le test. Paquet initial 243
+            $\rightarrow$ 228 ko. Bascule FR $\rightarrow$ AR sur réseau ralenti:
+            direction du document immédiate, libellés différés, garde
+            d'annulation sur deux bascules rapprochées. \\
+Risques   & Perdre la garantie de parité en externalisant les chaînes ;
+            réécrire 315 clés à la main ; écran vide pendant le chargement ;
+            sprint court laissant croire à une capacité disponible. \\
+Burndown idéal & J1 : 8 --- J3 : 6 --- J6 : 4 --- J9 : 2 --- J12 : 1 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-072 & Traductions en ressources de locale, chargées à la demande & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Note de planification.} Sprint volontairement court : il solde un point
+ouvert plutôt qu'il n'ouvre un chantier, et sa capacité restante est fléchée
+vers le sprint suivant.
+
+\textbf{Parades aux risques :} la garantie de parité n'est pas perdue mais
+\emph{reportée} sur le type de retour des chargeurs, et prouvée en la cassant
+volontairement ; les 315 clés sont extraites par un script exécuté depuis le
+module lui-même, jamais recopiées --- une conversion manuelle de mille lignes
+d'apostrophes typographiques et de texte arabe est une source de fautes
+silencieuses.
+
+\section{Sprint 16 --- Sessions sans jeton et portée par affectation}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Que le navigateur ne détienne plus de jeton, et qu'un agent ne
+            puisse plus énumérer le parc entier de son exploitation. \\
+Période   & 16/03/2027 $\rightarrow$ 29/03/2027 (14 jours) --- 34 pts / capacité 40. \\
+Démo      & Stockage local ouvert en séance : plus aucun jeton. Extrait hostile
+            exécuté dans la console : rien à exfiltrer. Compte apiculteur
+            affecté à trois ruches sur un parc de plus de deux cents : trois
+            lignes rendues. Requête émise sans portée posée : rien. Changement
+            d'adresse électronique : l'affectation tient. \\
+Risques   & Le BFF devient un point de passage unique de toutes les requêtes ;
+            session serveur et réplication horizontale ; poser la portée dans
+            les services plutôt qu'en base ; poser le tenant et la portée dans
+            deux requêtes distinctes ; lier le compte à l'agent par le courriel. \\
+Burndown idéal & J1 : 34 --- J4 : 26 --- J7 : 18 --- J9 : 13 --- J11 : 8 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-073 & BFF : jetons détenus par le serveur          & 21 \\
+US-057 & Portée d'autorisation par affectation d'agent & 13 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} L'isolation posée en ADR-001 séparait les exploitations entre
+elles, mais \emph{à l'intérieur} d'une exploitation, tout le monde voyait tout :
+un saisonnier, un stagiaire ou un compte compromis pouvait énumérer
+l'intégralité du parc --- donc la carte des ruchers. C'est aussi le sprint qui
+solde la dette du stockage des jetons, ouverte en ADR-006 et déclarée bloquante
+pour la mise en production au sprint 12.
+
+\textbf{Ce que la revue a rapporté.} La première version des tests était
+\emph{verte à tort} : en test, l'application se connecte avec le propriétaire de
+la base, lequel ignore la sécurité au niveau ligne. Les tests ont été refaits
+sous le rôle applicatif. Règle posée en séance : un test vert ne dit rien tant
+qu'on n'a pas vérifié qu'il peut rougir.
+
+\textbf{Parades aux risques :} la règle de portée est posée \emph{dans le SGBD},
+comme l'isolation de tenant --- la poser dans les services reviendrait à ajouter
+une condition à chaque requête et à espérer que personne ne l'oublie. Le tenant
+et la portée sont posés dans la \emph{même} requête préparée, faute de quoi une
+fenêtre s'ouvrirait pendant laquelle une requête verrait toute l'exploitation.
+L'absence de portée vaut « rien voir », jamais « tout voir ».
+
+\section{Sprint 17 --- Dettes techniques}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Que les tableaux de bord tiennent sur un parc réel, que le contrat
+            publié soit vérifié, et que la session serveur survive à un
+            redéploiement. \\
+Période   & 30/03/2027 $\rightarrow$ 12/04/2027 (14 jours) --- 29 pts / capacité 40. \\
+Démo      & Parc de 500 ruches et huit millions de relevés : saturation mémoire
+            avant, page rendue après, plan d'exécution projeté. Contrat HTTP
+            identique après scission en trois services. Champ renommé côté
+            serveur : la compilation du client échoue en le nommant.
+            Microservice d'analyse arrêté en séance : la consultation continue,
+            servie par le repli local. Redémarrage du back-end en direct : la
+            session survit, un second n{\oe}ud est démarré derrière le proxy. \\
+Risques   & Descendre les agrégats en SQL contourne la sécurité au niveau ligne
+            si la requête est mal écrite ; scinder un service exposé peut
+            changer le contrat ; un port mal typé laisse fuir le modèle ; deux
+            artefacts dérivés de plus à garder frais ; exception motivée à la
+            règle « toute table porte son tenant et sa politique ». \\
+Burndown idéal & J1 : 29 --- J3 : 24 --- J5 : 20 --- J8 : 13 --- J10 : 9 --- J12 : 4 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-074 & Agrégats des tableaux de bord calculés en base             & 8 \\
+US-075 & Scission du service de tableau de bord                     & 3 \\
+US-076 & Parité garantie entre client TypeScript et contrat OpenAPI & 8 \\
+US-077 & Couche anticorruption vers le microservice d'analyse       & 5 \\
+US-078 & Sessions serveur persistées en base                        & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} Ce sprint ne livre aucune fonctionnalité nouvelle. Trois de
+ses points figuraient \emph{mot pour mot} dans la section « ce qui reste
+ouvert » des sprints 14, 15 et 16. Une dette reconduite trois fois de suite
+n'est plus une dette : c'est une décision implicite de ne jamais la payer.
+
+\textbf{Ce que la revue a rapporté.} Le contrôle de parité a trouvé un défaut
+réel dès sa première exécution, et un défaut dans le contrat \emph{publié} : une
+heure y était décrite comme un objet structuré alors que l'API sérialise une
+chaîne. Tout intégrateur tiers générant son client depuis ce contrat aurait
+produit du code cassé.
+
+\textbf{Parades aux risques :} les requêtes d'agrégation sont jouées sous le
+rôle applicatif réel, jamais sous le propriétaire de la base --- application
+directe de la leçon du sprint précédent. La réponse HTTP est comparée avant et
+après la scission : une scission qui change le contrat n'est pas une scission.
+Les deux artefacts dérivés versionnés sont soumis au même contrôle de fraîcheur
+que les PDF du cahier des charges.
+
+\section{Sprint 18 --- Les deux dernières dettes}
+
+\begin{center}
+\begin{tabular}{lp{11cm}}
+\toprule
+Objectif  & Que la synthèse cesse d'être la page la plus coûteuse de
+            l'application, et que les courbes ne transportent plus cent fois trop
+            de points. \\
+Période   & 13/04/2027 $\rightarrow$ 26/04/2027 (14 jours) --- 13 pts / capacité 40. \\
+Démo      & Écran d'accueil du responsable chronométré avant et après. Échec de
+            US-080 montré tel quel en séance, commande à l'appui. Bénéfice obtenu
+            autrement : trois ans d'historique d'une ruche passent de
+            $\approx$ 105\,000 points transportés à $\approx$ 1\,100, les deux
+            courbes projetées côte à côte étant indiscernables. Série brute
+            conservée pour la détection d'anomalie. \\
+Risques   & Une user story dont la faisabilité n'a pas été vérifiée au planning ;
+            répéter un défaut déjà corrigé ailleurs ; une agrégation à la demande
+            qui remplace un cache ; une requête native qui échappe au discriminant
+            de tenant et ne garde qu'une barrière sur deux. \\
+Burndown idéal & J1 : 13 --- J4 : 9 --- J7 : 6 --- J9 : 4 --- J11 : 2 --- J14 : 0. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{lp{9cm}c}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} \\
+\midrule
+US-079 & Synthèse de pilotage agrégée en base       & 5 \\
+US-080 & Courbes journalières agrégées côté serveur & 8 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Origine.} La synthèse portait le défaut déjà corrigé ailleurs : elle
+chargeait toutes les mesures de poids du tenant pour n'en retenir qu'une valeur
+par ruche --- exactement ce que le sprint précédent avait corrigé sur le tableau
+de bord, mais laissé ici. Autrement dit, l'écran d'accueil du responsable était la
+page la plus coûteuse de l'application.
+
+\textbf{Ce que la revue a rapporté.} US-080 \textbf{n'a pas été livrée comme elle
+avait été planifiée}. L'agrégat continu envisagé est refusé par le SGBD sur une
+table soumise à la sécurité au niveau ligne --- seconde manifestation du conflit
+tranché en ADR-008 après la compression --- et le contournement envisagé n'a même
+pas pu être tenté, le refus tombant à la \emph{création} et non à la lecture.
+L'ADR-008 a donc été \textbf{généralisé} plutôt que complété au cas par cas :
+sous sécurité au niveau ligne, aucune fonctionnalité \emph{matérialisante} de
+l'extension temporelle n'est disponible ; restent le partitionnement, les index,
+le regroupement par intervalle et les agrégations de dernière valeur ---
+c'est-à-dire l'essentiel. Écrire la règle une fois évite de la redécouvrir une
+troisième fois.
+
+\textbf{Parades aux risques :} le défaut a été cherché par son \emph{motif}
+(chargement complet suivi d'une réduction) et non par son symptôme, sur tout le
+paquet des services. Les tests d'intégration ont attrapé deux régressions que les
+tests unitaires laissaient passer, dont une sérieuse : une requête \emph{native}
+échappe au discriminant de tenant, qui ne réécrit que les requêtes de haut niveau.
+En production la sécurité au niveau ligne couvre ce trou, mais le projet a
+toujours voulu \emph{deux} barrières --- les trois requêtes natives portent
+désormais un filtre de tenant explicite.
+
 \section{Suivi en cours de sprint}
 
 \begin{encadre}

@@ -822,8 +822,53 @@
           "Jour 14"
         ]
       }
+    },
+    {
+      "id": "SPRINT-18",
+      "nom": "Les deux dernieres dettes",
+      "theme": "Vider la liste des dettes, y compris celle qui s'est revelee impossible",
+      "objectif": "Que la synthese cesse d'etre la page la plus couteuse de l'application, et que les courbes ne transportent plus cent fois trop de points",
+      "numero": 18,
+      "date_debut": "2027-04-13",
+      "date_fin": "2027-04-26",
+      "duree_jours": 14,
+      "story_points": 13,
+      "velocity": 13,
+      "capacity": 40,
+      "commentaire": "Sprint court. US-080 n'a PAS ete livree comme planifiee : l'agregat continu est refuse sous RLS. Le benefice a ete obtenu autrement, l'impossibilite consignee en ADR-008 generalise.",
+      "stories": [
+        "US-079",
+        "US-080"
+      ],
+      "review_demo": "Ecran d'accueil du responsable chronometre avant/apres. Echec de US-080 montre tel quel en seance : la creation d'agregat continu est refusee sous RLS, et le contournement par vue filtrante tombe aussi. Benefice obtenu autrement : trois ans d'historique d'une ruche passent de ~105 000 points transportes a ~1 100, les deux courbes projetees cote a cote sont indiscernables. Serie brute conservee pour la detection d'anomalie",
+      "risques": "Une user story dont la faisabilite n'a pas ete verifiee au planning ; repeter un defaut deja corrige ailleurs ; une agregation a la demande remplace un cache ; une requete native echappe au discriminant de tenant et ne garde qu'une barriere sur deux ; une projection declaree String sur une enumeration change la casse des cles sans qu'aucune signature ne bouge",
+      "ceremonies": {
+        "sprint_planning": "2027-04-13 09:00-11:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-04-26 14:00-15:00",
+        "sprint_retrospective": "2027-04-26 15:00-16:00"
+      },
+      "burndown": {
+        "ideal": [
+          13.0,
+          9.0,
+          6.0,
+          4.0,
+          2.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 9",
+          "Jour 11",
+          "Jour 14"
+        ]
+      }
     }
   ],
-  "total_sprints": 18,
-  "total_points": 569
+  "total_sprints": 19,
+  "total_points": 582
 }

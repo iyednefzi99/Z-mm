@@ -68,6 +68,15 @@
   --z-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --z-ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
 
+  /* Modale : jetons de `design/motion/modal.css`. L'OUVERTURE est plus longue que
+     la FERMETURE, et ce n'est pas une coquetterie — une modale qui s'ouvre trop
+     vite surgit, une modale qui se ferme lentement retient. La valeur de sortie
+     doit rester sous le seuil ou l'utilisateur percoit une attente. */
+  --z-modal-open-dur: 250ms;
+  --z-modal-close-dur: 150ms;
+  --z-modal-scale: 0.96;
+  --z-modal-ease: var(--z-ease-out);
+
   /* --- Typographie --- */
   --z-font-ui: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
   --z-font-ui-arabic: 'Cairo', 'Tajawal', 'IBM Plex Sans Arabic', sans-serif;
@@ -80,6 +89,19 @@
   --z-text: #1b2320;
   --z-text-muted: #5b6b65;
   --z-line: #dce4e0;
+
+  /* Encre POSEE SUR une couleur de marque. Ces valeurs ne suivent pas le theme :
+     un bouton miel reste miel en clair comme en sombre, donc son encre aussi.
+     Elles etaient ecrites en dur dans App.css, ce qui les rendait invisibles a
+     toute relecture de la charte — et impossibles a corriger en un point si le
+     contraste se revelait insuffisant. Ni #FFFFFF ni #000000 purs : neutres
+     teintes, comme le reste (cf. design/principes/). */
+  --z-on-honey: #24170a;
+  --z-on-danger: #fff5f4;
+
+  /* Voile de la modale. Vert ardoise translucide, pas un noir : un scrim noir
+     desature la page qu'il recouvre au lieu de la mettre en retrait. */
+  --z-scrim: rgba(20, 34, 30, 0.5);
 }
 
 /* Mode sombre : bascule sur les memes jetons semantiques, jamais sur les

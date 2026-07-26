@@ -2,7 +2,9 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { LangueProvider } from './i18n/langue';
+import { ThemeProvider } from './theme/theme';
 import { DialoguesProvider } from './ui/dialogues';
+import { ToastsProvider } from './ui/toasts';
 import { enregistrerServiceWorker } from './pwa';
 import './theme/tokens.css';
 import './theme/base.css';
@@ -14,10 +16,16 @@ if (!racine) {
 
 createRoot(racine).render(
   <StrictMode>
+    {/* L'ordre compte : les toasts et les dialogues lisent la langue, le sélecteur
+        de thème aussi. Tous descendent donc de `LangueProvider`. */}
     <LangueProvider>
-      <DialoguesProvider>
-        <App />
-      </DialoguesProvider>
+      <ThemeProvider>
+        <ToastsProvider>
+          <DialoguesProvider>
+            <App />
+          </DialoguesProvider>
+        </ToastsProvider>
+      </ThemeProvider>
     </LangueProvider>
   </StrictMode>,
 );

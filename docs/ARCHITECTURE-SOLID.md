@@ -91,6 +91,7 @@ l'appelant a droit à l'exactitude (pour dégrader une distance).
 | **Façade** | `service/*Service` | Une porte d'entrée métier par agrégat, derrière laquelle repositories et règles restent internes. |
 | **DTO** | `web/dto/` | Sépare la forme exposée de la forme persistée. C'est ce qui permet à `SiteReponse` d'être masqué sans que l'entité `Site` change. |
 | **Décorateur** | `PolitiquePositionsSelonRole.masquer` | Enveloppe un DTO et en rend une version restreinte, sans que l'appelant sache laquelle il tient. |
+| **Point unique d'accès** | `securite/IdentiteAppelant` | Depuis le BFF, une même identité arrive par deux porteurs (`Jwt` pour les machines, `OidcUser` pour les navigateurs). Chaque lecteur de claims qui distinguerait les deux dupliquerait la même paire d'`instanceof` — et un jour l'un des deux serait oublié. **C'est exactement ce qui est arrivé** : `AuditAspect` ne lisait que le `Jwt` et retombait sur `Authentication#getName()`, lequel rend le `sub` ; le journal inscrivait donc un UUID pour les utilisateurs humains et un nom pour les machines. Corrigé en le faisant passer par ce point unique. |
 
 ### Patrons comportementaux
 
@@ -100,6 +101,7 @@ l'appelant a droit à l'exactitude (pour dégrader une distance).
 | **Patron de méthode** | `EntiteTenant` | Fige le squelette commun (identité, tenant, horodatages) ; les sous-classes n'apportent que leur spécificité. |
 | **Chaîne de responsabilité** | `TenantFilter` → `FiltreIdempotence` → contrôleurs | Chaque filtre traite ce qui le concerne et passe la main. L'ordre est une décision d'architecture : l'idempotence a besoin d'un tenant déjà posé, parce qu'elle écrit dans une table sous RLS. |
 | **Observateur** | `surSession`, `surFile` (front) | Les vues s'abonnent à la session et à la file hors-ligne sans que ces modules les connaissent. |
+| **Commande différée avec annulation** | `ui/toasts.tsx` (`annulable`) | La suppression n'est pas envoyée tout de suite : elle part à l'expiration d'un délai, si rien ne l'a annulée. C'est ce qui distingue *annuler* de *recréer* — un objet recréé changerait d'identifiant et perdrait ses rattachements. |
 
 ### Patrons de création
 
@@ -114,10 +116,12 @@ l'appelant a droit à l'exactitude (pour dégrader une distance).
 | Patron | Où |
 |---|---|
 | **Repository** | `repository/*Repository` (Spring Data JPA) |
-| **Migration versionnée** | `db/migration/V1..V15` — Flyway seul propriétaire du schéma, `ddl-auto: none` |
+| **Migration versionnée** | `db/migration/V1..V17` — Flyway seul propriétaire du schéma, `ddl-auto: none`. `V17` (sessions serveur) le rappelle : le schéma de Spring Session est créé par Flyway et non par la bibliothèque (`initialize-schema: never`), une seconde autorité rendant les migrations non reproductibles |
 | **Multi-tenant à discriminant + RLS** | `@TenantId` + politiques PostgreSQL ([ADR-001](../roadmap/operationnel/06_decisions/ADR-001-multi-tenant.md)) |
 | **Idempotence par clé de requête** | `FiltreIdempotence` + `MagasinIdempotence` + table `requete_idempotente` |
 | **Circuit de repli (*fallback*)** | `MeteoService` (simulation), `AnomalieService` (EWMA local si le microservice IA est absent) |
+| **Fournisseur de contexte (front)** | `LangueProvider`, `ThemeProvider`, `ToastsProvider`, `DialoguesProvider` — composés dans `main.tsx`, dans cet ordre : les trois derniers lisent la langue |
+| **Repli inerte plutôt qu'exception** | `useToasts` hors fournisseur : un signal de réussite est un agrément, son absence ne doit jamais empêcher l'opération d'aboutir — et un composant reste testable sans monter tout l'arbre |
 
 ---
 
@@ -143,6 +147,33 @@ TimescaleDB n'est disponible.
 > anticorruption vers le microservice IA (`MoteurAnomalie`). Levée au SPRINT-16 :
 > l'autorisation horizontale (US-057).
 
+**Ce qui a été soldé côté interface, en marge du SPRINT-18.** Trois défauts de
+même nature — une capacité déclarée mais jamais branchée :
+
+1. **La bascule clair/sombre était du code mort.** `theme/tokens.css` déclarait
+   `:root[data-theme='dark']` et `[data-theme='light']` depuis le SPRINT-13, et
+   rien ne posait jamais l'attribut. `theme/theme.tsx` le pose désormais, avec
+   trois valeurs (système par défaut, clair, sombre) et persistance.
+2. **Aucun retour après mutation.** Une création réussie ne produisait aucun
+   signal ; une suppression n'était protégée que par une confirmation préalable —
+   le seul dispositif dont on sait qu'il est cliqué sans être lu quand il revient
+   à chaque fois. `ui/toasts.tsx` ajoute le retour et l'**annulation différée**.
+3. **Chargement et liste vide en texte brut.** `Squelette` annonce désormais la
+   forme de la réponse (l'écran ne se réorganise plus à l'arrivée des données) et
+   `EtatVide` porte une action : pour un nouvel utilisateur, une liste vide est le
+   **premier** écran, pas une erreur.
+
+Ces trois points sont couverts par 11 tests Vitest dédiés
+(`ui/modale.test.tsx`, `ui/toasts.test.tsx`, `theme/theme.test.tsx`), sur le même
+principe que le reste du dépôt : chacun échoue si l'on retire le correctif.
+
+**Dette d'interface restant ouverte.** La confirmation modale de suppression
+**et** l'annulation coexistent, alors qu'elles répondent au même risque. La
+confirmation coûte un geste aux 99 % de suppressions volontaires et ne protège
+plus rien une fois devenue un réflexe ; l'annulation ne coûte rien au cas courant.
+Retirer la confirmation demande de toucher les seize vues : à faire d'un seul
+tenant, pas au fil de l'eau.
+
 ---
 
 ## 4. Règles à tenir pour les prochains sprints
@@ -156,3 +187,22 @@ TimescaleDB n'est disponible.
 - Toute nouvelle table métier porte `tenant_id`, sa politique RLS et une clé
   étrangère **composite** `(id, tenant_id)` — c'est ce qui empêche un
   rattachement inter-tenant même quand la vérification de clé contourne la RLS.
+- Toute lecture de l'identité de l'appelant passe par `IdentiteAppelant`, jamais
+  par un `instanceof Jwt` local : depuis le BFF il y a **deux** porteurs, et le
+  seul endroit qui en a oublié un est celui qui n'utilisait pas ce point unique.
+- Une requête **native** n'est pas réécrite par `@TenantId` : elle porte son
+  filtre de tenant **explicite**. La RLS rattrape en production, mais le projet
+  veut deux barrières, pas une.
+- Toute valeur de couleur, de durée ou d'espacement côté front vient d'un jeton
+  de `theme/tokens.css` — jamais écrite en dur dans `App.css`. Ni `#FFFFFF` ni
+  `#000000` purs : neutres teintés (cf. `design/principes/`).
+- Une nouvelle vue de liste passe par `CorpsSection` : elle hérite ainsi du
+  squelette, de l'état vide actionnable, de l'état d'erreur et de la pagination,
+  sans les réimplémenter.
+
+## 5. Ce qui n'est pas couvert par ce document
+
+La sécurité est cartographiée séparément, couche par couche, dans
+[`SECURITE.md`](SECURITE.md) : réseau et transport, authentification,
+autorisation, données, application, chaîne d'approvisionnement, observabilité —
+avec les écarts résiduels et la procédure de test dynamique.

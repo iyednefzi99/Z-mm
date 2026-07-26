@@ -62,7 +62,9 @@
     "vide": "Nothing here yet.",
     "confirmerSuppression": "Confirm deletion of “{nom}”?",
     "erreur": "An error occurred.",
-    "serviceIndisponible": "Service unavailable. Check your connection."
+    "serviceIndisponible": "Service unavailable. Check your connection.",
+    "videTitre": "Nothing to show yet",
+    "videTexte": "Create the first item — it will appear here, along with the ones that follow."
   },
   "champs": {
     "nom": "Name",
@@ -387,5 +389,19 @@
     "valeur": "Value",
     "zscore": "z-score",
     "instant": "Timestamp"
+  },
+  "theme": {
+    "titre": "Theme",
+    "auto": "System theme",
+    "clair": "Light theme",
+    "sombre": "Dark theme"
+  },
+  "retours": {
+    "cree": "Item created.",
+    "modifie": "Changes saved.",
+    "supprime": "Item deleted.",
+    "echecCreation": "Creation failed.",
+    "echecModification": "Saving failed.",
+    "echecSuppression": "Deletion failed."
   }
 }

@@ -3,7 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { LangueProvider } from './i18n/langue';
+import { ThemeProvider } from './theme/theme';
 import { DialoguesProvider } from './ui/dialogues';
+import { ToastsProvider } from './ui/toasts';
 import { definir, reinitialiserSession } from './auth/session';
 
 /**
@@ -35,12 +37,18 @@ vi.mock('./auth/oidc', () => ({
   consommerRouteDeRetour: () => null,
 }));
 
+// Les fournisseurs sont ceux de `main.tsx`, dans le même ordre : la barre
+// supérieure porte désormais le sélecteur de thème, qui exige `ThemeProvider`.
 const monter = () =>
   render(
     <LangueProvider>
-      <DialoguesProvider>
-        <App />
-      </DialoguesProvider>
+      <ThemeProvider>
+        <ToastsProvider>
+          <DialoguesProvider>
+            <App />
+          </DialoguesProvider>
+        </ToastsProvider>
+      </ThemeProvider>
     </LangueProvider>,
   );
 

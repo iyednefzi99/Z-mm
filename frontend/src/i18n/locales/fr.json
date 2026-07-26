@@ -62,7 +62,9 @@
     "vide": "Aucun élément pour le moment.",
     "confirmerSuppression": "Confirmer la suppression de « {nom} » ?",
     "erreur": "Une erreur est survenue.",
-    "serviceIndisponible": "Service indisponible. Vérifiez votre connexion."
+    "serviceIndisponible": "Service indisponible. Vérifiez votre connexion.",
+    "videTitre": "Rien à afficher pour l’instant",
+    "videTexte": "Créez le premier élément : il apparaîtra ici, avec tous les suivants."
   },
   "champs": {
     "nom": "Nom",
@@ -387,5 +389,19 @@
     "valeur": "Valeur",
     "zscore": "z-score",
     "instant": "Instant"
+  },
+  "theme": {
+    "titre": "Thème",
+    "auto": "Thème du système",
+    "clair": "Thème clair",
+    "sombre": "Thème sombre"
+  },
+  "retours": {
+    "cree": "Élément créé.",
+    "modifie": "Modifications enregistrées.",
+    "supprime": "Élément supprimé.",
+    "echecCreation": "La création a échoué.",
+    "echecModification": "L’enregistrement a échoué.",
+    "echecSuppression": "La suppression a échoué."
   }
 }

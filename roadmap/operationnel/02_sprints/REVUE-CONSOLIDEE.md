@@ -1,4 +1,4 @@
-# 🎯 Revue de sprint consolidée — SPRINT-00 → SPRINT-17
+# 🎯 Revue de sprint consolidée — SPRINT-00 → SPRINT-18
 
 > **Ce que ce document est.** La revue de sprint (*Sprint Review*) est l'inspection
 > de l'incrément par les parties prenantes. Chaque sprint a la sienne, dans sa
@@ -10,7 +10,7 @@
 > les défauts trouvés *en séance* y figurent au même titre que les démonstrations
 > réussies — ce sont eux qui ont fait bouger le backlog.
 
-**Périmètre :** 18 sprints, du 2026-07-14 au 2027-04-12.
+**Périmètre :** 19 sprints, du 2026-07-14 au 2027-04-26.
 **Dernière mise à jour :** 2026-07-26.
 
 ---
@@ -37,20 +37,22 @@
 | [15](SPRINT-15.md) | 2027-03-02 → 03-15 | Ressources de langue externalisées | 8 | 40 |
 | [16](SPRINT-16.md) | 2027-03-16 → 03-29 | Sessions sans jeton, portée par affectation | 34 | 40 |
 | [17](SPRINT-17.md) | 2027-03-30 → 04-12 | Dettes techniques | 29 | 40 |
+| [18](SPRINT-18.md) | 2027-04-13 → 04-26 | Les deux dernières dettes | 13 | 40 |
 
-**Total : 569 points sur 17 sprints de livraison** — moyenne 33,5, capacité de
+**Total : 582 points sur 18 sprints de livraison** — moyenne 32,3, capacité de
 référence 40.
 
 **Lecture de la vélocité.** Elle se casse en deux, et la rupture est délibérée.
 
 - **Sprints 01 → 08 : 36 à 39 points par sprint.** Phase de construction du
   périmètre fonctionnel, sur une capacité de 40.
-- **Sprints 09 → 17 : 8 à 34 points.** La capacité n'a pas baissé ; ce sont les
+- **Sprints 09 → 18 : 8 à 34 points.** La capacité n'a pas baissé ; ce sont les
   sprints qui ont cessé d'être remplis jusqu'au bord. Deux raisons, toutes deux
   assumées en revue : à partir du SPRINT-09 le travail porte de plus en plus sur
   la **qualité de l'existant** (sécurité, tenue à l'échelle, dette), dont le
-  chiffrage est moins fiable ; et le SPRINT-15 (8 points) est volontairement court
-  — il solde un point ouvert et fléche sa capacité restante vers le suivant.
+  chiffrage est moins fiable ; et les SPRINT-15 (8 points) et SPRINT-18
+  (13 points) sont volontairement courts — ils soldent des points ouverts plutôt
+  que d'ouvrir un chantier.
 
 Une vélocité qui remonterait à 39 sur ces derniers sprints ne serait pas un bon
 signe : elle voudrait dire qu'on a re-rempli le sprint sans garder de marge pour
@@ -60,7 +62,7 @@ ce que les revues font systématiquement apparaître.
 
 ## 2. Ce que les revues ont réellement trouvé
 
-C'est la partie utile. Sept revues sur dix-huit ont produit une découverte qui
+C'est la partie utile. Neuf revues sur dix-neuf ont produit une découverte qui
 n'était **au programme d'aucune d'entre elles**, et qui a changé le plan.
 
 | Sprint | Découvert en séance | Conséquence |
@@ -72,11 +74,14 @@ n'était **au programme d'aucune d'entre elles**, et qui a changé le plan.
 | **14** | **La démonstration prévue échoue en séance** : PostgreSQL refuse la compression TimescaleDB sur une table sous RLS. L'ADR-001 et l'ADR-002 étaient incompatibles depuis leur rédaction | [ADR-008](../06_decisions/ADR-008-rls-contre-compression.md) : RLS conservée, compression abandonnée, coût chiffré (~2,8 Go/an pour 500 ruches) |
 | **16** | Les tests d'US-057 étaient **verts à tort** : en test, l'application se connecte avec le propriétaire de la base, qui contourne la RLS | Tests refaits sous le rôle applicatif `zumm_app`. **Leçon : un test vert ne dit rien tant qu'on n'a pas vérifié qu'il peut rougir** |
 | **17** | Le contrôle de parité trouve un défaut **dans le contrat publié** dès sa première exécution : `LocalTime` décrit comme `{hour, minute, second, nano}` alors que l'API sérialise `"14:30:00"` | Corrigé au niveau du type, pas champ par champ. Tout intégrateur tiers générant son client depuis le contrat aurait produit du code cassé |
+| **18** | **US-080 est irréalisable telle qu'elle a été planifiée** : PostgreSQL refuse un agrégat continu sur une hypertable sous RLS — seconde manifestation du conflit de l'ADR-008, et le contournement par vue filtrante tombe aussi, le refus arrivant à la *création* | ADR-008 **généralisé** plutôt que complété au cas par cas : sous RLS, aucune fonctionnalité *matérialisante* de TimescaleDB n'est disponible. Le bénéfice est obtenu autrement (`time_bucket` à la demande) : ~105 000 points transportés → ~1 100 |
+| **18** | Une requête **native** échappe au discriminant `@TenantId` d'Hibernate, qui ne réécrit que le JPQL | En production la RLS couvre ce trou, mais le projet a toujours voulu **deux** barrières. Les trois requêtes natives portent désormais un filtre de tenant explicite |
 
-Deux de ces sept découvertes viennent d'une démonstration qui **a échoué devant
-les parties prenantes** (sprints 14 et 16). C'est le résultat le plus difficile à
-obtenir d'une revue, et celui qui a le plus de valeur : une démonstration
-entièrement répétée à l'avance n'inspecte rien.
+Deux de ces neuf découvertes viennent d'une démonstration qui **a échoué devant
+les parties prenantes** (sprints 14 et 16), et une troisième d'une user story
+livrée **autrement** que planifiée (sprint 18). C'est le résultat le plus
+difficile à obtenir d'une revue, et celui qui a le plus de valeur : une
+démonstration entièrement répétée à l'avance n'inspecte rien.
 
 ---
 
@@ -137,6 +142,12 @@ entièrement répétée à l'avance n'inspecte rien.
   conditions où la dette faisait mal. Huit millions de relevés, `OutOfMemoryError`
   avant / page rendue après ; `docker compose restart backend` en direct sans
   déconnecter personne.
+- **SPRINT-18.** La revue la plus inconfortable, et la plus utile : **une des deux
+  user stories n'a pas été livrée comme elle avait été planifiée**, et l'échec est
+  montré tel quel en séance, commande à l'appui. Le bénéfice recherché est obtenu
+  autrement, chiffré (~105 000 points transportés → ~1 100 pour un tracé
+  indiscernable), et ce qui est perdu — la mémorisation du résultat — est dit
+  explicitement.
 
 ---
 
@@ -159,28 +170,40 @@ entièrement répétée à l'avance n'inspecte rien.
 | i18n externalisée | US-072 | `i18n/locales/{fr,en,ar}.json` |
 | BFF | US-073 | `config/`, `V17__sessions_serveur_sprint17.sql` |
 | Dettes | US-074 → 078 | `ProductionService`, `AlerteSanitaireService`, `CalendrierService`, `MoteurAnomalie`, `api/parite.ts` |
+| Dernières dettes | US-079, US-080 | `SyntheseService`, `MesureRepository` (`time_bucket`), `web/dto/PointJournalier` |
 
-**Ordres de grandeur à la fin du SPRINT-17** — 18 entités métier (dont la sonde
+**Ordres de grandeur à la fin du SPRINT-18** — 18 entités métier (dont la sonde
 `Ping` du SPRINT-00, conservée volontairement), 22 contrôleurs REST, 16 repositories,
 30 services, **17 migrations Flyway**, ~11 000 lignes Java et ~11 300 lignes
 TypeScript, 10 ADR, 20 classes de test d'intégration Testcontainers.
 
+**Campagnes de test au dernier passage vérifié** — back : **59 unitaires +
+111 d'intégration, `Skipped : 0`**, `BUILD SUCCESS`, plancher JaCoCo tenu.
+Front : **118 tests Vitest**, 0 erreur ESLint, `typecheck` et `build` verts,
+paquet initial 230 ko (73,7 ko compressés).
+
 ---
 
-## 5. Ce qui reste ouvert après le SPRINT-17
+## 5. Ce qui reste ouvert après le SPRINT-18
 
 Une revue consolidée qui se terminerait sur un bilan positif ne serait pas une
-inspection. Voici ce qui n'est **pas** fait, avec le sprint où c'est inscrit.
+inspection. Voici ce qui n'est **pas** fait.
 
-| Point ouvert | Nature | Inscrit |
+**Soldé depuis** : `SyntheseService` agrège désormais en base (US-079) ;
+l'agrégat continu TimescaleDB est **définitivement écarté** — impossible sous RLS,
+règle généralisée dans l'ADR-008, bénéfice obtenu par `time_bucket` à la demande
+(US-080) ; l'analyse statique du code est couverte par CodeQL (Java, TypeScript,
+Python) et le scan des images construites est entré dans la CI.
+
+| Point ouvert | Nature | Depuis |
 |:---|:---|:---|
-| `SyntheseService` agrège encore en mémoire | Même trajectoire que les agrégats soldés au SPRINT-17, sur un volume moindre | SPRINT-18 |
-| Pas d'agrégat continu TimescaleDB | Les courbes journalières scannent le brut à chaque appel | SPRINT-18, à trancher par ADR |
-| Interface en deçà de la charte | Chargement et états vides en texte brut, aucun retour après mutation, bascule clair/sombre déclarée dans les jetons mais jamais branchée | SPRINT-18 |
-| Aucune analyse statique du code (SAST) ni scan de l'image construite | La CI couvre les dépendances et la configuration, pas le code ni l'image | SPRINT-18 |
-| Flux OIDC toujours non joué en CI | 19 tests, mais tous avec un Keycloak simulé — précisément l'angle mort qui avait laissé passer l'absence de rafraîchissement | ouvert depuis le SPRINT-11 |
-| Pagination sur 7 listes seulement | Visites et récoltes ont un chargement composite | ouvert depuis le SPRINT-11 |
-| Couverture des vues front faible | 12,9 % sur `src/vues` à la dernière mesure | ouvert depuis le SPRINT-11 |
+| Pas de chiffrement au repos des positions GPS | **Arbitrage**, pas oubli : chiffrer applicativement interdirait les requêtes PostGIS de l'EPIC-012 | à trancher par ADR avant mise en production |
+| DAST non exécuté en continu | Un balayage utile exige la pile entière ; procédure manuelle documentée dans [`docs/SECURITE.md`](../../../docs/SECURITE.md) | à rejuger quand une pré-production permanente existera |
+| Flux OIDC toujours non joué en CI | 19 tests, mais tous avec un Keycloak simulé — précisément l'angle mort qui avait laissé passer l'absence de rafraîchissement | SPRINT-11 |
+| Pagination sur 7 listes seulement | Visites et récoltes ont un chargement composite | SPRINT-11 |
+| Couverture des vues front faible | 12,9 % sur `src/vues` à la dernière mesure | SPRINT-11 |
+| Aucune alerte sur anomalie d'accès | Le journal d'audit enregistre, personne ne le lit en continu | SPRINT-09 |
+| `style-src 'unsafe-inline'` conservé | Contrainte MapLibre ; impact borné, mais le point n'est pas refermé | SPRINT-13 |
 
 **Reconductions.** Trois points ont figuré à l'identique dans « ce qui reste
 ouvert » des SPRINT-14, 15 et 16 avant d'être soldés au SPRINT-17. La règle posée

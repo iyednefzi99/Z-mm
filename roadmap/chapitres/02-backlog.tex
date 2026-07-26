@@ -4,15 +4,28 @@
 \chapter{Product Backlog}
 \label{chap:backlog}
 
-Le backlog est structuré en \textbf{13 epics} couvrant l'intégralité du
-périmètre du cahier des charges, pour un total de \textbf{54 user stories}
-et \textbf{398 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13).
+Le backlog est structuré en \textbf{19 epics} couvrant l'intégralité du
+périmètre du cahier des charges, pour un total de \textbf{80 user stories}
+et \textbf{582 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13, 21).
 
 Les epics 011 et 012 ont été ouverts après la livraison des dix premiers : le
 produit avait dépassé le périmètre inscrit au backlog, que la roadmap publiée
 sous-déclarait d'un sprint entier. L'epic 013 est né d'un audit du front mené
 après le SPRINT-10, qui a mis au jour une session expirant en cinq minutes sans
 rafraîchissement possible.
+
+\textbf{Les epics 014 à 019 ne viennent pas du cahier des charges}, et c'est ce
+qui les distingue des treize premiers. Ils viennent de ce que le produit livré a
+révélé une fois confronté à des conditions réelles : une revue d'architecture
+qui trouve six écarts entre la sécurité documentée et la sécurité effective
+(014) ; un front complet mais servi par personne (015) ; un scénario de terrain
+qui fait apparaître une perte de données silencieuse (016) ; une échéance
+réglementaire (017) ; une isolation qui séparait les exploitations mais pas les
+agents (018) ; et une liste de dettes qu'il fallait finir par vider (019).
+
+Cette proportion --- 184 points sur 582, soit \textbf{30 \%} du backlog --- n'est
+pas un dérapage : elle mesure ce qu'un cahier des charges ne peut pas prévoir, et
+que seule la mise en service révèle.
 
 \section{Vue d'ensemble des epics}
 
@@ -34,8 +47,14 @@ EPIC-010 & Tests, qualité et documentation          & Haute   & Chap.~10, 11, A
 EPIC-011 & Exploitation et restitution              & Moyenne & \S4.3, \S6.5, Ann.~G  & 26 \\
 EPIC-012 & Intelligence spatiale (PostGIS)          & Moyenne & \S3.5, Annexe~B       & 21 \\
 EPIC-013 & Robustesse et ergonomie du front         & Haute   & \S8.2, \S8.3, Ann.~I  & 29 \\
+EPIC-014 & Durcissement de la sécurité              & Critique& Annexe~G, \S6.4       & 34 \\
+EPIC-015 & PWA déployable et restitution visuelle   & Haute   & \S8.1, Annexe~B       & 32 \\
+EPIC-016 & Fiabilité et tenue à l'échelle           & Critique& \S7.3, Annexe~D       & 21 \\
+EPIC-017 & Conformité réglementaire du miel         & Critique& \S3.4, Annexe~F       & 13 \\
+EPIC-018 & Modèle d'autorisation complet            & Critique& Annexe~G              & 42 \\
+EPIC-019 & Dette technique et contrat vérifié       & Haute   & Annexe~B              & 42 \\
 \midrule
-\multicolumn{4}{r}{\textbf{Total}} & \textbf{398} \\
+\multicolumn{4}{r}{\textbf{Total}} & \textbf{582} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -264,6 +283,117 @@ US-050 & Rafraîchissement du jeton OIDC      & 8  & Haute   & Renouvellement av
 US-051 & Navigation adressable par URL       & 8  & Haute   & Une route par écran, retour navigateur fonctionnel \\
 US-052 & Pagination des listes               & 8  & Haute   & \texttt{page}/\texttt{taille} serveur et client \\
 US-054 & Dialogues du \emph{design system}   & 5  & Moyenne & Plus aucun dialogue natif, clavier et piège de focus \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-014 --- Durcissement de la sécurité}
+
+Fermer les écarts entre la sécurité \emph{documentée} et la sécurité
+\emph{réelle}. Épic ouvert à la suite d'une revue d'architecture : six garanties
+annoncées au cahier reposaient sur une configuration absente, un contrôle
+manquant ou une règle jamais appliquée. Aucun de ces écarts n'était visible en
+test.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-058 & Claim de tenant garanti, refus explicite & 5 & Critique & Mapper dans les \emph{deux} realms ; 403, jamais une liste vide \\
+US-059 & Validation d'audience du jeton           & 3 & Critique & Un jeton d'un autre client du royaume est refusé \\
+US-060 & Confidentialité des positions            & 8 & Critique & Arrondi selon le rôle, altitude masquée, voisins dégradés \\
+US-061 & RBAC en refus par défaut                 & 8 & Critique & Un jeton sans rôle métier n'atteint aucun endpoint \\
+US-062 & En-têtes de sécurité du proxy            & 5 & Haute    & CSP sans \texttt{unsafe-inline}, zone de débit dédiée \\
+US-063 & Portes de sécurité bloquantes            & 5 & Haute    & SBOM produit localement, lu par le scanner \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-015 --- PWA déployable et restitution visuelle}
+
+Rendre le front servi par la pile, démarrable sans réseau, et capable de montrer
+les données au lieu de les tabuler.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-064 & Déploiement de la PWA dans la pile & 5 & Critique & \texttt{/} rend la console, plus la console d'administration \\
+US-065 & Démarrage hors ligne réel          & 8 & Haute    & Précache généré au build ; démarrage à froid sans réseau \\
+US-066 & Graphiques des tableaux de bord    & 8 & Haute    & Légende et équivalent tabulaire ; jamais la seule couleur \\
+US-067 & Fond cartographique réel           & 8 & Haute    & Rayons géodésiques ; repli sans accélération matérielle \\
+US-068 & Bandeau de mise à jour             & 3 & Moyenne  & Mise à jour proposée sans perdre l'écran courant \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-016 --- Fiabilité de la synchronisation et tenue à l'échelle}
+
+Qu'une saisie hors ligne ne se duplique ni ne se perde, et que les lectures
+tiennent sur un parc réel.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-055 & Idempotence des mutations rejouées    & 8 & Critique & Clé générée avant la première tentative ; 409 si l'empreinte diffère \\
+US-069 & Index et garde-fous d'exécution       & 5 & Haute    & Index avec le tenant en tête ; délais maximaux posés \\
+US-070 & Suppression des N+1 sur les listages  & 5 & Haute    & Une requête par listage, vérifié au compteur \\
+US-071 & Mesure et plancher de couverture      & 3 & Moyenne  & Campagnes fusionnées ; la chaîne échoue sous le plancher \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-017 --- Conformité réglementaire du miel}
+
+Étiquetage conforme à la directive (UE) 2024/1438, applicable au 14 juin 2026.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-056 & Lot de conditionnement et mention d'origine & 13 & Critique & Parts consolidées par pays, décroissantes, totalisant 100 \% ; référence de récolte facultative \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-018 --- Modèle d'autorisation complet}
+
+Que le navigateur ne détienne plus de jeton, et qu'un agent ne puisse pas
+énumérer le parc entier de son exploitation.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-072 & Traductions en ressources de locale  & 8  & Moyenne  & Fichiers ouvrables par un traducteur ; parité tenue à la compilation \\
+US-073 & Jetons détenus par le serveur (BFF)  & 21 & Critique & Aucun jeton dans le navigateur ; cookie \texttt{HttpOnly} \\
+US-057 & Portée par affectation d'agent       & 13 & Critique & Règle posée dans le SGBD ; l'absence de portée vaut « rien voir » \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-019 --- Dette technique et contrat vérifié}
+
+Vider la liste de dettes recensées plutôt que la reconduire de sprint en sprint.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-074 & Agrégats calculés en base            & 8 & Haute   & Prouvés sous le rôle applicatif réel, pas sous le propriétaire \\
+US-075 & Scission du service de tableau de bord & 3 & Moyenne & Contrat HTTP inchangé, aucun test d'intégration retouché \\
+US-076 & Parité client / contrat OpenAPI      & 8 & Haute   & Une divergence casse la compilation en nommant le champ \\
+US-077 & Couche anticorruption vers l'analyse & 5 & Moyenne & Type d'entrée neutre ; indisponibilité rendue, jamais levée \\
+US-078 & Sessions serveur persistées          & 5 & Haute   & Schéma créé par les migrations ; la session survit au redéploiement \\
+US-079 & Synthèse de pilotage agrégée en base & 5 & Haute   & Poids, motifs et alertes agrégés en SQL ; l'agrégat du tableau de bord est réutilisé \\
+US-080 & Courbes journalières côté serveur    & 8 & Haute   & Regroupement par intervalle \emph{à la demande} : l'agrégat continu est refusé sous RLS ; volume divisé par $\approx$ 95 \\
 \bottomrule
 \end{tabular}
 \end{center}

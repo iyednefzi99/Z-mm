@@ -130,7 +130,7 @@ jobs:
         run: npm run build
 
   securite:
-    name: Sécurité — secrets, dépendances, licences
+    name: Sécurité — secrets, dépendances, images, licences
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -230,6 +230,66 @@ jobs:
           # livrables documentaires.
           skip-dirs: 'frontend/node_modules,frontend/coverage,backend/target,cahier de charge,roadmap'
           # Exemptions bornees a une regle, un chemin et une echeance.
+          trivyignores: .trivyignore.yaml
+
+      # ─── Vulnerabilites des IMAGES construites ───
+      #
+      # Ce que les etapes precedentes ne voient PAS. Le SBOM couvre les
+      # dependances Java, npm audit celles du navigateur, `scan-type: config` la
+      # facon dont les images sont ECRITES — aucun ne lit ce qu'elles CONTIENNENT
+      # une fois construites : la distribution de base (`eclipse-temurin:17-jre-jammy`,
+      # `nginx:alpine`), ses paquets systeme, ses bibliotheques natives. C'est
+      # pourtant la couche que l'on redeploie sans y penser, et celle qui vieillit
+      # toute seule : une image figee accumule les CVE de son OS sans qu'une seule
+      # ligne du projet ne change.
+      #
+      # Les deux images se construisent en multi-etapes, donc sans artefact
+      # prealable. Seule l'image FINALE est scannee : les etages de construction
+      # (Maven, Node) ne sont pas deployes.
+      - name: Construire les images à scanner
+        run: |
+          set -euo pipefail
+          docker build -f infra/backend.Dockerfile -t zumm-backend:ci backend
+          docker build -f infra/frontend.Dockerfile -t zumm-frontend:ci frontend
+
+      - name: Scan de l'image back-end (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: zumm-backend:ci
+          severity: HIGH,CRITICAL
+          # Une vulnerabilite sans correctif disponible ne peut pas etre corrigee
+          # ici : bloquer dessus rendrait la chaine rouge sans action possible, et
+          # l'equipe finirait par neutraliser la porte. Elle reste VISIBLE dans le
+          # rapport, elle ne bloque pas.
+          ignore-unfixed: true
+          # PAQUETS SYSTEME uniquement, et c'est le point de cette etape.
+          #
+          # Sans cette restriction, Trivy analyse aussi le JAR embarque et
+          # telecharge pour cela sa base Java — un artefact d'environ un gigaoctet.
+          # Deux raisons de s'en passer :
+          #   * les dependances Java sont DEJA couvertes, et mieux, par le SBOM et
+          #     OSV plus haut : ce serait la meme couverture payee deux fois ;
+          #   * ce telechargement echoue. Constate en local : « failed to download
+          #     Java DB: unexpected EOF ». Un garde qui depend d'un artefact
+          #     d'un gigaoctet finit rouge pour une raison etrangere au code —
+          #     exactement le travers corrige au SPRINT-12 sur Dependency-Check.
+          #
+          # Restreint aux paquets de la distribution, le scan couvre precisement ce
+          # que rien d'autre ne lit, en quelques secondes.
+          pkg-types: os
+          exit-code: '1'
+          trivyignores: .trivyignore.yaml
+
+      - name: Scan de l'image front-end (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: image
+          image-ref: zumm-frontend:ci
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          pkg-types: os
+          exit-code: '1'
           trivyignores: .trivyignore.yaml
 
       # Conformite des licences : une dependance AGPL contaminerait le livrable.

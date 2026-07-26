@@ -62,7 +62,9 @@
     "vide": "لا عناصر بعد.",
     "confirmerSuppression": "تأكيد حذف «{nom}»؟",
     "erreur": "حدث خطأ.",
-    "serviceIndisponible": "الخدمة غير متاحة. تحقّق من اتصالك."
+    "serviceIndisponible": "الخدمة غير متاحة. تحقّق من اتصالك.",
+    "videTitre": "لا يوجد ما يُعرض بعد",
+    "videTexte": "أنشئ العنصر الأول، وسيظهر هنا مع ما يليه."
   },
   "champs": {
     "nom": "الاسم",
@@ -387,5 +389,19 @@
     "valeur": "القيمة",
     "zscore": "z-score",
     "instant": "اللحظة"
+  },
+  "theme": {
+    "titre": "المظهر",
+    "auto": "مظهر النظام",
+    "clair": "المظهر الفاتح",
+    "sombre": "المظهر الداكن"
+  },
+  "retours": {
+    "cree": "تم إنشاء العنصر.",
+    "modifie": "تم حفظ التعديلات.",
+    "supprime": "تم حذف العنصر.",
+    "echecCreation": "فشل الإنشاء.",
+    "echecModification": "فشل الحفظ.",
+    "echecSuppression": "فشل الحذف."
   }
 }

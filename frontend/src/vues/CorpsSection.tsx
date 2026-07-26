@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { useT } from '../i18n/langue';
-import { Bouton, Pagination } from '../ui/composants';
+import { Bouton, EtatVide, Pagination, Squelette } from '../ui/composants';
 
 /** Etat minimal attendu par la section (sous-ensemble de EtatRessource). */
 export interface EtatSection {
@@ -36,7 +36,9 @@ export function CorpsSection({
   const vide = !etat.chargement && !etat.erreur && etat.elements.length === 0;
 
   return (
-    <section className="z-section">
+    // `aria-busy` : l'assistance technique sait que le contenu est en cours de
+    // remplacement, et n'annonce pas une liste vide qui n'en est pas une.
+    <section className="z-section" aria-busy={etat.chargement}>
       <header className="z-section__entete">
         <h1 className="z-section__titre">{titre}</h1>
         <Bouton variante="primaire" onClick={onNouveau}>
@@ -45,9 +47,16 @@ export function CorpsSection({
       </header>
 
       {etat.chargement && (
-        <p className="z-info" role="status">
-          {t.etats.chargement}
-        </p>
+        <>
+          {/* Le squelette est muet (`aria-hidden`) : à l'œil il dit déjà tout, mais
+              il n'a rien à annoncer. L'attente est donc énoncée une seule fois,
+              ici, pour les lecteurs d'écran — et une seule fois seulement, sans
+              doubler visuellement le squelette. */}
+          <p className="z-visuellement-cache" role="status">
+            {t.etats.chargement}
+          </p>
+          <Squelette />
+        </>
       )}
       {etat.erreur && (
         <div className="z-erreur" role="alert">
@@ -55,7 +64,17 @@ export function CorpsSection({
           <Bouton onClick={etat.recharger}>{t.actions.reessayer}</Bouton>
         </div>
       )}
-      {vide && <p className="z-info">{t.etats.vide}</p>}
+      {vide && (
+        <EtatVide
+          titre={t.etats.videTitre}
+          texte={t.etats.videTexte}
+          action={
+            <Bouton variante="primaire" onClick={onNouveau}>
+              + {t.actions.nouveau}
+            </Bouton>
+          }
+        />
+      )}
 
       {children}
 

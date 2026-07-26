@@ -68,12 +68,17 @@ describe('vue Sites', () => {
     expect(screen.getByText('1.4410')).toBeInTheDocument();
   });
 
-  it('signale une liste vide plutôt qu’un tableau sans ligne', async () => {
+  it('offre une action sur liste vide, plutôt qu’un constat', async () => {
     vi.mocked(sites.lister).mockResolvedValue([]);
 
     monter();
 
-    expect(await screen.findByText('Aucun élément pour le moment.')).toBeInTheDocument();
+    // Une liste vide n'est pas une erreur : pour un nouvel utilisateur, c'est le
+    // PREMIER écran. Il doit donc porter le moyen d'en sortir, et pas seulement
+    // annoncer qu'il n'y a rien — l'ancienne phrase « Aucun élément pour le
+    // moment » laissait devant un cul-de-sac.
+    expect(await screen.findByText('Rien à afficher pour l’instant')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: '+ Nouveau' }).length).toBeGreaterThan(0);
   });
 
   it('affiche un message d’erreur exploitable quand l’API tombe', async () => {

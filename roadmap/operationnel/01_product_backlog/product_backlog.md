@@ -3,8 +3,8 @@
 **Projet:** Zümm - Système de gestion apicole  
 **Date:** 2026-07-13  
 **Méthode:** Scrum + DevOps  
-**Total Story Points:** 569 (78 user stories, 19 epics)  
-**Dernière mise à jour :** 2026-07-26 (fin du SPRINT-17)  
+**Total Story Points:** 582 (80 user stories, 19 epics)  
+**Dernière mise à jour :** 2026-07-26 (fin du SPRINT-18)  
 
 ---
 
@@ -271,3 +271,5 @@ pour mot** dans « ce qui reste ouvert » des SPRINT-14, 15 et 16.
 | US-076 | Parité garantie entre client TypeScript et contrat OpenAPI | 8 | Haute | Contrat publié sous forme de fichier versionné ; une divergence casse `tsc` **en nommant le champ** ; fraîcheur des deux artefacts dérivés vérifiée en CI |
 | US-077 | Couche anticorruption vers le microservice IA | 5 | Moyenne | Port au type d'entrée neutre (instant, valeur) ; l'adaptateur ne compile plus contre Hibernate ; l'indisponibilité rend `Optional.empty()`, jamais une exception |
 | US-078 | Sessions serveur persistées en base | 5 | Haute | Schéma créé par **Flyway** et non par Spring Session ; la session survit à un redémarrage du back-end ; exception à la convention multi-tenant motivée dans la migration |
+| US-079 | Synthèse de pilotage agrégée en base | 5 | Haute | Poids, motifs de visite et alertes ouvertes agrégés en SQL ; la somme des poids réutilise l'agrégat du tableau de bord |
+| US-080 | Courbes journalières agrégées côté serveur | 8 | Haute | Agrégation `time_bucket` **à la demande** — l'agrégat continu est refusé sous RLS ([ADR-008](../06_decisions/ADR-008-rls-contre-compression.md) généralisé) ; volume transporté divisé par ~95 ; série brute conservée pour la détection d'anomalie |

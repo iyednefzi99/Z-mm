@@ -14,6 +14,7 @@ import { surFile } from './offline/file';
 import { useNavigation } from './routage/navigation';
 import { ONGLETS, cheminDepuisOnglet, ongletDepuisChemin, type Onglet } from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
+import { SelecteurTheme } from './theme/theme';
 import { Bouton } from './ui/composants';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
@@ -151,6 +152,7 @@ export default function App(): ReactElement {
               </button>
             ))}
           </nav>
+          <SelecteurTheme />
           <Bouton
             variante="fantome"
             onClick={() => void deconnexion(jetonCsrf())}

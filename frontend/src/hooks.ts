@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ErreurApi, type PageResultat } from './api/client';
 import { useT } from './i18n/langue';
+import { useToasts } from './ui/toasts';
 
 /**
  * Message lisible a partir d'une erreur d'API ou reseau.
@@ -51,6 +52,7 @@ export function useRessource<E extends { id: number }, C>(
   api: ApiRessource<E, C>,
 ): EtatRessource<E, C> {
   const t = useT();
+  const toasts = useToasts();
   const [elements, setElements] = useState<E[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
@@ -77,9 +79,62 @@ export function useRessource<E extends { id: number }, C>(
 
   useEffect(recharger, [recharger]);
 
-  const muter = async (operation: Promise<unknown>): Promise<void> => {
-    await operation;
+  /**
+   * Joue une mutation, recharge, et signale l'issue.
+   *
+   * <p>L'erreur est **re-levée** après avoir été signalée : la vue appelante en a
+   * besoin pour décider si elle garde sa modale ouverte. L'avaler ici fermerait
+   * le formulaire sur un échec, et l'utilisateur perdrait sa saisie en croyant
+   * avoir enregistré.
+   */
+  const muter = async (
+    operation: Promise<unknown>,
+    succes: string,
+    echec: string,
+  ): Promise<void> => {
+    try {
+      await operation;
+    } catch (cause: unknown) {
+      toasts.erreur(messageErreur(cause, echec));
+      throw cause;
+    }
+    toasts.succes(succes);
     recharger();
+  };
+
+  /**
+   * Supprime, avec une fenêtre d'annulation.
+   *
+   * <p>La suppression n'est **pas** envoyée tout de suite : elle part à
+   * l'expiration du délai, si rien ne l'a annulée. C'est ce qui fait la différence
+   * entre annuler et recréer — un objet recréé changerait d'identifiant et
+   * perdrait ses rattachements.
+   *
+   * <p>La ligne disparaît en revanche immédiatement de la liste : laisser à
+   * l'écran quelque chose que l'utilisateur vient de supprimer lui ferait croire
+   * que le geste n'a pas abouti, et l'inviterait à recommencer.
+   */
+  const supprimerAvecAnnulation = (id: number): Promise<void> => {
+    const restants = elements.filter((element) => element.id !== id);
+    setElements(restants);
+    setTotal((precedent) => Math.max(0, precedent - 1));
+
+    toasts.annulable(
+      t.retours.supprime,
+      () => {
+        api
+          .supprimer(id)
+          .then(recharger)
+          .catch((cause: unknown) => {
+            toasts.erreur(messageErreur(cause, t.retours.echecSuppression));
+            recharger();
+          });
+      },
+      // Annulation : rien n'a été envoyé, il suffit de remettre la liste à jour
+      // depuis le serveur — source de vérité, plutôt qu'une pile de défaire.
+      recharger,
+    );
+    return Promise.resolve();
   };
 
   return {
@@ -87,9 +142,10 @@ export function useRessource<E extends { id: number }, C>(
     chargement,
     erreur,
     recharger,
-    creer: (corps: C) => muter(api.creer(corps)),
-    mettreAJour: (id: number, corps: C) => muter(api.mettreAJour(id, corps)),
-    supprimer: (id: number) => muter(api.supprimer(id)),
+    creer: (corps: C) => muter(api.creer(corps), t.retours.cree, t.retours.echecCreation),
+    mettreAJour: (id: number, corps: C) =>
+      muter(api.mettreAJour(id, corps), t.retours.modifie, t.retours.echecModification),
+    supprimer: supprimerAvecAnnulation,
     page,
     taille: TAILLE_PAGE,
     total,
