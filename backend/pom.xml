@@ -102,6 +102,15 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
+    <!-- BFF (ADR-006) : le back-end est AUSSI client OAuth2. Il mene le flux
+         Authorization Code + PKCE pour le navigateur et garde les jetons cote
+         serveur ; le navigateur ne recoit qu'un cookie HttpOnly. Les deux roles
+         cohabitent : serveur de ressources pour les machines porteuses de jeton,
+         client pour les sessions humaines. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+    </dependency>
     <!-- Contrat OpenAPI 3 (US-026) : publie /v3/api-docs et Swagger UI. -->
     <dependency>
       <groupId>org.springdoc</groupId>

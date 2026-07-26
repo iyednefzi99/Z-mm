@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -63,14 +64,13 @@ public class TenantFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest requete, HttpServletResponse reponse,
             FilterChain chaine) throws ServletException, IOException {
-        Optional<Jwt> jeton = jetonCourant();
-        if (jeton.isPresent()) {
-            String tenant = jeton.get().getClaimAsString(CLAIM_TENANT);
-            if (tenant == null || tenant.isBlank()) {
+        Optional<String> tenant = tenantCourant();
+        if (tenant.isPresent()) {
+            if (tenant.get().isBlank()) {
                 refuser(reponse);
                 return;
             }
-            TenantContext.definir(tenant);
+            TenantContext.definir(tenant.get());
         }
         try {
             chaine.doFilter(requete, reponse);
@@ -93,10 +93,41 @@ public class TenantFilter extends OncePerRequestFilter {
                 "detail":"Jeton sans rattachement a une exploitation."}""");
     }
 
-    private Optional<Jwt> jetonCourant() {
+    /**
+     * Tenant de l'appelant courant, quelle que soit la maniere dont il s'est
+     * authentifie.
+     *
+     * <p>Deux porteurs possibles depuis la mise en oeuvre du BFF (ADR-006) :
+     * <ul>
+     *   <li>un {@link Jwt} — appelant machine presentant un jeton porteur ;
+     *   <li>un {@link OidcUser} — session de navigateur, le claim voyageant alors
+     *       dans le jeton d'IDENTITE (le royaume le publie sur les deux, cf. le
+     *       mapper {@code tenant_id}).
+     * </ul>
+     *
+     * <p>Le reste de l'application ne connait aucun des deux : elle lit
+     * {@link TenantContext}. C'est ce qui a permis de brancher le BFF sans
+     * toucher a un seul service metier.
+     *
+     * <p>{@link Optional#empty()} signifie « pas d'identite exploitable » et
+     * laisse passer ; une identite SANS tenant, elle, est refusee — voir
+     * {@link #doFilterInternal}.
+     */
+    private Optional<String> tenantCourant() {
         Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
-        if (authentification != null && authentification.getPrincipal() instanceof Jwt jeton) {
-            return Optional.of(jeton);
+        if (authentification == null || !authentification.isAuthenticated()) {
+            return Optional.empty();
+        }
+        Object principal = authentification.getPrincipal();
+        if (principal instanceof Jwt jeton) {
+            // Chaine vide plutot qu'absence : le claim existe mais ne vaut rien,
+            // ce qui doit etre REFUSE et non ignore.
+            return Optional.of(java.util.Objects.requireNonNullElse(
+                    jeton.getClaimAsString(CLAIM_TENANT), ""));
+        }
+        if (principal instanceof OidcUser utilisateur) {
+            return Optional.of(java.util.Objects.requireNonNullElse(
+                    utilisateur.getClaimAsString(CLAIM_TENANT), ""));
         }
         return Optional.empty();
     }

@@ -38,6 +38,36 @@ spring:
           # Emetteur des jetons. Keycloak expose ses cles publiques sous
           # <issuer-uri>/protocol/openid-connect/certs : aucun secret ici.
           issuer-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}
+      # ─── BFF (ADR-006) : le back-end est aussi CLIENT OAuth2 ───
+      #
+      # Les endpoints sont declares EXPLICITEMENT plutot que par `issuer-uri`.
+      # Renseigner `issuer-uri` cote client declenche la decouverte OIDC AU
+      # DEMARRAGE : l'application ne demarrerait plus sans Keycloak joignable —
+      # ni en test, ni pendant un redemarrage du fournisseur. Le meme choix a deja
+      # ete fait pour le serveur de ressources (cf. docker-compose.yml).
+      #
+      # Le secret n'est jamais versionne : il vient de l'environnement, et le
+      # royaume de developpement en fixe un connu pour que la pile locale marche
+      # sans reglage.
+      client:
+        provider:
+          keycloak:
+            authorization-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}/protocol/openid-connect/auth
+            token-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}/protocol/openid-connect/token
+            jwk-set-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}/protocol/openid-connect/certs
+            user-info-uri: ${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}/protocol/openid-connect/userinfo
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: ${ZUMM_BFF_CLIENT:zumm-bff}
+            client-secret: ${ZUMM_BFF_SECRET:secret-bff-dev}
+            authorization-grant-type: authorization_code
+            # Gabarit resolu a l'execution : Spring n'applique la valeur par
+            # defaut qu'aux fournisseurs qu'il connait d'avance, pas a un
+            # fournisseur declare a la main. Le laisser vide fait echouer le
+            # demarrage sur « redirectUri cannot be empty ».
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid,profile,email
   messages:
     basename: messages
     encoding: UTF-8
@@ -80,6 +110,10 @@ zumm:
     # Contrat OpenAPI et Swagger UI accessibles sans jeton. Vrai par defaut (le
     # contrat est un livrable), FAUX sous le profil `prod` : voir SecurityConfig.
     public: ${ZUMM_OPENAPI_PUBLIC:true}
+  bff:
+    # Ou renvoyer le navigateur une fois la session Keycloak close. Sur la meme
+    # origine que la PWA : le proxy inverse rassemble les deux.
+    apres-deconnexion: ${ZUMM_BFF_APRES_DECONNEXION:/}
   # Notifications e-mail des alertes (SPRINT-09, US-041). Désactivées par défaut :
   # aucune dépendance SMTP en local ni en test. En production, activer et fournir
   # spring.mail.* (host/port/credentials) via l'environnement.

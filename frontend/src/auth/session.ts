@@ -1,65 +1,79 @@
 /**
- * Session applicative — jeton d'acces a l'API et jeton de rafraichissement.
+ * Session applicative — vue du navigateur sur une session qu'il ne détient pas.
  *
- * Ce module isole la SOURCE des jetons : le reste de l'application ne connait que
- * `jetonCourant()`. En production ils viennent de Keycloak (client PWA public,
- * PKCE — cf. infra/keycloak/realm-zumm.json) et portent le claim `tenant_id` ; en
- * developpement, l'ecran de session accepte un jeton colle a la main.
+ * <p>Depuis la mise en œuvre du BFF (ADR-006), **le navigateur n'a plus aucun
+ * jeton**. Les jetons d'accès et de rafraîchissement vivent côté serveur ; le
+ * navigateur ne porte qu'un cookie `HttpOnly`, qu'aucun script ne peut lire. Une
+ * XSS ne peut donc plus exfiltrer de session réutilisable ailleurs — elle reste
+ * capable d'agir depuis la page ouverte, ce que la CSP est là pour empêcher, mais
+ * elle ne repart plus avec rien.
  *
- * Le jeton de rafraichissement (US-050) est conserve a cote du jeton d'acces :
- * sans lui, la session mourait a l'expiration de l'acces — soit cinq minutes avec
- * la configuration par defaut de Keycloak.
+ * <p>Ce module ne stocke donc plus de secret : il mémorise seulement ce que le
+ * serveur veut bien dire de la session — qui est connecté, avec quels rôles, pour
+ * quelle exploitation. Ces informations servent à l'affichage (menu, actions
+ * masquées) et **jamais** à l'autorisation, qui reste posée par le serveur.
  */
 
-const CLE = 'zumm.jeton';
-const CLE_RAFRAICHISSEMENT = 'zumm.jeton.rafraichissement';
+export interface Session {
+  utilisateur: string;
+  roles: string[];
+  exploitation: string;
+}
 
-type Abonne = (jeton: string | null) => void;
+type Abonne = (session: Session | null) => void;
 const abonnes = new Set<Abonne>();
 
-/** Jeton d'acces courant, ou null si aucune session. */
-export function jetonCourant(): string | null {
-  return localStorage.getItem(CLE);
-}
+/**
+ * Session courante. `null` signifie « pas connecté », `undefined` « pas encore
+ * demandé au serveur » — deux états que l'interface ne doit pas confondre : le
+ * second ne doit pas afficher l'écran de connexion.
+ */
+let courante: Session | null | undefined;
 
-/** Jeton de rafraichissement courant, ou null s'il n'y en a pas. */
-export function jetonRafraichissement(): string | null {
-  return localStorage.getItem(CLE_RAFRAICHISSEMENT);
-}
+/** Session connue, ou `undefined` tant que le serveur n'a pas répondu. */
+export const sessionCourante = (): Session | null | undefined => courante;
+
+/** Vrai si l'utilisateur porte ce rôle. Confort d'affichage, pas une garantie. */
+export const aLeRole = (role: string): boolean => courante?.roles.includes(role) ?? false;
 
 /**
- * Ouvre ou prolonge une session. Le jeton de rafraichissement est optionnel : la
- * saisie manuelle d'un jeton d'acces (developpement) n'en fournit pas.
+ * Interroge le serveur sur la session en cours.
  *
- * <p>Passer {@code undefined} en rafraichissement CONSERVE celui deja en place —
- * Keycloak ne renvoie pas toujours un nouveau jeton de rafraichissement lors d'un
- * renouvellement, et l'effacer condamnerait la session au renouvellement suivant.
- * Passer {@code null} l'efface explicitement.
+ * <p>Un 401 est une réponse NORMALE — « personne n'est connecté » — et non une
+ * erreur : c'est ainsi que la PWA distingue une session absente d'un serveur
+ * injoignable, lequel doit laisser l'application dans son état plutôt que la
+ * renvoyer à l'écran de connexion.
  */
-export function ouvrirSession(jeton: string, rafraichissement?: string | null): void {
-  localStorage.setItem(CLE, jeton);
-  if (rafraichissement === null) {
-    localStorage.removeItem(CLE_RAFRAICHISSEMENT);
-  } else if (rafraichissement !== undefined) {
-    localStorage.setItem(CLE_RAFRAICHISSEMENT, rafraichissement);
+export async function rafraichirSession(): Promise<Session | null> {
+  try {
+    const reponse = await fetch('/bff/session', {
+      credentials: 'include',
+      headers: { Accept: 'application/json' },
+    });
+    definir(reponse.ok ? ((await reponse.json()) as Session) : null);
+  } catch {
+    // Serveur injoignable : on ne conclut pas à une déconnexion.
+    definir(courante ?? null);
   }
-  notifier();
+  return courante ?? null;
 }
 
-/** Ferme la session et efface les deux jetons. */
-export function fermerSession(): void {
-  localStorage.removeItem(CLE);
-  localStorage.removeItem(CLE_RAFRAICHISSEMENT);
-  notifier();
+/** Fixe la session connue et prévient les abonnés. */
+export function definir(session: Session | null): void {
+  courante = session;
+  abonnes.forEach((abonne) => abonne(session));
 }
 
-/** S'abonne aux changements de session ; renvoie la fonction de desabonnement. */
+/** S'abonne aux changements de session ; renvoie la fonction de désabonnement. */
 export function surSession(abonne: Abonne): () => void {
   abonnes.add(abonne);
-  return () => abonnes.delete(abonne);
+  return () => {
+    abonnes.delete(abonne);
+  };
 }
 
-function notifier(): void {
-  const jeton = jetonCourant();
-  abonnes.forEach((abonne) => abonne(jeton));
+/** Réservée aux tests : remet le module à son état initial. */
+export function reinitialiserSession(): void {
+  courante = undefined;
+  abonnes.clear();
 }

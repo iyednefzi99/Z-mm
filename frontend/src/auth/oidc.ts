@@ -1,191 +1,72 @@
 /**
- * Authentification OIDC / PKCE contre Keycloak (US-020, US-021).
+ * Connexion et déconnexion — deux redirections, et rien de plus.
  *
- * Flux « Authorization Code + PKCE » d'un client public, sans dépendance externe :
- *  1. `demarrerConnexion()` génère un couple verifier/challenge, mémorise l'état,
- *     puis redirige vers la page de connexion Keycloak — laquelle propose à la
- *     fois les comptes LOCAUX (US-021) et la fédération Google (US-020), selon la
- *     configuration du realm.
- *  2. Au retour (`?code=...`), `terminerConnexion()` échange le code contre un
- *     jeton et ouvre la session.
+ * <p>Avant le BFF (ADR-006), ce module menait lui-même le flux Authorization
+ * Code + PKCE : génération du verifier, échange du code, stockage des jetons,
+ * rafraîchissement sous verrou, révocation à la déconnexion. Près de deux cents
+ * lignes de protocole exécutées dans le navigateur, avec les jetons à la clé.
  *
- * La configuration (issuer, client, redirection) vient des variables Vite
- * `VITE_OIDC_*`. Si l'issuer n'est pas configuré, la connexion Keycloak est
- * simplement absente et l'écran de session propose le repli « coller un jeton »
- * (pratique en développement).
+ * <p>Tout cela vit désormais côté serveur. Ce qui reste ici tient en deux
+ * navigations : partir se connecter, et partir se déconnecter. C'est le meilleur
+ * résumé de ce que le BFF apporte — le code le plus sûr est celui qu'on n'écrit
+ * plus.
  */
-import { consommerRouteDeRetour, memoriserRouteDeRetour } from '../routage/navigation';
-import { fermerSession, jetonRafraichissement, ouvrirSession } from './session';
 
-const ISSUER = import.meta.env.VITE_OIDC_ISSUER ?? '';
-const CLIENT = import.meta.env.VITE_OIDC_CLIENT ?? 'zumm-frontend';
-const REDIRECT = import.meta.env.VITE_OIDC_REDIRECT ?? window.location.origin + '/';
+import { definir } from './session';
 
-const CLE_VERIFIER = 'zumm.pkce.verifier';
-const CLE_ETAT = 'zumm.pkce.etat';
-// Jeton d'identité conservé pour le `id_token_hint` de la déconnexion OIDC :
-// il permet à Keycloak de clôturer la bonne session sans réafficher d'écran.
-const CLE_ID_TOKEN = 'zumm.oidc.id_token';
+/** Point d'entrée de connexion, géré par Spring Security côté serveur. */
+const CONNEXION = '/oauth2/authorization/keycloak';
 
-/** L'authentification Keycloak est-elle configurée ? */
-export const oidcConfigure = (): boolean => ISSUER !== '';
+/** Point de déconnexion du BFF ; ferme aussi la session Keycloak. */
+const DECONNEXION = '/bff/deconnexion';
 
-function alea(octets: number): string {
-  const tableau = new Uint8Array(octets);
-  crypto.getRandomValues(tableau);
-  return base64url(tableau.buffer);
+/**
+ * Envoie l'utilisateur se connecter.
+ *
+ * <p>La route courante est mémorisée côté navigateur : le serveur ramène à la
+ * racine après la connexion, et la PWA restaure ensuite l'écran quitté (US-051).
+ */
+export function demarrerConnexion(routeDeRetour?: string): void {
+  if (routeDeRetour) {
+    sessionStorage.setItem('zumm.route-retour', routeDeRetour);
+  }
+  window.location.assign(CONNEXION);
 }
 
-function base64url(buffer: ArrayBuffer): string {
-  const octets = new Uint8Array(buffer);
-  let binaire = '';
-  octets.forEach((o) => {
-    binaire += String.fromCharCode(o);
-  });
-  return btoa(binaire).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-async function challenge(verifier: string): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-  return base64url(digest);
-}
-
-/** Étape 1 : redirige vers Keycloak (connexion locale ou Google). */
-export async function demarrerConnexion(): Promise<void> {
-  const verifier = alea(32);
-  const etat = alea(16);
-  sessionStorage.setItem(CLE_VERIFIER, verifier);
-  sessionStorage.setItem(CLE_ETAT, etat);
-  // La redirection Keycloak ramène toujours à la racine : on retient d'où l'on
-  // part pour y revenir (US-051).
-  memoriserRouteDeRetour();
-
-  const params = new URLSearchParams({
-    client_id: CLIENT,
-    redirect_uri: REDIRECT,
-    response_type: 'code',
-    scope: 'openid profile email',
-    state: etat,
-    code_challenge: await challenge(verifier),
-    code_challenge_method: 'S256',
-  });
-  window.location.assign(`${ISSUER}/protocol/openid-connect/auth?${params}`);
+/** Route mémorisée avant la connexion, consommée une seule fois. */
+export function consommerRouteDeRetour(): string | null {
+  const route = sessionStorage.getItem('zumm.route-retour');
+  sessionStorage.removeItem('zumm.route-retour');
+  return route;
 }
 
 /**
- * Étape 2 : au retour de Keycloak, échange le code contre un jeton. Renvoie true
- * si un retour OIDC a été traité (et nettoie l'URL), false sinon.
- */
-export async function terminerConnexion(): Promise<boolean> {
-  const url = new URL(window.location.href);
-  const code = url.searchParams.get('code');
-  const etat = url.searchParams.get('state');
-  if (!code) {
-    return false;
-  }
-  const verifier = sessionStorage.getItem(CLE_VERIFIER);
-  if (!verifier || etat !== sessionStorage.getItem(CLE_ETAT)) {
-    throw new Error('Retour OIDC invalide (état ou verifier manquant).');
-  }
-
-  const reponse = await fetch(`${ISSUER}/protocol/openid-connect/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'authorization_code',
-      client_id: CLIENT,
-      redirect_uri: REDIRECT,
-      code,
-      code_verifier: verifier,
-    }),
-  });
-  if (!reponse.ok) {
-    throw new Error(`Échange du code échoué (${reponse.status}).`);
-  }
-  const jetons = (await reponse.json()) as JetonsOidc;
-  sessionStorage.removeItem(CLE_VERIFIER);
-  sessionStorage.removeItem(CLE_ETAT);
-  if (jetons.id_token) {
-    localStorage.setItem(CLE_ID_TOKEN, jetons.id_token);
-  }
-  // Nettoie les paramètres OIDC de l'URL, et revient sur la route quittée avant
-  // la connexion plutôt que sur la racine (US-051).
-  window.history.replaceState({}, document.title, consommerRouteDeRetour() ?? REDIRECT);
-  ouvrirSession(jetons.access_token, jetons.refresh_token ?? null);
-  return true;
-}
-
-interface JetonsOidc {
-  access_token: string;
-  refresh_token?: string;
-  id_token?: string;
-}
-
-/**
- * Renouvelle le jeton d'accès à partir du jeton de rafraîchissement (US-050).
- * Renvoie false — sans lever — quand il n'y a rien à rafraîchir ou que Keycloak
- * refuse : l'appelant décide alors s'il ferme la session.
+ * Ferme la session applicative PUIS la session SSO.
  *
- * <p>Cette fonction n'est PAS à appeler directement : passer par
- * {@code rafraichirJeton()} du client d'API, qui la protège d'un verrou.
+ * <p>Le serveur répond l'URL de fin de session au lieu d'une redirection : un
+ * `fetch` ne peut pas suivre une redirection vers une autre origine, c'est donc
+ * au client de naviguer. Le jeton CSRF est exigé — une déconnexion forcée depuis
+ * un site tiers reste une nuisance.
  */
-export async function echangerRafraichissement(): Promise<boolean> {
-  const rafraichissement = jetonRafraichissement();
-  if (!oidcConfigure() || !rafraichissement) {
-    return false;
-  }
-  let reponse: Response;
+export async function deconnexion(jetonCsrf: string | null): Promise<void> {
   try {
-    reponse = await fetch(`${ISSUER}/protocol/openid-connect/token`, {
+    const reponse = await fetch(DECONNEXION, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        client_id: CLIENT,
-        refresh_token: rafraichissement,
-      }),
+      credentials: 'include',
+      headers: jetonCsrf ? { 'X-XSRF-TOKEN': jetonCsrf } : {},
     });
+    definir(null);
+    if (reponse.ok) {
+      const corps = (await reponse.json().catch(() => null)) as { redirection?: string } | null;
+      if (corps?.redirection) {
+        window.location.assign(corps.redirection);
+        return;
+      }
+    }
   } catch {
-    // Panne réseau : la session n'est pas invalide pour autant, on réessaiera.
-    return false;
+    definir(null);
   }
-  if (!reponse.ok) {
-    return false;
-  }
-  const jetons = (await reponse.json()) as JetonsOidc;
-  // `undefined` et non `null` : sans rotation, Keycloak ne renvoie pas de
-  // nouveau jeton de rafraîchissement et il faut conserver l'ancien.
-  ouvrirSession(jetons.access_token, jetons.refresh_token);
-  return true;
-}
-
-/**
- * Déconnexion OIDC (US-021) : clôt la session applicative ET la session SSO
- * Keycloak via l'endpoint de fin de session (RP-Initiated Logout). Sans cela,
- * effacer le seul jeton local laisserait la session Keycloak ouverte — un clic
- * sur « se connecter » reconnecterait alors silencieusement l'utilisateur.
- */
-export function deconnexionOidc(): void {
-  const idToken = localStorage.getItem(CLE_ID_TOKEN);
-  const rafraichissement = jetonRafraichissement();
-  localStorage.removeItem(CLE_ID_TOKEN);
-  // Révoquer explicitement le jeton de rafraîchissement (US-050) : la fin de
-  // session SSO ne suffit pas, un jeton non révoqué reste utilisable.
-  if (rafraichissement) {
-    void fetch(`${ISSUER}/protocol/openid-connect/revoke`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: CLIENT,
-        token: rafraichissement,
-        token_type_hint: 'refresh_token',
-      }),
-    }).catch(() => undefined);
-  }
-  fermerSession();
-  const params = new URLSearchParams({ post_logout_redirect_uri: REDIRECT, client_id: CLIENT });
-  if (idToken) {
-    params.set('id_token_hint', idToken);
-  }
-  window.location.assign(`${ISSUER}/protocol/openid-connect/logout?${params}`);
+  // Aucun fournisseur configuré, ou réponse inattendue : la session locale est
+  // close, on revient à l'accueil.
+  window.location.assign('/');
 }

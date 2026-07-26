@@ -6,9 +6,7 @@
  * parite des types client/serveur.
  */
 
-import { jetonCourant, fermerSession } from '../auth/session';
-import { echangerRafraichissement } from '../auth/oidc';
-import { creerVerrou } from '../auth/rafraichissement';
+import { definir } from '../auth/session';
 import { enfiler, rejouer, type MutationEnAttente } from '../offline/file';
 import type {
   Agent,
@@ -85,29 +83,46 @@ export class ErreurHorsLigne extends Error {
 const MUTATIONS = new Set(['POST', 'PUT', 'DELETE']);
 
 /**
- * Rafraîchissement du jeton, sous verrou (US-050). Plusieurs requêtes qui
- * reçoivent un 401 en même temps partagent le même échange : sans cela, elles
- * consommeraient le même jeton de rafraîchissement en parallèle.
+ * Jeton anti-CSRF, déposé par le serveur dans un cookie LISIBLE (ADR-006).
+ *
+ * <p>Ce n'est pas un secret : c'est une preuve que la requête part bien de notre
+ * page. Un site tiers peut faire envoyer le cookie de session par le navigateur,
+ * mais la politique d'origine l'empêche de LIRE ce cookie-ci, donc de fabriquer
+ * l'en-tête correspondant.
  */
-export const rafraichirJeton = creerVerrou(echangerRafraichissement);
+export function jetonCsrf(): string | null {
+  const trouve = document.cookie
+    .split('; ')
+    .find((morceau) => morceau.startsWith('XSRF-TOKEN='));
+  return trouve ? decodeURIComponent(trouve.slice('XSRF-TOKEN='.length)) : null;
+}
 
-async function requete<T>(
-  url: string,
-  options: RequestInit = {},
-  rejeu = false,
-  cle?: string,
-): Promise<T> {
-  const jeton = jetonCourant();
+/**
+ * En-têtes communs à tout appel d'API.
+ *
+ * <p>Plus d'en-tête `Authorization` : le navigateur ne détient aucun jeton. Le
+ * cookie de session part tout seul grâce à `credentials: 'include'`, et c'est
+ * précisément parce qu'il part tout seul que le jeton CSRF accompagne les
+ * mutations.
+ */
+function enTetesCommuns(options: RequestInit, methode: string): Headers {
   const enTetes = new Headers(options.headers);
   enTetes.set('Accept', 'application/json');
   if (options.body) {
     enTetes.set('Content-Type', 'application/json');
   }
-  if (jeton) {
-    enTetes.set('Authorization', `Bearer ${jeton}`);
+  if (MUTATIONS.has(methode)) {
+    const jeton = jetonCsrf();
+    if (jeton) {
+      enTetes.set('X-XSRF-TOKEN', jeton);
+    }
   }
+  return enTetes;
+}
 
+async function requete<T>(url: string, options: RequestInit = {}, cle?: string): Promise<T> {
   const methode = (options.method ?? 'GET').toUpperCase();
+  const enTetes = enTetesCommuns(options, methode);
   // Clé d'idempotence (US-055) : générée UNE fois par mutation logique, puis
   // conservée à travers le rejeu après rafraîchissement du jeton et jusqu'à la
   // synchronisation hors-ligne. Une clé regénérée à chaque tentative ne
@@ -119,7 +134,7 @@ async function requete<T>(
 
   let reponse: Response;
   try {
-    reponse = await fetch(url, { ...options, headers: enTetes });
+    reponse = await fetch(url, { ...options, headers: enTetes, credentials: 'include' });
   } catch (cause) {
     // Panne réseau : une mutation est mise en file (US-011) ; une lecture échoue.
     // La clé part avec elle : `fetch` échoue aussi quand la requête est arrivée
@@ -136,18 +151,13 @@ async function requete<T>(
     throw cause;
   }
 
-  // Jeton expire : une seule tentative de rafraichissement, puis rejeu de la
-  // requete (US-050). Le drapeau `rejeu` empeche la boucle si le serveur repond
-  // 401 avec un jeton pourtant frais.
-  if (reponse.status === 401 && !rejeu && (await rafraichirJeton())) {
-    return requete<T>(url, options, true, cleIdempotence);
-  }
-
-  // Rafraichissement impossible ou insuffisant : on ferme la session pour ramener
-  // a l'ecran de connexion, plutot que de laisser l'utilisateur devant des
-  // erreurs muettes.
+  // Session expirée. Le RAFRAÎCHISSEMENT n'est plus l'affaire du navigateur : le
+  // serveur détient les jetons et les renouvelle lui-même (ADR-006). Un 401 ici
+  // signifie donc que même le serveur n'a plus de session valide — il faut se
+  // reconnecter, et l'interface doit le montrer plutôt que laisser l'utilisateur
+  // devant des erreurs muettes.
   if (reponse.status === 401) {
-    fermerSession();
+    definir(null);
     throw new ErreurApi(401, 'Session expirée ou absente.');
   }
 
@@ -188,18 +198,13 @@ export interface PageResultat<E> {
  * d'un parametre.
  */
 async function requetePaginee<E>(url: string, page: number, taille: number): Promise<PageResultat<E>> {
-  const jeton = jetonCourant();
-  const enTetes = new Headers({ Accept: 'application/json' });
-  if (jeton) {
-    enTetes.set('Authorization', `Bearer ${jeton}`);
-  }
-  const reponse = await fetch(`${url}?page=${page}&taille=${taille}`, { headers: enTetes });
+  const reponse = await fetch(`${url}?page=${page}&taille=${taille}`, {
+    headers: { Accept: 'application/json' },
+    credentials: 'include',
+  });
 
-  if (reponse.status === 401 && (await rafraichirJeton())) {
-    return requetePaginee<E>(url, page, taille);
-  }
   if (reponse.status === 401) {
-    fermerSession();
+    definir(null);
     throw new ErreurApi(401, 'Session expirée ou absente.');
   }
   if (!reponse.ok) {
@@ -322,10 +327,7 @@ export const telechargerExport = async (
   ressourceExport: 'visites' | 'ruches',
   format: 'csv' | 'txt',
 ): Promise<void> => {
-  const jeton = jetonCourant();
-  const reponse = await fetch(`/api/export/${ressourceExport}?format=${format}`, {
-    headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
-  });
+  const reponse = await fetch(`/api/export/${ressourceExport}?format=${format}`, { credentials: 'include' });
   if (!reponse.ok) {
     throw new ErreurApi(reponse.status, await detailErreur(reponse));
   }
@@ -345,10 +347,7 @@ export const telechargerExport = async (
  * jeton doit voyager en en-tête, d'où le fetch + blob plutôt qu'un simple lien.
  */
 export const telechargerRapportVisite = async (visiteId: number): Promise<void> => {
-  const jeton = jetonCourant();
-  const reponse = await fetch(`/api/visites/${visiteId}/rapport.pdf`, {
-    headers: jeton ? { Authorization: `Bearer ${jeton}` } : {},
-  });
+  const reponse = await fetch(`/api/visites/${visiteId}/rapport.pdf`, { credentials: 'include' });
   if (!reponse.ok) {
     throw new ErreurApi(reponse.status, await detailErreur(reponse));
   }
@@ -412,15 +411,20 @@ export const synchroniser = (): Promise<void> =>
     if (m.corps) {
       enTetes['Content-Type'] = 'application/json';
     }
-    const jeton = jetonCourant();
-    if (jeton) {
-      enTetes.Authorization = `Bearer ${jeton}`;
-    }
     // Même clé qu'à la première tentative : si le serveur avait déjà traité la
     // mutation, il rejoue sa réponse au lieu de créer un doublon.
     enTetes['Idempotency-Key'] = m.cle;
+    const csrf = jetonCsrf();
+    if (csrf) {
+      enTetes['X-XSRF-TOKEN'] = csrf;
+    }
     try {
-      const r = await fetch(m.url, { method: m.methode, headers: enTetes, body: m.corps });
+      const r = await fetch(m.url, {
+        method: m.methode,
+        headers: enTetes,
+        body: m.corps,
+        credentials: 'include',
+      });
       if (r.status === 401 || r.status === 403) {
         // Session expirée pendant la coupure — le cas le plus courant après une
         // journée sur le terrain. Ce n'est PAS un refus métier : on garde la

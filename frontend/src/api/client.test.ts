@@ -8,7 +8,7 @@ import {
   voisinsSite,
 } from './client';
 import { tailleFile } from '../offline/file';
-import { jetonCourant, ouvrirSession } from '../auth/session';
+import { definir, reinitialiserSession, sessionCourante } from '../auth/session';
 
 /**
  * Tests du client d'API (US-049, SPRINT-10) : gestion des erreurs, bascule
@@ -27,49 +27,55 @@ function reponse(corps: unknown, statut = 200): Response {
 
 describe('client d’API', () => {
   beforeEach(() => {
+    reinitialiserSession();
+    document.cookie = 'XSRF-TOKEN=; max-age=0';
     vi.stubGlobal('fetch', vi.fn());
   });
 
   const dernierAppel = () => vi.mocked(fetch).mock.calls[0];
 
-  it('joint le jeton de session en en-tête Authorization', async () => {
-    ouvrirSession('jeton-de-test');
+  it('n’envoie AUCUN en-tête Authorization : le navigateur ne détient plus de jeton', async () => {
+    // Cœur de l'ADR-006. Ce test échoue si quelqu'un réintroduit un jeton côté
+    // client, ce qui est exactement le retour en arrière à empêcher.
     vi.mocked(fetch).mockResolvedValue(reponse([]));
 
     await sites.lister();
 
-    const [, options] = dernierAppel();
-    const entetes = new Headers(options?.headers);
-    expect(entetes.get('Authorization')).toBe('Bearer jeton-de-test');
-    expect(entetes.get('Accept')).toBe('application/json');
-  });
-
-  it('n’envoie pas d’en-tête Authorization sans session ouverte', async () => {
-    vi.mocked(fetch).mockResolvedValue(reponse([]));
-
-    await sites.lister();
-
-    const [, options] = dernierAppel();
+    const [, options] = vi.mocked(fetch).mock.calls[0];
     expect(new Headers(options?.headers).get('Authorization')).toBeNull();
   });
 
-  it('transforme une réponse d’erreur en ErreurApi portant statut et détail', async () => {
-    vi.mocked(fetch).mockResolvedValue(reponse({ detail: 'Site introuvable' }, 404));
+  it('envoie le cookie de session sur chaque appel', async () => {
+    // Sans `credentials: 'include'`, le cookie HttpOnly ne partirait pas et
+    // toute l'authentification tomberait — silencieusement, en 401.
+    vi.mocked(fetch).mockResolvedValue(reponse([]));
 
-    await expect(sites.obtenir(42)).rejects.toMatchObject({
-      name: 'ErreurApi',
-      statut: 404,
-      detail: 'Site introuvable',
-    });
-    await expect(sites.obtenir(42)).rejects.toBeInstanceOf(ErreurApi);
+    await sites.lister();
+
+    expect(vi.mocked(fetch).mock.calls[0][1]?.credentials).toBe('include');
   });
 
-  it('ferme la session sur 401 quand aucun rafraîchissement n’est possible', async () => {
-    ouvrirSession('jeton-expire');
-    vi.mocked(fetch).mockResolvedValue(reponse({}, 401));
+  it('joint le jeton CSRF aux mutations, et à elles seules', async () => {
+    document.cookie = 'XSRF-TOKEN=jeton-csrf-de-test';
+    vi.mocked(fetch).mockResolvedValue(reponse({ id: 1 }));
+
+    await sites.creer({ nom: 'Rucher' } as never);
+    const enTetesMutation = new Headers(vi.mocked(fetch).mock.calls[0][1]?.headers);
+    expect(enTetesMutation.get('X-XSRF-TOKEN')).toBe('jeton-csrf-de-test');
+
+    vi.mocked(fetch).mockClear();
+    await sites.lister();
+    const enTetesLecture = new Headers(vi.mocked(fetch).mock.calls[0][1]?.headers);
+    // Une lecture ne change pas d'état : CSRF n'y ajouterait rien.
+    expect(enTetesLecture.get('X-XSRF-TOKEN')).toBeNull();
+  });
+
+  it('efface la session connue sur un 401', async () => {
+    definir({ utilisateur: 'agent', roles: ['apiculteur'], exploitation: 'demo' });
+    vi.mocked(fetch).mockResolvedValue(reponse({ detail: 'expirée' }, 401));
 
     await expect(sites.lister()).rejects.toBeInstanceOf(ErreurApi);
-    expect(jetonCourant()).toBeNull();
+    expect(sessionCourante()).toBeNull();
   });
 
   it('met une mutation en file quand le réseau est absent (US-011)', async () => {

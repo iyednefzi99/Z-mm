@@ -1,8 +1,12 @@
 import { Suspense, lazy, useEffect, useState, type ReactElement } from 'react';
-import { rafraichirJeton, synchroniser } from './api/client';
-import { deconnexionOidc, oidcConfigure, terminerConnexion } from './auth/oidc';
-import { planifier } from './auth/rafraichissement';
-import { fermerSession, jetonCourant, surSession } from './auth/session';
+import { jetonCsrf, synchroniser } from './api/client';
+import { consommerRouteDeRetour, deconnexion } from './auth/oidc';
+import {
+  rafraichirSession,
+  sessionCourante,
+  surSession,
+  type Session,
+} from './auth/session';
 import { gabarit } from './i18n/console';
 import { LANGUES } from './i18n/messages';
 import { useLangue, useT } from './i18n/langue';
@@ -49,35 +53,30 @@ export default function App(): ReactElement {
   const { langue, definirLangue } = useLangue();
   const majDisponible = useMiseAJourPwa();
   const { chemin, naviguer } = useNavigation();
-  const [jeton, setJeton] = useState<string | null>(jetonCourant());
+  // `undefined` tant que le serveur n'a pas repondu : l'ecran de connexion ne
+  // doit pas clignoter le temps d'un aller-retour.
+  const [session, setSession] = useState<Session | null | undefined>(sessionCourante());
   const [enAttente, setEnAttente] = useState(0);
   const [horsLigne, setHorsLigne] = useState(!navigator.onLine);
 
   const onglet = ongletDepuisChemin(chemin);
 
-  useEffect(() => surSession(setJeton), []);
+  useEffect(() => surSession(setSession), []);
 
-  // Retour de connexion OIDC (US-020) : échange le code contre un jeton.
+  // État de la session, demandé au serveur (ADR-006). Le navigateur ne détient
+  // plus de jeton : il ne peut plus savoir de lui-même s'il est connecté, ni
+  // jusqu'à quand. Le renouvellement se fait côté serveur — il n'y a donc plus
+  // rien à planifier ici, et c'est tout le bénéfice du BFF.
   useEffect(() => {
-    void terminerConnexion()
-      .then((traite) => {
-        // La route de retour a été restaurée dans l'historique : la vue doit suivre.
-        if (traite) {
-          naviguer(window.location.pathname);
-        }
-      })
-      .catch(() => undefined);
+    void rafraichirSession().then((etat) => {
+      // Retour de connexion : le serveur ramène à la racine, la PWA restaure
+      // l'écran quitté (US-051).
+      const retour = etat ? consommerRouteDeRetour() : null;
+      if (retour) {
+        naviguer(retour);
+      }
+    });
   }, [naviguer]);
-
-  // Session durable (US-050) : renouveler le jeton AVANT son échéance. Le 401 et
-  // son rejeu restent le filet de sécurité ; ici, on évite d'y arriver. La
-  // planification suit le jeton — chaque renouvellement en programme le suivant.
-  useEffect(() => {
-    if (!jeton) {
-      return undefined;
-    }
-    return planifier(jeton, () => void rafraichirJeton());
-  }, [jeton]);
 
   // Synchronisation différée (US-011) : file d'attente + retour du réseau.
   useEffect(() => {
@@ -99,7 +98,17 @@ export default function App(): ReactElement {
     };
   }, []);
 
-  if (!jeton) {
+  // Trois etats, et non deux : « pas encore su » n'est pas « pas connecte ».
+  // Les confondre ferait clignoter l'ecran de connexion a chaque chargement,
+  // devant un utilisateur pourtant deja authentifie.
+  if (session === undefined) {
+    return (
+      <main className="z-connexion">
+        <p className="z-info">{t.etats.chargement}</p>
+      </main>
+    );
+  }
+  if (session === null) {
     return <ConnexionVue />;
   }
 
@@ -144,7 +153,7 @@ export default function App(): ReactElement {
           </nav>
           <Bouton
             variante="fantome"
-            onClick={() => (oidcConfigure() ? deconnexionOidc() : fermerSession())}
+            onClick={() => void deconnexion(jetonCsrf())}
           >
             {t.actions.seDeconnecter}
           </Bouton>

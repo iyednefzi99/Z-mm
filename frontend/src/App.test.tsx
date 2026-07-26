@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
 import { LangueProvider } from './i18n/langue';
 import { DialoguesProvider } from './ui/dialogues';
-import { ouvrirSession } from './auth/session';
+import { definir, reinitialiserSession } from './auth/session';
 
 /**
  * Tests de l'ossature et du routage (US-051, SPRINT-11).
@@ -16,7 +16,7 @@ vi.mock('./api/client', async () => {
   const vide = { lister: () => Promise.resolve([]) };
   return {
     synchroniser: () => Promise.resolve(),
-    rafraichirJeton: () => Promise.resolve(false),
+    jetonCsrf: () => null,
     fermiers: vide,
     fermes: vide,
     sites: vide,
@@ -27,12 +27,12 @@ vi.mock('./api/client', async () => {
   };
 });
 
+// Le module d'authentification se reduit desormais a deux navigations (ADR-006) :
+// le double le refletant, il n'a plus que trois exports a simuler.
 vi.mock('./auth/oidc', () => ({
-  oidcConfigure: () => false,
-  terminerConnexion: () => Promise.resolve(false),
-  deconnexionOidc: vi.fn(),
   demarrerConnexion: vi.fn(),
-  echangerRafraichissement: vi.fn(),
+  deconnexion: vi.fn(),
+  consommerRouteDeRetour: () => null,
 }));
 
 const monter = () =>
@@ -52,15 +52,21 @@ function allerA(chemin: string) {
 describe('ossature de la console', () => {
   beforeEach(() => {
     allerA('/');
-    ouvrirSession('jeton-de-test');
+    definir({ utilisateur: 'agent-test', roles: ['admin'], exploitation: 'demo' });
   });
 
-  it('affiche l’écran de connexion sans session', () => {
-    localStorage.clear();
+  it('affiche l’écran de connexion une fois la session connue absente', async () => {
+    // L'écran de connexion n'apparaît QU'APRÈS la réponse du serveur : le
+    // navigateur ne détient plus de jeton, il ne peut donc plus savoir seul s'il
+    // est connecté (ADR-006). D'où l'attente — et d'où l'écran de chargement
+    // intermédiaire, qui évite de faire clignoter « Session requise » devant un
+    // utilisateur pourtant authentifié.
+    reinitialiserSession();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 401 }));
 
     monter();
 
-    expect(screen.getByText('Session requise')).toBeInTheDocument();
+    expect(await screen.findByText('Session requise')).toBeInTheDocument();
   });
 
   it('sert l’écran par défaut à la racine', async () => {

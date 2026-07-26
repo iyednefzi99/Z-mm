@@ -1,17 +1,22 @@
-import { useState, type ReactElement } from 'react';
-import { demarrerConnexion, oidcConfigure } from '../auth/oidc';
-import { ouvrirSession } from '../auth/session';
+import { type ReactElement } from 'react';
+import { demarrerConnexion } from '../auth/oidc';
 import { useT } from '../i18n/langue';
 import { Bouton } from '../ui/composants';
 
 /**
- * Ecran de session. En production, il sera remplace par une redirection Keycloak
- * (OIDC / PKCE) ; le point d'integration est isole dans `auth/session`. En
- * developpement, il accepte un jeton d'acces valide (portant le claim tenant_id).
+ * Écran de session.
+ *
+ * <p>Depuis le BFF (ADR-006), il ne collecte plus rien : ni mot de passe, ni
+ * jeton collé à la main. Un seul bouton, qui envoie l'utilisateur s'authentifier
+ * chez Keycloak — la PWA ne voit jamais ses identifiants et ne reçoit jamais de
+ * jeton en retour.
+ *
+ * <p>Le champ « coller un jeton » qui existait ici a disparu volontairement :
+ * c'était une commodité de développement, et le seul endroit de l'interface
+ * capable d'introduire un jeton dans le navigateur.
  */
 export function ConnexionVue(): ReactElement {
   const t = useT();
-  const [jeton, setJeton] = useState('');
 
   return (
     <main className="z-connexion">
@@ -23,30 +28,11 @@ export function ConnexionVue(): ReactElement {
         <h1 className="z-connexion__titre">{t.session.titre}</h1>
         <p className="z-connexion__texte">{t.session.explication}</p>
 
-        {oidcConfigure() && (
-          <>
-            <Bouton variante="primaire" onClick={() => void demarrerConnexion()}>
-              {t.session.connexionKeycloak}
-            </Bouton>
-            <p className="z-connexion__ou">{t.session.ou}</p>
-          </>
-        )}
-
-        <label className="z-champ">
-          <span className="z-champ__libelle">{t.session.jeton}</span>
-          <textarea
-            className="z-input z-input--zone"
-            rows={4}
-            placeholder={t.session.placeholder}
-            value={jeton}
-            onChange={(e) => setJeton(e.target.value)}
-          />
-        </label>
         <Bouton
           variante="primaire"
-          onClick={() => jeton.trim() !== '' && ouvrirSession(jeton.trim())}
+          onClick={() => demarrerConnexion(window.location.pathname)}
         >
-          {t.actions.seConnecter}
+          {t.session.connexionKeycloak}
         </Bouton>
       </div>
     </main>
