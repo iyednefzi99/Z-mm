@@ -56,6 +56,38 @@ export function Bouton({
   );
 }
 
+// ─── Pastille d'état ──────────────────────────────────────────────────────
+
+export type TonPastille = 'succes' | 'attention' | 'danger' | 'neutre';
+
+/**
+ * Étiquette d'état — niveau d'alerte, santé d'une colonie, statut d'une tâche.
+ *
+ * <p><strong>Ce qu'elle corrige.</strong> Les états sortaient en texte nu dans
+ * une colonne de tableau, et la gravité n'était portée que par la teinte du fond
+ * de ligne. Deux défauts : sur une liste longue, le regard ne trie pas des mots
+ * de même graisse ; et une information encodée par la seule couleur disparaît
+ * pour les 8 % de personnes qui ne les distinguent pas. La pastille double donc
+ * systématiquement la couleur d'un <strong>point plein</strong> et d'un fond
+ * teinté, et garde le libellé traduit — jamais un point seul.
+ *
+ * @param ton gravité ; `neutre` pour un état sans enjeu, ou une donnée absente
+ */
+export function Pastille({
+  ton = 'neutre',
+  children,
+}: {
+  ton?: TonPastille;
+  children: ReactNode;
+}): ReactElement {
+  return (
+    <span className={`z-pastille z-pastille--${ton}`}>
+      <span className="z-pastille__point" aria-hidden="true" />
+      {children}
+    </span>
+  );
+}
+
 // ─── Modale ─────────────────────────────────────────────────────────────────
 
 /**

@@ -41,6 +41,22 @@
     "config": "Configuration",
     "audit": "Audit"
   },
+  "groupes": {
+    "navigation": "Main navigation",
+    "pilotage": "Overview",
+    "cheptel": "Apiary",
+    "terrain": "Field",
+    "production": "Production",
+    "administration": "Administration"
+  },
+  "palette": {
+    "ouvrir": "Search a screen",
+    "titre": "Go to…",
+    "invite": "Search a screen…",
+    "aucun": "No screen matches.",
+    "indice": "↑↓ browse · Enter open · Esc close",
+    "raccourci": "Ctrl K"
+  },
   "actions": {
     "nouveau": "New",
     "modifier": "Edit",

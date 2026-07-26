@@ -12,10 +12,18 @@ import { LANGUES } from './i18n/messages';
 import { useLangue, useT } from './i18n/langue';
 import { surFile } from './offline/file';
 import { useNavigation } from './routage/navigation';
-import { ONGLETS, cheminDepuisOnglet, ongletDepuisChemin, type Onglet } from './routage/routes';
+import {
+  GROUPES,
+  GROUPES_CLES,
+  ICONES,
+  cheminDepuisOnglet,
+  ongletDepuisChemin,
+  type Onglet,
+} from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
 import { SelecteurTheme } from './theme/theme';
 import { Bouton } from './ui/composants';
+import { PaletteCommandes } from './ui/palette';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
@@ -59,10 +67,26 @@ export default function App(): ReactElement {
   const [session, setSession] = useState<Session | null | undefined>(sessionCourante());
   const [enAttente, setEnAttente] = useState(0);
   const [horsLigne, setHorsLigne] = useState(!navigator.onLine);
+  const [palette, setPalette] = useState(false);
 
   const onglet = ongletDepuisChemin(chemin);
 
   useEffect(() => surSession(setSession), []);
+
+  // Ctrl/⌘ + K ouvre la palette depuis n'importe quel écran. Le raccourci est
+  // capté sur le document et non sur un champ : il doit répondre où que soit le
+  // focus. `preventDefault` retire la recherche intégrée du navigateur, qui
+  // porte la même combinaison sur certaines plateformes.
+  useEffect(() => {
+    const surTouche = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setPalette((ouverte) => !ouverte);
+      }
+    };
+    document.addEventListener('keydown', surTouche);
+    return () => document.removeEventListener('keydown', surTouche);
+  }, []);
 
   // État de la session, demandé au serveur (ADR-006). Le navigateur ne détient
   // plus de jeton : il ne peut plus savoir de lui-même s'il est connecté, ni
@@ -134,6 +158,23 @@ export default function App(): ReactElement {
           <span className="z-marque__baseline">{t.baseline}</span>
         </div>
         <div className="z-topbar__actions">
+          {/* La palette est un accélérateur, pas la voie d'accès : elle a donc un
+              bouton visible, qui affiche aussi le raccourci. Un ⌘K que personne
+              ne découvre ne fait naviguer personne. */}
+          <button
+            type="button"
+            className="z-recherche"
+            onClick={() => setPalette(true)}
+            aria-label={t.palette.ouvrir}
+          >
+            <span aria-hidden="true">🔍</span>
+            <span className="z-recherche__texte" aria-hidden="true">
+              {t.palette.invite}
+            </span>
+            <kbd className="z-recherche__touche" aria-hidden="true">
+              {t.palette.raccourci}
+            </kbd>
+          </button>
           {(horsLigne || enAttente > 0) && (
             <span className={`z-sync ${horsLigne ? 'z-sync--hors-ligne' : ''}`} role="status">
               {horsLigne ? t.sync.horsLigne : gabarit(t.sync.enAttente, { n: String(enAttente) })}
@@ -162,35 +203,64 @@ export default function App(): ReactElement {
         </div>
       </header>
 
-      <nav className="z-nav" aria-label={t.marque}>
-        {ONGLETS.map((cle) => (
-          <button
-            key={cle}
-            type="button"
-            className="z-onglet"
-            aria-current={cle === onglet}
-            onClick={() => naviguer(cheminDepuisOnglet(cle))}
-          >
-            {t.onglets[cle]}
-          </button>
-        ))}
-      </nav>
+      {/* Un SEUL élément de navigation dans le DOM, présenté différemment selon
+          la largeur : rail latéral persistant au bureau, barre du bas au pouce
+          sur mobile. Dupliquer la navigation aurait dupliqué seize noms
+          accessibles, et un lecteur d'écran aurait annoncé deux fois chaque
+          écran. Tout se joue donc en CSS. */}
+      <div className="z-corps">
+        <nav className="z-rail" aria-label={t.groupes.navigation}>
+          {GROUPES_CLES.map((groupe) => (
+            <div key={groupe} className="z-rail__groupe">
+              {/* La famille situe, elle ne se clique pas. Masquée sur mobile,
+                  où la barre du bas n'a pas la hauteur d'un intertitre. */}
+              <span className="z-rail__famille">{t.groupes[groupe]}</span>
+              {GROUPES[groupe].map((cle) => (
+                <button
+                  key={cle}
+                  type="button"
+                  className="z-onglet"
+                  aria-current={cle === onglet}
+                  onClick={() => naviguer(cheminDepuisOnglet(cle))}
+                >
+                  {/* Décoratif : le libellé traduit porte seul le sens. Sans
+                      `aria-hidden`, le lecteur annoncerait « abeille Ruches ». */}
+                  <span className="z-onglet__icone" aria-hidden="true">
+                    {ICONES[cle]}
+                  </span>
+                  <span className="z-onglet__libelle">{t.onglets[cle]}</span>
+                </button>
+              ))}
+            </div>
+          ))}
+        </nav>
 
-      <main className="z-vue">
-        <Suspense
-          fallback={
-            <p className="z-info" role="status">
-              {t.etats.chargement}
-            </p>
-          }
-        >
-          {Vue === null ? (
-            <IntrouvableVue onRetour={() => naviguer('/')} />
-          ) : (
-            <Vue />
-          )}
-        </Suspense>
-      </main>
+        <main className="z-vue">
+          <Suspense
+            fallback={
+              <p className="z-info" role="status">
+                {t.etats.chargement}
+              </p>
+            }
+          >
+            {Vue === null ? (
+              <IntrouvableVue onRetour={() => naviguer('/')} />
+            ) : (
+              <Vue />
+            )}
+          </Suspense>
+        </main>
+      </div>
+
+      {palette && (
+        <PaletteCommandes
+          onFermer={() => setPalette(false)}
+          onChoisir={(cle) => {
+            setPalette(false);
+            naviguer(cheminDepuisOnglet(cle));
+          }}
+        />
+      )}
     </div>
   );
 }

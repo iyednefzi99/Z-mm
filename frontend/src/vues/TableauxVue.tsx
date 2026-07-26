@@ -10,17 +10,32 @@ import {
 import type {
   AlerteSanitaire,
   CalendrierCellule,
+  EtatSante,
   LigneProduction,
+  NiveauAlerte,
   PrevisionRecolte,
   Synthese,
 } from '../api/types';
 import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
-import { Bouton, ChampDate } from '../ui/composants';
+import { Bouton, ChampDate, Pastille, type TonPastille } from '../ui/composants';
 import { Barres, Tuile } from '../ui/graphiques';
 import { useLangue } from '../i18n/langue';
 
 type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese';
+
+/** Gravité d'un niveau d'alerte, et santé de la dernière visite, en tons de pastille. */
+const TON_NIVEAU: Record<NiveauAlerte, TonPastille> = {
+  ok: 'succes',
+  attention: 'attention',
+  critique: 'danger',
+};
+
+const TON_SANTE: Record<EtatSante, TonPastille> = {
+  bon: 'succes',
+  moyen: 'attention',
+  mauvais: 'danger',
+};
 
 /** Premier et dernier jour du mois courant, au format ISO (valeurs par défaut du calendrier). */
 function moisCourant(): { debut: string; fin: string } {
@@ -271,8 +286,21 @@ export function TableauxVue(): ReactElement {
                 {alertes.map((a) => (
                   <tr key={a.rucheId} className={`z-ligne--${a.niveau}`}>
                     <td>{a.rucheModele}</td>
-                    <td>{t.tableau.niveaux[a.niveau]}</td>
-                    <td>{a.dernierEtatSante ? t.visite.santes[a.dernierEtatSante] : '—'}</td>
+                    {/* La gravité était un mot posé dans une colonne, doublé par
+                        la seule teinte du fond de ligne. La pastille en fait un
+                        repère : le regard trie la colonne sans la lire. */}
+                    <td>
+                      <Pastille ton={TON_NIVEAU[a.niveau]}>{t.tableau.niveaux[a.niveau]}</Pastille>
+                    </td>
+                    <td>
+                      {a.dernierEtatSante ? (
+                        <Pastille ton={TON_SANTE[a.dernierEtatSante]}>
+                          {t.visite.santes[a.dernierEtatSante]}
+                        </Pastille>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
                     <td>
                       {a.derniereVisite
                         ? `${a.derniereVisite} (${a.joursDepuisVisite} ${t.tableau.jours})`

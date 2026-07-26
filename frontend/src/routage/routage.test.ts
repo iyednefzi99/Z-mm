@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
+  GROUPES,
+  GROUPES_CLES,
+  ICONES,
   ONGLETS,
   ONGLET_PAR_DEFAUT,
   cheminDepuisOnglet,
@@ -38,6 +41,33 @@ describe('table des routes', () => {
     // recopier lui-même et ne prouverait rien.
     expect(ONGLETS).toHaveLength(16);
     expect(new Set(ONGLETS).size).toBe(16);
+  });
+});
+
+describe('familles de la navigation', () => {
+  const ranges = GROUPES_CLES.flatMap((groupe) => GROUPES[groupe]);
+
+  it('range chaque écran dans exactement une famille', () => {
+    // L'invariant que le rail suppose. Sans lui, un écran ajouté à `ONGLETS`
+    // mais oublié dans `GROUPES` resterait joignable par son URL tout en étant
+    // ABSENT de la navigation — un écran mort que rien ne signale.
+    expect([...ranges].sort()).toEqual([...ONGLETS].sort());
+    expect(new Set(ranges).size).toBe(ONGLETS.length);
+  });
+
+  it('ouvre sur une famille de pilotage contenant l’écran par défaut', () => {
+    // La première famille est celle qu'on lit d'abord : elle doit contenir
+    // l'accueil, sinon la navigation commence ailleurs que l'application.
+    expect(GROUPES[GROUPES_CLES[0]]).toContain(ONGLET_PAR_DEFAUT);
+  });
+
+  it('donne un pictogramme à chaque écran, et pas deux fois le même', () => {
+    for (const onglet of ONGLETS) {
+      expect(ICONES[onglet]).toBeTruthy();
+    }
+    // Deux écrans partageant une icône se confondraient dans la barre du bas,
+    // où le libellé est tronqué à six caractères.
+    expect(new Set(Object.values(ICONES)).size).toBe(ONGLETS.length);
   });
 });
 

@@ -41,6 +41,22 @@
     "config": "Configuration",
     "audit": "Audit"
   },
+  "groupes": {
+    "navigation": "Navigation principale",
+    "pilotage": "Pilotage",
+    "cheptel": "Cheptel",
+    "terrain": "Terrain",
+    "production": "Production",
+    "administration": "Administration"
+  },
+  "palette": {
+    "ouvrir": "Rechercher un écran",
+    "titre": "Aller à…",
+    "invite": "Rechercher un écran…",
+    "aucun": "Aucun écran ne correspond.",
+    "indice": "↑↓ parcourir · Entrée ouvrir · Échap fermer",
+    "raccourci": "Ctrl K"
+  },
   "actions": {
     "nouveau": "Nouveau",
     "modifier": "Modifier",

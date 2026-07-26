@@ -41,6 +41,22 @@
     "config": "الإعدادات",
     "audit": "التدقيق"
   },
+  "groupes": {
+    "navigation": "التنقل الرئيسي",
+    "pilotage": "القيادة",
+    "cheptel": "المنحل",
+    "terrain": "الميدان",
+    "production": "الإنتاج",
+    "administration": "الإدارة"
+  },
+  "palette": {
+    "ouvrir": "البحث عن شاشة",
+    "titre": "الانتقال إلى…",
+    "invite": "ابحث عن شاشة…",
+    "aucun": "لا توجد شاشة مطابقة.",
+    "indice": "↑↓ للتصفح · Enter للفتح · Esc للإغلاق",
+    "raccourci": "Ctrl K"
+  },
   "actions": {
     "nouveau": "جديد",
     "modifier": "تعديل",

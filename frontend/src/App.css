@@ -6,17 +6,24 @@
 /* ─── Ossature ─────────────────────────────────────────────────────────── */
 
 .z-app {
+  /* Hauteur de la barre supérieure : c'est l'ancrage du rail collant. Une valeur
+     nommée plutôt qu'un nombre répété — les deux doivent bouger ensemble. */
+  --z-topbar-h: 4rem;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
+/* Hauteur fixe, et non déduite du contenu : c'est elle qui ancre le rail
+   collant (`--z-topbar-h`). Une barre qui grandit d'un pixel décollerait le rail
+   du même pixel, et la jointure se verrait. */
 .z-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.75rem 1.25rem;
+  min-block-size: var(--z-topbar-h);
+  padding: 0.5rem 1.25rem;
   background: var(--z-surface);
   border-block-end: 1px solid var(--z-line);
   position: sticky;
@@ -95,15 +102,103 @@
   color: var(--z-on-honey);
 }
 
-/* ─── Navigation par onglets ───────────────────────────────────────────── */
+/* ─── Recherche globale (palette de commandes) ─────────────────────────── */
 
-.z-nav {
-  display: flex;
-  gap: 0.25rem;
-  padding: 0 1.25rem;
+/* Le raccourci Ctrl/⌘ + K reste l'accélérateur ; ce bouton le rend DÉCOUVRABLE.
+   Sur mobile il se réduit à la loupe : le libellé et la touche n'y ont pas la
+   place, et le raccourci clavier n'y existe pas. */
+.z-recherche {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 2.25rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--z-bg);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-pill);
+  color: var(--z-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color var(--z-duration-fast) var(--z-ease-out),
+    color var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-recherche:hover {
+  border-color: var(--z-honey-500);
+  color: var(--z-text);
+}
+
+.z-recherche__texte {
+  max-inline-size: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.z-recherche__touche {
+  font-family: var(--z-font-mono);
+  font-size: 0.68rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
   background: var(--z-surface);
-  border-block-end: 1px solid var(--z-line);
-  overflow-x: auto;
+}
+
+@media (max-width: 899px) {
+  .z-recherche__texte,
+  .z-recherche__touche {
+    display: none;
+  }
+}
+
+/* ─── Navigation ───────────────────────────────────────────────────────────
+   Seize écrans alignés dans une barre qui défile ne font pas une navigation :
+   passé le septième, on ne balaye plus, on cherche. Le rail les regroupe en
+   cinq familles suivant le déroulé du métier (piloter, gérer le cheptel, aller
+   au rucher, récolter, administrer).
+
+   UN SEUL élément dans le DOM, deux présentations : rail latéral persistant au
+   bureau, barre du bas au pouce sur mobile. Dupliquer le balisage aurait
+   dupliqué seize noms accessibles.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.z-corps {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  inline-size: 100%;
+}
+
+.z-rail {
+  flex: 0 0 14rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.1rem 0.75rem 2rem;
+  background: var(--z-surface);
+  border-inline-end: 1px solid var(--z-line);
+  position: sticky;
+  inset-block-start: var(--z-topbar-h);
+  max-block-size: calc(100dvh - var(--z-topbar-h));
+  overflow-y: auto;
+}
+
+.z-rail__groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+/* La famille situe, elle ne se clique pas : discrète par construction, et
+   séparée du groupe suivant par un écart plus grand que l'écart interne — c'est
+   l'espacement qui groupe, pas un filet. */
+.z-rail__famille {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--z-text-muted);
+  padding: 0 0.7rem 0.35rem;
 }
 
 .z-onglet {
@@ -111,12 +206,11 @@
   border: 0;
   background: transparent;
   color: var(--z-text-muted);
-  padding: 0.8rem 0.9rem;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   cursor: pointer;
-  border-block-end: 2px solid transparent;
   white-space: nowrap;
   transition: color var(--z-duration-fast) var(--z-ease-out),
+    background var(--z-duration-fast) var(--z-ease-out),
     border-color var(--z-duration-base) var(--z-ease-out);
 }
 
@@ -124,20 +218,164 @@
   color: var(--z-text);
 }
 
-.z-onglet[aria-current='true'] {
+/* Entrée du rail : cible de 2,75 rem (44 px), le plancher tactile. Cette
+   console se tient d'une main, dehors, avec des gants — une cible de 36 px s'y
+   rate une fois sur trois. */
+.z-rail .z-onglet {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-block-size: 2.75rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: var(--z-radius-md);
+  text-align: start;
+}
+
+.z-rail .z-onglet:hover {
+  background: color-mix(in srgb, var(--z-honey-500) 10%, transparent);
+}
+
+/* L'écran courant ne se signale pas par la seule couleur : fond teinté, texte
+   plus gras et liseré porteur, pour que la position reste lisible en vision
+   monochrome comme en plein soleil. */
+.z-rail .z-onglet[aria-current='true'] {
+  background: color-mix(in srgb, var(--z-honey-500) 18%, transparent);
+  color: var(--z-honey-600);
+  font-weight: 650;
+  box-shadow: inset 3px 0 0 var(--z-honey-500);
+}
+
+[dir='rtl'] .z-rail .z-onglet[aria-current='true'] {
+  box-shadow: inset -3px 0 0 var(--z-honey-500);
+}
+
+.z-onglet__icone {
+  font-size: 1.05rem;
+  line-height: 1;
+  /* Boîte fixe : sans elle, 🧑‍🌾 et 📍 ne font pas la même largeur et les
+     libellés ne s'alignent plus. */
+  inline-size: 1.4rem;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* Barre d'onglets classique — sous-onglets d'une vue (tableaux de bord). Elle
+   garde la forme horizontale : cinq entrées, pas seize. */
+.z-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-block-end: 1.25rem;
+  border-block-end: 1px solid var(--z-line);
+  overflow-x: auto;
+}
+
+.z-nav .z-onglet {
+  padding: 0.7rem 0.9rem;
+  min-block-size: 2.75rem;
+  border-block-end: 2px solid transparent;
+}
+
+.z-nav .z-onglet[aria-current='true'] {
   color: var(--z-honey-600);
   border-block-end-color: var(--z-honey-500);
   font-weight: 600;
+}
+
+/* ─── Mobile : le rail devient la barre du pouce ───────────────────────────
+   Le haut d'un écran de téléphone est hors d'atteinte à une main ; la
+   navigation descend donc au bas, là où le pouce se pose. Un menu replié aurait
+   coûté moins de CSS, mais cacher la navigation principale fait chuter son
+   usage — le rail reste visible, il change seulement d'orientation.
+   ─────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .z-corps {
+    flex-direction: column;
+  }
+
+  .z-rail {
+    position: fixed;
+    inset-block-start: auto;
+    inset-block-end: 0;
+    inset-inline: 0;
+    z-index: 40;
+    flex: none;
+    flex-direction: row;
+    gap: 0.5rem;
+    max-block-size: none;
+    padding: 0.4rem 0.6rem calc(0.4rem + env(safe-area-inset-bottom));
+    border-inline-end: 0;
+    border-block-start: 1px solid var(--z-line);
+    box-shadow: var(--z-shadow-2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* Le doigt s'arrête sur une famille entière, pas au milieu de deux. */
+    scroll-snap-type: x proximity;
+  }
+
+  .z-rail__groupe {
+    flex-direction: row;
+    gap: 0.15rem;
+    scroll-snap-align: start;
+  }
+
+  /* La famille reste dans le DOM — elle n'a simplement pas la hauteur d'un
+     intertitre ici. Les groupes se lisent alors à l'écart qui les sépare. */
+  .z-rail__famille {
+    display: none;
+  }
+
+  .z-rail__groupe + .z-rail__groupe {
+    margin-inline-start: 0.5rem;
+    padding-inline-start: 0.5rem;
+    border-inline-start: 1px solid var(--z-line);
+  }
+
+  /* Icône au-dessus du libellé : 3,5 rem (56 px) de côté, la cible confortable
+     avec un gant. Le libellé reste affiché — une barre d'icônes seules se
+     devine, elle ne se lit pas. */
+  .z-rail .z-onglet {
+    flex-direction: column;
+    gap: 0.15rem;
+    min-inline-size: 4.25rem;
+    min-block-size: 3.5rem;
+    padding: 0.35rem 0.3rem;
+    font-size: 0.66rem;
+    box-shadow: none;
+  }
+
+  .z-rail .z-onglet[aria-current='true'] {
+    box-shadow: none;
+  }
+
+  .z-onglet__icone {
+    font-size: 1.25rem;
+    inline-size: auto;
+  }
+
+  .z-onglet__libelle {
+    max-inline-size: 6ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 /* ─── Contenu ──────────────────────────────────────────────────────────── */
 
 .z-vue {
   flex: 1;
+  min-inline-size: 0;
   padding: 1.5rem 1.25rem 3rem;
   max-inline-size: 1000px;
   inline-size: 100%;
   margin-inline: auto;
+}
+
+/* La barre du bas est fixe : sans cette réserve, elle recouvrirait la dernière
+   ligne de chaque liste. */
+@media (max-width: 899px) {
+  .z-vue {
+    padding-block-end: 6rem;
+  }
 }
 
 .z-section__entete {
@@ -162,8 +400,17 @@
 
 /* ─── Boutons ──────────────────────────────────────────────────────────── */
 
+/* 2,75 rem (44 px) de haut : le plancher de cible tactile. Cette console se
+   tient dehors, d'une main, souvent avec un gant — un bouton de 36 px s'y rate
+   régulièrement, et une saisie de visite recommencée coûte plus cher que les
+   huit pixels gagnés. */
 .z-btn {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-block-size: 2.75rem;
   border: 1px solid transparent;
   border-radius: var(--z-radius-md);
   padding: 0.55rem 1rem;
@@ -296,6 +543,65 @@
 
 .z-lien--danger {
   color: var(--z-danger);
+}
+
+/* Les actions de ligne restent compactes au bureau, où l'on vise à la souris,
+   et passent au plancher tactile dès qu'on est au doigt. Les élargir partout
+   aurait doublé la hauteur de chaque tableau pour rien. */
+@media (pointer: coarse) {
+  .z-lien {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding-inline: 0.6rem;
+  }
+}
+
+/* ─── Pastille d'état ──────────────────────────────────────────────────────
+   L'état sortait en texte nu, et la gravité n'était portée que par la teinte du
+   fond de ligne. Sur une liste longue, le regard ne trie pas des mots de même
+   graisse ; et une information encodée par la seule couleur disparaît pour les
+   ~8 % de personnes qui ne les distinguent pas. La pastille double donc la
+   couleur d'un point plein et d'un fond teinté, et garde toujours son libellé.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.z-pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--z-radius-pill);
+  font-size: 0.78rem;
+  font-weight: 650;
+  white-space: nowrap;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.z-pastille__point {
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: var(--z-radius-pill);
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.z-pastille--succes {
+  color: var(--z-success);
+}
+
+.z-pastille--attention {
+  /* Le miel sert de couleur de marque ; pour un avertissement, il est ramené au
+     ton chaud le plus foncé de la rampe — sur fond clair, `--z-honey-500` ne
+     tient pas 4,5:1 en texte de 12 px. */
+  color: var(--z-honey-600);
+}
+
+.z-pastille--danger {
+  color: var(--z-danger);
+}
+
+.z-pastille--neutre {
+  color: var(--z-text-muted);
 }
 
 /* Encart secondaire d'une vue (tournée du jour sous la table des plannings). */
@@ -444,6 +750,150 @@
 /* Les keyframes `z-overlay-in` / `z-modale-in` ont ete retirees : elles ne
    savaient jouer que l'entree. La modale utilise desormais des transitions
    symetriques, voir plus haut. */
+
+/* ─── Palette de commandes (Ctrl/⌘ + K) ────────────────────────────────────
+   Une palette s'ancre HAUT : elle apparaît là où le regard cherche un champ de
+   recherche, et laisse voir la page dessous. La centrer la ferait lire comme
+   une modale bloquante, ce qu'elle n'est pas.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.z-overlay--haut {
+  align-items: flex-start;
+  padding-block-start: min(12vh, 6rem);
+}
+
+.z-palette {
+  inline-size: min(34rem, 100%);
+  max-block-size: min(70dvh, 32rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--z-bg);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-3);
+  overflow: hidden;
+  /* Même entrée que la modale : la charte n'a qu'une façon d'ouvrir un
+     dialogue, et l'échelle de 0,96 lui donne son élan. */
+  transform: scale(var(--z-modal-scale));
+  opacity: 0;
+  transition:
+    transform var(--z-modal-open-dur) var(--z-modal-ease),
+    opacity var(--z-modal-open-dur) var(--z-modal-ease);
+}
+
+.is-open > .z-palette {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.z-palette__barre {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border-block-end: 1px solid var(--z-line);
+}
+
+.z-palette__loupe {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.z-palette__champ {
+  flex: 1;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--z-text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.z-palette__champ:focus {
+  /* L'anneau serait redondant : le champ est le seul élément focusable de la
+     palette à l'ouverture, et le cadre entier signale déjà où l'on est. */
+  outline: none;
+}
+
+.z-palette__champ::placeholder {
+  color: var(--z-text-muted);
+}
+
+.z-palette__liste {
+  flex: 1;
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.z-palette__famille {
+  display: block;
+  padding: 0.6rem 0.7rem 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--z-text-muted);
+}
+
+.z-palette__option {
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-block-size: 2.5rem;
+  padding: 0.4rem 0.7rem;
+  appearance: none;
+  border: 0;
+  border-radius: var(--z-radius-md);
+  background: transparent;
+  color: var(--z-text);
+  font-size: 0.92rem;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* Un SEUL repère de sélection, piloté par le clavier — le survol déplace ce
+   même repère au lieu d'en allumer un second. Deux surbrillances concurrentes
+   laisseraient ouvrir autre chose que ce qu'on vise. */
+.z-palette__option[aria-selected='true'] {
+  background: color-mix(in srgb, var(--z-honey-500) 20%, transparent);
+  color: var(--z-honey-600);
+  font-weight: 600;
+}
+
+.z-palette__icone {
+  inline-size: 1.4rem;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+.z-palette__vide {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--z-text-muted);
+  font-size: 0.9rem;
+}
+
+.z-palette__indice {
+  margin: 0;
+  padding: 0.55rem 1rem;
+  border-block-start: 1px solid var(--z-line);
+  background: var(--z-surface);
+  color: var(--z-text-muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+/* Le raccourci n'existe pas sans clavier : l'annoncer sur un téléphone serait
+   une promesse fausse. */
+@media (max-width: 899px) {
+  .z-palette__indice {
+    display: none;
+  }
+}
 
 /* ─── Formulaire ───────────────────────────────────────────────────────── */
 

@@ -19,6 +19,15 @@ vi.mock('./api/client', async () => {
   return {
     synchroniser: () => Promise.resolve(),
     jetonCsrf: () => null,
+    // L'accueil est desormais « Tableaux de bord » : le double doit couvrir ce
+    // qu'il charge, sinon l'ecran par defaut ne rend rien et tous les tests de
+    // navigation echouent sur le premier `findBy`.
+    chargerCalendrier: () => Promise.resolve([]),
+    chargerProduction: () => Promise.resolve([]),
+    chargerAlertesSanitaires: () => Promise.resolve([]),
+    chargerSynthese: () => Promise.resolve(null),
+    chargerPrevisions: () => Promise.resolve([]),
+    telechargerExport: () => Promise.resolve(),
     fermiers: vide,
     fermes: vide,
     sites: vide,
@@ -78,9 +87,12 @@ describe('ossature de la console', () => {
   });
 
   it('sert l’écran par défaut à la racine', async () => {
+    // L'accueil ouvre sur les tableaux de bord et non sur le référentiel :
+    // l'apiculteur doit voir l'état de son cheptel avant d'avoir à naviguer
+    // (cf. `ONGLET_PAR_DEFAUT`).
     monter();
 
-    expect(await screen.findByRole('heading', { name: 'Fermiers' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();
   });
 
   it('sert directement l’écran demandé par l’URL (lien profond)', async () => {
@@ -93,7 +105,7 @@ describe('ossature de la console', () => {
 
   it('change l’URL en changeant d’onglet', async () => {
     monter();
-    await screen.findByRole('heading', { name: 'Fermiers' });
+    await screen.findByRole('heading', { name: 'Tableaux de bord' });
 
     await userEvent.click(screen.getByRole('button', { name: 'Sites' }));
 
@@ -103,14 +115,14 @@ describe('ossature de la console', () => {
 
   it('suit le bouton retour du navigateur', async () => {
     monter();
-    await screen.findByRole('heading', { name: 'Fermiers' });
+    await screen.findByRole('heading', { name: 'Tableaux de bord' });
     await userEvent.click(screen.getByRole('button', { name: 'Sites' }));
     await screen.findByRole('heading', { name: 'Sites' });
 
     window.history.back();
 
     await waitFor(() => expect(window.location.pathname).toBe('/'));
-    expect(await screen.findByRole('heading', { name: 'Fermiers' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();
   });
 
   it('affiche un écran « page introuvable » sur une URL inconnue', async () => {
@@ -129,7 +141,7 @@ describe('ossature de la console', () => {
     await userEvent.click(screen.getByRole('button', { name: "Revenir a l'accueil" }));
 
     expect(window.location.pathname).toBe('/');
-    expect(await screen.findByRole('heading', { name: 'Fermiers' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();
   });
 
   it('marque l’onglet courant pour les lecteurs d’écran', async () => {
