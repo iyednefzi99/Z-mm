@@ -90,6 +90,28 @@ npm run build
 Le serveur de développement relaie `/api` et `/actuator` vers le backend : le
 client et l'API partagent la même origine, aucun CORS à ouvrir.
 
+## Démarrage en un clic (Windows)
+
+`Demarrer-Zumm.cmd`, à la racine, enchaîne toute la procédure ci-dessous :
+démarrage du démon Docker si besoin, prérequis manquants (`ConfigZumm.ini`,
+certificat de développement, image PostGIS de test), montée de la pile **avec la
+surcouche de développement** — sans elle, le realm importé est celui de
+production et aucun compte ne permet de se connecter —, attente de la santé
+réelle du back-end, puis ouverture de `https://localhost`.
+
+```powershell
+.\Demarrer-Zumm.cmd                  # ou : .\scripts\demarrer.ps1
+.\scripts\demarrer.ps1 -Rapide       # sans reconstruire les images
+.\scripts\demarrer.ps1 -Donnees      # (re)charger le jeu de démonstration
+.\scripts\demarrer.ps1 -Arreter      # arrêter la pile, volumes conservés
+
+.\scripts\creer-raccourci.ps1        # raccourcis « Zümm » sur le Bureau
+```
+
+Le jeu de démonstration est chargé automatiquement au **tout premier**
+démarrage (volume PostgreSQL vierge). `-Donnees` le rejoue : il purge d'abord le
+tenant `exploitation-demo`, donc les saisies faites sur ce tenant sont perdues.
+
 ## Stack complète (Docker)
 
 ```bash
