@@ -125,21 +125,55 @@ jobs:
           distribution: temurin
           cache: maven
 
-      # Vulnerabilites connues des dependances. BLOQUANT depuis le SPRINT-12 :
-      # un scan consultatif que personne ne lit ne protege rien. Seuil 7.0
-      # (« High » au sens CVSS v3), pas 8 : c'est la limite a partir de laquelle
-      # une CVE justifie de retarder une livraison.
+      # ─── Vulnerabilites des dependances : DEUX gardes, et pourquoi ───
       #
-      # NVD_API_KEY est facultatif mais fortement recommande : sans cle, l'API du
-      # NIST limite le debit et le telechargement du referentiel peut depasser dix
-      # minutes. La cle s'obtient gratuitement sur nvd.nist.gov.
-      - name: Scan de dependances (OWASP Dependency-Check)
+      # OSV-Scanner est le garde BLOQUANT. Il interroge la base OSV, qui ne
+      # demande aucune cle et couvre Maven comme npm. C'est ce qui le rend
+      # utilisable : un garde qui echoue pour une raison etrangere au code
+      # finit invariablement par etre contourne ou desactive.
+      #
+      # OWASP Dependency-Check reste, pour la profondeur de l'analyse NVD et la
+      # correspondance CPE qu'OSV ne fait pas. Mais il depend de l'API du NIST,
+      # qui limite severement les adresses partagees des runners GitHub : sans
+      # cle, la mise a jour echoue en une minute et demie. Il n'est donc bloquant
+      # QUE lorsque le secret NVD_API_KEY est configure — la cle est gratuite sur
+      # nvd.nist.gov. Sans elle, l'etape reste visible et signale que le garde
+      # profond est degrade, plutot que de peindre la chaine en rouge en
+      # permanence pour une cause que le code ne peut pas corriger.
+      - name: Scan de dependances (OSV — bloquant)
+        uses: google/osv-scanner-action/osv-scanner-action@9a498708959aeaef5ef730655706c5a1df1edbc2 # v2.3.8
+        with:
+          # Java UNIQUEMENT. Le versant npm garde son propre dispositif, qui
+          # distingue deja les dependances livrees au navigateur (bloquantes) de
+          # l'outillage de developpement (informatif) — distinction qu'OSV ne fait
+          # pas, et qui rendrait le garde rouge pour des failles jamais servies a
+          # un utilisateur.
+          scan-args: |-
+            --lockfile=backend/pom.xml
+
+      # Le referentiel NVD est volumineux et lent a constituer : le cacher entre
+      # deux executions evite de le retelecharger a chaque poussee.
+      - name: Cache du referentiel NVD
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: nvd-${{ runner.os }}-
+
+      - name: Scan de dependances (OWASP Dependency-Check, profond)
         working-directory: backend
-        run: >-
-          ./mvnw -B org.owasp:dependency-check-maven:check
-          -DfailBuildOnCVSS=7
-          -DnvdApiKey=${{ secrets.NVD_API_KEY }}
-          -DsuppressionFile=../.github/dependency-check-suppressions.xml
+        env:
+          # Le secret passe par l'ENVIRONNEMENT, jamais par la ligne de commande :
+          # une valeur en argument se retrouve dans la liste des processus.
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NVD_API_KEY:-}" ]; then
+            echo "::warning title=Garde profond degrade::Secret NVD_API_KEY absent. Le referentiel NVD n'est pas joignable depuis un runner partage sans cle ; la cle est gratuite sur https://nvd.nist.gov/developers/request-an-api-key"
+            ./mvnw -B org.owasp:dependency-check-maven:12.1.3:check               -DfailBuildOnCVSS=7               -DsuppressionFile=../.github/dependency-check-suppressions.xml               || echo "::warning::Analyse NVD non aboutie, faute de cle. Le garde bloquant reste OSV."
+            exit 0
+          fi
+          ./mvnw -B org.owasp:dependency-check-maven:12.1.3:check             -DfailBuildOnCVSS=7             -DnvdApiKey="$NVD_API_KEY"             -DsuppressionFile=../.github/dependency-check-suppressions.xml
 
       - uses: actions/setup-node@v4
         with:

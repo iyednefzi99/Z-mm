@@ -73,10 +73,18 @@ dédiée à l'authentification et le blocage de la console d'administration Keyc
 
 ### 6. Les portes de sécurité de la CI ne bloquaient rien
 
-OWASP Dependency-Check tournait en `continue-on-error`. Rendu bloquant (CVSS 7),
-avec un fichier de suppressions tracé. Ajout de **Trivy** (configuration
-d'infrastructure) et d'un workflow **CodeQL** — jusqu'ici, rien ne lisait le code
-de Zümm lui-même.
+OWASP Dependency-Check tournait en `continue-on-error`. Ajout de **Trivy**
+(configuration d'infrastructure) et d'un workflow **CodeQL** — jusqu'ici, rien ne
+lisait le code de Zümm lui-même.
+
+**Correctif après première exécution.** Rendre Dependency-Check bloquant sans
+fournir de clé NVD était une erreur : le NIST limite sévèrement les adresses
+partagées des runners GitHub, et la mise à jour du référentiel échouait en
+85 secondes — pour une raison étrangère au code. Le garde bloquant est désormais
+**OSV-Scanner** (aucune clé, quelques secondes) sur le versant Java ;
+Dependency-Check reste pour la profondeur de l'analyse NVD et ne bloque que si le
+secret `NVD_API_KEY` est configuré. Un garde qui échoue pour une cause que le code
+ne peut pas corriger finit toujours par être contourné.
 
 ---
 
