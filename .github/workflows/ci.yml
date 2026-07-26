@@ -169,14 +169,21 @@ jobs:
       # C'est la couche que ni gitleaks ni les scanners de dependances ne lisent,
       # et celle ou se logent les fautes les plus couteuses — conteneur en root,
       # port de base publie, capacite superflue, image sans utilisateur dedie.
+      # Epinglee sur un COMMIT, pas sur une etiquette : une etiquette se
+      # repointe, et une action tierce qui s'execute dans le job de securite est
+      # exactement l'endroit ou l'on ne veut pas d'un contenu mouvant. Le
+      # numero de version reste en commentaire pour la lisibilite des mises a jour.
       - name: Scan de configuration d'infrastructure (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: config
           scan-ref: .
           severity: HIGH,CRITICAL
           exit-code: '1'
-          trivy-config: .github/trivy.yaml
+          # Ces repertoires ne contiennent aucune configuration executable :
+          # dependances installees, rapports de couverture, artefacts de build et
+          # livrables documentaires.
+          skip-dirs: 'frontend/node_modules,frontend/coverage,backend/target,cahier de charge,roadmap'
 
       # Conformite des licences : une dependance AGPL contaminerait le livrable.
       - name: Détection de licences AGPL
