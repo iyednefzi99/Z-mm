@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LangueProvider } from '../i18n/langue';
@@ -103,5 +103,47 @@ describe('SelecteurTheme', () => {
     for (const nom of ['Thème du système', 'Thème clair', 'Thème sombre']) {
       expect(screen.getByRole('button', { name: nom })).toBeInTheDocument();
     }
+  });
+
+  it('suit une bascule du système survenue pendant la session, en mode auto', async () => {
+    // Cas courant, et pourtant facile à manquer : un téléphone passe en sombre au
+    // coucher du soleil, application ouverte. Le CSS suit tout seul —
+    // `prefers-color-scheme` est une requête média vivante — mais la balise
+    // `theme-color` ne se réévalue pas. Sans écouteur, la page devient sombre et
+    // la barre du navigateur reste claire.
+    const meta = document.createElement('meta');
+    meta.setAttribute('name', 'theme-color');
+    document.head.appendChild(meta);
+
+    let notifier: (() => void) | null = null;
+    let sombre = false;
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((requete: string) => ({
+        get matches() {
+          return sombre;
+        },
+        media: requete,
+        addEventListener: (_: string, ecouteur: () => void) => {
+          notifier = ecouteur;
+        },
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+        onchange: null,
+      })),
+    );
+
+    monter();
+    expect(meta.getAttribute('content')).toBe('#f5f7f5');
+
+    // Le système bascule ; l'application est restée en « auto ».
+    sombre = true;
+    expect(notifier).not.toBeNull();
+    await act(async () => notifier?.());
+
+    expect(meta.getAttribute('content')).toBe('#25423b');
+    meta.remove();
   });
 });

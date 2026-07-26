@@ -9,7 +9,8 @@
 > Les invariants à ne jamais défaire sont dans [`CLAUDE.md`](../CLAUDE.md) ; les
 > décisions structurantes dans [`roadmap/operationnel/06_decisions/`](../roadmap/operationnel/06_decisions/).
 >
-> **Dernière revue :** 2026-07-26, sur l'état de la branche `main` au SPRINT-17.
+> **Dernière revue :** 2026-07-26, sur l'état de la branche `main` au SPRINT-18.
+> Les chiffres de ce document ont été recomptés sur le code à cette date.
 
 ---
 
@@ -255,9 +256,9 @@ exactement l'endroit où l'on ne veut pas de contenu mouvant.
 
 **Secrets d'exécution.** Aucun secret en dur : `infra/docker-compose.yml` utilise
 partout la forme `${VAR:?message}` — le compose **échoue au démarrage** si la
-variable manque, au lieu de partir sur une valeur par défaut. Huit variables
-concernées (`DB_PASSWORD`, `DB_APP_PASSWORD`, `KC_ADMIN_PASSWORD`,
-`ZUMM_BFF_SECRET`, `GRAFANA_PASSWORD`…).
+variable manque, au lieu de partir sur une valeur par défaut. **Cinq** variables
+sont concernées, pour huit occurrences : `DB_PASSWORD` (trois services),
+`DB_APP_PASSWORD`, `KC_ADMIN_PASSWORD`, `ZUMM_BFF_SECRET`, `GRAFANA_PASSWORD`.
 
 ## 7. Observabilité et audit
 

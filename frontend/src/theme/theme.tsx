@@ -72,14 +72,32 @@ export function ThemeProvider({ children }: { children: ReactNode }): ReactEleme
     // valeur statique : un `getComputedStyle` sur la racine dépendrait du moment
     // où la feuille est appliquée.
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      const sombre =
-        valeur === 'dark' ||
-        (valeur === null &&
-          typeof window.matchMedia === 'function' &&
-          window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const preference =
+      typeof window.matchMedia === 'function'
+        ? window.matchMedia('(prefers-color-scheme: dark)')
+        : null;
+
+    const appliquerCouleurDeBarre = () => {
+      if (!meta) {
+        return;
+      }
+      const sombre = valeur === 'dark' || (valeur === null && (preference?.matches ?? false));
       meta.setAttribute('content', sombre ? '#25423b' : '#f5f7f5');
+    };
+
+    appliquerCouleurDeBarre();
+
+    // En mode « auto », le système peut basculer PENDANT que l'application est
+    // ouverte — c'est même le cas courant : un téléphone passe en sombre au
+    // coucher du soleil. Le CSS suit tout seul, `prefers-color-scheme` étant une
+    // requête média vivante ; la balise `theme-color`, elle, ne se réévalue pas.
+    // Sans cet écouteur, la page devient sombre et la barre du navigateur reste
+    // claire — précisément la jointure que ce code existe pour effacer.
+    if (valeur !== null || !preference) {
+      return undefined;
     }
+    preference.addEventListener('change', appliquerCouleurDeBarre);
+    return () => preference.removeEventListener('change', appliquerCouleurDeBarre);
   }, [theme]);
 
   const definirTheme = useCallback((choix: Theme) => {
