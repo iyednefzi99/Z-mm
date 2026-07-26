@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.4.1</version>
+    <version>3.5.16</version>
     <relativePath/>
   </parent>
 
@@ -34,6 +34,25 @@
          unitaire et integration fusionnees. Plancher pose a 0,80 — sous la mesure,
          pour tolerer le bruit d'un test, et tres au-dessus des 70 % de la DoD. -->
     <couverture.minimale>0.80</couverture.minimale>
+
+    <!-- ─── Correctifs de securite au-dessus du BOM Spring Boot ───
+         Trois versions relevees au-dessus de ce que gere le BOM de Boot 3.5.16,
+         pour fermer des vulnerabilites qu'il ne couvre pas encore. Ce sont des
+         correctifs de patch, sans changement d'API.
+
+         A REEXAMINER a chaque montee de Boot : dès que le BOM gere une version
+         superieure ou egale, ces surcharges deviennent du bruit et doivent
+         disparaitre. Une surcharge oubliee finit par BLOQUER une mise a jour au
+         lieu de la devancer.
+
+         - jackson-databind  : GHSA-5gvw-p9qm-jgwh, GHSA-mhm7-754m-9p8w (6.5),
+                               GHSA-5jmj-h7xm-6q6v (5.3)
+         - commons-lang3     : GHSA-j288-q9x7-2f5v (6.5)
+         - postgresql        : GHSA-j92g-9f8w-j867 (8.2) — le pilote parle au
+                               SGBD qui detient toutes les donnees. -->
+    <jackson-bom.version>2.21.5</jackson-bom.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
+    <postgresql.version>42.7.12</postgresql.version>
   </properties>
 
   <dependencies>

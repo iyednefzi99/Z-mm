@@ -77,14 +77,36 @@ OWASP Dependency-Check tournait en `continue-on-error`. Ajout de **Trivy**
 (configuration d'infrastructure) et d'un workflow **CodeQL** — jusqu'ici, rien ne
 lisait le code de Zümm lui-même.
 
-**Correctif après première exécution.** Rendre Dependency-Check bloquant sans
-fournir de clé NVD était une erreur : le NIST limite sévèrement les adresses
-partagées des runners GitHub, et la mise à jour du référentiel échouait en
-85 secondes — pour une raison étrangère au code. Le garde bloquant est désormais
-**OSV-Scanner** (aucune clé, quelques secondes) sur le versant Java ;
-Dependency-Check reste pour la profondeur de l'analyse NVD et ne bloque que si le
-secret `NVD_API_KEY` est configuré. Un garde qui échoue pour une cause que le code
-ne peut pas corriger finit toujours par être contourné.
+**Ce que la première exécution a révélé — et qui vaut plus que le sprint.**
+
+Rendre Dependency-Check bloquant sans clé NVD était une erreur : le NIST limite
+les adresses partagées des runners GitHub, et la mise à jour échouait en
+85 secondes, pour une cause étrangère au code. Le remplacer par OSV-Scanner lisant
+`pom.xml` a reproduit le même travers sous une autre forme — OSV reconstituait
+alors l'arbre en interrogeant Maven Central des dizaines de fois, et se faisait
+limiter en 429.
+
+La méthode qui tient : **ne pas faire résoudre l'arbre par le scanner**. Maven l'a
+déjà fait. Un SBOM CycloneDX est produit à partir des artefacts réellement
+résolus, et OSV le lit — verdict en quelques millisecondes, sans dépendre d'un
+registre tiers.
+
+Le garde ainsi réparé a immédiatement trouvé ce qu'aucune des mesures de ce sprint
+n'aurait vu : **29 vulnérabilités dans l'arbre de dépendances, dont trois de score
+9.1 à 9.6.** Spring Boot était figé en 3.4.1, publié en décembre 2024, soit
+dix-huit mois de correctifs manquants — `tomcat-embed-core` 9.6,
+`spring-security-core` et `spring-security-web` 9.1, `postgresql` 8.2.
+
+Autrement dit : ce sprint verrouillait la configuration pendant que les
+bibliothèques sous-jacentes portaient des failles critiques. La leçon n'est pas
+que les mesures de configuration étaient inutiles, mais qu'aucune ne compense une
+dépendance non tenue à jour — et que l'absence de garde opérant l'avait laissé
+invisible.
+
+Correction : montée en Spring Boot **3.5.16**, plus trois versions relevées
+au-dessus du BOM (`jackson-databind`, `commons-lang3`, `postgresql`) pour les
+vulnérabilités qu'il ne couvre pas encore. Résultat mesuré : **29 → 0**, sans une
+seule régression sur les 147 tests.
 
 ---
 
