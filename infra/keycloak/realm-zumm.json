@@ -13,6 +13,15 @@
     "ar"
   ],
   "defaultLocale": "fr",
+  "bruteForceProtected": true,
+  "permanentLockout": false,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "maxDeltaTimeSeconds": 43200,
+  "quickLoginCheckMilliSeconds": 1000,
+  "minimumQuickLoginWaitSeconds": 60,
+  "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1) and notUsername(undefined) and passwordHistory(3)",
   "roles": {
     "realm": [
       {
@@ -30,6 +39,10 @@
       {
         "name": "admin",
         "description": "Administration technique et parametrage"
+      },
+      {
+        "name": "capteur",
+        "description": "Identite machine d'une passerelle IoT : ingestion de mesures uniquement"
       }
     ]
   },
@@ -63,6 +76,55 @@
             "included.client.audience": "zumm-backend",
             "access.token.claim": "true"
           }
+        },
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "zumm-capteur",
+      "name": "Passerelle IoT Zümm",
+      "description": "Identite machine des passerelles de capteurs : flux client_credentials, ingestion de mesures uniquement",
+      "enabled": true,
+      "publicClient": false,
+      "bearerOnly": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "audience-backend",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "zumm-backend",
+            "access.token.claim": "true"
+          }
+        },
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
         }
       ]
     },
@@ -74,24 +136,5 @@
       "publicClient": false
     }
   ],
-  "users": [
-    {
-      "username": "apiculteur-test",
-      "enabled": true,
-      "emailVerified": true,
-      "firstName": "Utilisateur",
-      "lastName": "De test",
-      "email": "apiculteur-test@example.invalid",
-      "credentials": [
-        {
-          "type": "password",
-          "value": "changez-moi",
-          "temporary": false
-        }
-      ],
-      "realmRoles": [
-        "apiculteur"
-      ]
-    }
-  ]
+  "users": []
 }

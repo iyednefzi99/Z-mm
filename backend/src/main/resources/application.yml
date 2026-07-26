@@ -69,6 +69,17 @@ management:
 zumm:
   nom: Zumm
   version: 0.1.0-SNAPSHOT
+  oidc:
+    # Audience attendue dans le claim `aud` (SPRINT-12). Valider l'emetteur ne
+    # suffit pas : Keycloak emet, pour un meme royaume, des jetons destines a
+    # d'autres clients (dont `account`). Le royaume porte un `oidc-audience-mapper`
+    # vers cette valeur ; les deux moities doivent rester synchronisees. Vider la
+    # variable desactive la verification — repli d'incident, jamais un reglage.
+    audience: ${ZUMM_OIDC_AUDIENCE:zumm-backend}
+  openapi:
+    # Contrat OpenAPI et Swagger UI accessibles sans jeton. Vrai par defaut (le
+    # contrat est un livrable), FAUX sous le profil `prod` : voir SecurityConfig.
+    public: ${ZUMM_OPENAPI_PUBLIC:true}
   # Notifications e-mail des alertes (SPRINT-09, US-041). Désactivées par défaut :
   # aucune dépendance SMTP en local ni en test. En production, activer et fournir
   # spring.mail.* (host/port/credentials) via l'environnement.
@@ -102,3 +113,10 @@ management:
   endpoint:
     health:
       show-details: never
+
+zumm:
+  openapi:
+    # En production, la cartographie complete de l'API n'est plus anonyme : elle
+    # reste lisible par un administrateur authentifie, et se distribue hors ligne
+    # aux integrateurs tiers (US-026).
+    public: false

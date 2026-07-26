@@ -125,12 +125,21 @@ jobs:
           distribution: temurin
           cache: maven
 
-      # Vulnerabilites connues des dependances. Non bloquant pour l'instant :
-      # le seuil devient bloquant au SPRINT-08 (quality gate).
+      # Vulnerabilites connues des dependances. BLOQUANT depuis le SPRINT-12 :
+      # un scan consultatif que personne ne lit ne protege rien. Seuil 7.0
+      # (« High » au sens CVSS v3), pas 8 : c'est la limite a partir de laquelle
+      # une CVE justifie de retarder une livraison.
+      #
+      # NVD_API_KEY est facultatif mais fortement recommande : sans cle, l'API du
+      # NIST limite le debit et le telechargement du referentiel peut depasser dix
+      # minutes. La cle s'obtient gratuitement sur nvd.nist.gov.
       - name: Scan de dependances (OWASP Dependency-Check)
         working-directory: backend
-        continue-on-error: true
-        run: ./mvnw -B org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=8
+        run: >-
+          ./mvnw -B org.owasp:dependency-check-maven:check
+          -DfailBuildOnCVSS=7
+          -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+          -DsuppressionFile=../.github/dependency-check-suppressions.xml
 
       - uses: actions/setup-node@v4
         with:
@@ -155,6 +164,19 @@ jobs:
         working-directory: frontend
         continue-on-error: true
         run: npm audit --audit-level=high
+
+      # Configuration d'infrastructure : Dockerfiles, docker-compose, manifestes.
+      # C'est la couche que ni gitleaks ni les scanners de dependances ne lisent,
+      # et celle ou se logent les fautes les plus couteuses — conteneur en root,
+      # port de base publie, capacite superflue, image sans utilisateur dedie.
+      - name: Scan de configuration d'infrastructure (Trivy)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: config
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          trivy-config: .github/trivy.yaml
 
       # Conformite des licences : une dependance AGPL contaminerait le livrable.
       - name: Détection de licences AGPL

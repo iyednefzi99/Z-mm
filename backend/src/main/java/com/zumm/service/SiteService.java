@@ -5,6 +5,7 @@ import com.zumm.domain.Site;
 import com.zumm.repository.FermeRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.SiteRepository;
+import com.zumm.securite.PolitiquePositions;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.GrappeSites;
@@ -42,11 +43,23 @@ public class SiteService {
     private final SiteRepository sites;
     private final FermeRepository fermes;
     private final RucheRepository ruches;
+    private final PolitiquePositions positions;
 
-    public SiteService(SiteRepository sites, FermeRepository fermes, RucheRepository ruches) {
+    public SiteService(SiteRepository sites, FermeRepository fermes, RucheRepository ruches,
+            PolitiquePositions positions) {
         this.sites = sites;
         this.fermes = fermes;
         this.ruches = ruches;
+        this.positions = positions;
+    }
+
+    /**
+     * Vue exposee d'un site : construction du DTO puis filtrage de la position
+     * (SPRINT-12). Toute sortie de site passe par ici — c'est le seul point ou la
+     * politique s'applique, donc le seul a auditer.
+     */
+    private SiteReponse vue(Site site) {
+        return positions.masquer(SiteReponse.de(site));
     }
 
     public SiteReponse creer(SiteCorps corps) {
@@ -54,23 +67,23 @@ public class SiteService {
         Site site = new Site(corps.nom(), fermeRequise(corps.fermeId()),
                 corps.latitude(), corps.longitude(), corps.dateMiseEnOeuvre());
         appliquerOptionnels(site, corps);
-        return SiteReponse.de(sites.save(site));
+        return vue(sites.save(site));
     }
 
     @Transactional(readOnly = true)
     public List<SiteReponse> lister() {
-        return sites.findAll().stream().map(SiteReponse::de).toList();
+        return sites.findAll().stream().map(this::vue).toList();
     }
 
     /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
     @Transactional(readOnly = true)
     public Page<SiteReponse> lister(Pageable pagination) {
-        return sites.findAll(pagination).map(SiteReponse::de);
+        return sites.findAll(pagination).map(this::vue);
     }
 
     @Transactional(readOnly = true)
     public SiteReponse obtenir(Long id) {
-        return SiteReponse.de(entite(id));
+        return vue(entite(id));
     }
 
     public SiteReponse mettreAJour(Long id, SiteCorps corps) {
@@ -81,7 +94,7 @@ public class SiteService {
         site.setLatitude(corps.latitude());
         site.setLongitude(corps.longitude());
         appliquerOptionnels(site, corps);
-        return SiteReponse.de(site);
+        return vue(site);
     }
 
     public void supprimer(Long id) {
@@ -92,7 +105,7 @@ public class SiteService {
     @Transactional(readOnly = true)
     public List<SiteReponse> proches(double latitude, double longitude, double rayonMetres) {
         return sites.findAllById(sites.idsProches(latitude, longitude, rayonMetres))
-                .stream().map(SiteReponse::de).toList();
+                .stream().map(this::vue).toList();
     }
 
     /**
@@ -164,14 +177,30 @@ public class SiteService {
         Map<Long, SiteReponse> parId = sites.findAllById(
                         lignes.stream().map(SiteRepository.VoisinProche::getSiteId).toList())
                 .stream().collect(Collectors.toMap(Site::getId, SiteReponse::de));
+        // Une distance au decimetre depuis un site connu se trilatere : elle
+        // reconstituerait la position que le masque vient d'arrondir. Elle est donc
+        // degradee a la centaine de metres pour les profils non proprietaires.
+        boolean exact = positions.positionExacteAutorisee();
         // L'ordre vient de la base (parcours d'index KNN) : on le conserve.
         return lignes.stream()
                 .filter(ligne -> parId.containsKey(ligne.getSiteId()))
-                .map(ligne -> new VoisinSite(parId.get(ligne.getSiteId()),
-                        BigDecimal.valueOf(ligne.getDistanceMetres()).setScale(1, RoundingMode.HALF_UP)))
+                .map(ligne -> new VoisinSite(
+                        positions.masquer(parId.get(ligne.getSiteId())),
+                        distanceExposee(ligne.getDistanceMetres(), exact)))
                 .toList();
     }
 
+    private static BigDecimal distanceExposee(double metres, boolean exact) {
+        return exact
+                ? BigDecimal.valueOf(metres).setScale(1, RoundingMode.HALF_UP)
+                : BigDecimal.valueOf(Math.round(metres / 100.0) * 100L).setScale(1, RoundingMode.HALF_UP);
+    }
+
+    /**
+     * Le centroide est calcule sur les positions EXACTES puis masque, et non sur des
+     * positions deja arrondies : arrondir avant de moyenner accumulerait les erreurs
+     * d'arrondi au lieu de les compenser.
+     */
     private GrappeSites enGrappe(int numero, List<SiteReponse> membres, Map<Long, Long> ruchesParSite) {
         BigDecimal nombre = BigDecimal.valueOf(membres.size());
         BigDecimal latitude = membres.stream().map(SiteReponse::latitude)
@@ -180,9 +209,11 @@ public class SiteService {
         BigDecimal longitude = membres.stream().map(SiteReponse::longitude)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .divide(nombre, 6, RoundingMode.HALF_UP);
+        BigDecimal[] centroide = positions.masquer(latitude, longitude);
         long ruchesCumulees = membres.stream()
                 .mapToLong(site -> ruchesParSite.getOrDefault(site.id(), 0L)).sum();
-        return new GrappeSites(numero, latitude, longitude, membres.size(), ruchesCumulees, membres);
+        return new GrappeSites(numero, centroide[0], centroide[1], membres.size(), ruchesCumulees,
+                membres.stream().map(positions::masquer).toList());
     }
 
     Site entite(Long id) {

@@ -97,18 +97,57 @@ public class ExportService {
         sb.append("\r\n");
     }
 
+    /**
+     * Caracteres qui, en tete de cellule, font interpreter le contenu comme une
+     * FORMULE par Excel, LibreOffice et Google Sheets (CWE-1236, « CSV injection »).
+     */
+    private static final String AMORCES_DE_FORMULE = "=+-@\t\r";
+
+    /**
+     * Neutralise l'interpretation d'une cellule comme formule.
+     *
+     * <p>L'echappement RFC 4180 protege l'ANALYSE du fichier, pas son OUVERTURE :
+     * une constatation de visite saisie {@code =cmd|'/c calc'!A1} reste une formule
+     * valide une fois le champ correctement guillemete. Le tableur execute alors du
+     * contenu venu d'un utilisateur — et les exports de Zumm circulent par courriel
+     * entre exploitations. La parade retenue est le prefixe apostrophe : la cellule
+     * s'affiche telle quelle et n'est plus evaluee.
+     */
+    private static String neutraliserFormule(String champ) {
+        if (champ.isEmpty() || AMORCES_DE_FORMULE.indexOf(champ.charAt(0)) < 0) {
+            return champ;
+        }
+        // Un nombre negatif commence lui aussi par `-` : le prefixer le
+        // transformerait en texte et fausserait tout calcul en aval. Seules les
+        // amorces qui ne sont PAS un nombre sont neutralisees.
+        if (estNombre(champ)) {
+            return champ;
+        }
+        return "'" + champ;
+    }
+
+    private static boolean estNombre(String valeur) {
+        try {
+            new java.math.BigDecimal(valeur);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     /** Echappement RFC 4180 pour le CSV ; en TXT on neutralise tabulations et retours. */
     private static String echapper(String champ, Format format) {
         if (champ == null) {
             return "";
         }
+        String sur = neutraliserFormule(champ);
         if (format == Format.TXT) {
-            return champ.replace("\t", " ").replace("\r", " ").replace("\n", " ");
+            return sur.replace("\t", " ").replace("\r", " ").replace("\n", " ");
         }
-        if (champ.contains(",") || champ.contains("\"") || champ.contains("\n") || champ.contains("\r")) {
-            return '"' + champ.replace("\"", "\"\"") + '"';
+        if (sur.contains(",") || sur.contains("\"") || sur.contains("\n") || sur.contains("\r")) {
+            return '"' + sur.replace("\"", "\"\"") + '"';
         }
-        return champ;
+        return sur;
     }
 
     private static String texte(Object valeur) {

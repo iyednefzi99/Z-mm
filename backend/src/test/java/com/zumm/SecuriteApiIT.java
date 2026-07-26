@@ -1,5 +1,6 @@
 package com.zumm;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -25,8 +27,10 @@ import org.testcontainers.utility.DockerImageName;
  * positions GPS des ruchers etant sensibles (risque de vol), un defaut « ouvert »
  * serait une fuite, pas une gene.
  *
- * <p>La matrice RBAC par role (US-005, US-022) sera testee au SPRINT-01, une fois
- * les profils arretes.
+ * <p>Depuis le SPRINT-12, deux garanties supplementaires sont eprouvees ici :
+ * « authentifie » ne suffit plus (il faut un ROLE metier connu), et un jeton sans
+ * rattachement a une exploitation est refuse au lieu de traverser la chaine pour
+ * se heurter silencieusement a la RLS.
  */
 @SpringBootTest(properties = {
         "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
@@ -47,6 +51,12 @@ class SecuriteApiIT {
 
     @Autowired
     private MockMvc mockMvc;
+
+    /** Jeton complet : un role metier ET un rattachement a une exploitation. */
+    private static JwtRequestPostProcessor jetonComplet() {
+        return jwt().jwt(b -> b.claim("tenant_id", "exploitation-test"))
+                .authorities(new SimpleGrantedAuthority("ROLE_apiculteur"));
+    }
 
     @Test
     @DisplayName("laisse passer la sonde de sante sans jeton")
@@ -73,12 +83,43 @@ class SecuriteApiIT {
     }
 
     @Test
-    @WithMockUser
-    @DisplayName("laisse passer un appelant authentifie sur un endpoint protege")
-    void laissePasserUnAppelantAuthentifie() throws Exception {
-        // Authentifie, la requete depasse la securite : 404 attendu puisque
-        // l'endpoint n'existe pas encore.
-        mockMvc.perform(get("/api/ruchers"))
+    @DisplayName("laisse passer un jeton porteur d'un role metier et d'un tenant")
+    void laissePasserUnJetonComplet() throws Exception {
+        // Authentifie et habilite : la requete depasse la securite, 404 attendu
+        // puisque l'endpoint n'existe pas.
+        mockMvc.perform(get("/api/ruchers").with(jetonComplet()))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("refuse un jeton authentifie mais sans role metier connu")
+    void refuseUnJetonSansRoleMetier() throws Exception {
+        // Regression du SPRINT-12 : `anyRequest().authenticated()` acceptait tout
+        // porteur de jeton valide du royaume, y compris un compte de service ou un
+        // utilisateur a qui aucun role Zumm n'a ete attribue.
+        mockMvc.perform(get("/api/ruchers").with(
+                        jwt().jwt(b -> b.claim("tenant_id", "exploitation-test"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("refuse un jeton sans claim tenant_id")
+    void refuseUnJetonSansTenant() throws Exception {
+        // Regression du SPRINT-12 : un mapper Keycloak manquant produisait des
+        // jetons sans `tenant_id`. L'API paraissait fonctionner sur une base vide
+        // (la RLS renvoyait zero ligne) au lieu de signaler la mauvaise
+        // configuration. Elle doit desormais echouer franchement.
+        mockMvc.perform(get("/api/sites").with(
+                        jwt().authorities(new SimpleGrantedAuthority("ROLE_apiculteur"))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("laisse le contrat OpenAPI public hors production")
+    void laisseLeContratPublicHorsProduction() throws Exception {
+        // Le profil `prod` bascule zumm.openapi.public a faux ; ce test tourne sans
+        // ce profil, le contrat reste donc un livrable consultable.
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk());
     }
 }

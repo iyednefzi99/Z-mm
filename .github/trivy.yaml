@@ -1,0 +1,31 @@
+# Configuration Trivy — scan de configuration d'infrastructure (SPRINT-12).
+#
+# Le scan porte sur les Dockerfiles, les fichiers docker-compose et la
+# configuration nginx. Il bloque sur HIGH et CRITICAL.
+
+scan:
+  skip-dirs:
+    - frontend/node_modules
+    - frontend/coverage
+    - backend/target
+    # Les artefacts documentaires ne contiennent aucune configuration executable.
+    - cahier de charge
+    - roadmap
+
+misconfig:
+  # Les regles ci-dessous sont ecartees avec leur raison ; toute autre alerte
+  # HIGH/CRITICAL casse la chaine.
+  #
+  # AVD-DS-0002 (« ne pas tourner en root ») : nginx:alpine demarre son processus
+  # maitre en root pour ouvrir le port 80, puis rabaisse ses workers vers
+  # l'utilisateur `nginx`. C'est le fonctionnement documente de l'image officielle,
+  # et le conteneur n'est joignable que par le reseau interne du compose.
+  #
+  # AVD-DS-0026 (« HEALTHCHECK manquant ») : la sante des services applicatifs est
+  # declaree dans docker-compose.yml (depends_on / healthcheck), pas dans chaque
+  # image — un seul endroit ou la lire.
+  exclude-downloaded-modules: true
+
+# Le format de sortie reste lisible en journal d'action ; le detail part dans le
+# resume de l'etape.
+format: table

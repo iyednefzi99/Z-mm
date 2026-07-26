@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Suppressions OWASP Dependency-Check (SPRINT-12).
+
+  Depuis que le scan BLOQUE la chaine (seuil CVSS 7.0), il faut un endroit pour
+  ecarter, de facon tracee, une alerte qui ne s'applique pas : faux positif de
+  correspondance CPE, ou vulnerabilite reelle dans un chemin de code que Zumm
+  n'emprunte pas.
+
+  Regles de tenue de ce fichier :
+    1. une suppression = une entree, avec la CVE et la RAISON en commentaire ;
+    2. toute suppression porte une date d'expiration (`until`), pour qu'elle soit
+       reexaminee et non oubliee — une suppression permanente devient un angle
+       mort permanent ;
+    3. « la mise a jour est penible » n'est pas une raison de suppression.
+
+  Le fichier est volontairement vide : aucune alerte n'est ecartee a ce jour.
+-->
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+</suppressions>

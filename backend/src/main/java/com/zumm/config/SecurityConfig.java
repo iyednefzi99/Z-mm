@@ -4,13 +4,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.util.StringUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -40,8 +51,44 @@ public class SecurityConfig {
     /** Prefixe attendu par Spring Security pour une autorite de role. */
     private static final String PREFIXE_ROLE = "ROLE_";
 
+    /**
+     * Decodeur de jetons, redefini pour AJOUTER la validation d'audience (SPRINT-12)
+     * aux validations par defaut de Spring Boot (signature, expiration, emetteur).
+     *
+     * <p>La construction reprend la logique de l'auto-configuration : {@code jwk-set-uri}
+     * quand il est fourni (aucun appel au demarrage, cf. docker-compose.yml), sinon
+     * decouverte OIDC depuis l'emetteur. L'emetteur n'est valide que s'il est
+     * renseigne — les tests le laissent vide et fournissent le seul JWKS.
+     *
+     * @param audience audience attendue ; vide desactive la verification (repli
+     *                 d'exploitation, a n'utiliser que le temps d'un incident)
+     */
     @Bean
-    SecurityFilterChain chaineDeFiltres(HttpSecurity http) throws Exception {
+    JwtDecoder decodeurDeJeton(OAuth2ResourceServerProperties proprietes,
+            @Value("${zumm.oidc.audience:zumm-backend}") String audience) {
+
+        OAuth2ResourceServerProperties.Jwt jwt = proprietes.getJwt();
+        String jwkSetUri = jwt.getJwkSetUri();
+        String emetteur = jwt.getIssuerUri();
+
+        NimbusJwtDecoder decodeur = StringUtils.hasText(jwkSetUri)
+                ? NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+                : (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(emetteur);
+
+        List<OAuth2TokenValidator<Jwt>> validateurs = new java.util.ArrayList<>();
+        validateurs.add(StringUtils.hasText(emetteur)
+                ? JwtValidators.createDefaultWithIssuer(emetteur)
+                : JwtValidators.createDefault());
+        if (StringUtils.hasText(audience)) {
+            validateurs.add(new ValidateurAudience(audience));
+        }
+        decodeur.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validateurs));
+        return decodeur;
+    }
+
+    @Bean
+    SecurityFilterChain chaineDeFiltres(HttpSecurity http,
+            @Value("${zumm.openapi.public:true}") boolean contratPublic) throws Exception {
         http
                 // API sans etat : aucun cookie de session, donc pas de CSRF a proteger.
                 .csrf(csrf -> csrf.disable())
@@ -53,10 +100,6 @@ public class SecurityConfig {
                         .permitAll()
                         // Identite de l'application : page d'accueil publique.
                         .requestMatchers(HttpMethod.GET, "/api/info").permitAll()
-                        // Contrat OpenAPI 3 (US-026) et son explorateur : publics en lecture.
-                        .requestMatchers(HttpMethod.GET,
-                                "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
-                        .permitAll()
 
                         // ── Matrice RBAC (US-022), derivee des roles du cahier ──
                         // Le journal d'audit (US-043) est reserve au pilotage :
@@ -81,10 +124,32 @@ public class SecurityConfig {
                                 "/api/sites/**", "/api/agents/**", "/api/ruches/**")
                         .hasAnyRole("responsable", "admin")
 
-                        // Le reste (plannings hors decision, visites, photos, mesures,
-                        // lectures) est ouvert a tout role authentifie : l'apiculteur
-                        // planifie, realise les visites et remplit les rapports.
-                        .anyRequest().authenticated())
+                        // ── Identite machine (SPRINT-12) ──
+                        // Une passerelle IoT n'est pas un utilisateur : elle porte le
+                        // role `capteur` via un compte de service (client_credentials)
+                        // et n'a le droit QUE de deposer des mesures. Elle est exclue
+                        // de tout le reste par la regle terminale ci-dessous, qui exige
+                        // un role humain.
+                        .requestMatchers(HttpMethod.POST, "/api/mesures")
+                        .hasAnyRole("capteur", "apiculteur", "superviseur", "responsable", "admin")
+
+                        // Contrat OpenAPI 3 (US-026) et son explorateur. PUBLICS hors
+                        // production seulement : en production, publier la cartographie
+                        // complete de l'API a l'anonyme sert surtout la reconnaissance
+                        // d'un attaquant (cf. zumm.openapi.public, faux sous le profil
+                        // `prod`), les partenaires recevant le contrat hors ligne.
+                        .requestMatchers(HttpMethod.GET,
+                                "/v3/api-docs", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
+                        .access((authentification, contexte) -> new AuthorizationDecision(
+                                contratPublic || estAdministrateur(authentification.get())))
+
+                        // Regle terminale : refus par defaut. Le reste (plannings hors
+                        // decision, visites, photos, lectures) est ouvert a tout role
+                        // METIER — l'apiculteur planifie, visite et remplit ses rapports —
+                        // mais « authentifie » ne suffit pas : un jeton sans role connu,
+                        // ou porteur du seul role machine, n'a rien a faire ici.
+                        .anyRequest()
+                        .hasAnyRole("apiculteur", "superviseur", "responsable", "admin"))
                 .oauth2ResourceServer(oauth2 ->
                         oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())))
                 // Le contexte tenant se lit sur le jeton : le filtre vient donc
@@ -100,6 +165,15 @@ public class SecurityConfig {
                                 .maxAgeInSeconds(31_536_000)));
 
         return http.build();
+    }
+
+    /** Un administrateur garde l'acces au contrat OpenAPI, y compris en production. */
+    private static boolean estAdministrateur(Authentication authentification) {
+        return authentification != null
+                && authentification.isAuthenticated()
+                && authentification.getAuthorities().stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .anyMatch((PREFIXE_ROLE + "admin")::equals);
     }
 
     /**

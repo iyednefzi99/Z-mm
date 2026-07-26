@@ -2,6 +2,7 @@ package com.zumm.service;
 
 import com.zumm.domain.Site;
 import com.zumm.repository.SiteRepository;
+import com.zumm.securite.PolitiquePositions;
 import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.MeteoReponse;
 import java.time.Instant;
@@ -24,12 +25,15 @@ public class MeteoService {
 
     private final SiteRepository sites;
     private final FournisseurMeteo fournisseur;
+    private final PolitiquePositions positions;
     private final String mode;
 
     public MeteoService(SiteRepository sites, FournisseurMeteo fournisseur,
+            PolitiquePositions positions,
             @Value("${zumm.meteo.mode:auto}") String mode) {
         this.sites = sites;
         this.fournisseur = fournisseur;
+        this.positions = positions;
         this.mode = mode;
     }
 
@@ -38,15 +42,24 @@ public class MeteoService {
         double lat = site.getLatitude().doubleValue();
         double lon = site.getLongitude().doubleValue();
 
+        // Le fournisseur externe et la simulation travaillent sur la position EXACTE ;
+        // seule la position RENDUE est masquee (SPRINT-12). Repondre la meteo d'un
+        // point arrondi degraderait la donnee metier sans rien proteger de plus.
+        java.math.BigDecimal[] exposee = positions.masquer(site.getLatitude(), site.getLongitude());
+        double latVue = exposee[0].doubleValue();
+        double lonVue = exposee[1].doubleValue();
+
         if (!"simulation".equalsIgnoreCase(mode)) {
             Optional<FournisseurMeteo.Meteo> reelle = fournisseur.courante(lat, lon);
             if (reelle.isPresent()) {
                 FournisseurMeteo.Meteo m = reelle.get();
-                return new MeteoReponse(siteId, lat, lon, m.temperatureCelsius(),
+                return new MeteoReponse(siteId, latVue, lonVue, m.temperatureCelsius(),
                         m.humiditePourcent(), m.ventKmh(), "open-meteo", Instant.now());
             }
         }
-        return simulation(siteId, lat, lon);
+        MeteoReponse simulee = simulation(siteId, lat, lon);
+        return new MeteoReponse(siteId, latVue, lonVue, simulee.temperatureCelsius(),
+                simulee.humiditePourcent(), simulee.ventKmh(), simulee.source(), simulee.instant());
     }
 
     /**

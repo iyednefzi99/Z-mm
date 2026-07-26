@@ -1,0 +1,68 @@
+name: Analyse statique de sécurité (CodeQL)
+
+# Complete la CI applicative : gitleaks cherche des secrets, Dependency-Check des
+# dependances vulnerables — aucun des deux ne lit le CODE de Zümm. CodeQL le fait :
+# injection SQL, chemin de fichier controle par l'utilisateur, deserialisation,
+# donnee sensible journalisee, XSS cote client.
+#
+# Hebdomadaire EN PLUS des pushs : une requete CodeQL ajoutee apres coup peut
+# reveler une faille dans du code inchange depuis des mois.
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+  schedule:
+    - cron: '0 4 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyse:
+    name: CodeQL — ${{ matrix.langage }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - langage: java-kotlin
+            construction: manuelle
+          - langage: javascript-typescript
+            construction: aucune
+          - langage: python
+            construction: aucune
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialiser CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.langage }}
+          # `security-and-quality` ajoute aux requetes de securite celles de
+          # qualite (ressources non fermees, comparaisons impossibles, code mort) :
+          # une part notable des failles nait d'un defaut de qualite ordinaire.
+          queries: security-and-quality
+
+      - name: Installer le JDK
+        if: matrix.langage == 'java-kotlin'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+
+      # Java doit etre COMPILE pour etre analyse : CodeQL observe le compilateur.
+      # Les tests sont ignores — ils ne partent pas en production.
+      - name: Compiler le back-end
+        if: matrix.langage == 'java-kotlin'
+        working-directory: backend
+        run: ./mvnw -B compile -DskipTests
+
+      - name: Analyser
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /langage:${{ matrix.langage }}
