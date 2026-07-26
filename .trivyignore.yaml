@@ -1,0 +1,19 @@
+# Exemptions Trivy — une regle, un chemin, une raison, une echeance.
+#
+# Regle de tenue : toute entree porte un `statement` qui explique POURQUOI la
+# regle ne s'applique pas, et une echeance de reexamen. Une exemption sans date
+# devient un angle mort permanent ; c'est exactement ce que ce fichier doit
+# eviter, pas produire.
+
+misconfigurations:
+  - id: AVD-DS-0002
+    paths:
+      - "infra/test-postgres.Dockerfile"
+    statement: >-
+      Image de TEST uniquement. L'entrypoint officiel de PostgreSQL doit demarrer
+      en root pour executer initdb et ajuster les droits du repertoire de
+      donnees, puis redescend lui-meme vers l'utilisateur postgres via gosu :
+      forcer USER ici empeche l'initialisation du cluster. Le conteneur est
+      ephemere, sans donnee reelle ni port publie. Les images d'EXECUTION, elles,
+      sont non privilegiees (backend : USER zumm ; frontend : USER nginx).
+    expiredAt: 2027-09-01

@@ -30,17 +30,28 @@ ENV VITE_OIDC_ISSUER=$VITE_OIDC_ISSUER \
 
 RUN npm run build
 
-FROM nginx:alpine AS execution
+# Image NON PRIVILEGIEE, et non `nginx:alpine`. L'image officielle demarre son
+# processus maitre en root pour ouvrir le port 80, puis rabaisse ses workers ;
+# celle-ci tourne entierement sous l'utilisateur `nginx` (UID 101) et ecoute sur
+# un port non privilegie — ce qui suffit, puisque seul le proxy inverse l'atteint
+# par le reseau interne du compose.
+#
+# Ce n'est pas une precaution theorique : c'est le conteneur qui sert du contenu
+# a des navigateurs, donc le premier qu'un defaut de nginx exposerait. Un
+# processus non root y transforme une execution de code en incident borne.
+FROM nginxinc/nginx-unprivileged:alpine AS execution
 
 # Configuration de service : repli SPA et politique de cache (cf. le fichier).
 COPY --from=construction /construction/dist /usr/share/nginx/html
 COPY nginx-pwa.conf /etc/nginx/conf.d/default.conf
 
-# nginx:alpine tourne deja en `nginx` pour ses workers ; on retire seulement les
-# pages par defaut pour ne rien servir d'autre que la PWA.
-RUN rm -f /usr/share/nginx/html/50x.html
+# L'image de base pose deja cet utilisateur ; on le redeclare EXPLICITEMENT.
+# Deux raisons : l'analyse statique lit le Dockerfile et ne peut pas connaitre
+# l'utilisateur effectif d'une image de base, et une image de base changee un
+# jour ne doit pas faire remonter le conteneur en root sans que cela se voie.
+USER nginx
 
-EXPOSE 80
+EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -q -O /dev/null http://localhost/index.html || exit 1
+    CMD wget -q -O /dev/null http://localhost:8080/index.html || exit 1

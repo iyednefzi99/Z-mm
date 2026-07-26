@@ -134,9 +134,10 @@ services:
         VITE_OIDC_REDIRECT: ${VITE_OIDC_REDIRECT:-https://localhost/}
     container_name: zumm-frontend
     # Aucun port publie : seul le proxy inverse le sert, avec le TLS et les
-    # en-tetes de securite.
+    # en-tetes de securite. 8080 et non 80 : l'image tourne sous un utilisateur
+    # non privilegie, qui ne peut pas ouvrir un port systeme.
     expose:
-      - "80"
+      - "8080"
     networks:
       - zumm-network
 

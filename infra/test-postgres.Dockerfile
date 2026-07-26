@@ -15,6 +15,21 @@
 # roadmap/operationnel/03_devops_pipeline/docker-compose.yml).
 # ═══════════════════════════════════════════════════════════
 
+# Derogation « conteneur en root », assumee et bornee :
+#   * l'entrypoint officiel de PostgreSQL DOIT demarrer en root — il execute
+#     `initdb`, ajuste les droits du repertoire de donnees, puis redescend
+#     lui-meme vers l'utilisateur `postgres` via `gosu`. Forcer `USER postgres`
+#     ici empeche l'initialisation du cluster : l'image ne demarre plus ;
+#   * cette image sert EXCLUSIVEMENT aux tests d'integration, sur un conteneur
+#     ephemere, sans donnee reelle et sans port publie. La cible d'execution
+#     reste `timescale/timescaledb-ha` (cf. l'en-tete de ce fichier).
+#
+# Les images qui, elles, servent en execution sont non privilegiees :
+# `backend.Dockerfile` declare `USER zumm`, `frontend.Dockerfile` part de
+# `nginxinc/nginx-unprivileged` et redeclare `USER nginx`.
+#
+# L'exemption est portee par `.trivyignore.yaml`, qui la borne a cette regle et
+# a ce seul fichier.
 FROM postgis/postgis:16-3.4
 
 ENV DEBIAN_FRONTEND=noninteractive

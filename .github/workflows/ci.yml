@@ -204,6 +204,8 @@ jobs:
           # dependances installees, rapports de couverture, artefacts de build et
           # livrables documentaires.
           skip-dirs: 'frontend/node_modules,frontend/coverage,backend/target,cahier de charge,roadmap'
+          # Exemptions bornees a une regle, un chemin et une echeance.
+          trivyignores: .trivyignore.yaml
 
       # Conformite des licences : une dependance AGPL contaminerait le livrable.
       - name: Détection de licences AGPL
