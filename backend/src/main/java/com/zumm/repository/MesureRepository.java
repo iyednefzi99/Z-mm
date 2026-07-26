@@ -56,7 +56,67 @@ public interface MesureRepository extends JpaRepository<Mesure, MesureId> {
             + " max(valeur) AS \"maximum\","
             + " last(valeur, instant) AS \"actuel\","
             + " count(*) AS \"nombre\""
-            + " FROM mesure WHERE type_indicateur = :type GROUP BY ruche_id",
+            + " FROM mesure WHERE type_indicateur = :type"
+            // Filtre de tenant EXPLICITE : une requete NATIVE echappe au
+            // discriminant `@TenantId` d'Hibernate, qui ne reecrit que le JPQL.
+            // En production la RLS suffirait ; ici on tient les DEUX barrieres,
+            // comme partout ailleurs — et cela protege aussi les deploiements ou
+            // l'application se connecterait avec un role privilegie.
+            + " AND tenant_id = current_setting('app.current_tenant', true)"
+            + " GROUP BY ruche_id",
             nativeQuery = true)
     List<AgregatPoids> agregatPoids(String type);
+
+    /** Un compartiment journalier d'un indicateur, pour une ruche. */
+    interface CompartimentJournalier {
+        java.time.Instant getJour();
+
+        java.math.BigDecimal getMoyenne();
+
+        java.math.BigDecimal getMinimum();
+
+        java.math.BigDecimal getMaximum();
+
+        long getNombre();
+    }
+
+    /**
+     * Serie journaliere d'un indicateur, agregee EN BASE (SPRINT-18).
+     *
+     * <p>Le probleme resolu : la courbe de capteur lisait la serie BRUTE. A un
+     * releve par quart d'heure, trois ans d'historique font ~105 000 points pour
+     * UNE ruche — le serveur les serialise tous, le reseau les transporte tous, et
+     * le navigateur en jette 99 % : un graphique de 640 pixels de large n'en
+     * montrera jamais plus que sa largeur.
+     *
+     * <p><strong>Pourquoi une agregation a la demande et non un agregat continu.</strong>
+     * L'intention initiale etait d'entretenir un {@code CONTINUOUS AGGREGATE}
+     * TimescaleDB. PostgreSQL le refuse :
+     *
+     * <pre>ERROR: cannot create continuous aggregate on hypertable with row security</pre>
+     *
+     * <p>C'est la SECONDE manifestation du conflit deja tranche par l'ADR-008 —
+     * apres la compression. La RLS et les fonctionnalites avancees de TimescaleDB
+     * s'excluent, et Zumm garde la RLS. L'ADR-008 a ete generalise en consequence.
+     *
+     * <p>Ce que l'agregation a la demande conserve du benefice recherche : le
+     * volume transporte tombe de ~105 000 points a ~1 100, le calcul se fait la ou
+     * sont les donnees, et la RLS comme la portee d'agent continuent de
+     * s'appliquer. Ce qu'elle perd : le resultat est recalcule a chaque appel.
+     * L'index {@code (tenant_id, ruche_id, type_indicateur, instant DESC)} pose au
+     * SPRINT-14 rend ce cout acceptable sur une plage bornee.
+     */
+    @org.springframework.data.jpa.repository.Query(value =
+            "SELECT time_bucket(INTERVAL '1 day', instant) AS \"jour\","
+            + " avg(valeur) AS \"moyenne\","
+            + " min(valeur) AS \"minimum\","
+            + " max(valeur) AS \"maximum\","
+            + " count(*) AS \"nombre\""
+            + " FROM mesure"
+            + " WHERE ruche_id = :rucheId AND type_indicateur = :type"
+            // Meme raison que ci-dessus : requete native, donc filtre explicite.
+            + " AND tenant_id = current_setting('app.current_tenant', true)"
+            + " GROUP BY jour ORDER BY jour",
+            nativeQuery = true)
+    List<CompartimentJournalier> serieJournaliere(Long rucheId, String type);
 }

@@ -648,6 +648,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mesures/journalier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["serieJournaliere"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/mesures/alertes": {
         parameters: {
             query?: never;
@@ -1419,6 +1435,15 @@ export interface components {
             source?: string;
             /** Format: date-time */
             instant?: string;
+        };
+        PointJournalier: {
+            /** Format: date-time */
+            jour?: string;
+            moyenne?: number;
+            minimum?: number;
+            maximum?: number;
+            /** Format: int64 */
+            nombre?: number;
         };
         MentionOrigine: {
             texte?: string;
@@ -3143,6 +3168,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MeteoReponse"];
+                };
+            };
+        };
+    };
+    serieJournaliere: {
+        parameters: {
+            query: {
+                rucheId: number;
+                type: "poids" | "temperature" | "humidite" | "activite";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PointJournalier"][];
                 };
             };
         };

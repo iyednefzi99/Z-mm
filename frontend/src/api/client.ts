@@ -45,6 +45,7 @@ import type {
   PhotoCorps,
   Planning,
   PlanningCorps,
+  PointJournalier,
   PrevisionRecolte,
   QuantiteMiel,
   Recolte,
@@ -293,6 +294,16 @@ export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesure
  */
 export const chargerSerieMesures = (rucheId: number, type: TypeIndicateur) =>
   requete<MesureReponse[]>(`/api/mesures?rucheId=${rucheId}&type=${type}`);
+
+/**
+ * Série JOURNALIÈRE d'un indicateur (SPRINT-18) : un point par jour.
+ *
+ * <p>C'est ce que consomme la courbe. L'agrégation se fait en base, là où sont
+ * les données : environ cent fois moins d'octets transportés pour un graphique
+ * identique à l'œil.
+ */
+export const chargerSerieJournaliere = (rucheId: number, type: TypeIndicateur) =>
+  requete<PointJournalier[]>(`/api/mesures/journalier?rucheId=${rucheId}&type=${type}`);
 
 /** US-026 : service tierce getZummHoneyActualQuantity. */
 export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string) =>

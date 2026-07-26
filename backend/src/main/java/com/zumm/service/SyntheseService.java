@@ -1,8 +1,6 @@
 package com.zumm.service;
 
-import com.zumm.domain.Mesure;
 import com.zumm.domain.TypeIndicateur;
-import com.zumm.domain.Visite;
 import com.zumm.repository.AlerteRepository;
 import com.zumm.repository.MesureRepository;
 import com.zumm.repository.RucheRepository;
@@ -13,11 +11,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Synthese de pilotage et ROI (US-015).
+ *
+ * <p>Tout est agrege EN BASE depuis le SPRINT-18. L'implementation precedente
+ * portait le meme defaut que le tableau de bord avant sa correction : elle
+ * chargeait TOUTES les mesures de poids du tenant pour n'en retenir qu'une valeur
+ * par ruche, et parcourait toutes les visites pour en compter les motifs. Sur un
+ * parc reel, la synthese — c'est-a-dire l'ecran d'accueil du responsable — etait
+ * donc la page la plus couteuse de l'application.
  *
  * <p>Le ROI repose sur une economie de reference <em>indicative</em> (prix du miel,
  * cout d'une visite), destinee a la demonstration : ces constantes rejoindront
@@ -47,37 +53,39 @@ public class SyntheseService {
 
     public SyntheseReponse synthese() {
         long nombreRuches = ruches.count();
+        long nombreVisites = visites.count();
 
+        // LinkedHashMap : l'ordre est conserve, donc la restitution est stable d'un
+        // appel a l'autre. Une carte non ordonnee ferait bouger l'affichage sans
+        // qu'aucune donnee n'ait change.
         Map<String, Long> parRaison = new LinkedHashMap<>();
-        long nombreVisites = 0;
-        double cumulProd = 0;
-        long compteProd = 0;
-        for (Visite v : visites.findAll()) {
-            nombreVisites++;
-            parRaison.merge(v.getRaison().enBase(), 1L, Long::sum);
-            if (v.getProductivite() != null) {
-                cumulProd += v.getProductivite();
-                compteProd++;
-            }
+        for (VisiteRepository.CompteParRaison ligne : visites.compterParRaison()) {
+            parRaison.put(ligne.getRaison().enBase(), ligne.getNombre());
         }
-        Double productiviteMoyenne = compteProd == 0 ? null
-                : BigDecimal.valueOf(cumulProd / compteProd).setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+        Double moyenne = visites.productiviteMoyenneGlobale();
+        Double productiviteMoyenne = moyenne == null ? null
+                : BigDecimal.valueOf(moyenne).setScale(2, RoundingMode.HALF_UP).doubleValue();
 
         BigDecimal poidsTotal = poidsTotalActuel();
-        long alertesOuvertes = alertes.findByOuverteTrueOrderByOuverteLeDesc().size();
+        long alertesOuvertes = alertes.countByOuverteTrue();
 
         return new SyntheseReponse(nombreRuches, nombreVisites, parRaison, productiviteMoyenne,
                 poidsTotal, alertesOuvertes, roi(poidsTotal, nombreVisites));
     }
 
-    /** Somme des derniers poids connus par ruche (proxy de production). */
+    /**
+     * Somme des derniers poids connus par ruche (proxy de production).
+     *
+     * <p>S'appuie sur l'agregat deja calcule en base pour le tableau de bord : une
+     * ligne par ruche, la derniere valeur obtenue par {@code last(valeur, instant)}
+     * de TimescaleDB. La somme finale porte donc sur quelques centaines de lignes
+     * au plus, la ou l'implementation precedente en rapatriait des millions.
+     */
     private BigDecimal poidsTotalActuel() {
-        Map<Long, BigDecimal> dernierParRuche = new LinkedHashMap<>();
-        // Trie par ruche puis instant croissant : la derniere valeur vue est la plus recente.
-        for (Mesure m : mesures.findByIdTypeIndicateurOrderByIdRucheIdAscIdInstantAsc(TypeIndicateur.POIDS)) {
-            dernierParRuche.put(m.getId().getRucheId(), m.getValeur());
-        }
-        return dernierParRuche.values().stream()
+        return mesures.agregatPoids(TypeIndicateur.POIDS.enBase()).stream()
+                .map(MesureRepository.AgregatPoids::getActuel)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
     }

@@ -11,6 +11,20 @@
 
 ---
 
+## 📅 Cérémonies Scrum
+
+| Cérémonie | Date/Heure | Durée |
+|:---|:---|:---|
+| Sprint Planning | 2027-03-02 09:00-11:00 | 2h |
+| Daily Scrum | Tous les jours 09:15 (15 min) | 15 min |
+| Sprint Review | 2027-03-15 14:00-15:00 | 1h |
+| Sprint Retrospective | 2027-03-15 15:00-16:00 | 1h |
+
+> Cérémonies raccourcies à la mesure du sprint : 8 points pour une seule US de
+> dette. Le planning du SPRINT-16, lui, garde ses 4 heures.
+
+---
+
 ## 📋 User Stories
 
 | ID | Story | Points | Statut |
@@ -69,6 +83,70 @@ langue précédente le temps que la ressource arrive, plutôt que de se vider �
 écran blanc serait pire que quelques dizaines de millisecondes de décalage. Une
 garde annule l'application d'une ressource arrivée en retard, si l'utilisateur a
 entre-temps changé de langue de nouveau.
+
+---
+
+## 🎯 Sprint Review - Démonstration
+
+**Date :** 2027-03-15 14:00-15:00
+
+Revue courte, à la mesure du sprint. Une US de dette ne se démontre pas par un
+écran nouveau : elle se démontre en **cassant la garantie** qu'elle prétend tenir.
+
+1. **Le fichier qu'un traducteur peut ouvrir.** `i18n/console.ts` (944 lignes de
+   TypeScript, trois langues mêlées) est remplacé par trois `locales/*.json` de
+   315 clés. Ouverture d'`ar.json` dans un éditeur quelconque en séance : il se lit,
+   se compare, se confie.
+2. **La garantie de parité, cassée devant témoins.** Une clé est **réellement
+   supprimée** d'`en.json` pendant la revue, puis `npm run typecheck` est lancé :
+   `tsc` échoue en **nommant la clé et la langue**. C'était le point dur du sprint —
+   l'ancien `Record<Langue, typeof fr>` donnait cette garantie gratuitement, et la
+   perdre pour quelques kilo-octets aurait été un mauvais marché. Elle est reportée
+   sur le type de retour des chargeurs.
+3. **Ce que le typage ne voit pas.** Ajout d'une clé **en trop** dans `ar.json`,
+   puis d'une valeur vide : `tsc` passe, `langue.test.tsx` échoue. Les deux filets
+   sont complémentaires, la démonstration le montre plutôt que de l'affirmer.
+4. **Le poids.** Onglet réseau à l'écran : paquet initial 243 → **228 ko**
+   (77,8 → 72,9 ko compressés), `en` (8,8 ko) et `ar` (11,6 ko) en morceaux
+   distincts, chargés seulement au changement de langue.
+5. **Le comportement à la bascule.** FR → AR sur un réseau volontairement ralenti :
+   la **direction du document bascule immédiatement** — c'est de la mise en page,
+   elle ne dépend d'aucun chargement — pendant que les libellés restent en français
+   quelques dizaines de millisecondes. Deux bascules rapides FR → AR → EN : la garde
+   annule l'application de la ressource arrivée en retard.
+
+**Réserve soulevée en séance, et assumée.** Les deux ressources traduites restent
+**précachées** par le service worker : le gain porte donc sur le temps d'affichage
+initial, pas sur le volume total téléchargé. C'est voulu — une PWA de terrain doit
+pouvoir changer de langue hors ligne.
+
+---
+
+## ⚠️ Risques Identifiés
+
+| Risque | Impact | Mitigation |
+|:---|:---|:---|
+| Perdre la garantie de parité en externalisant les chaînes | Un libellé manquant découvert **en production**, dans une langue que personne dans l'équipe ne relit | Garantie reportée sur le type de retour des chargeurs ; prouvée en la cassant |
+| Réécrire 315 clés à la main | Fautes silencieuses sur les apostrophes typographiques et le texte arabe | Extraction par script exécuté **depuis le module lui-même**, jamais de recopie |
+| Écran vide pendant le chargement de la ressource | Régression d'ergonomie plus grave que le gain de poids | Les libellés restent sur la langue précédente le temps du chargement |
+| Deux changements de langue rapprochés | La ressource lente écrase la langue finalement choisie | Garde d'annulation sur la ressource arrivée en retard, testée |
+| Sprint court laissant croire à une capacité disponible | Sur-engagement du SPRINT-16 | Capacité restante explicitement fléchée vers le SPRINT-16, noté au planning |
+
+---
+
+## 📊 Burndown Chart
+
+| Jour | Reste à faire (idéal) | Reste à faire (réel) | Notes |
+|:---|:---:|:---:|:---|
+| Jour 1 | 8 | 8 | Cadrage : le vrai enjeu est la parité, pas le déplacement des chaînes |
+| Jour 3 | 6 | 6 | Script d'extraction des 315 clés depuis le module, 3 JSON produits |
+| Jour 6 | 4 | 4 | Chargeurs paresseux, `fr` importé avec l'application |
+| Jour 9 | 2 | 3 | Report de la garantie de parité sur le type de retour — le point dur |
+| Jour 12 | 1 | 1 | Bascule RTL immédiate, garde d'annulation, tests |
+| Jour 14 | 0 | 0 | Parité prouvée par suppression réelle d'une clé ; build vert |
+
+*Le sprint n'a mobilisé que 8 des 40 points de capacité : le reste est allé à la
+préparation du SPRINT-16, planifié séparément.*
 
 ---
 

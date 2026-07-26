@@ -60,6 +60,47 @@ public interface VisiteRepository extends JpaRepository<Visite, Long> {
      * l'exploitation pour n'en garder qu'une par ruche.
      */
     @Query(value = "SELECT DISTINCT ON (ruche_id) * FROM visite"
+            // Filtre de tenant EXPLICITE : une requete native echappe au
+            // discriminant `@TenantId`, qui ne reecrit que le JPQL.
+            + " WHERE tenant_id = current_setting('app.current_tenant', true)"
             + " ORDER BY ruche_id, date_visite DESC, id DESC", nativeQuery = true)
     List<Visite> dernieresVisitesParRuche();
+
+    /** Nombre de visites par motif. */
+    interface CompteParRaison {
+        /**
+         * Le motif comme ENUMERATION, et non comme chaine.
+         *
+         * <p>Le declarer {@code String} paraissait plus simple et introduisait un
+         * defaut silencieux : Spring convertissait alors l'enumeration par son
+         * {@code toString()}, c'est-a-dire le nom de la constante Java
+         * (« RECOLTE »), la ou l'API a toujours expose la valeur en base
+         * (« recolte »). Les cles de la synthese changeaient donc de casse sans
+         * qu'aucune signature ne bouge. La conversion appartient a
+         * {@code enBase()} : c'est le seul endroit qui la connaisse.
+         */
+        com.zumm.domain.RaisonVisite getRaison();
+
+        long getNombre();
+    }
+
+    /**
+     * Repartition des visites par motif, comptee EN BASE (SPRINT-18).
+     *
+     * <p>La synthese parcourait toutes les visites de l'exploitation pour en
+     * construire une carte de comptage. Un {@code GROUP BY} rend le meme resultat
+     * sans transferer une seule ligne de detail.
+     */
+    @Query("SELECT v.raison AS raison, count(v) AS nombre FROM Visite v GROUP BY v.raison")
+    List<CompteParRaison> compterParRaison();
+
+    /**
+     * Productivite moyenne sur l'ensemble des visites du tenant (SPRINT-18).
+     *
+     * <p>{@code null} quand aucune visite n'en porte : c'est une absence de
+     * donnee, pas un zero, et l'afficher comme zero laisserait croire a une
+     * production nulle.
+     */
+    @Query("SELECT avg(v.productivite) FROM Visite v WHERE v.productivite IS NOT NULL")
+    Double productiviteMoyenneGlobale();
 }

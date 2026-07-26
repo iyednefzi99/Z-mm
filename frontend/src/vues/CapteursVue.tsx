@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import {
   chargerAlertesOuvertes,
   chargerMeteo,
-  chargerSerieMesures,
+  chargerSerieJournaliere,
   detecterAnomalie,
   getZummHoneyActualQuantity,
   ingererMesure,
@@ -12,7 +12,7 @@ import {
 import type {
   AlerteMesure,
   Anomalie,
-  MesureReponse,
+  PointJournalier,
   Meteo,
   QuantiteMiel,
   Ruche,
@@ -45,7 +45,7 @@ export function CapteursVue(): ReactElement {
   const [anomRuche, setAnomRuche] = useState('');
   const [anomType, setAnomType] = useState<TypeIndicateur>('poids');
   const [anomalie, setAnomalie] = useState<Anomalie | null>(null);
-  const [serie, setSerie] = useState<MesureReponse[]>([]);
+  const [serie, setSerie] = useState<PointJournalier[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optIndicateur: Option[] = TYPES_INDICATEUR.map((i) => ({
@@ -110,7 +110,7 @@ export function CapteursVue(): ReactElement {
       // laisserait un ecran incoherent le temps d'un aller-retour.
       const [resultat, mesures] = await Promise.all([
         detecterAnomalie(Number(anomRuche), anomType),
-        chargerSerieMesures(Number(anomRuche), anomType),
+        chargerSerieJournaliere(Number(anomRuche), anomType),
       ]);
       setAnomalie(resultat);
       setSerie(mesures);
@@ -126,7 +126,7 @@ export function CapteursVue(): ReactElement {
    */
   const seriesCourbe: Serie[] = (() => {
     if (serie.length === 0) return [];
-    const points = serie.map((m) => ({ x: Date.parse(m.instant), y: m.valeur }));
+    const points = serie.map((m) => ({ x: Date.parse(m.jour), y: m.moyenne }));
     const series: Serie[] = [{ nom: t.graphique.mesuree, points, rang: 0 }];
     if (anomalie?.baseline != null && points.length > 0) {
       series.push({
@@ -266,9 +266,9 @@ export function CapteursVue(): ReactElement {
                   </thead>
                   <tbody>
                     {serie.map((m) => (
-                      <tr key={m.instant}>
-                        <td>{m.instant}</td>
-                        <td>{m.valeur}</td>
+                      <tr key={m.jour}>
+                        <td>{m.jour}</td>
+                        <td>{m.moyenne}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -2,6 +2,7 @@ package com.zumm.config;
 
 import com.zumm.domain.AuditEntree;
 import com.zumm.repository.AuditEntreeRepository;
+import com.zumm.securite.IdentiteAppelant;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -9,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
 /**
@@ -86,19 +86,23 @@ public class AuditAspect {
         return null;
     }
 
-    /** Nom d'utilisateur du jeton JWT courant, ou « systeme » hors contexte authentifié. */
+    /**
+     * Nom d'utilisateur de l'appelant courant, ou « systeme » hors contexte
+     * authentifié.
+     *
+     * <p>L'identité est lue par {@link IdentiteAppelant}, qui connaît les
+     * <strong>deux</strong> porteurs depuis le BFF (ADR-006) : un {@code Jwt} pour
+     * les machines, un {@code OidcUser} pour les navigateurs. Cet aspect lisait
+     * auparavant le seul {@code Jwt} et retombait sur {@code auth.getName()} —
+     * lequel rend le {@code sub} pour une session de navigateur. Le journal
+     * inscrivait donc un UUID pour les utilisateurs humains et un nom pour les
+     * machines, soit exactement l'inverse de ce qui est utile pendant un incident.
+     */
     private String acteurCourant() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            return "systeme";
+            return IdentiteAppelant.ACTEUR_SYSTEME;
         }
-        if (auth.getPrincipal() instanceof Jwt jwt) {
-            String nom = jwt.getClaimAsString("preferred_username");
-            if (nom != null && !nom.isBlank()) {
-                return nom;
-            }
-        }
-        String nom = auth.getName();
-        return (nom == null || nom.isBlank()) ? "systeme" : nom;
+        return IdentiteAppelant.de(auth).nomPourAudit();
     }
 }

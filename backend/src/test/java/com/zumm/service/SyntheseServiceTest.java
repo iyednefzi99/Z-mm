@@ -5,8 +5,6 @@ import static org.mockito.Mockito.when;
 
 import com.zumm.domain.Agent;
 import com.zumm.domain.EtatRuche;
-import com.zumm.domain.Mesure;
-import com.zumm.domain.MesureId;
 import com.zumm.domain.RaisonVisite;
 import com.zumm.domain.RoleAgent;
 import com.zumm.domain.Ruche;
@@ -18,7 +16,6 @@ import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.dto.SyntheseReponse;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +33,51 @@ class SyntheseServiceTest {
     @Mock private RucheRepository ruches;
     @Mock private AlerteRepository alertes;
 
+    /** Projection « visites par motif » telle que la rend la base. */
+    private static VisiteRepository.CompteParRaison compte(RaisonVisite raison, long nombre) {
+        return new VisiteRepository.CompteParRaison() {
+            @Override
+            public RaisonVisite getRaison() {
+                return raison;
+            }
+
+            @Override
+            public long getNombre() {
+                return nombre;
+            }
+        };
+    }
+
+    /** Projection « agregat de poids » telle que la rend la base. */
+    private static MesureRepository.AgregatPoids poids(Long rucheId, BigDecimal actuel) {
+        return new MesureRepository.AgregatPoids() {
+            @Override
+            public Long getRucheId() {
+                return rucheId;
+            }
+
+            @Override
+            public BigDecimal getMinimum() {
+                return actuel;
+            }
+
+            @Override
+            public BigDecimal getMaximum() {
+                return actuel;
+            }
+
+            @Override
+            public BigDecimal getActuel() {
+                return actuel;
+            }
+
+            @Override
+            public long getNombre() {
+                return 1;
+            }
+        };
+    }
+
     @Test
     @DisplayName("agrège visites, production et calcule le ROI indicatif")
     void agregeEtCalculeRoi() {
@@ -46,13 +88,17 @@ class SyntheseServiceTest {
         Visite v2 = new Visite(ruche, agent, LocalDate.of(2026, 6, 2), RaisonVisite.RECOLTE);
         v2.setProductivite(3);
 
+        // Les agregats viennent desormais de la BASE (SPRINT-18) : le service ne
+        // parcourt plus les mesures ni les visites, il assemble des projections.
+        // Ces doubles decrivent donc ce que la base rend, pas ce qu'elle contient.
         when(ruches.count()).thenReturn(2L);
-        when(visites.findAll()).thenReturn(List.of(v1, v2));
-        when(mesures.findByIdTypeIndicateurOrderByIdRucheIdAscIdInstantAsc(TypeIndicateur.POIDS))
-                .thenReturn(List.of(new Mesure(
-                        new MesureId(1L, TypeIndicateur.POIDS, Instant.parse("2026-06-02T10:00:00Z")),
-                        BigDecimal.valueOf(20))));
-        when(alertes.findByOuverteTrueOrderByOuverteLeDesc()).thenReturn(List.of());
+        when(visites.count()).thenReturn(2L);
+        when(visites.compterParRaison()).thenReturn(List.of(
+                compte(v1.getRaison(), 1L), compte(v2.getRaison(), 1L)));
+        when(visites.productiviteMoyenneGlobale()).thenReturn(2.5);
+        when(mesures.agregatPoids(TypeIndicateur.POIDS.enBase()))
+                .thenReturn(List.of(poids(1L, BigDecimal.valueOf(20))));
+        when(alertes.countByOuverteTrue()).thenReturn(0L);
 
         SyntheseReponse s = new SyntheseService(visites, mesures, ruches, alertes).synthese();
 

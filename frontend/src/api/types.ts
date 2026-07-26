@@ -588,3 +588,22 @@ export interface MentionOrigine {
   /** Vrai dès que plus d'un pays entre dans le lot. */
   melange: boolean;
 }
+
+/**
+ * Point de courbe journalière (SPRINT-18).
+ *
+ * <p>La courbe ne lit plus la série brute : à un relevé par quart d'heure, trois
+ * ans d'historique font ~105 000 points pour une seule ruche, dont un graphique de
+ * 640 pixels n'en montrera jamais plus que sa largeur. Le serveur agrège par jour.
+ *
+ * <p>Le minimum et le maximum voyagent avec la moyenne : sur une ruche,
+ * l'amplitude d'une journée est une information à part entière — une chute
+ * nocturne de poids ne se lit pas sur une moyenne.
+ */
+export interface PointJournalier {
+  jour: string;
+  moyenne: number;
+  minimum: number;
+  maximum: number;
+  nombre: number;
+}

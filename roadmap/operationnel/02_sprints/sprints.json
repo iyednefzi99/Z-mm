@@ -536,8 +536,294 @@
           "Jour 14"
         ]
       }
+    },
+    {
+      "id": "SPRINT-12",
+      "nom": "Durcissement de la securite",
+      "theme": "Fermer les ecarts entre la securite documentee et la securite reelle",
+      "objectif": "Qu'aucune garantie annoncee au cahier ne repose sur une configuration absente, un controle manquant ou une regle jamais appliquee",
+      "numero": 12,
+      "date_debut": "2027-01-19",
+      "date_fin": "2027-02-01",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "stories": [
+        "US-058",
+        "US-059",
+        "US-060",
+        "US-061",
+        "US-062",
+        "US-063"
+      ],
+      "review_demo": "Six tentatives d'intrusion rejouees devant les parties prenantes, sur l'image d'avant puis celle du jour : jeton sans tenant_id (403), jeton du client account (401), position d'un site lue par un non-proprietaire (arrondie), suppression par un compte sans role metier (403), script inline (bloque par la CSP), dependance vulnerable poussee (CI rouge). La demonstration de la derniere porte a revele 29 vulnerabilites reelles, dont trois entre 9.1 et 9.6.",
+      "risques": "hasAnyRole en refus par defaut peut couper une fonctionnalite entiere ; le mapper tenant_id doit exister dans les DEUX realms ; la CSP peut casser la PWA sans echec cote serveur ; rendre une porte CI bloquante sans maitriser sa source de donnees",
+      "ceremonies": {
+        "sprint_planning": "2027-01-19 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-02-01 14:00-16:00",
+        "sprint_retrospective": "2027-02-01 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          29.0,
+          22.0,
+          14.0,
+          8.0,
+          3.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 6",
+          "Jour 9",
+          "Jour 11",
+          "Jour 13",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-13",
+      "nom": "PWA livrable, graphiques et carte",
+      "theme": "Rendre le front deployable, lisible et reellement utilisable hors ligne",
+      "objectif": "Que la PWA soit servie par la pile, demarre sans reseau, et montre les donnees au lieu de les tabuler",
+      "numero": 13,
+      "date_debut": "2027-02-02",
+      "date_fin": "2027-02-15",
+      "duree_jours": 14,
+      "story_points": 32,
+      "velocity": 32,
+      "capacity": 40,
+      "stories": [
+        "US-064",
+        "US-065",
+        "US-066",
+        "US-067",
+        "US-068"
+      ],
+      "review_demo": "Revue jouee entierement depuis la pile deployee : installation de la PWA, demarrage a froid Wi-Fi coupe, graphiques SVG doubles de leur equivalent tabulaire, carte MapLibre a rayons geodesiques comparee entre Bizerte et la Norvege, bandeau de mise a jour declenche en seance, bascule clair/sombre puis FR vers AR en RTL",
+      "risques": "Un service worker mal regle sert indefiniment une version perimee ; le fond cartographique tiers expose les positions des ruchers ; MapLibre alourdit le paquet initial ; graphiques maison et accessibilite ; licence AGPL introduite par une dependance de cartographie",
+      "ceremonies": {
+        "sprint_planning": "2027-02-02 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-02-15 14:00-16:00",
+        "sprint_retrospective": "2027-02-15 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          32.0,
+          27.0,
+          20.0,
+          13.0,
+          5.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 6",
+          "Jour 9",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-14",
+      "nom": "Idempotence, index et conformite miel",
+      "theme": "Fiabilite de la synchronisation, tenue a l'echelle, conformite reglementaire",
+      "objectif": "Qu'une saisie hors ligne ne se duplique ni ne se perde, que les lectures tiennent sur un parc reel, et que l'etiquette soit conforme au 14 juin 2026",
+      "numero": 14,
+      "date_debut": "2027-02-16",
+      "date_fin": "2027-03-01",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "stories": [
+        "US-055",
+        "US-056",
+        "US-069",
+        "US-070",
+        "US-071"
+      ],
+      "review_demo": "Revue jouee sur le scenario de terrain : coupure entre requete et reponse (une seule visite creee), jeton expire pendant la coupure (saisie conservee au lieu d'etre detruite), meme cle et corps different (409), lot melant deux recoltes francaises, une tunisienne et un miel acquis a un tiers, EXPLAIN sur mesure avant/apres index, compteur de requetes Hibernate sur les six listages, rapport JaCoCo fusionne a 82,6 %",
+      "risques": "Une cle d'idempotence regeneree au rejeu ne protege de rien ; memoriser les reponses en echec ; la table d'idempotence doit rester sous RLS ; rendre la recolte obligatoire dans un lot rendrait la mention legale fausse ; l'index a tenant en tete peut degrader l'ingestion ; un plancher de couverture pose sur la seule campagne unitaire serait trompeur",
+      "ceremonies": {
+        "sprint_planning": "2027-02-16 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-03-01 14:00-16:00",
+        "sprint_retrospective": "2027-03-01 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          26.0,
+          18.0,
+          11.0,
+          6.0,
+          3.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 10",
+          "Jour 12",
+          "Jour 13",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-15",
+      "nom": "Ressources de langue externalisees",
+      "theme": "Solder la dette d'internationalisation laissee par le SPRINT-13",
+      "objectif": "Que les traductions soient des ressources qu'un traducteur peut ouvrir, et qu'une session ne telecharge que la langue qu'elle affiche",
+      "numero": 15,
+      "date_debut": "2027-03-02",
+      "date_fin": "2027-03-15",
+      "duree_jours": 14,
+      "story_points": 8,
+      "velocity": 8,
+      "capacity": 40,
+      "commentaire": "Sprint volontairement court : il solde un point ouvert plutot qu'il n'ouvre un chantier. La capacite restante a ete flechee vers la preparation du SPRINT-16.",
+      "stories": [
+        "US-072"
+      ],
+      "review_demo": "Une cle est reellement supprimee d'en.json en seance : tsc echoue en nommant la cle et la langue. Cle en trop et valeur vide attrapees par le test. Paquet initial 243 vers 228 ko, en et ar sortis en morceaux distincts. Bascule FR vers AR sur reseau ralenti : direction du document immediate, libelles differes, garde d'annulation sur deux bascules rapprochees",
+      "risques": "Perdre la garantie de parite en externalisant les chaines ; reecrire 315 cles a la main ; ecran vide pendant le chargement de la ressource ; deux changements de langue rapproches ; sprint court laissant croire a une capacite disponible",
+      "ceremonies": {
+        "sprint_planning": "2027-03-02 09:00-11:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-03-15 14:00-15:00",
+        "sprint_retrospective": "2027-03-15 15:00-16:00"
+      },
+      "burndown": {
+        "ideal": [
+          8.0,
+          6.0,
+          4.0,
+          2.0,
+          1.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 6",
+          "Jour 9",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-16",
+      "nom": "Sessions sans jeton et portee par affectation",
+      "theme": "Fermer les deux derniers ecarts du modele d'autorisation",
+      "objectif": "Que le navigateur ne detienne plus de jeton, et qu'un agent ne puisse plus enumerer le parc entier de son exploitation",
+      "numero": 16,
+      "date_debut": "2027-03-16",
+      "date_fin": "2027-03-29",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "stories": [
+        "US-073",
+        "US-057"
+      ],
+      "review_demo": "localStorage ouvert en seance : plus aucun jeton. Extrait hostile execute dans la console : rien a exfiltrer. Flux OIDC complet entre le BFF et Keycloak. Compte apiculteur affecte a trois ruches sur un parc de plus de deux cents : trois lignes rendues. Requete emise sans portee posee : rien. Changement d'adresse electronique : l'affectation tient, le sub OIDC fait foi",
+      "risques": "Le BFF devient un point de passage unique de toutes les requetes ; session serveur et replication horizontale ; poser la portee dans les services plutot qu'en base ; poser le tenant et la portee dans deux requetes distinctes ; lier le compte a l'agent par le courriel ; filtrer trop large et casser une fonctionnalite metier",
+      "ceremonies": {
+        "sprint_planning": "2027-03-16 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-03-29 14:00-16:00",
+        "sprint_retrospective": "2027-03-29 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          26.0,
+          18.0,
+          13.0,
+          8.0,
+          3.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 4",
+          "Jour 7",
+          "Jour 9",
+          "Jour 11",
+          "Jour 13",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-17",
+      "nom": "Dettes techniques",
+      "theme": "Solder les dettes consignees, plutot que les reconduire d'un sprint a l'autre",
+      "objectif": "Que les tableaux de bord tiennent sur un parc reel, que le contrat publie soit verifie, et que la session serveur survive a un redeploiement",
+      "numero": 17,
+      "date_debut": "2027-03-30",
+      "date_fin": "2027-04-12",
+      "duree_jours": 14,
+      "story_points": 29,
+      "velocity": 29,
+      "capacity": 40,
+      "commentaire": "Sprint sans fonctionnalite nouvelle : il vide la liste de dettes de docs/ARCHITECTURE-SOLID.md, qui n'a de valeur que si elle finit par etre videe.",
+      "stories": [
+        "US-074",
+        "US-075",
+        "US-076",
+        "US-077",
+        "US-078"
+      ],
+      "review_demo": "Parc de 500 ruches et 8 millions de releves : OutOfMemoryError avant, page rendue apres, plan d'execution projete. Contrat HTTP identique apres scission en trois services. Champ de DTO renomme cote serveur : tsc echoue en le nommant. Microservice IA arrete en seance : repli EWMA, consultation continue. docker compose restart backend en direct : la session survit, second noeud demarre derriere le proxy",
+      "risques": "Descendre les agregats en SQL contourne la RLS si la requete est mal ecrite ; scinder un service expose peut changer le contrat ; un port mal type laisse fuir le modele ; un moteur qui leve au lieu de rendre vide rompt Liskov ; deux artefacts derives de plus a garder frais ; Spring Session ne doit pas prendre la main sur le schema ; exception motivee a la regle tenant_id + RLS",
+      "ceremonies": {
+        "sprint_planning": "2027-03-30 09:00-13:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-04-12 14:00-16:00",
+        "sprint_retrospective": "2027-04-12 16:00-17:00"
+      },
+      "burndown": {
+        "ideal": [
+          29.0,
+          24.0,
+          20.0,
+          13.0,
+          9.0,
+          4.0,
+          0.0
+        ],
+        "actual": [],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 5",
+          "Jour 8",
+          "Jour 10",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
     }
   ],
-  "total_sprints": 12,
-  "total_points": 398
+  "total_sprints": 18,
+  "total_points": 569
 }

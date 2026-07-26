@@ -17,4 +17,13 @@ public interface AlerteRepository extends JpaRepository<Alerte, Long> {
 
     /** Alertes ouvertes, les plus recentes d'abord (tableau de bord / synthese). */
     List<Alerte> findByOuverteTrueOrderByOuverteLeDesc();
+
+    /**
+     * Nombre d'alertes ouvertes.
+     *
+     * <p>La synthese en affichait le COMPTE apres avoir charge la liste entiere.
+     * Compter est le travail du SGBD ; rapatrier les lignes pour en mesurer la
+     * taille ne l'a jamais ete.
+     */
+    long countByOuverteTrue();
 }

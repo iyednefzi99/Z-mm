@@ -1,7 +1,7 @@
-# ADR-008 — Isolation RLS ou compression TimescaleDB : il faut choisir
+# ADR-008 — Isolation RLS ou fonctionnalités avancées de TimescaleDB : il faut choisir
 
 - **Date** : 2026-07-26
-- **Statut** : 🟢 Accepté
+- **Statut** : 🟢 Accepté — **généralisé au SPRINT-18** (voir § Portée réelle)
 - **Décideurs** : architecte, DBA
 - **Bloque** : volumétrie de `mesure`, coût de stockage, garantie d'isolation
 - **Arbitre entre** : [ADR-001](ADR-001-multi-tenant.md) et [ADR-002](ADR-002-volumetrie.md)
@@ -88,11 +88,50 @@ miel (directive (UE) 2024/1438) s'appuie sur l'historique de production, et
 l'analyse apicole se fait d'une année sur l'autre. Détruire les mesures au bout de
 deux ans rendrait un lot indéfendable en contrôle.
 
+## Portée réelle de l'incompatibilité — constat du SPRINT-18
+
+Cet ADR a d'abord été écrit sur le seul cas de la **compression**. Une seconde
+tentative, indépendante, a montré que le conflit est **général**.
+
+En cherchant à entretenir un agrégat continu pour les courbes journalières :
+
+```
+ERROR: cannot create continuous aggregate on hypertable with row security
+```
+
+Même famille de refus, même cause : les fonctionnalités qui **matérialisent** les
+données de TimescaleDB — stockage en colonnes, agrégats continus — produisent des
+objets internes où les colonnes d'origine ne sont plus disponibles ligne à ligne.
+Une politique `tenant_id = current_setting(...)` n'a alors plus rien sur quoi
+s'évaluer.
+
+Le contournement envisagé — matérialiser sans RLS, puis n'exposer qu'une vue
+`security_barrier` filtrante — **n'a pas même pu être tenté** : TimescaleDB refuse
+dès la création, pas à la lecture.
+
+**La règle à retenir, valable pour toute évolution future :** sur une hypertable
+sous RLS, on dispose du partitionnement, des index, de `time_bucket` et des
+fonctions d'agrégation (`last`, `first`) — c'est-à-dire de l'essentiel. On ne
+dispose ni de la compression, ni des agrégats continus, ni de quoi que ce soit qui
+matérialise. Proposer l'une de ces fonctionnalités revient à proposer de retirer
+la RLS ; c'est cela qu'il faut discuter, pas la fonctionnalité.
+
+### Ce qui a remplacé l'agrégat continu
+
+Une agrégation **à la demande** par `time_bucket`, dans la requête de lecture.
+Elle conserve l'essentiel du bénéfice — le volume transporté tombe de ~105 000
+points à ~1 100 pour trois ans d'historique d'une ruche, et le calcul se fait là
+où sont les données — tout en restant soumise à la RLS et à la portée d'agent.
+Elle perd la mémorisation : le résultat est recalculé à chaque appel. L'index
+`(tenant_id, ruche_id, type_indicateur, instant DESC)` rend ce coût acceptable.
+
 ## Conséquences
 
 - L'**ADR-002** doit être annoté : la compression y était présentée comme acquise.
 - Le seuil de réouverture est explicite : **au-delà de ~50 exploitations
-  mutualisées ou de 100 Go sur `mesure`**, reprendre l'option C.
+  mutualisées ou de 100 Go sur `mesure`**, reprendre l'option C — qui redeviendrait
+  alors la voie d'accès à TOUTES les fonctionnalités matérialisantes, pas
+  seulement à la compression.
 - Le dimensionnement de production intègre ~2,8 Go/an par tranche de 500 ruches,
   sauvegardes comprises.
 - Toute future hypertable héritera du même arbitrage : RLS d'abord.

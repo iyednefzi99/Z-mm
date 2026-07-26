@@ -2116,6 +2116,44 @@
         }
       }
     },
+    "/api/mesures/journalier" : {
+      "get" : {
+        "tags" : [ "mesure-controller" ],
+        "operationId" : "serieJournaliere",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointJournalier"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/mesures/alertes" : {
       "get" : {
         "tags" : [ "mesure-controller" ],
@@ -3843,6 +3881,28 @@
           "instant" : {
             "type" : "string",
             "format" : "date-time"
+          }
+        }
+      },
+      "PointJournalier" : {
+        "type" : "object",
+        "properties" : {
+          "jour" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "moyenne" : {
+            "type" : "number"
+          },
+          "minimum" : {
+            "type" : "number"
+          },
+          "maximum" : {
+            "type" : "number"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         }
       },

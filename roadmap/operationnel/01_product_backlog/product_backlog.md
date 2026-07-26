@@ -3,7 +3,8 @@
 **Projet:** Zümm - Système de gestion apicole  
 **Date:** 2026-07-13  
 **Méthode:** Scrum + DevOps  
-**Total Story Points:** 398 (54 user stories, 13 epics)  
+**Total Story Points:** 569 (78 user stories, 19 epics)  
+**Dernière mise à jour :** 2026-07-26 (fin du SPRINT-17)  
 
 ---
 
@@ -186,3 +187,87 @@ Session durable, navigation adressable, listes paginées et dialogues cohérents
 | US-051 | Navigation adressable par URL | 8 | Haute | Une route par écran, bouton retour fonctionnel, retour sur la route demandée après reconnexion |
 | US-052 | Pagination des listes | 8 | Haute | Paramètres `page`/`taille` côtés serveur et client, taille par défaut issue de `ConfigZumm.ini` |
 | US-054 | Dialogues du design system | 5 | Moyenne | Plus aucun `window.alert/confirm/prompt`, dialogues traduits, pilotés au clavier avec piège de focus |
+
+### EPIC-014: Durcissement de la sécurité
+**Priorité:** Critique | **Source CdC:** Annexe G, §6.4 | **Total Points:** 34
+
+Fermer les écarts entre la sécurité **documentée** et la sécurité **réelle**. Épic
+ouvert à la suite d'une revue d'architecture menée sur `main` : six garanties
+annoncées au cahier reposaient sur une configuration absente, un contrôle manquant
+ou une règle jamais appliquée. Aucun de ces écarts n'était visible en test.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-058 | Claim `tenant_id` garanti et refus explicite | 5 | Critique | Mapper présent dans **les deux** realms ; un jeton sans `tenant_id` reçoit 403, jamais une liste vide |
+| US-059 | Validation d'audience du jeton | 3 | Critique | Un jeton émis pour un autre client du même royaume est refusé en 401 |
+| US-060 | Confidentialité des positions de ruchers | 8 | Critique | Arrondi selon le rôle, altitude masquée, distances des voisins dégradées à 100 m ; tout DTO portant des coordonnées y passe |
+| US-061 | RBAC en refus par défaut et identité machine | 8 | Critique | `anyRequest().hasAnyRole(...)` ; un jeton valide sans rôle métier n'atteint aucun endpoint ; client `zumm-capteur` borné au dépôt de mesures |
+| US-062 | En-têtes de sécurité du proxy inverse | 5 | Haute | CSP sans `unsafe-inline`, `Permissions-Policy`, COOP/CORP, zone de débit sur l'authentification, console d'administration Keycloak bloquée |
+| US-063 | Portes de sécurité bloquantes dans la CI | 5 | Haute | SBOM CycloneDX produit depuis les artefacts **résolus**, lu par OSV ; une dépendance vulnérable fait échouer la chaîne |
+
+### EPIC-015: PWA déployable et restitution visuelle
+**Priorité:** Haute | **Source CdC:** §8.1, Annexe B, [ADR-007](../06_decisions/ADR-007-graphiques-svg.md) | **Total Points:** 32
+
+Rendre le front servi par la pile, démarrable sans réseau, et capable de montrer
+les données au lieu de les tabuler. Le front était complet et testé depuis trois
+sprints — et n'était servi par personne.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-064 | Déploiement de la PWA dans la pile | 5 | Critique | Image front construite et servie par le proxy ; `/` rend la console, plus la console d'administration Keycloak |
+| US-065 | Démarrage hors ligne réel (précache généré) | 8 | Haute | Précache produit **au build** ; l'application relancée à froid sans réseau rend ses écrans ; fond cartographique exclu du précache |
+| US-066 | Graphiques des tableaux de bord | 8 | Haute | Courbe multi-séries, barres, tuiles en SVG natif ; légende et équivalent tabulaire obligatoires, jamais d'identité par la seule couleur |
+| US-067 | Fond cartographique réel (MapLibre + OSM) | 8 | Haute | Rayons de butinage **géodésiques**, justes à toute latitude ; repli SVG quand WebGL manque ; tuiles paramétrables |
+| US-068 | Bandeau de mise à jour de la PWA | 3 | Moyenne | Une nouvelle version déployée propose sa mise à jour sans perdre l'écran courant |
+
+### EPIC-016: Fiabilité de la synchronisation et tenue à l'échelle
+**Priorité:** Critique | **Source CdC:** §7.3, Annexe D | **Total Points:** 21
+
+Qu'une saisie hors ligne ne se duplique ni ne se perde, et que les lectures
+tiennent sur un parc réel. Épic issu du scénario de terrain « le réseau tombe
+entre la requête et la réponse ».
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-055 | Idempotence des mutations rejouées | 8 | Critique | Clé générée **avant** la première tentative ; même empreinte → rejeu, empreinte différente → 409 ; un 401 n'évacue plus la saisie de la file |
+| US-069 | Index et garde-fous d'exécution sur `mesure` | 5 | Haute | Index avec le tenant en tête ; `statement_timeout`, `lock_timeout` et `idle_in_transaction_session_timeout` posés sur le rôle applicatif |
+| US-070 | Suppression des N+1 sur les listages | 5 | Haute | Six repositories ramenés à une requête par listage, vérifié au compteur de requêtes |
+| US-071 | Mesure et plancher de couverture (JaCoCo) | 3 | Moyenne | Campagnes unitaire et intégration **fusionnées** ; la chaîne échoue sous le plancher |
+
+### EPIC-017: Conformité réglementaire du miel
+**Priorité:** Critique | **Source CdC:** §3.4, Annexe F | **Total Points:** 13
+
+Étiquetage conforme à la directive (UE) 2024/1438, applicable au **14 juin 2026**
+(décret n° 2026-312).
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-056 | Lot de conditionnement et mention d'origine | 13 | Critique | Parts consolidées **par pays**, triées par ordre décroissant, totalisant 100 % ; référence de récolte **facultative** pour représenter le miel acquis à un tiers ; mention rendue dans la langue négociée |
+
+### EPIC-018: Modèle d'autorisation complet
+**Priorité:** Critique | **Source CdC:** Annexe G, [ADR-006](../06_decisions/ADR-006-stockage-des-jetons.md) | **Total Points:** 42
+
+Que le navigateur ne détienne plus de jeton, et qu'un agent ne puisse pas énumérer
+le parc entier de son exploitation. La RLS isolait les exploitations entre elles —
+pas les agents à l'intérieur d'une même exploitation.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-072 | Traductions en ressources de locale, chargées à la demande | 8 | Moyenne | Trois JSON ouvrables par un traducteur ; la garantie de parité tient toujours **à la compilation** ; une session ne télécharge que la langue affichée |
+| US-073 | BFF : jetons détenus par le serveur | 21 | Critique | Aucun jeton dans `localStorage` ni `sessionStorage` ; cookie `HttpOnly`/`Secure`/`SameSite` ; échange, rafraîchissement et révocation entre le BFF et Keycloak |
+| US-057 | Portée d'autorisation par affectation d'agent | 13 | Critique | Règle posée **dans le SGBD** ; tenant et portée posés dans la **même** requête préparée ; l'absence de portée vaut « rien voir » ; lien compte-agent par le `sub` OIDC, pas par le courriel |
+
+### EPIC-019: Dette technique et contrat vérifié
+**Priorité:** Haute | **Source CdC:** Annexe B, [ADR-002](../06_decisions/ADR-002-volumetrie.md) | **Total Points:** 29
+
+Vider la liste de dettes de [`docs/ARCHITECTURE-SOLID.md`](../../../docs/ARCHITECTURE-SOLID.md)
+plutôt que la reconduire de sprint en sprint. Trois de ces points figuraient **mot
+pour mot** dans « ce qui reste ouvert » des SPRINT-14, 15 et 16.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-074 | Agrégats des tableaux de bord calculés en base | 8 | Haute | Production et alertes agrégées en SQL, prouvées **sous le rôle applicatif `zumm_app`** ; le calendrier reste en mémoire, sa requête étant bornée par une période |
+| US-075 | Scission de `TableauDeBordService` | 3 | Moyenne | Trois services, une raison de changer chacun ; contrat HTTP inchangé, aucun test d'intégration retouché |
+| US-076 | Parité garantie entre client TypeScript et contrat OpenAPI | 8 | Haute | Contrat publié sous forme de fichier versionné ; une divergence casse `tsc` **en nommant le champ** ; fraîcheur des deux artefacts dérivés vérifiée en CI |
+| US-077 | Couche anticorruption vers le microservice IA | 5 | Moyenne | Port au type d'entrée neutre (instant, valeur) ; l'adaptateur ne compile plus contre Hibernate ; l'indisponibilité rend `Optional.empty()`, jamais une exception |
+| US-078 | Sessions serveur persistées en base | 5 | Haute | Schéma créé par **Flyway** et non par Spring Session ; la session survit à un redémarrage du back-end ; exception à la convention multi-tenant motivée dans la migration |

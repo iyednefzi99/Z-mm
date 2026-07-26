@@ -508,9 +508,231 @@
           "critere_acceptation": "Plus aucun window.alert/confirm/prompt, dialogues traduits, pilotes au clavier et avec piege de focus"
         }
       ]
+    },
+    {
+      "id": "EPIC-014",
+      "titre": "Durcissement de la securite",
+      "description": "Fermer les ecarts entre la securite documentee et la securite reelle : claim de tenant garanti, audience validee, confidentialite des positions, RBAC en refus par defaut, en-tetes du proxy, portes de securite bloquantes",
+      "priorite": "Critique",
+      "source_cdc": "Annexe G, §6.4",
+      "stories": [
+        {
+          "id": "US-058",
+          "titre": "Claim tenant_id garanti et refus explicite",
+          "points": 5,
+          "priorite": "Critique",
+          "critere_acceptation": "Mapper present dans les DEUX realms ; un jeton sans tenant_id recoit 403, jamais une liste vide"
+        },
+        {
+          "id": "US-059",
+          "titre": "Validation d'audience du jeton",
+          "points": 3,
+          "priorite": "Critique",
+          "critere_acceptation": "Un jeton emis pour un autre client du meme royaume est refuse en 401"
+        },
+        {
+          "id": "US-060",
+          "titre": "Confidentialite des positions de ruchers",
+          "points": 8,
+          "priorite": "Critique",
+          "critere_acceptation": "Arrondi selon le role, altitude masquee, distances des voisins degradees a 100 m ; tout DTO portant des coordonnees y passe"
+        },
+        {
+          "id": "US-061",
+          "titre": "RBAC en refus par defaut et identite machine",
+          "points": 8,
+          "priorite": "Critique",
+          "critere_acceptation": "anyRequest().hasAnyRole(...) ; un jeton valide sans role metier n'atteint aucun endpoint ; client zumm-capteur borne au depot de mesures"
+        },
+        {
+          "id": "US-062",
+          "titre": "En-tetes de securite du proxy inverse",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "CSP sans unsafe-inline, Permissions-Policy, COOP/CORP, zone de debit sur l'authentification, console d'administration Keycloak bloquee"
+        },
+        {
+          "id": "US-063",
+          "titre": "Portes de securite bloquantes dans la CI",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "SBOM CycloneDX produit depuis les artefacts resolus, lu par OSV ; une dependance vulnerable fait echouer la chaine"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-015",
+      "titre": "PWA deployable et restitution visuelle",
+      "description": "Rendre le front servi par la pile, demarrable sans reseau, et capable de montrer les donnees au lieu de les tabuler",
+      "priorite": "Haute",
+      "source_cdc": "§8.1, Annexe B, ADR-007",
+      "stories": [
+        {
+          "id": "US-064",
+          "titre": "Deploiement de la PWA dans la pile",
+          "points": 5,
+          "priorite": "Critique",
+          "critere_acceptation": "Image front construite et servie par le proxy ; / rend la console, plus la console d'administration Keycloak"
+        },
+        {
+          "id": "US-065",
+          "titre": "Demarrage hors ligne reel (precache genere)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Precache produit au build ; l'application relancee a froid sans reseau rend ses ecrans ; fond cartographique exclu du precache"
+        },
+        {
+          "id": "US-066",
+          "titre": "Graphiques des tableaux de bord",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Courbe multi-series, barres, tuiles en SVG natif ; legende et equivalent tabulaire obligatoires, jamais d'identite par la seule couleur"
+        },
+        {
+          "id": "US-067",
+          "titre": "Fond cartographique reel (MapLibre + OSM)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Rayons de butinage geodesiques, justes a toute latitude ; repli SVG quand WebGL manque ; tuiles parametrables"
+        },
+        {
+          "id": "US-068",
+          "titre": "Bandeau de mise a jour de la PWA",
+          "points": 3,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Une nouvelle version deployee propose sa mise a jour sans perdre l'ecran courant"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-016",
+      "titre": "Fiabilite de la synchronisation et tenue a l'echelle",
+      "description": "Qu'une saisie hors ligne ne se duplique ni ne se perde, et que les lectures tiennent sur un parc reel",
+      "priorite": "Critique",
+      "source_cdc": "§7.3, Annexe D",
+      "stories": [
+        {
+          "id": "US-055",
+          "titre": "Idempotence des mutations rejouees",
+          "points": 8,
+          "priorite": "Critique",
+          "critere_acceptation": "Cle generee AVANT la premiere tentative ; cle connue et meme empreinte rejoue la reponse, empreinte differente rend 409 ; un 401 n'evacue plus la saisie de la file"
+        },
+        {
+          "id": "US-069",
+          "titre": "Index et garde-fous d'execution sur mesure",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Index avec le tenant en tete ; statement_timeout, lock_timeout et idle_in_transaction_session_timeout poses sur le role applicatif"
+        },
+        {
+          "id": "US-070",
+          "titre": "Suppression des N+1 sur les listages",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Six repositories ramenes a une requete par listage, verifie au compteur de requetes"
+        },
+        {
+          "id": "US-071",
+          "titre": "Mesure et plancher de couverture (JaCoCo)",
+          "points": 3,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Campagnes unitaire et integration fusionnees ; la chaine echoue sous le plancher"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-017",
+      "titre": "Conformite reglementaire du miel",
+      "description": "Etiquetage conforme a la directive (UE) 2024/1438, applicable au 14 juin 2026",
+      "priorite": "Critique",
+      "source_cdc": "§3.4, Annexe F",
+      "stories": [
+        {
+          "id": "US-056",
+          "titre": "Lot de conditionnement et mention d'origine",
+          "points": 13,
+          "priorite": "Critique",
+          "critere_acceptation": "Parts consolidees par pays, triees par ordre decroissant, totalisant 100 % ; reference de recolte FACULTATIVE pour representer le miel acquis a un tiers ; mention rendue dans la langue negociee"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-018",
+      "titre": "Modele d'autorisation complet",
+      "description": "Que le navigateur ne detienne plus de jeton, et qu'un agent ne puisse pas enumerer le parc entier de son exploitation",
+      "priorite": "Critique",
+      "source_cdc": "Annexe G, ADR-006",
+      "stories": [
+        {
+          "id": "US-072",
+          "titre": "Traductions en ressources de locale, chargees a la demande",
+          "points": 8,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Trois JSON ouvrables par un traducteur ; la garantie de parite tient toujours a la compilation ; une session ne telecharge que la langue affichee"
+        },
+        {
+          "id": "US-073",
+          "titre": "BFF : jetons detenus par le serveur",
+          "points": 21,
+          "priorite": "Critique",
+          "critere_acceptation": "Aucun jeton dans localStorage ni sessionStorage ; cookie HttpOnly/Secure/SameSite ; echange, rafraichissement et revocation entre le BFF et Keycloak"
+        },
+        {
+          "id": "US-057",
+          "titre": "Portee d'autorisation par affectation d'agent",
+          "points": 13,
+          "priorite": "Critique",
+          "critere_acceptation": "Regle posee dans le SGBD ; tenant et portee poses dans la MEME requete preparee ; l'absence de portee vaut rien voir ; lien compte-agent par le sub OIDC, pas par le courriel"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-019",
+      "titre": "Dette technique et contrat verifie",
+      "description": "Vider la liste de dettes de docs/ARCHITECTURE-SOLID.md plutot que la reconduire de sprint en sprint",
+      "priorite": "Haute",
+      "source_cdc": "Annexe B, ADR-002",
+      "stories": [
+        {
+          "id": "US-074",
+          "titre": "Agregats des tableaux de bord calcules en base",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Production et alertes agregees en SQL, prouvees SOUS le role applicatif zumm_app ; le calendrier reste en memoire, sa requete etant bornee par une periode"
+        },
+        {
+          "id": "US-075",
+          "titre": "Scission de TableauDeBordService",
+          "points": 3,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Trois services, une raison de changer chacun ; contrat HTTP inchange, aucun test d'integration retouche"
+        },
+        {
+          "id": "US-076",
+          "titre": "Parite garantie entre client TypeScript et contrat OpenAPI",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Contrat publie sous forme de fichier versionne ; une divergence casse tsc en nommant le champ ; fraicheur des deux artefacts derives verifiee en CI"
+        },
+        {
+          "id": "US-077",
+          "titre": "Couche anticorruption vers le microservice IA",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Port au type d'entree neutre (instant, valeur) ; l'adaptateur ne compile plus contre Hibernate ; l'indisponibilite rend Optional.empty(), jamais une exception"
+        },
+        {
+          "id": "US-078",
+          "titre": "Sessions serveur persistees en base",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Schema cree par Flyway et non par Spring Session ; la session survit a un redemarrage du back-end ; exception a la convention multi-tenant motivee dans la migration"
+        }
+      ]
     }
   ],
-  "total_story_points": 398,
+  "total_story_points": 569,
   "definition_of_ready": [
     "La story a un titre clair et une description",
     "Les critères d'acceptation sont définis",

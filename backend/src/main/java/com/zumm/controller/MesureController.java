@@ -6,6 +6,7 @@ import com.zumm.service.MesureService;
 import com.zumm.web.dto.AlerteReponse;
 import com.zumm.web.dto.MesureCorps;
 import com.zumm.web.dto.MesureReponse;
+import com.zumm.web.dto.PointJournalier;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -45,6 +46,21 @@ public class MesureController {
             @RequestParam Long rucheId,
             @RequestParam TypeIndicateur type) {
         return service.serie(rucheId, type);
+    }
+
+    /**
+     * Serie JOURNALIERE d'un indicateur (SPRINT-18) : un point par jour.
+     *
+     * <p>Endpoint distinct plutot qu'un parametre sur {@code GET /api/mesures} :
+     * les deux ne rendent pas la meme chose — l'un des mesures, l'autre des
+     * compartiments avec minimum et maximum. Les confondre derriere un drapeau
+     * obligerait tout appelant a savoir lequel il recoit.
+     */
+    @GetMapping("/journalier")
+    public List<PointJournalier> serieJournaliere(
+            @RequestParam Long rucheId,
+            @RequestParam TypeIndicateur type) {
+        return service.serieJournaliere(rucheId, type);
     }
 
     /** Alertes de seuils actuellement ouvertes (US-018). */

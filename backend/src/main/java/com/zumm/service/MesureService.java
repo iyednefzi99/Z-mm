@@ -10,6 +10,7 @@ import com.zumm.web.RequeteInvalide;
 import com.zumm.web.dto.AlerteReponse;
 import com.zumm.web.dto.MesureCorps;
 import com.zumm.web.dto.MesureReponse;
+import com.zumm.web.dto.PointJournalier;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -50,11 +51,33 @@ public class MesureService {
         return MesureReponse.de(mesure, declenchees);
     }
 
-    /** Serie recente d'un indicateur pour une ruche, de la plus ancienne a la plus recente. */
+    /**
+     * Serie BRUTE d'un indicateur pour une ruche, de la plus ancienne a la plus
+     * recente.
+     *
+     * <p>Reste utile a ce qui a besoin du detail — la detection d'anomalie. Pour
+     * AFFICHER une courbe, preferer {@link #serieJournaliere} : le brut represente
+     * des dizaines de milliers de points qu'aucun graphique ne montrera.
+     */
     @Transactional(readOnly = true)
     public List<MesureReponse> serie(Long rucheId, TypeIndicateur type) {
         return mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(rucheId, type).stream()
                 .map(m -> MesureReponse.de(m, List.of()))
+                .toList();
+    }
+
+    /**
+     * Serie JOURNALIERE, agregee en base (SPRINT-18).
+     *
+     * <p>C'est ce que consomme la courbe de l'interface : un point par jour au lieu
+     * d'un point par quart d'heure, soit environ cent fois moins de donnees
+     * transportees pour un graphique strictement identique a l'oeil.
+     */
+    @Transactional(readOnly = true)
+    public List<PointJournalier> serieJournaliere(Long rucheId, TypeIndicateur type) {
+        return mesures.serieJournaliere(rucheId, type.enBase()).stream()
+                .map(c -> new PointJournalier(c.getJour(), c.getMoyenne(),
+                        c.getMinimum(), c.getMaximum(), c.getNombre()))
                 .toList();
     }
 }

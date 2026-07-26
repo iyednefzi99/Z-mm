@@ -125,13 +125,17 @@ l'appelant a droit à l'exactitude (pour dégrader une distance).
 
 Une revue honnête liste aussi les dettes.
 
-1. **`SyntheseService` agrège encore en mémoire.** Le tableau de bord et les
-   alertes ont été poussés en SQL au SPRINT-17 ; la synthèse de pilotage itère
-   toujours sur `findAll()`. Le volume y est moindre — une ligne par visite, pas
-   par relevé de capteur — mais la trajectoire est la même.
-2. **Pas d'agrégat continu TimescaleDB.** Les courbes journalières scannent le
-   brut à chaque appel. Un `MATERIALIZED VIEW … WITH (timescaledb.continuous)`
-   serait le prolongement naturel du SPRINT-17.
+**La liste est vide au SPRINT-18.** C'est un état, pas un aboutissement : elle se
+remplira de nouveau, et c'est normal. Ce qui compte est qu'elle soit tenue à jour
+et périodiquement vidée, plutôt que de servir d'archive à bonnes intentions.
+
+Une dette a été close autrement qu'en la réalisant, et cela mérite d'être noté :
+l'agrégat continu TimescaleDB pour les courbes journalières est **impossible** —
+PostgreSQL refuse `cannot create continuous aggregate on hypertable with row
+security`. Le bénéfice a été obtenu par une agrégation `time_bucket` à la demande,
+et l'[ADR-008](../roadmap/operationnel/06_decisions/ADR-008-rls-contre-compression.md)
+a été généralisé : sous RLS, aucune fonctionnalité **matérialisante** de
+TimescaleDB n'est disponible.
 
 > Levées au SPRINT-17 : la scission de `TableauDeBordService` en trois services,
 > le calcul des agrégats de production et d'alertes en base, la garantie de parité

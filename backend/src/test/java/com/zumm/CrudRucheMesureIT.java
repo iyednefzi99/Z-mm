@@ -231,4 +231,38 @@ class CrudRucheMesureIT {
                 .andReturn().getResponse().getContentAsString();
         return json.readTree(rep).get("id").asLong();
     }
+
+    @Test
+    @DisplayName("agrege la serie en compartiments journaliers")
+    void serieJournaliere() throws Exception {
+        String t = "mesure-journaliere";
+        long siteId = chaineSite(t);
+        long fermeId = fermeDe(t, siteId);
+        long rucheId = rucheDe(t, siteId, fermeId);
+
+        // Quatre releves sur DEUX jours : l'agregation doit rendre deux points, pas
+        // quatre. C'est tout l'objet du compartimentage — un graphique de 640 pixels
+        // ne montrera jamais un point par quart d'heure.
+        for (String instant : new String[] {
+                "2026-08-15T06:00:00Z", "2026-08-15T18:00:00Z",
+                "2026-08-16T06:00:00Z", "2026-08-16T18:00:00Z"}) {
+            mockMvc.perform(post("/api/mesures").with(tenant(t))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"rucheId\":" + rucheId
+                                    + ",\"typeIndicateur\":\"poids\",\"valeur\":"
+                                    + ("2026-08-15".equals(instant.substring(0, 10)) ? "20" : "30")
+                                    + ",\"instant\":\"" + instant + "\"}"))
+                    .andExpect(status().isCreated());
+        }
+
+        mockMvc.perform(get("/api/mesures/journalier")
+                        .param("rucheId", String.valueOf(rucheId))
+                        .param("type", "poids")
+                        .with(tenant(t)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].nombre").value(2))
+                .andExpect(jsonPath("$[0].moyenne").value(20.0))
+                .andExpect(jsonPath("$[1].moyenne").value(30.0));
+    }
 }
