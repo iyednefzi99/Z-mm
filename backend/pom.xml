@@ -102,6 +102,16 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
+    <!-- Sessions en BASE plutot qu'en memoire (SPRINT-17). Le BFF (ADR-006) a
+         introduit une session serveur : tant qu'elle vit dans le tas d'une seule
+         instance, le back-end ne peut ni etre replique ni redemarre sans
+         deconnecter tout le monde. Spring Session la deporte dans PostgreSQL —
+         deja present, deja sauvegarde, deja sous surveillance. C'est la dette que
+         l'ADR-006 signalait comme « a traiter avant toute mise a l'echelle ». -->
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-jdbc</artifactId>
+    </dependency>
     <!-- BFF (ADR-006) : le back-end est AUSSI client OAuth2. Il mene le flux
          Authorization Code + PKCE pour le navigateur et garde les jetons cote
          serveur ; le navigateur ne recoit qu'un cookie HttpOnly. Les deux roles

@@ -1,9 +1,25 @@
 /**
- * Client d'API — implementation provisoire du SPRINT-00/01.
+ * Client d'API.
  *
- * ATTENTION : des que le backend publiera son contrat OpenAPI 3, ce client devra
- * etre GENERE depuis ce contrat, et non plus ecrit a la main, afin de garantir la
- * parite des types client/serveur.
+ * <p>Ce client reste ECRIT A LA MAIN, et c'est un choix (SPRINT-17). L'en-tete
+ * precedent annonçait une generation complete depuis le contrat OpenAPI ; elle
+ * aurait touche quarante fonctions et seize vues pour un gain limite au seul
+ * typage — les fonctions elles-memes sont courtes, lisibles et stables.
+ *
+ * <p>Ce qui manquait vraiment, c'etait la GARANTIE : rien n'empechait les types
+ * du client de deriver de ceux du serveur, et une propriete renommee ne se voyait
+ * qu'a l'execution, sous la forme d'un champ vide. `api/parite.ts` la fournit —
+ * il confronte chaque type ecrit ici au contrat publie, et fait echouer la
+ * compilation en cas de divergence.
+ *
+ * <p>Ce dispositif a paye des sa premiere execution : il a revele que le contrat
+ * publie decrivait `LocalTime` comme un objet alors que l'API serialise une
+ * chaine. Le defaut etait dans le CONTRAT, pas dans ce fichier — et il aurait
+ * casse le client de tout integrateur tiers (US-026).
+ *
+ * <p>Regenerer apres toute evolution de l'API :
+ * `cd backend && ./mvnw verify -Dit.test=ContratOpenApiIT`, puis
+ * `cd frontend && npm run api:contrat`. La CI verifie les deux.
  */
 
 import { definir } from '../auth/session';

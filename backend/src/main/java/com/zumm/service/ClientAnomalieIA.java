@@ -1,6 +1,5 @@
 package com.zumm.service;
 
-import com.zumm.domain.Mesure;
 import com.zumm.domain.TypeIndicateur;
 import com.zumm.web.dto.AnomalieReponse;
 import com.zumm.web.dto.AnomalieReponse.PointAnomalie;
@@ -25,7 +24,7 @@ import org.springframework.web.client.RestClient;
  * d'échec de requête pour un aléa réseau, comme pour le contexte météo.
  */
 @Component
-public class ClientAnomalieIA {
+public class ClientAnomalieIA implements MoteurAnomalie {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientAnomalieIA.class);
 
@@ -41,18 +40,24 @@ public class ClientAnomalieIA {
     }
 
     /** Vrai si un microservice IA est configuré. */
+    @Override
     public boolean actif() {
         return url != null && !url.isBlank();
     }
 
     /** Score la série via le microservice ; {@link Optional#empty()} si indisponible. */
-    public Optional<AnomalieReponse> scorer(Long rucheId, TypeIndicateur type, List<Mesure> serie) {
+    @Override
+    public Optional<AnomalieReponse> scorer(Long rucheId, TypeIndicateur type,
+            List<PointSerie> serie) {
         if (!actif()) {
             return Optional.empty();
         }
         try {
+            // Traduction du type NEUTRE du port vers le contrat de transport. Cette
+            // ligne est toute la couche anticorruption : une evolution du format
+            // JSON s'arrete ici et ne remonte pas dans le domaine.
             List<Point> points = serie.stream()
-                    .map(m -> new Point(m.getId().getInstant().toString(), m.getValeur()))
+                    .map(p -> new Point(p.instant().toString(), p.valeur()))
                     .toList();
             ReponseIa r = client.post()
                     .uri(url + "/score")

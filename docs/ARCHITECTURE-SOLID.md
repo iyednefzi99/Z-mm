@@ -125,18 +125,19 @@ l'appelant a droit à l'exactitude (pour dégrader une distance).
 
 Une revue honnête liste aussi les dettes.
 
-1. **`TableauDeBordService` fait trop.** Trois tableaux de bord, trois raisons de
-   changer. À scinder par tableau.
-2. **Les agrégats sont calculés en Java.** `SyntheseService` et
-   `TableauDeBordService` itèrent en mémoire sur des `findAll()` là où une
-   agrégation SQL (`time_bucket`) ferait le travail en base. Fonctionne, ne passe
-   pas à l'échelle.
-3. **Le client d'API front est écrit à la main** alors que le contrat OpenAPI
-   existe. Le fichier le dit lui-même en en-tête ; la parité des types n'est
-   garantie par rien d'autre que l'attention.
-4. **Pas de couche anticorruption vers le microservice IA.** `ClientAnomalieIA`
-   adapte, mais le format de la série est celui du domaine Zümm : un changement de
-   contrat côté Python se verrait à la compilation, pas à la conception.
+1. **`SyntheseService` agrège encore en mémoire.** Le tableau de bord et les
+   alertes ont été poussés en SQL au SPRINT-17 ; la synthèse de pilotage itère
+   toujours sur `findAll()`. Le volume y est moindre — une ligne par visite, pas
+   par relevé de capteur — mais la trajectoire est la même.
+2. **Pas d'agrégat continu TimescaleDB.** Les courbes journalières scannent le
+   brut à chaque appel. Un `MATERIALIZED VIEW … WITH (timescaledb.continuous)`
+   serait le prolongement naturel du SPRINT-17.
+
+> Levées au SPRINT-17 : la scission de `TableauDeBordService` en trois services,
+> le calcul des agrégats de production et d'alertes en base, la garantie de parité
+> entre le client TypeScript et le contrat OpenAPI (`api/parite.ts`), et la couche
+> anticorruption vers le microservice IA (`MoteurAnomalie`). Levée au SPRINT-16 :
+> l'autorisation horizontale (US-057).
 
 ---
 

@@ -22,6 +22,27 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class AnomalieServiceTest {
 
+    /**
+     * Moteur absent : le service doit alors calculer localement (EWMA).
+     *
+     * <p>Un simple double suffit depuis que la detection passe par un PORT
+     * ({@code MoteurAnomalie}). Auparavant il fallait instancier le client HTTP du
+     * microservice avec une URL vide pour le neutraliser — un test unitaire qui
+     * construisait un client reseau pour ne surtout pas s'en servir.
+     */
+    private static final MoteurAnomalie MOTEUR_ABSENT = new MoteurAnomalie() {
+        @Override
+        public boolean actif() {
+            return false;
+        }
+
+        @Override
+        public java.util.Optional<com.zumm.web.dto.AnomalieReponse> scorer(
+                Long rucheId, com.zumm.domain.TypeIndicateur type, java.util.List<PointSerie> serie) {
+            return java.util.Optional.empty();
+        }
+    };
+
     @Mock
     private MesureRepository mesures;
 
@@ -40,7 +61,7 @@ class AnomalieServiceTest {
     @Test
     @DisplayName("repère une pointe isolée dans une série bruitée")
     void repereUnePointe() {
-        service = new AnomalieService(mesures, new ClientAnomalieIA(""));
+        service = new AnomalieService(mesures, MOTEUR_ABSENT);
         when(mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(1L, TypeIndicateur.POIDS))
                 .thenReturn(serie(30.0, 30.2, 29.9, 30.1, 29.8, 30.3, 29.9, 50.0));
 
@@ -55,7 +76,7 @@ class AnomalieServiceTest {
     @Test
     @DisplayName("série stable : aucune anomalie")
     void serieStableSansAnomalie() {
-        service = new AnomalieService(mesures, new ClientAnomalieIA(""));
+        service = new AnomalieService(mesures, MOTEUR_ABSENT);
         when(mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(1L, TypeIndicateur.POIDS))
                 .thenReturn(serie(30.0, 30.1, 29.9, 30.0, 30.1, 29.9));
 
@@ -67,7 +88,7 @@ class AnomalieServiceTest {
     @Test
     @DisplayName("série vide : pas de ligne de base, pas d'anomalie")
     void serieVide() {
-        service = new AnomalieService(mesures, new ClientAnomalieIA(""));
+        service = new AnomalieService(mesures, MOTEUR_ABSENT);
         when(mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(1L, TypeIndicateur.POIDS))
                 .thenReturn(List.of());
 

@@ -68,6 +68,19 @@ spring:
             # demarrage sur « redirectUri cannot be empty ».
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope: openid,profile,email
+  # ─── Sessions serveur en base (SPRINT-17) ───
+  # Le BFF a introduit une session cote serveur ; la garder en memoire
+  # interdirait de repliquer le back-end et ferait perdre toutes les sessions a
+  # chaque redemarrage. Le schema est cree par FLYWAY (V17) et non par Spring
+  # Session : Flyway est seul proprietaire du schema (ddl-auto: none), et une
+  # seconde autorite sur les tables reintroduirait exactement le desordre que
+  # cette regle evite.
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: never
+      table-name: SPRING_SESSION
+    timeout: 8h
   messages:
     basename: messages
     encoding: UTF-8

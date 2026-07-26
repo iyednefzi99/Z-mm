@@ -2,7 +2,9 @@ package com.zumm.controller;
 
 import com.zumm.service.PrevisionRecolteService;
 import com.zumm.service.SyntheseService;
-import com.zumm.service.TableauDeBordService;
+import com.zumm.service.AlerteSanitaireService;
+import com.zumm.service.CalendrierService;
+import com.zumm.service.ProductionService;
 import com.zumm.web.dto.AlerteSanitaire;
 import com.zumm.web.dto.CalendrierCellule;
 import com.zumm.web.dto.LigneProduction;
@@ -25,13 +27,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/tableaux")
 public class TableauDeBordController {
 
-    private final TableauDeBordService service;
+    private final CalendrierService calendrier;
+    private final ProductionService production;
+    private final AlerteSanitaireService alertes;
     private final SyntheseService synthese;
     private final PrevisionRecolteService previsions;
 
-    public TableauDeBordController(TableauDeBordService service, SyntheseService synthese,
+    public TableauDeBordController(CalendrierService calendrier, ProductionService production,
+            AlerteSanitaireService alertes, SyntheseService synthese,
             PrevisionRecolteService previsions) {
-        this.service = service;
+        this.calendrier = calendrier;
+        this.production = production;
+        this.alertes = alertes;
         this.synthese = synthese;
         this.previsions = previsions;
     }
@@ -41,19 +48,19 @@ public class TableauDeBordController {
     public List<CalendrierCellule> calendrier(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate debut,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
-        return service.calendrier(debut, fin);
+        return calendrier.calendrier(debut, fin);
     }
 
     /** US-013 : synthese production (poids par ruche + productivite moyenne). */
     @GetMapping("/production")
     public List<LigneProduction> production() {
-        return service.production();
+        return production.production();
     }
 
     /** US-014 : alertes sanitaires par ruche, critiques d'abord. */
     @GetMapping("/alertes-sanitaires")
     public List<AlerteSanitaire> alertesSanitaires() {
-        return service.alertesSanitaires();
+        return alertes.alertesSanitaires();
     }
 
     /** US-015 : synthese de pilotage et ROI. */

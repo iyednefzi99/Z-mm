@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 /** Acces a l'entite {@link Visite} (SPRINT-03). Restreint au tenant (@TenantId + RLS). */
 public interface VisiteRepository extends JpaRepository<Visite, Long> {
@@ -27,4 +28,38 @@ public interface VisiteRepository extends JpaRepository<Visite, Long> {
     @Override
     @EntityGraph(attributePaths = {"ruche", "agent"})
     List<Visite> findAll();
+
+    /** Productivite moyenne relevee, par ruche. */
+    interface ProductiviteRuche {
+        Long getRucheId();
+
+        Double getMoyenne();
+    }
+
+    /**
+     * Productivite moyenne par ruche, calculee EN BASE (SPRINT-17).
+     *
+     * <p>Remplace un {@code findAll()} suivi d'une somme en memoire. Calculer une
+     * moyenne est le travail meme d'un SGBD ; lui faire transferer toutes les
+     * lignes pour la calculer soi-meme n'apportait rien et coutait tout.
+     */
+    @Query("SELECT v.ruche.id AS rucheId, avg(v.productivite) AS moyenne FROM Visite v"
+            + " WHERE v.productivite IS NOT NULL GROUP BY v.ruche.id")
+    List<ProductiviteRuche> productiviteMoyenneParRuche();
+
+    /**
+     * Derniere visite de chaque ruche (SPRINT-17).
+     *
+     * <p>{@code DISTINCT ON} est propre a PostgreSQL et rend exactement ce qu'on
+     * cherche : une ligne par ruche, la plus recente. La variante portable —
+     * fenetrage puis filtre sur le rang — serait plus longue a lire pour le meme
+     * resultat, et le projet assume deja PostgreSQL de bout en bout (PostGIS, RLS,
+     * TimescaleDB).
+     *
+     * <p>Le depart : le tableau des alertes sanitaires lisait TOUTES les visites de
+     * l'exploitation pour n'en garder qu'une par ruche.
+     */
+    @Query(value = "SELECT DISTINCT ON (ruche_id) * FROM visite"
+            + " ORDER BY ruche_id, date_visite DESC, id DESC", nativeQuery = true)
+    List<Visite> dernieresVisitesParRuche();
 }

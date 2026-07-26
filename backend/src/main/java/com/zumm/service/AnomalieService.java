@@ -34,19 +34,21 @@ public class AnomalieService {
     private static final double SEUIL_Z = 3.0;
 
     private final MesureRepository mesures;
-    private final ClientAnomalieIA ia;
+    private final MoteurAnomalie moteur;
 
-    public AnomalieService(MesureRepository mesures, ClientAnomalieIA ia) {
+    public AnomalieService(MesureRepository mesures, MoteurAnomalie moteur) {
         this.mesures = mesures;
-        this.ia = ia;
+        this.moteur = moteur;
     }
 
     public AnomalieReponse detecter(Long rucheId, TypeIndicateur type) {
         List<Mesure> serie = mesures.findByIdRucheIdAndIdTypeIndicateurOrderByIdInstantAsc(rucheId, type);
 
         // Délégation au microservice IA si configuré (US-035) ; sinon calcul local.
-        if (ia.actif()) {
-            var deleguee = ia.scorer(rucheId, type, serie);
+        if (moteur.actif()) {
+            var deleguee = moteur.scorer(rucheId, type, serie.stream()
+                    .map(m -> new MoteurAnomalie.PointSerie(m.getId().getInstant(), m.getValeur()))
+                    .toList());
             if (deleguee.isPresent()) {
                 return deleguee.get();
             }

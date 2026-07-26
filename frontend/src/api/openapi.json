@@ -1,0 +1,4047 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "API Zümm",
+    "description" : "SIG apicole de gestion et de suivi de ruchers — contrat REST public. Les identifiants d'API (ex. getZummHoneyActualQuantity) ne se traduisent pas.",
+    "license" : {
+      "name" : "Propriétaire"
+    },
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "tags" : [ {
+    "name" : "Service tierce",
+    "description" : "API exposée aux applications externes (US-026)"
+  } ],
+  "paths" : {
+    "/api/visites/{id}" : {
+      "get" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "obtenir",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VisiteReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "mettreAJour",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VisiteCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VisiteReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "supprimer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/taches/{id}" : {
+      "get" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "obtenir_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TacheReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "mettreAJour_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TacheCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TacheReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "supprimer_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/sites/{id}" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "obtenir_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SiteReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "mettreAJour_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SiteCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SiteReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "supprimer_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/ruches/{id}" : {
+      "get" : {
+        "tags" : [ "ruche-controller" ],
+        "operationId" : "obtenir_3",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RucheReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "ruche-controller" ],
+        "operationId" : "mettreAJour_3",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RucheCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RucheReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "ruche-controller" ],
+        "operationId" : "supprimer_3",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/plannings/{id}" : {
+      "get" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "obtenir_4",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanningReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "mettreAJour_4",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlanningCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanningReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "supprimer_4",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/lots/{id}" : {
+      "get" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "obtenir_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LotReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "mettreAJour_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LotCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LotReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "supprimer_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        }
+      }
+    },
+    "/api/fermiers/{id}" : {
+      "get" : {
+        "tags" : [ "fermier-controller" ],
+        "operationId" : "obtenir_6",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermierReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "fermier-controller" ],
+        "operationId" : "mettreAJour_6",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FermierCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermierReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "fermier-controller" ],
+        "operationId" : "supprimer_6",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/fermes/{id}" : {
+      "get" : {
+        "tags" : [ "ferme-controller" ],
+        "operationId" : "obtenir_7",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermeReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "ferme-controller" ],
+        "operationId" : "mettreAJour_7",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FermeCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermeReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "ferme-controller" ],
+        "operationId" : "supprimer_7",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/agents/{id}" : {
+      "get" : {
+        "tags" : [ "agent-controller" ],
+        "operationId" : "obtenir_8",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AgentReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "agent-controller" ],
+        "operationId" : "mettreAJour_8",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AgentCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AgentReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "agent-controller" ],
+        "operationId" : "supprimer_8",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/visites" : {
+      "get" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "lister",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/VisiteReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "creer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VisiteCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VisiteReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visites/{id}/photos" : {
+      "get" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "listerPhotos",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PhotoReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "ajouterPhoto",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PhotoCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PhotoReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/taches" : {
+      "get" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "lister_1",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TacheReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "creer_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TacheCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TacheReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sites" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "lister_2",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SiteReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "creer_2",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SiteCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SiteReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ruches" : {
+      "get" : {
+        "tags" : [ "ruche-controller" ],
+        "operationId" : "lister_3",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RucheReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "ruche-controller" ],
+        "operationId" : "creer_3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RucheCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RucheReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reines" : {
+      "get" : {
+        "tags" : [ "reine-controller" ],
+        "operationId" : "historique",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReineReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "reine-controller" ],
+        "operationId" : "enregistrer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReineCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReineReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recoltes" : {
+      "get" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "lister_4",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/RecolteReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "creer_4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RecolteCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RecolteReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plannings" : {
+      "get" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "lister_5",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PlanningReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "creer_5",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PlanningCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanningReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plannings/{id}/refuser" : {
+      "post" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "refuser",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DecisionCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanningReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plannings/{id}/approuver" : {
+      "post" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "approuver",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PlanningReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesures" : {
+      "get" : {
+        "tags" : [ "mesure-controller" ],
+        "operationId" : "serie",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MesureReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "mesure-controller" ],
+        "operationId" : "ingerer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MesureCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Created",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MesureReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lots" : {
+      "get" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "lister_6",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LotReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "creer_6",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LotCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/LotReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fermiers" : {
+      "get" : {
+        "tags" : [ "fermier-controller" ],
+        "operationId" : "lister_7",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FermierReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "fermier-controller" ],
+        "operationId" : "creer_7",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FermierCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermierReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fermes" : {
+      "get" : {
+        "tags" : [ "ferme-controller" ],
+        "operationId" : "lister_8",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FermeReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "ferme-controller" ],
+        "operationId" : "creer_8",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FermeCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FermeReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agents" : {
+      "get" : {
+        "tags" : [ "agent-controller" ],
+        "operationId" : "lister_9",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "taille",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }, {
+          "name" : "tri",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AgentReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "agent-controller" ],
+        "operationId" : "creer_9",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AgentCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AgentReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bff/session" : {
+      "get" : {
+        "tags" : [ "session-bff-controller" ],
+        "operationId" : "session",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SessionReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visites/{id}/rapport.pdf" : {
+      "get" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "rapportPdf",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/taches/rappels" : {
+      "get" : {
+        "tags" : [ "tache-controller" ],
+        "operationId" : "rappels",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TacheReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tableaux/synthese" : {
+      "get" : {
+        "tags" : [ "tableau-de-bord-controller" ],
+        "operationId" : "synthese",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SyntheseReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tableaux/production" : {
+      "get" : {
+        "tags" : [ "tableau-de-bord-controller" ],
+        "operationId" : "production",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LigneProduction"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tableaux/previsions" : {
+      "get" : {
+        "tags" : [ "tableau-de-bord-controller" ],
+        "operationId" : "previsions",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PrevisionRecolte"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tableaux/calendrier" : {
+      "get" : {
+        "tags" : [ "tableau-de-bord-controller" ],
+        "operationId" : "calendrier",
+        "parameters" : [ {
+          "name" : "debut",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CalendrierCellule"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tableaux/alertes-sanitaires" : {
+      "get" : {
+        "tags" : [ "tableau-de-bord-controller" ],
+        "operationId" : "alertesSanitaires",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AlerteSanitaire"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sites/{id}/voisins" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "voisins",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "limite",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 3
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/VoisinSite"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sites/proches" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "proches",
+        "parameters" : [ {
+          "name" : "latitude",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }, {
+          "name" : "longitude",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }, {
+          "name" : "rayonMetres",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 5000.0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SiteReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sites/grappes" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "grappes",
+        "parameters" : [ {
+          "name" : "distanceMetres",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number",
+            "format" : "double",
+            "default" : 15000.0
+          }
+        }, {
+          "name" : "minimumSites",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 2
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GrappeSites"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/services/getZummHoneyActualQuantity" : {
+      "get" : {
+        "tags" : [ "Service tierce" ],
+        "summary" : "getZummHoneyActualQuantity",
+        "description" : "Quantité de miel actuelle d'une ruche (ou du rucher entier), dans l'unité demandée.",
+        "operationId" : "getZummHoneyActualQuantity",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "description" : "Ruche ciblée ; omis = total du rucher",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "unite",
+          "in" : "query",
+          "description" : "Unité de masse (kg par défaut) : mg, g, kg, t, lb",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "kg"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/QuantiteMiel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recoltes/{id}" : {
+      "get" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "obtenir_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RecolteReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "supprimer_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/recoltes/tracabilite/{lot}" : {
+      "get" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "tracer",
+        "parameters" : [ {
+          "name" : "lot",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TraceReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plannings/tournee" : {
+      "get" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "tournee",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "date",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "departSiteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TourneeReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/meteo" : {
+      "get" : {
+        "tags" : [ "meteo-controller" ],
+        "operationId" : "pourSite",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MeteoReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesures/alertes" : {
+      "get" : {
+        "tags" : [ "mesure-controller" ],
+        "operationId" : "alertesOuvertes",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AlerteReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lots/{id}/mention" : {
+      "get" : {
+        "tags" : [ "lot-controller" ],
+        "operationId" : "mention",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MentionOrigine"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/info" : {
+      "get" : {
+        "tags" : [ "info-controller" ],
+        "operationId" : "info",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Info"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/visites" : {
+      "get" : {
+        "tags" : [ "export-controller" ],
+        "operationId" : "visites",
+        "parameters" : [ {
+          "name" : "format",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "csv"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/ruches" : {
+      "get" : {
+        "tags" : [ "export-controller" ],
+        "operationId" : "ruches",
+        "parameters" : [ {
+          "name" : "format",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "csv"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conversions" : {
+      "get" : {
+        "tags" : [ "conversion-controller" ],
+        "operationId" : "convertir",
+        "parameters" : [ {
+          "name" : "valeur",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }, {
+          "name" : "de",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "vers",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Resultat"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/configuration/seuils" : {
+      "get" : {
+        "tags" : [ "configuration-controller" ],
+        "operationId" : "seuils",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SeuilsMetier"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/audit" : {
+      "get" : {
+        "tags" : [ "audit-controller" ],
+        "operationId" : "lister_10",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AuditEntreeReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/anomalies" : {
+      "get" : {
+        "tags" : [ "anomalie-controller" ],
+        "operationId" : "detecter",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "type",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AnomalieReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/visites/{id}/photos/{photoId}" : {
+      "delete" : {
+        "tags" : [ "visite-controller" ],
+        "operationId" : "supprimerPhoto",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "photoId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/reines/{id}" : {
+      "delete" : {
+        "tags" : [ "reine-controller" ],
+        "operationId" : "supprimer_10",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "VisiteCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "planningId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateVisite" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heureVisite" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "dureeMin" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "raison" : {
+            "type" : "string",
+            "enum" : [ "controle", "recolte", "traitement", "nourrissage", "division", "autre" ]
+          },
+          "constatations" : {
+            "type" : "string"
+          },
+          "actionsPrevues" : {
+            "type" : "string"
+          },
+          "actionsEffectuees" : {
+            "type" : "string"
+          },
+          "recommandations" : {
+            "type" : "string"
+          },
+          "effectifQualitatif" : {
+            "type" : "string",
+            "enum" : [ "faible", "moyen", "fort" ]
+          },
+          "etatSante" : {
+            "type" : "string",
+            "enum" : [ "bon", "moyen", "mauvais" ]
+          },
+          "productivite" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 3,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "agentId", "dateVisite", "rucheId" ]
+      },
+      "PhotoReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "legende" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "VisiteReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "planningId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateVisite" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heureVisite" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "dureeMin" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "raison" : {
+            "type" : "string",
+            "enum" : [ "controle", "recolte", "traitement", "nourrissage", "division", "autre" ]
+          },
+          "constatations" : {
+            "type" : "string"
+          },
+          "actionsPrevues" : {
+            "type" : "string"
+          },
+          "actionsEffectuees" : {
+            "type" : "string"
+          },
+          "recommandations" : {
+            "type" : "string"
+          },
+          "effectifQualitatif" : {
+            "type" : "string",
+            "enum" : [ "faible", "moyen", "fort" ]
+          },
+          "etatSante" : {
+            "type" : "string",
+            "enum" : [ "bon", "moyen", "mauvais" ]
+          },
+          "productivite" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "photos" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PhotoReponse"
+            }
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "TacheCorps" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "faite" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "libelle" ]
+      },
+      "TacheReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "echeance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "faite" : {
+            "type" : "boolean"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "SiteCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "latitude" : {
+            "type" : "number",
+            "maximum" : 90.0,
+            "minimum" : -90.0
+          },
+          "longitude" : {
+            "type" : "number",
+            "maximum" : 180.0,
+            "minimum" : -180.0
+          },
+          "altitude" : {
+            "type" : "number",
+            "maximum" : 9000.0,
+            "minimum" : -500.0
+          },
+          "dateMiseEnOeuvre" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateDemenagement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateCloture" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        },
+        "required" : [ "dateMiseEnOeuvre", "fermeId", "latitude", "longitude", "nom" ]
+      },
+      "SiteReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fermeNom" : {
+            "type" : "string"
+          },
+          "latitude" : {
+            "type" : "number"
+          },
+          "longitude" : {
+            "type" : "number"
+          },
+          "altitude" : {
+            "type" : "number"
+          },
+          "dateMiseEnOeuvre" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateDemenagement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateCloture" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "CompartimentCorps" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "corps", "hausse" ]
+          },
+          "nbCadres" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 10,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "type" ]
+      },
+      "RucheCorps" : {
+        "type" : "object",
+        "properties" : {
+          "modele" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentResponsableId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "creee", "peuplee", "active", "en_division", "en_collecte", "cloturee" ]
+          },
+          "compartiments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CompartimentCorps"
+            }
+          }
+        },
+        "required" : [ "compartiments", "fermeId", "modele", "siteId" ]
+      },
+      "CompartimentReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "corps", "hausse" ]
+          },
+          "nbCadres" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "RucheReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "modele" : {
+            "type" : "string"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fermeNom" : {
+            "type" : "string"
+          },
+          "agentResponsableId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentResponsableNom" : {
+            "type" : "string"
+          },
+          "etat" : {
+            "type" : "string",
+            "enum" : [ "creee", "peuplee", "active", "en_division", "en_collecte", "cloturee" ]
+          },
+          "nbHausses" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "compartiments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/CompartimentReponse"
+            }
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PlanningCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "superviseurId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "datePrevue" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heurePrevue" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "dureeMin" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "raison" : {
+            "type" : "string",
+            "enum" : [ "controle", "recolte", "traitement", "nourrissage", "division", "autre" ]
+          }
+        },
+        "required" : [ "agentId", "datePrevue", "rucheId" ]
+      },
+      "PlanningReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "superviseurId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "superviseurNom" : {
+            "type" : "string"
+          },
+          "datePrevue" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heurePrevue" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "dureeMin" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "raison" : {
+            "type" : "string",
+            "enum" : [ "controle", "recolte", "traitement", "nourrissage", "division", "autre" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "propose", "approuve", "refuse" ]
+          },
+          "motifRefus" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "LotCorps" : {
+        "type" : "object",
+        "properties" : {
+          "reference" : {
+            "type" : "string",
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "dateConditionnement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKg" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "origines" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/OrigineDeclaree"
+            }
+          }
+        },
+        "required" : [ "dateConditionnement", "origines", "quantiteKg", "reference" ]
+      },
+      "OrigineDeclaree" : {
+        "type" : "object",
+        "properties" : {
+          "recolteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "paysOrigine" : {
+            "type" : "string",
+            "pattern" : "^[A-Z]{2}$"
+          },
+          "pourcentage" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "paysOrigine", "pourcentage" ]
+      },
+      "LotReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "reference" : {
+            "type" : "string"
+          },
+          "dateConditionnement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKg" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "composition" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PartReponse"
+            }
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PartReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "recolteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "recolteLot" : {
+            "type" : "string"
+          },
+          "paysOrigine" : {
+            "type" : "string"
+          },
+          "pourcentage" : {
+            "type" : "number"
+          }
+        }
+      },
+      "FermierCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "contact" : {
+            "type" : "string",
+            "maxLength" : 180,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "nom" ]
+      },
+      "FermierReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "contact" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "FermeCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "fermierId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "fermierId", "nom" ]
+      },
+      "FermeReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "fermierId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fermierNom" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "AgentCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "apiculteur", "superviseur", "responsable", "admin" ]
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "email" : {
+            "type" : "string",
+            "maxLength" : 180,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "nom", "role" ]
+      },
+      "AgentReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string",
+            "enum" : [ "apiculteur", "superviseur", "responsable", "admin" ]
+          },
+          "fermeId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "fermeNom" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PhotoCorps" : {
+        "type" : "object",
+        "properties" : {
+          "url" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "^(https?://[^\\s\"'<>\\\\]+|/[^\\s\"'<>\\\\]*)$"
+          },
+          "legende" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "url" ]
+      },
+      "ReineCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateEvenement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "statut" : {
+            "type" : "string",
+            "pattern" : "introduite|en_ponte|remplacee|disparue|essaimee"
+          },
+          "couleurMarquage" : {
+            "type" : "string",
+            "pattern" : "blanc|jaune|rouge|vert|bleu"
+          },
+          "anneeNaissance" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "race" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "dateEvenement", "rucheId", "statut" ]
+      },
+      "ReineReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "dateEvenement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "couleurMarquage" : {
+            "type" : "string"
+          },
+          "anneeNaissance" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "race" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "RecolteCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateRecolte" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKg" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "dateRecolte", "quantiteKg", "rucheId" ]
+      },
+      "RecolteReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "dateRecolte" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKg" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string"
+          },
+          "lot" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "qrPayload" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "DecisionCorps" : {
+        "type" : "object",
+        "properties" : {
+          "motif" : {
+            "type" : "string"
+          }
+        }
+      },
+      "MesureCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "typeIndicateur" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "rucheId", "typeIndicateur", "valeur" ]
+      },
+      "AlerteReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "typeIndicateur" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          },
+          "niveau" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "valeurDeclenchement" : {
+            "type" : "number"
+          },
+          "ouverte" : {
+            "type" : "boolean"
+          },
+          "ouverteLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "fermeeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "MesureReponse" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "typeIndicateur" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "alertes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AlerteReponse"
+            }
+          }
+        }
+      },
+      "SessionReponse" : {
+        "type" : "object",
+        "properties" : {
+          "utilisateur" : {
+            "type" : "string"
+          },
+          "roles" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "exploitation" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Roi" : {
+        "type" : "object",
+        "properties" : {
+          "valeurProductionEur" : {
+            "type" : "number"
+          },
+          "coutInterventionsEur" : {
+            "type" : "number"
+          },
+          "roiPourcent" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "SyntheseReponse" : {
+        "type" : "object",
+        "properties" : {
+          "nombreRuches" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nombreVisites" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visitesParRaison" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "productiviteMoyenne" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "poidsTotalActuelKg" : {
+            "type" : "number"
+          },
+          "alertesOuvertes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "roi" : {
+            "$ref" : "#/components/schemas/Roi"
+          }
+        }
+      },
+      "LigneProduction" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "poidsActuelKg" : {
+            "type" : "number"
+          },
+          "poidsMinKg" : {
+            "type" : "number"
+          },
+          "poidsMaxKg" : {
+            "type" : "number"
+          },
+          "nombreMesures" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sousSeuil" : {
+            "type" : "boolean"
+          },
+          "productiviteMoyenne" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "PrevisionRecolte" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "poidsActuelKg" : {
+            "type" : "number"
+          },
+          "tendanceKgParJour" : {
+            "type" : "number"
+          },
+          "projection7jKg" : {
+            "type" : "number"
+          },
+          "tendance" : {
+            "type" : "string"
+          },
+          "nombreMesures" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "CalendrierCellule" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "nombreVisites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "visites" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VisiteBreve"
+            }
+          }
+        }
+      },
+      "VisiteBreve" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "raison" : {
+            "type" : "string",
+            "enum" : [ "controle", "recolte", "traitement", "nourrissage", "division", "autre" ]
+          },
+          "etatSante" : {
+            "type" : "string",
+            "enum" : [ "bon", "moyen", "mauvais" ]
+          }
+        }
+      },
+      "AlerteSanitaire" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "dernierEtatSante" : {
+            "type" : "string",
+            "enum" : [ "bon", "moyen", "mauvais" ]
+          },
+          "derniereVisite" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "joursDepuisVisite" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "niveau" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          }
+        }
+      },
+      "VoisinSite" : {
+        "type" : "object",
+        "properties" : {
+          "site" : {
+            "$ref" : "#/components/schemas/SiteReponse"
+          },
+          "distanceMetres" : {
+            "type" : "number"
+          }
+        }
+      },
+      "GrappeSites" : {
+        "type" : "object",
+        "properties" : {
+          "numero" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "latitudeCentre" : {
+            "type" : "number"
+          },
+          "longitudeCentre" : {
+            "type" : "number"
+          },
+          "nombreSites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nombreRuches" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sites" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SiteReponse"
+            }
+          },
+          "isolee" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "QuantiteMiel" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "unite" : {
+            "type" : "string"
+          }
+        }
+      },
+      "TraceReponse" : {
+        "type" : "object",
+        "properties" : {
+          "lot" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "fermeNom" : {
+            "type" : "string"
+          },
+          "dateRecolte" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKg" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string"
+          }
+        }
+      },
+      "EtapeTournee" : {
+        "type" : "object",
+        "properties" : {
+          "ordre" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "latitude" : {
+            "type" : "number"
+          },
+          "longitude" : {
+            "type" : "number"
+          },
+          "planningIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "nombreVisites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "distanceDepuisPrecedenteMetres" : {
+            "type" : "number"
+          }
+        }
+      },
+      "TourneeReponse" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nombreSites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nombreVisites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "distanceTotaleMetres" : {
+            "type" : "number"
+          },
+          "etapes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EtapeTournee"
+            }
+          }
+        }
+      },
+      "MeteoReponse" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "latitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "longitude" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "temperatureCelsius" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "humiditePourcent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ventKmh" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "MentionOrigine" : {
+        "type" : "object",
+        "properties" : {
+          "texte" : {
+            "type" : "string"
+          },
+          "origines" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Part"
+            }
+          },
+          "melange" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "Part" : {
+        "type" : "object",
+        "properties" : {
+          "paysOrigine" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "pourcentage" : {
+            "type" : "number"
+          }
+        }
+      },
+      "Info" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string"
+          },
+          "version" : {
+            "type" : "string"
+          },
+          "accueil" : {
+            "type" : "string"
+          },
+          "langues" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "Resultat" : {
+        "type" : "object",
+        "properties" : {
+          "valeur" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "de" : {
+            "type" : "string"
+          },
+          "vers" : {
+            "type" : "string"
+          },
+          "resultat" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "SeuilsMetier" : {
+        "type" : "object",
+        "properties" : {
+          "langueParDefaut" : {
+            "type" : "string"
+          },
+          "languesActives" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "poidsRucheAlerteKg" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "temperatureMinCelsius" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "temperatureMaxCelsius" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "humiditeMaxPourcent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "delaiAlerteJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "arrondiDegresPublic" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taillePageParDefaut" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "AuditEntreeReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "acteur" : {
+            "type" : "string"
+          },
+          "action" : {
+            "type" : "string"
+          },
+          "entite" : {
+            "type" : "string"
+          },
+          "entiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "resume" : {
+            "type" : "string"
+          }
+        }
+      },
+      "AnomalieReponse" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "typeIndicateur" : {
+            "type" : "string",
+            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+          },
+          "alpha" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "seuilZ" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "baseline" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "ecartType" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "nombrePoints" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "anomalies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointAnomalie"
+            }
+          }
+        }
+      },
+      "PointAnomalie" : {
+        "type" : "object",
+        "properties" : {
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "zScore" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      }
+    }
+  }
+}

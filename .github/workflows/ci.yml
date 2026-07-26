@@ -60,6 +60,18 @@ jobs:
           fi
           grep -hE "Tests run" $fichiers
 
+      # Le contrat OpenAPI est REGENERE par `verify` (ContratOpenApiIT). S'il
+      # differe de la version committee, c'est que l'API a bouge sans que le
+      # contrat suive — et le client TypeScript se retrouve a decrire une API qui
+      # n'existe plus. Meme regle que pour les PDF du cahier des charges.
+      - name: Verifier que le contrat OpenAPI committe est a jour
+        run: |
+          set -euo pipefail
+          if ! git diff --exit-code -- frontend/src/api/openapi.json; then
+            echo "::error::Le contrat OpenAPI committe ne correspond plus a l'API.           Rejouer : cd backend && ./mvnw -B verify -Dit.test=ContratOpenApiIT,           puis cd frontend && npm run api:contrat"
+            exit 1
+          fi
+
       - name: Empaqueter le JAR
         working-directory: backend
         run: ./mvnw -B package -DskipTests
@@ -95,6 +107,19 @@ jobs:
       - name: Lint (ESLint)
         working-directory: frontend
         run: npm run lint
+
+      # `parite.ts` verifie a la COMPILATION que les types ecrits a la main
+      # decrivent la meme chose que le contrat. Encore faut-il que les types
+      # generes soient a jour : on les regenere et on exige l'absence de diff.
+      - name: Verifier que les types generes suivent le contrat
+        working-directory: frontend
+        run: |
+          set -euo pipefail
+          npm run api:contrat
+          if ! git diff --exit-code -- src/api/contrat.ts; then
+            echo "::error::Types generes obsoletes : rejouer `npm run api:contrat`."
+            exit 1
+          fi
 
       - name: Tests unitaires (Vitest)
         working-directory: frontend
