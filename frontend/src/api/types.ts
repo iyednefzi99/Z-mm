@@ -1,9 +1,16 @@
 /**
  * Types du domaine, en miroir des DTO du backend (US-001 a US-005, US-025).
  *
- * ATTENTION : provisoire, comme le client. Des que le backend publiera son
- * contrat OpenAPI 3, ces types seront GENERES depuis le contrat pour garantir la
- * parite client/serveur, et ce fichier disparaitra.
+ * <p>Ces types sont ECRITS A LA MAIN, et le restent : c'est une decision, pas un
+ * provisoire. L'en-tete annoncait jusqu'ici leur remplacement par des types
+ * generes « des que le backend publiera son contrat OpenAPI », et la disparition
+ * de ce fichier. Le contrat est publie (`openapi.json`), et le SPRINT-17 a tranche
+ * autrement : la parite est VERIFIEE plutot que generee.
+ *
+ * <p>Voir `api/parite.ts` pour le detail de l'arbitrage — en resume, generer le
+ * client aurait touche quarante fonctions et seize vues pour un gain limite au
+ * seul typage, alors qu'une verification obtient la meme garantie (aucune derive
+ * silencieuse) sans reecrire ce qui fonctionne. Une divergence casse `tsc`.
  */
 
 export type RoleAgent = 'apiculteur' | 'superviseur' | 'responsable' | 'admin';
@@ -535,6 +542,9 @@ export interface Seuils {
   humiditeMaxPourcent: number;
   delaiAlerteJours: number;
   arrondiDegresPublic: number;
+  /** Hypothèses de valorisation du ROI (section `[economie]` de ConfigZumm.ini). */
+  prixMielKgEur: number;
+  coutVisiteEur: number;
 }
 
 /**

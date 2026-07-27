@@ -66,7 +66,6 @@
     "fermer": "Fermer",
     "reessayer": "Réessayer",
     "confirmer": "Confirmer",
-    "seConnecter": "Ouvrir la session",
     "seDeconnecter": "Fermer la session",
     "ajouterHausse": "Ajouter une hausse",
     "approuver": "Approuver",
@@ -76,8 +75,8 @@
   "etats": {
     "chargement": "Chargement…",
     "vide": "Aucun élément pour le moment.",
-    "confirmerSuppression": "Confirmer la suppression de « {nom} » ?",
     "erreur": "Une erreur est survenue.",
+    "champsRequis": "Renseignez les champs obligatoires avant d’enregistrer.",
     "serviceIndisponible": "Service indisponible. Vérifiez votre connexion.",
     "videTitre": "Rien à afficher pour l’instant",
     "videTexte": "Créez le premier élément : il apparaîtra ici, avec tous les suivants."
@@ -121,10 +120,7 @@
   "session": {
     "titre": "Session requise",
     "connexionKeycloak": "Se connecter avec Keycloak",
-    "ou": "— ou —",
-    "explication": "La console interroge une API protégée. En production, la connexion passe par Keycloak (OIDC). Pour le développement, collez un jeton d'accès valide portant le claim tenant_id.",
-    "jeton": "Jeton d'accès (JWT)",
-    "placeholder": "eyJhbGciOi…"
+    "explication": "La console interroge une API protégée. La connexion passe par Keycloak (OIDC) : vos identifiants ne transitent jamais par cette page, et aucun jeton n’est stocké dans le navigateur."
   },
   "config": {
     "titre": "Seuils métier",
@@ -135,6 +131,8 @@
     "humidite": "Humidité max (%)",
     "delai": "Délai sans visite (j)",
     "arrondi": "Arrondi position publique (°)",
+    "prixMiel": "Prix du miel (€/kg)",
+    "coutVisite": "Coût d'une visite (€)",
     "langues": "Langues actives"
   },
   "visite": {
@@ -275,8 +273,7 @@
     "mention": "Mention d’origine",
     "mielAchete": "Miel acquis (hors exploitation)",
     "estMelange": "Mélange : les pourcentages sont obligatoires sur l’étiquette.",
-    "monoOrigine": "Origine unique : le pourcentage n’est pas exigé.",
-    "confirmerSuppression": "Confirmer la suppression du lot « {ref} » ?"
+    "monoOrigine": "Origine unique : le pourcentage n’est pas exigé."
   },
   "capteur": {
     "ingestion": "Ingestion d’une mesure",
@@ -373,8 +370,8 @@
   },
   "introuvable": {
     "titre": "Page introuvable",
-    "explication": "Cette adresse ne correspond a aucun ecran de la console. Le lien est peut-etre incomplet ou perime.",
-    "retour": "Revenir a l'accueil"
+    "explication": "Cette adresse ne correspond à aucun écran de la console. Le lien est peut-être incomplet ou périmé.",
+    "retour": "Revenir à l’accueil"
   },
   "voisins": {
     "titre": "Sites les plus proches",

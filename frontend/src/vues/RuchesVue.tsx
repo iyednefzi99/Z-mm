@@ -2,18 +2,15 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { agents, fermes, ruches, sites } from '../api/client';
 import type { Agent, EtatRuche, Ferme, Ruche, RucheCorps, Site } from '../api/types';
 import { ETATS_RUCHE } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import { Bouton, ChampNombre, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const MAX_HAUSSES = 5;
 
 export function RuchesVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const etat = useRessource<Ruche, RucheCorps>(ruches);
   const [optSites, setOptSites] = useState<Option[]>([]);
   const [optFermes, setOptFermes] = useState<Option[]>([]);
@@ -88,19 +85,13 @@ export function RuchesVue(): ReactElement {
     }
   };
 
-  const supprimer = async (r: Ruche) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: r.modele }))) {
-      await etat.supprimer(r.id);
-    }
-  };
-
   const majHausse = (index: number, valeur: string) =>
     setHausses((liste) => liste.map((h, i) => (i === index ? valeur : h)));
 
   return (
     <CorpsSection titre={t.onglets.ruches} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.ruches} onFermer={() => setOuvert(false)}>

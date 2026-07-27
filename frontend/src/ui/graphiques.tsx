@@ -176,6 +176,15 @@ export interface CourbeProps {
   unite?: string;
   langue: string;
   libelleTableau: string;
+  /**
+   * Phrase affichee quand il n'y a rien a tracer.
+   *
+   * <p>Obligatoire, et non par defaut : ce module reste sans i18n — il recoit
+   * `langue` en prop plutot qu'un contexte — donc seul l'appelant peut fournir un
+   * texte traduit. Un defaut a « — » laisserait chaque appelant l'oublier en
+   * silence, ce qui est precisement ce qui s'etait produit.
+   */
+  messageVide: string;
   tableau?: ReactNode;
   hauteur?: number;
 }
@@ -188,6 +197,7 @@ export function Courbe({
   unite = '',
   langue,
   libelleTableau,
+  messageVide,
   tableau,
   hauteur = 220,
 }: CourbeProps): ReactElement {
@@ -238,7 +248,7 @@ export function Courbe({
   if (utiles.length === 0) {
     return (
       <Cadre titre={titre} description={description} libelleTableau={libelleTableau}>
-        <p className="z-graphique__vide">—</p>
+        <p className="z-graphique__vide">{messageVide}</p>
       </Cadre>
     );
   }
@@ -393,6 +403,8 @@ export interface BarresProps {
   unite?: string;
   langue: string;
   libelleTableau: string;
+  /** Phrase affichee quand il n'y a rien a tracer. Cf. {@link CourbeProps}. */
+  messageVide: string;
   tableau?: ReactNode;
   /**
    * Echelle signee : les valeurs negatives partent a gauche d'un axe zero
@@ -409,6 +421,7 @@ export function Barres({
   unite = '',
   langue,
   libelleTableau,
+  messageVide,
   tableau,
   divergente = false,
 }: BarresProps): ReactElement {
@@ -417,7 +430,7 @@ export function Barres({
   if (donnees.length === 0) {
     return (
       <Cadre titre={titre} description={description} libelleTableau={libelleTableau}>
-        <p className="z-graphique__vide">—</p>
+        <p className="z-graphique__vide">{messageVide}</p>
       </Cadre>
     );
   }

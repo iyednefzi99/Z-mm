@@ -66,7 +66,6 @@
     "fermer": "إغلاق",
     "reessayer": "إعادة المحاولة",
     "confirmer": "تأكيد",
-    "seConnecter": "فتح الجلسة",
     "seDeconnecter": "إغلاق الجلسة",
     "ajouterHausse": "إضافة عاسلة",
     "approuver": "مصادقة",
@@ -76,8 +75,8 @@
   "etats": {
     "chargement": "جارٍ التحميل…",
     "vide": "لا عناصر بعد.",
-    "confirmerSuppression": "تأكيد حذف «{nom}»؟",
     "erreur": "حدث خطأ.",
+    "champsRequis": "املأ الحقول الإلزامية قبل الحفظ.",
     "serviceIndisponible": "الخدمة غير متاحة. تحقّق من اتصالك.",
     "videTitre": "لا يوجد ما يُعرض بعد",
     "videTexte": "أنشئ العنصر الأول، وسيظهر هنا مع ما يليه."
@@ -121,10 +120,7 @@
   "session": {
     "titre": "الجلسة مطلوبة",
     "connexionKeycloak": "الدخول عبر Keycloak",
-    "ou": "— أو —",
-    "explication": "تتصل الواجهة بواجهة برمجية محميّة. في الإنتاج تمرّ المصادقة عبر Keycloak (OIDC). للتطوير، الصق رمز وصول صالحًا يحمل الادّعاء tenant_id.",
-    "jeton": "رمز الوصول (JWT)",
-    "placeholder": "eyJhbGciOi…"
+    "explication": "تتصل الواجهة بواجهة برمجية محميّة. تمرّ المصادقة عبر Keycloak (OIDC): لا تمرّ بيانات دخولك عبر هذه الصفحة، ولا يُخزَّن أي رمز في المتصفّح."
   },
   "config": {
     "titre": "العتبات المهنية",
@@ -135,6 +131,8 @@
     "humidite": "أقصى رطوبة (%)",
     "delai": "أيام دون زيارة",
     "arrondi": "تقريب الموقع العام (°)",
+    "prixMiel": "سعر العسل (€/كغ)",
+    "coutVisite": "كلفة الزيارة (€)",
     "langues": "اللغات المفعّلة"
   },
   "visite": {
@@ -275,8 +273,7 @@
     "mention": "بيان المنشأ",
     "mielAchete": "عسل مُشترى (خارج المستثمرة)",
     "estMelange": "خليط: النسب المئوية إلزامية على الملصق.",
-    "monoOrigine": "منشأ واحد: النسبة غير مطلوبة.",
-    "confirmerSuppression": "تأكيد حذف الدفعة « {ref} » ؟"
+    "monoOrigine": "منشأ واحد: النسبة غير مطلوبة."
   },
   "capteur": {
     "ingestion": "إدخال قياس",

@@ -493,6 +493,35 @@ export function ChampDate({
   );
 }
 
+/**
+ * Heure seule, sans date.
+ *
+ * <p>`input type="time"` rend « HH:MM », que `LocalTime` accepte : le contrat
+ * publie « 14:30:00 », mais `ISO_LOCAL_TIME` lit les deux. Pas de conversion
+ * côté client, donc rien à maintenir en parallèle du contrat.
+ */
+export function ChampHeure({
+  libelle,
+  valeur,
+  onChange,
+}: {
+  libelle: string;
+  valeur: string;
+  onChange: (valeur: string) => void;
+}): ReactElement {
+  return (
+    <label className="z-champ">
+      <span className="z-champ__libelle">{libelle}</span>
+      <input
+        className="z-input"
+        type="time"
+        value={valeur}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  );
+}
+
 export function ChampZone({
   libelle,
   valeur,

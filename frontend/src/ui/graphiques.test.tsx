@@ -41,6 +41,7 @@ describe('barres', () => {
         donnees={donnees}
         langue="fr"
         libelleTableau="tableau"
+        messageVide="Pas encore assez de mesures."
       />,
     );
     const libelles = screen.getAllByTitle(/Ruche/).map((n) => n.textContent);
@@ -58,17 +59,23 @@ describe('barres', () => {
         unite=" kg"
         langue="fr"
         libelleTableau="tableau"
+        messageVide="Pas encore assez de mesures."
       />,
     );
     expect(screen.getByText('30 kg')).toBeInTheDocument();
     expect(screen.getByText('8 kg')).toBeInTheDocument();
   });
 
-  it('affiche un etat vide plutot qu’un cadre vide', () => {
+  it('affiche une phrase traduite sur l’etat vide, pas un tiret', () => {
+    // Le cadre vide affichait « — » alors que la phrase existait, traduite dans
+    // les trois locales, et n'etait referencee par personne. Le message est
+    // desormais une prop OBLIGATOIRE : un appelant ne peut plus l'oublier sans
+    // que le compilateur le dise.
     render(
-      <Barres titre="Poids" description="desc" donnees={[]} langue="fr" libelleTableau="tableau" />,
+      <Barres titre="Poids" description="desc" donnees={[]} langue="fr" libelleTableau="tableau" messageVide="Pas encore assez de mesures." />,
     );
-    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.getByText('Pas encore assez de mesures.')).toBeInTheDocument();
+    expect(screen.queryByText('—')).not.toBeInTheDocument();
   });
 });
 
@@ -94,6 +101,7 @@ describe('courbe', () => {
         formatX={String}
         langue="fr"
         libelleTableau="tableau"
+        messageVide="Pas encore assez de mesures."
       />,
     );
     expect(screen.getByRole('img', { name: /Serie\. Evolution du poids/ })).toBeInTheDocument();
@@ -109,6 +117,7 @@ describe('courbe', () => {
         formatX={String}
         langue="fr"
         libelleTableau="tableau"
+        messageVide="Pas encore assez de mesures."
       />,
     );
     expect(container.querySelector('.z-graphique__legende')).toBeNull();
@@ -123,6 +132,7 @@ describe('courbe', () => {
         formatX={String}
         langue="fr"
         libelleTableau="tableau"
+        messageVide="Pas encore assez de mesures."
       />,
     );
     expect(container.querySelectorAll('.z-graphique__legende-item')).toHaveLength(2);
@@ -137,6 +147,7 @@ describe('courbe', () => {
         formatX={String}
         langue="fr"
         libelleTableau="Voir le tableau"
+        messageVide="Pas encore assez de mesures."
         tableau={<table><tbody><tr><td>10</td></tr></tbody></table>}
       />,
     );

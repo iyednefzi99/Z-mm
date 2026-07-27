@@ -2,7 +2,6 @@ import { useEffect, useState, type ReactElement } from 'react';
 import QRCode from 'qrcode';
 import { recoltes, ruches, tracerLot } from '../api/client';
 import type { Recolte, RecolteCorps, Ruche, Trace } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
@@ -11,12 +10,12 @@ import {
   ChampNombre,
   ChampSelect,
   ChampTexte,
+  ChampZone,
   Colonne,
   Modale,
   Option,
   Table,
 } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 /** Image QR d'un payload de traçabilité (US-033). */
@@ -35,7 +34,6 @@ function QrImage({ payload }: { payload: string }): ReactElement {
 /** Récoltes, numéro de lot et QR de traçabilité (US-033). */
 export function RecoltesVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const f = useFormats();
   const etat = useRessource<Recolte, RecolteCorps>(recoltes);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
@@ -44,6 +42,7 @@ export function RecoltesVue(): ReactElement {
   const [dateRecolte, setDateRecolte] = useState('');
   const [quantite, setQuantite] = useState('');
   const [typeMiel, setTypeMiel] = useState('');
+  const [note, setNote] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
   const [qr, setQr] = useState<Recolte | null>(null);
   const [trace, setTrace] = useState<Trace | null>(null);
@@ -72,6 +71,7 @@ export function RecoltesVue(): ReactElement {
     setDateRecolte('');
     setQuantite('');
     setTypeMiel('');
+    setNote('');
     setErreur(null);
     setOuvert(true);
   };
@@ -84,7 +84,7 @@ export function RecoltesVue(): ReactElement {
         dateRecolte,
         quantiteKg: Number(quantite),
         typeMiel: typeMiel.trim() === '' ? null : typeMiel,
-        note: null,
+        note: note.trim() === '' ? null : note.trim(),
       });
       setOuvert(false);
     } catch (cause) {
@@ -92,16 +92,10 @@ export function RecoltesVue(): ReactElement {
     }
   };
 
-  const supprimer = async (r: Recolte) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: r.lot }))) {
-      await etat.supprimer(r.id);
-    }
-  };
-
   return (
     <CorpsSection titre={t.onglets.recoltes} etat={etat} onNouveau={ouvrir}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={() => undefined} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={() => undefined} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
 
       {ouvert && (
@@ -115,6 +109,7 @@ export function RecoltesVue(): ReactElement {
               <ChampNombre libelle={t.recolte.quantite} valeur={quantite} onChange={setQuantite} requis />
               <ChampTexte libelle={t.recolte.typeMiel} valeur={typeMiel} onChange={setTypeMiel} />
             </div>
+            <ChampZone libelle={t.recolte.note} valeur={note} onChange={setNote} />
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>{t.actions.annuler}</Bouton>

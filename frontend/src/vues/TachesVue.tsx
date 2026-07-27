@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { agents, listerRappels, ruches, taches } from '../api/client';
 import type { Agent, Ruche, Tache, TacheCorps } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
@@ -14,13 +13,11 @@ import {
   Option,
   Table,
 } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 /** Liste de tâches et rappels de l'apiculteur (US-031). */
 export function TachesVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const f = useFormats();
   const etat = useRessource<Tache, TacheCorps>(taches);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
@@ -83,12 +80,6 @@ export function TachesVue(): ReactElement {
     }
   };
 
-  const supprimer = async (x: Tache) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: x.libelle }))) {
-      await etat.supprimer(x.id);
-    }
-  };
-
   return (
     <CorpsSection titre={t.onglets.taches} etat={etat} onNouveau={() => ouvrir(null)}>
       {rappels.length > 0 && (
@@ -98,7 +89,7 @@ export function TachesVue(): ReactElement {
         </div>
       )}
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.taches} onFermer={() => setOuvert(false)}>

@@ -175,6 +175,7 @@ export function TableauxVue(): ReactElement {
             titre={t.graphique.productionTitre}
             description={t.graphique.productionDescription}
             langue={langue}
+            messageVide={t.graphique.aucuneDonnee}
             unite=" kg"
             libelleTableau={t.graphique.tableauEquivalent}
             donnees={production
@@ -227,6 +228,7 @@ export function TableauxVue(): ReactElement {
             titre={t.graphique.previsionTitre}
             description={t.graphique.previsionDescription}
             langue={langue}
+            messageVide={t.graphique.aucuneDonnee}
             unite=" kg/j"
             divergente
             libelleTableau={t.graphique.tableauEquivalent}

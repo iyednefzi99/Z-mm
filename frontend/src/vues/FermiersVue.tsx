@@ -1,16 +1,13 @@
 import { useState, type ReactElement } from 'react';
 import { fermiers } from '../api/client';
 import type { Fermier, FermierCorps } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import { Bouton, ChampTexte, Colonne, Modale, Table } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 export function FermiersVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const etat = useRessource<Fermier, FermierCorps>(fermiers);
   const [edition, setEdition] = useState<Fermier | null>(null);
   const [ouvert, setOuvert] = useState(false);
@@ -41,16 +38,10 @@ export function FermiersVue(): ReactElement {
     }
   };
 
-  const supprimer = async (f: Fermier) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: f.nom }))) {
-      await etat.supprimer(f.id);
-    }
-  };
-
   return (
     <CorpsSection titre={t.onglets.fermiers} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.fermiers} onFermer={() => setOuvert(false)}>

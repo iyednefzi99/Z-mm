@@ -28,6 +28,18 @@ import { Bouton, Modale } from './composants';
  *   if (await confirmer(message)) { … }
  *   const motif = await demander(libelle);
  * </pre>
+ *
+ * <p><strong>Aucune vue n'appelle plus `confirmer` aujourd'hui.</strong> Les dix
+ * confirmations de suppression ont été retirées : elles doublaient l'annulation
+ * différée (`ui/toasts.tsx`) sur le même risque, en coûtant un geste aux
+ * suppressions volontaires — c'est-à-dire à la quasi-totalité d'entre elles — et
+ * en ne protégeant plus rien une fois devenues un réflexe.
+ *
+ * <p>La primitive est conservée, et non supprimée, parce que l'annulation ne
+ * couvre pas tout : elle suppose que le geste puisse être *différé*. Une action
+ * immédiate et irréversible — un envoi, une clôture réglementaire — ne peut pas
+ * l'être et demandera une confirmation. `demander` reste, lui, utilisé pour le
+ * motif de refus d'un planning.
  */
 
 type Demande =

@@ -138,7 +138,7 @@ describe('ossature de la console', () => {
     monter();
     await screen.findByRole('heading', { name: 'Page introuvable' });
 
-    await userEvent.click(screen.getByRole('button', { name: "Revenir a l'accueil" }));
+    await userEvent.click(screen.getByRole('button', { name: 'Revenir à l’accueil' }));
 
     expect(window.location.pathname).toBe('/');
     expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();

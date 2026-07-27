@@ -251,6 +251,7 @@ export function CapteursVue(): ReactElement {
             description={t.graphique.serieDescription}
             series={seriesCourbe}
             langue={langue}
+            messageVide={t.graphique.aucuneDonnee}
             formatX={(x) =>
               new Intl.DateTimeFormat(langue, { day: '2-digit', month: 'short' }).format(new Date(x))
             }

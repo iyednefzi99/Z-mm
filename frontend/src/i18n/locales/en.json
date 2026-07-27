@@ -66,7 +66,6 @@
     "fermer": "Close",
     "reessayer": "Retry",
     "confirmer": "Confirm",
-    "seConnecter": "Open session",
     "seDeconnecter": "Close session",
     "ajouterHausse": "Add a super",
     "approuver": "Approve",
@@ -76,8 +75,8 @@
   "etats": {
     "chargement": "Loading…",
     "vide": "Nothing here yet.",
-    "confirmerSuppression": "Confirm deletion of “{nom}”?",
     "erreur": "An error occurred.",
+    "champsRequis": "Fill in the required fields before saving.",
     "serviceIndisponible": "Service unavailable. Check your connection.",
     "videTitre": "Nothing to show yet",
     "videTexte": "Create the first item — it will appear here, along with the ones that follow."
@@ -121,10 +120,7 @@
   "session": {
     "titre": "Session required",
     "connexionKeycloak": "Sign in with Keycloak",
-    "ou": "— or —",
-    "explication": "The console calls a protected API. In production, sign-in goes through Keycloak (OIDC). For development, paste a valid access token carrying the tenant_id claim.",
-    "jeton": "Access token (JWT)",
-    "placeholder": "eyJhbGciOi…"
+    "explication": "The console calls a protected API. Sign-in goes through Keycloak (OIDC): your credentials never pass through this page, and no token is stored in the browser."
   },
   "config": {
     "titre": "Business thresholds",
@@ -135,6 +131,8 @@
     "humidite": "Max humidity (%)",
     "delai": "Days without a visit",
     "arrondi": "Public position rounding (°)",
+    "prixMiel": "Honey price (€/kg)",
+    "coutVisite": "Cost per visit (€)",
     "langues": "Active languages"
   },
   "visite": {
@@ -275,8 +273,7 @@
     "mention": "Origin statement",
     "mielAchete": "Purchased honey (outside the farm)",
     "estMelange": "Blend: percentages are mandatory on the label.",
-    "monoOrigine": "Single origin: the percentage is not required.",
-    "confirmerSuppression": "Confirm deletion of lot “{ref}”?"
+    "monoOrigine": "Single origin: the percentage is not required."
   },
   "capteur": {
     "ingestion": "Ingest a measure",

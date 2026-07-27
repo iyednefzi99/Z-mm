@@ -9,12 +9,13 @@ import {
 } from '../api/client';
 import type { Agent, Planning, PlanningCorps, RaisonVisite, Ruche, Tournee } from '../api/types';
 import { RAISONS_VISITE } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
   ChampDate,
+  ChampHeure,
+  ChampNombre,
   ChampSelect,
   Colonne,
   Modale,
@@ -28,7 +29,7 @@ const ouVide = (v: string): string => v;
 
 export function PlanningsVue(): ReactElement {
   const t = useT();
-  const { confirmer, demander, signaler } = useDialogues();
+  const { demander, signaler } = useDialogues();
   const f = useFormats();
   const etat = useRessource<Planning, PlanningCorps>(plannings);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
@@ -40,6 +41,8 @@ export function PlanningsVue(): ReactElement {
   const [agentId, setAgentId] = useState('');
   const [superviseurId, setSuperviseurId] = useState('');
   const [datePrevue, setDatePrevue] = useState('');
+  const [heurePrevue, setHeurePrevue] = useState('');
+  const [dureeMin, setDureeMin] = useState('');
   const [raison, setRaison] = useState<RaisonVisite>('controle');
   const [erreur, setErreur] = useState<string | null>(null);
   const [agentTournee, setAgentTournee] = useState('');
@@ -102,6 +105,9 @@ export function PlanningsVue(): ReactElement {
     setAgentId(p ? String(p.agentId) : '');
     setSuperviseurId(p?.superviseurId != null ? String(p.superviseurId) : '');
     setDatePrevue(p?.datePrevue ?? '');
+    // Le serveur publie « 09:00:00 » ; `input type="time"` veut « 09:00 ».
+    setHeurePrevue(p?.heurePrevue != null ? p.heurePrevue.slice(0, 5) : '');
+    setDureeMin(p?.dureeMin != null ? String(p.dureeMin) : '');
     setRaison(p?.raison ?? 'controle');
     setErreur(null);
     setOuvert(true);
@@ -109,7 +115,7 @@ export function PlanningsVue(): ReactElement {
 
   const enregistrer = async () => {
     if (rucheId === '' || agentId === '') {
-      setErreur('?');
+      setErreur(t.etats.champsRequis);
       return;
     }
     const corps: PlanningCorps = {
@@ -117,8 +123,8 @@ export function PlanningsVue(): ReactElement {
       agentId: Number(agentId),
       superviseurId: superviseurId === '' ? null : Number(superviseurId),
       datePrevue: ouVide(datePrevue),
-      heurePrevue: null,
-      dureeMin: null,
+      heurePrevue: heurePrevue === '' ? null : heurePrevue,
+      dureeMin: dureeMin === '' ? null : Number(dureeMin),
       raison,
     };
     try {
@@ -126,12 +132,6 @@ export function PlanningsVue(): ReactElement {
       setOuvert(false);
     } catch (cause) {
       setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
-    }
-  };
-
-  const supprimer = async (p: Planning) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: p.rucheModele }))) {
-      await etat.supprimer(p.id);
     }
   };
 
@@ -151,7 +151,7 @@ export function PlanningsVue(): ReactElement {
   return (
     <CorpsSection titre={t.onglets.plannings} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
 
       <section className="z-encart">
@@ -216,8 +216,10 @@ export function PlanningsVue(): ReactElement {
             </div>
             <div className="z-form__grille">
               <ChampDate libelle={t.visite.date} valeur={datePrevue} onChange={setDatePrevue} requis />
-              <ChampSelect libelle={t.visite.raison} valeur={raison} options={optRaison} onChange={(v) => setRaison(v as RaisonVisite)} />
+              <ChampHeure libelle={t.visite.heure} valeur={heurePrevue} onChange={setHeurePrevue} />
+              <ChampNombre libelle={t.visite.duree} valeur={dureeMin} onChange={setDureeMin} pas="1" />
             </div>
+            <ChampSelect libelle={t.visite.raison} valeur={raison} options={optRaison} onChange={(v) => setRaison(v as RaisonVisite)} />
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>

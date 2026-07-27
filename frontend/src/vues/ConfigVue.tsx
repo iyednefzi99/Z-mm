@@ -54,6 +54,11 @@ export function ConfigVue(): ReactElement {
           <Seuil libelle={t.config.humidite} valeur={seuils.humiditeMaxPourcent} />
           <Seuil libelle={t.config.delai} valeur={seuils.delaiAlerteJours} />
           <Seuil libelle={t.config.arrondi} valeur={seuils.arrondiDegresPublic} />
+          {/* Les deux hypothèses qui déterminent le ROI de l'écran de synthèse.
+              Elles étaient des constantes compilées : les afficher rend visible
+              ce qui, sinon, se lit comme un chiffre tombé du ciel. */}
+          <Seuil libelle={t.config.prixMiel} valeur={seuils.prixMielKgEur} />
+          <Seuil libelle={t.config.coutVisite} valeur={seuils.coutVisiteEur} />
           <Seuil libelle={t.config.langues} valeur={seuils.languesActives.join(' · ')} />
         </div>
       )}

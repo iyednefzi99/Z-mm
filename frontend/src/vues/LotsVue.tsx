@@ -4,7 +4,7 @@ import type { Lot, LotCorps, MentionOrigine, OrigineDeclaree, Recolte } from '..
 import { useLangue, useFormats, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate, ChampNombre, ChampSelect, ChampTexte, Option } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
+import { useToasts } from '../ui/toasts';
 
 /**
  * Lots de conditionnement et mention d'origine (US-056).
@@ -42,7 +42,7 @@ export function LotsVue(): ReactElement {
   const t = useT();
   const f = useFormats();
   const { langue } = useLangue();
-  const { confirmer } = useDialogues();
+  const toasts = useToasts();
 
   const [liste, setListe] = useState<Lot[]>([]);
   const [optRecoltes, setOptRecoltes] = useState<Option[]>([]);
@@ -115,16 +115,33 @@ export function LotsVue(): ReactElement {
     }
   };
 
-  const supprimer = async (lot: Lot) => {
-    if (!(await confirmer(t.lot.confirmerSuppression.replace('{ref}', lot.reference)))) {
-      return;
-    }
-    try {
-      await lots.supprimer(lot.id);
-      recharger();
-    } catch (cause) {
-      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
-    }
+  /**
+   * Supprime un lot, avec une fenêtre d'annulation.
+   *
+   * <p>Cette vue est la seule à ne pas passer par `useRessource` — elle tient sa
+   * propre liste — et elle était donc restée sur le schéma « confirmer d'abord ».
+   * Le même principe s'applique ici que dans `hooks.ts` : la ligne disparaît
+   * immédiatement, la requête part à l'expiration du délai. C'est ce qui fait la
+   * différence entre annuler et recréer — un lot recréé changerait de référence et
+   * perdrait ses origines déclarées, donc sa conformité.
+   */
+  const supprimer = (lot: Lot) => {
+    setListe((restants) => restants.filter((l) => l.id !== lot.id));
+    toasts.annulable(
+      t.retours.supprime,
+      () => {
+        lots
+          .supprimer(lot.id)
+          .then(recharger)
+          .catch((cause: unknown) => {
+            setErreur(messageErreur(cause, t.retours.echecSuppression));
+            recharger();
+          });
+      },
+      // Rien n'a été envoyé : il suffit de remettre la liste à jour depuis le
+      // serveur, source de vérité, plutôt que de tenir une pile de défaire.
+      recharger,
+    );
   };
 
   const voirMention = async (lot: Lot) => {
@@ -183,7 +200,7 @@ export function LotsVue(): ReactElement {
                     <button type="button" className="z-lien" onClick={() => void voirMention(lot)}>
                       {t.lot.mention}
                     </button>{' '}
-                    <button type="button" className="z-lien" onClick={() => void supprimer(lot)}>
+                    <button type="button" className="z-lien" onClick={() => supprimer(lot)}>
                       {t.actions.supprimer}
                     </button>
                   </td>

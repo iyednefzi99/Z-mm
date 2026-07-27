@@ -15,6 +15,7 @@ import {
   ChampNombre,
   ChampSelect,
   ChampTexte,
+  ChampZone,
   Colonne,
   Option,
   Table,
@@ -32,6 +33,7 @@ export function ReinesVue(): ReactElement {
   const [couleur, setCouleur] = useState('');
   const [annee, setAnnee] = useState('');
   const [race, setRace] = useState('');
+  const [note, setNote] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
 
   const vide: Option = { valeur: '', libelle: t.champs.aucun };
@@ -70,12 +72,13 @@ export function ReinesVue(): ReactElement {
         couleurMarquage: couleur === '' ? null : (couleur as CouleurReine),
         anneeNaissance: annee === '' ? null : Number(annee),
         race: race.trim() === '' ? null : race,
-        note: null,
+        note: note.trim() === '' ? null : note.trim(),
       });
       setDate('');
       setCouleur('');
       setAnnee('');
       setRace('');
+      setNote('');
       charger(rucheId);
     } catch (cause) {
       setErreur(messageErreur(cause, t.etats.serviceIndisponible));
@@ -114,6 +117,9 @@ export function ReinesVue(): ReactElement {
             <div className="z-form__grille">
               <ChampNombre libelle={t.reine.annee} valeur={annee} onChange={setAnnee} pas="1" />
               <ChampTexte libelle={t.reine.race} valeur={race} onChange={setRace} />
+            </div>
+            <div className="z-form__grille">
+              <ChampZone libelle={t.reine.note} valeur={note} onChange={setNote} />
               <div className="z-champ z-champ--aligne-bas">
                 <Bouton variante="primaire" onClick={() => void ajouter()}>{t.reine.ajouter}</Bouton>
               </div>

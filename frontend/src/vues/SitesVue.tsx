@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { fermes, sites, voisinsSite } from '../api/client';
 import type { Ferme, Site, SiteCorps, VoisinSite } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
@@ -15,14 +14,12 @@ import {
   Option,
   Table,
 } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const ouNull = (valeur: string): string | null => (valeur.trim() === '' ? null : valeur);
 
 export function SitesVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const f = useFormats();
   const etat = useRessource<Site, SiteCorps>(sites);
   const [optionsFerme, setOptionsFerme] = useState<Option[]>([]);
@@ -112,16 +109,10 @@ export function SitesVue(): ReactElement {
     }
   };
 
-  const supprimer = async (s: Site) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: s.nom }))) {
-      await etat.supprimer(s.id);
-    }
-  };
-
   return (
     <CorpsSection titre={t.onglets.sites} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
       {siteVoisine && (
         <Modale

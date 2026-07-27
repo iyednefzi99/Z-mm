@@ -71,13 +71,6 @@ import type {
   VoisinSite,
 } from './types';
 
-export interface Info {
-  nom: string;
-  version: string;
-  accueil: string;
-  langues: string[];
-}
-
 /** Erreur d'API portant le statut HTTP et le detail (ProblemDetail cote serveur). */
 export class ErreurApi extends Error {
   constructor(
@@ -288,14 +281,6 @@ export const ingererMesure = (corps: MesureCorps) =>
 export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesures/alertes');
 
 /**
- * Série temporelle d'un indicateur pour une ruche (US-016). Exposée par l'API
- * depuis le SPRINT-02 ; le client ne la consommait pas, faute de graphique pour
- * l'afficher (SPRINT-13).
- */
-export const chargerSerieMesures = (rucheId: number, type: TypeIndicateur) =>
-  requete<MesureReponse[]>(`/api/mesures?rucheId=${rucheId}&type=${type}`);
-
-/**
  * Série JOURNALIÈRE d'un indicateur (SPRINT-18) : un point par jour.
  *
  * <p>C'est ce que consomme la courbe. L'agrégation se fait en base, là où sont
@@ -403,12 +388,6 @@ export const ajouterPhoto = (visiteId: number, corps: PhotoCorps) =>
 export const supprimerPhoto = (visiteId: number, photoId: number) =>
   requete<void>(`/api/visites/${visiteId}/photos/${photoId}`, { method: 'DELETE' });
 
-/** Sites du tenant a proximite d'un point (US-003, PostGIS). */
-export const sitesProches = (latitude: number, longitude: number, rayonMetres: number) =>
-  requete<Site[]>(
-    `/api/sites/proches?latitude=${latitude}&longitude=${longitude}&rayonMetres=${rayonMetres}`,
-  );
-
 /** Regroupement des sites par proximite, calcule par PostGIS (US-045). */
 export const grappesSites = (distanceMetres = 15000, minimumSites = 2) =>
   requete<GrappeSites[]>(
@@ -463,11 +442,3 @@ export const synchroniser = (): Promise<void> =>
       return { ok: false, reseau: true };
     }
   });
-
-export const recupererInfo = async (langue: string, signal?: AbortSignal): Promise<Info> => {
-  const reponse = await fetch('/api/info', { headers: { 'Accept-Language': langue }, signal });
-  if (!reponse.ok) {
-    throw new Error(`Réponse ${reponse.status} de /api/info`);
-  }
-  return (await reponse.json()) as Info;
-};

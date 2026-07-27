@@ -27,16 +27,39 @@
 import type { components } from './contrat';
 import type {
   Agent,
+  AlerteMesure,
+  AlerteSanitaire,
+  Anomalie,
+  AuditEntree,
+  CalendrierCellule,
+  Compartiment,
+  EtapeTournee,
   Ferme,
   Fermier,
+  GrappeSites,
+  LigneProduction,
   Lot,
+  MentionOrigine,
   MesureReponse,
+  Meteo,
+  PartLot,
+  Photo,
   Planning,
+  PointJournalier,
+  PrevisionRecolte,
+  QuantiteMiel,
   Recolte,
+  Reine,
   Ruche,
+  Seuils,
   Site,
+  Synthese,
   Tache,
+  Tournee,
+  Trace,
   Visite,
+  VisiteBreve,
+  VoisinSite,
 } from './types';
 
 type Schemas = components['schemas'];
@@ -88,3 +111,36 @@ export type _Tache = Conforme<Tache, TolerantAuNull<Schemas['TacheReponse']>>;
 export type _Recolte = Conforme<Recolte, TolerantAuNull<Schemas['RecolteReponse']>>;
 export type _Lot = Conforme<Lot, TolerantAuNull<Schemas['LotReponse']>>;
 export type _Mesure = Conforme<MesureReponse, TolerantAuNull<Schemas['MesureReponse']>>;
+
+/*
+ * Couverture etendue.
+ *
+ * <p>La verification ne portait que sur onze types — les entites CRUD — alors que
+ * `types.ts` en exporte une soixantaine. Tout ce qui n'etait pas couvert pouvait
+ * deriver en silence : precisement les reponses analytiques (synthese, previsions,
+ * carte, anomalies), c'est-a-dire celles qu'aucun formulaire ne fait echouer
+ * visiblement quand un champ arrive vide.
+ */
+export type _Photo = Conforme<Photo, TolerantAuNull<Schemas['PhotoReponse']>>;
+export type _Compartiment = Conforme<Compartiment, TolerantAuNull<Schemas['CompartimentReponse']>>;
+export type _Reine = Conforme<Reine, TolerantAuNull<Schemas['ReineReponse']>>;
+export type _AuditEntree = Conforme<AuditEntree, TolerantAuNull<Schemas['AuditEntreeReponse']>>;
+export type _AlerteMesure = Conforme<AlerteMesure, TolerantAuNull<Schemas['AlerteReponse']>>;
+export type _AlerteSanitaire = Conforme<AlerteSanitaire, TolerantAuNull<Schemas['AlerteSanitaire']>>;
+export type _Synthese = Conforme<Synthese, TolerantAuNull<Schemas['SyntheseReponse']>>;
+export type _LigneProduction = Conforme<LigneProduction, TolerantAuNull<Schemas['LigneProduction']>>;
+export type _PrevisionRecolte = Conforme<PrevisionRecolte, TolerantAuNull<Schemas['PrevisionRecolte']>>;
+export type _CalendrierCellule = Conforme<CalendrierCellule, TolerantAuNull<Schemas['CalendrierCellule']>>;
+export type _VisiteBreve = Conforme<VisiteBreve, TolerantAuNull<Schemas['VisiteBreve']>>;
+export type _PointJournalier = Conforme<PointJournalier, TolerantAuNull<Schemas['PointJournalier']>>;
+export type _Meteo = Conforme<Meteo, TolerantAuNull<Schemas['MeteoReponse']>>;
+export type _Anomalie = Conforme<Anomalie, TolerantAuNull<Schemas['AnomalieReponse']>>;
+export type _Trace = Conforme<Trace, TolerantAuNull<Schemas['TraceReponse']>>;
+export type _GrappeSites = Conforme<GrappeSites, TolerantAuNull<Schemas['GrappeSites']>>;
+export type _VoisinSite = Conforme<VoisinSite, TolerantAuNull<Schemas['VoisinSite']>>;
+export type _EtapeTournee = Conforme<EtapeTournee, TolerantAuNull<Schemas['EtapeTournee']>>;
+export type _Tournee = Conforme<Tournee, TolerantAuNull<Schemas['TourneeReponse']>>;
+export type _QuantiteMiel = Conforme<QuantiteMiel, TolerantAuNull<Schemas['QuantiteMiel']>>;
+export type _MentionOrigine = Conforme<MentionOrigine, TolerantAuNull<Schemas['MentionOrigine']>>;
+export type _PartLot = Conforme<PartLot, TolerantAuNull<Schemas['PartReponse']>>;
+export type _Seuils = Conforme<Seuils, TolerantAuNull<Schemas['SeuilsMetier']>>;

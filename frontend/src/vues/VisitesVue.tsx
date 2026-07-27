@@ -3,6 +3,7 @@ import {
   agents,
   ajouterPhoto,
   listerPhotos,
+  plannings,
   ruches,
   supprimerPhoto,
   telechargerRapportVisite,
@@ -13,18 +14,20 @@ import type {
   EffectifQualitatif,
   EtatSante,
   Photo,
+  Planning,
   RaisonVisite,
   Ruche,
   Visite,
   VisiteCorps,
 } from '../api/types';
 import { RAISONS_VISITE } from '../api/types';
-import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
   Bouton,
   ChampDate,
+  ChampHeure,
+  ChampNombre,
   ChampSelect,
   ChampTexte,
   ChampZone,
@@ -33,7 +36,6 @@ import {
   Option,
   Table,
 } from '../ui/composants';
-import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const EFFECTIFS: EffectifQualitatif[] = ['faible', 'moyen', 'fort'];
@@ -42,18 +44,24 @@ const PRODUCTIVITES = ['1', '2', '3'];
 
 export function VisitesVue(): ReactElement {
   const t = useT();
-  const { confirmer } = useDialogues();
   const f = useFormats();
   const etat = useRessource<Visite, VisiteCorps>(visites);
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
+  const [approuves, setApprouves] = useState<Planning[]>([]);
   const [ouvert, setOuvert] = useState(false);
   const [edition, setEdition] = useState<Visite | null>(null);
   const [rucheId, setRucheId] = useState('');
   const [agentId, setAgentId] = useState('');
+  const [planningId, setPlanningId] = useState('');
   const [dateVisite, setDateVisite] = useState('');
+  const [heureVisite, setHeureVisite] = useState('');
+  const [dureeMin, setDureeMin] = useState('');
   const [raison, setRaison] = useState<RaisonVisite>('controle');
   const [constatations, setConstatations] = useState('');
+  const [actionsPrevues, setActionsPrevues] = useState('');
+  const [actionsEffectuees, setActionsEffectuees] = useState('');
+  const [recommandations, setRecommandations] = useState('');
   const [effectif, setEffectif] = useState('');
   const [sante, setSante] = useState('');
   const [productivite, setProductivite] = useState('');
@@ -67,6 +75,19 @@ export function VisitesVue(): ReactElement {
   const optEffectif: Option[] = [vide, ...EFFECTIFS.map((e) => ({ valeur: e, libelle: t.visite.effectifs[e] }))];
   const optSante: Option[] = [vide, ...SANTES.map((s) => ({ valeur: s, libelle: t.visite.santes[s] }))];
   const optProd: Option[] = [vide, ...PRODUCTIVITES.map((p) => ({ valeur: p, libelle: p }))];
+
+  // Un rapport ne se rattache qu'a un planning APPROUVE (US-008), et seulement a
+  // ceux de la ruche visitee : proposer les autres inviterait a une incoherence
+  // que le serveur refuserait de toute facon.
+  const optPlannings: Option[] = [
+    vide,
+    ...approuves
+      .filter((p) => rucheId === '' || String(p.rucheId) === rucheId)
+      .map((p) => ({
+        valeur: String(p.id),
+        libelle: `${f.date(p.datePrevue)} — ${t.visite.raisons[p.raison]}`,
+      })),
+  ];
 
   const colonnes: Colonne<Visite>[] = [
     { entete: t.champs.modele, rendu: (v) => v.rucheModele },
@@ -87,15 +108,26 @@ export function VisitesVue(): ReactElement {
   useEffect(() => {
     void ruches.lister().then((l: Ruche[]) => setOptRuches(l.map((r) => ({ valeur: String(r.id), libelle: r.modele })))).catch(() => setOptRuches([]));
     void agents.lister().then((l: Agent[]) => setOptAgents(l.map((a) => ({ valeur: String(a.id), libelle: a.nom })))).catch(() => setOptAgents([]));
+    void plannings
+      .lister()
+      .then((l: Planning[]) => setApprouves(l.filter((p) => p.statut === 'approuve')))
+      .catch(() => setApprouves([]));
   }, [etat.elements]);
 
   const ouvrir = (v: Visite | null) => {
     setEdition(v);
     setRucheId(v ? String(v.rucheId) : '');
     setAgentId(v ? String(v.agentId) : '');
+    setPlanningId(v?.planningId != null ? String(v.planningId) : '');
     setDateVisite(v?.dateVisite ?? '');
+    // Le serveur publie « 14:30:00 » ; `input type="time"` veut « 14:30 ».
+    setHeureVisite(v?.heureVisite != null ? v.heureVisite.slice(0, 5) : '');
+    setDureeMin(v?.dureeMin != null ? String(v.dureeMin) : '');
     setRaison(v?.raison ?? 'controle');
     setConstatations(v?.constatations ?? '');
+    setActionsPrevues(v?.actionsPrevues ?? '');
+    setActionsEffectuees(v?.actionsEffectuees ?? '');
+    setRecommandations(v?.recommandations ?? '');
     setEffectif(v?.effectifQualitatif ?? '');
     setSante(v?.etatSante ?? '');
     setProductivite(v?.productivite != null ? String(v.productivite) : '');
@@ -108,21 +140,22 @@ export function VisitesVue(): ReactElement {
 
   const enregistrer = async () => {
     if (rucheId === '' || agentId === '') {
-      setErreur('?');
+      setErreur(t.etats.champsRequis);
       return;
     }
+    const texte = (valeur: string) => (valeur.trim() === '' ? null : valeur.trim());
     const corps: VisiteCorps = {
       rucheId: Number(rucheId),
       agentId: Number(agentId),
-      planningId: null,
+      planningId: planningId === '' ? null : Number(planningId),
       dateVisite,
-      heureVisite: null,
-      dureeMin: null,
+      heureVisite: heureVisite === '' ? null : heureVisite,
+      dureeMin: dureeMin === '' ? null : Number(dureeMin),
       raison,
-      constatations: constatations.trim() === '' ? null : constatations,
-      actionsPrevues: null,
-      actionsEffectuees: null,
-      recommandations: null,
+      constatations: texte(constatations),
+      actionsPrevues: texte(actionsPrevues),
+      actionsEffectuees: texte(actionsEffectuees),
+      recommandations: texte(recommandations),
       effectifQualitatif: effectif === '' ? null : (effectif as EffectifQualitatif),
       etatSante: sante === '' ? null : (sante as EtatSante),
       productivite: productivite === '' ? null : Number(productivite),
@@ -155,16 +188,10 @@ export function VisitesVue(): ReactElement {
     etat.recharger();
   };
 
-  const supprimer = async (v: Visite) => {
-    if (await confirmer(gabarit(t.etats.confirmerSuppression, { nom: v.rucheModele }))) {
-      await etat.supprimer(v.id);
-    }
-  };
-
   return (
     <CorpsSection titre={t.onglets.visites} etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void supprimer(e)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.visites} onFermer={() => setOuvert(false)}>
@@ -179,11 +206,17 @@ export function VisitesVue(): ReactElement {
               <ChampSelect libelle={t.champs.modele} valeur={rucheId} options={optRuches} onChange={setRucheId} requis />
               <ChampSelect libelle={t.visite.agent} valeur={agentId} options={optAgents} onChange={setAgentId} requis />
             </div>
+            <ChampSelect libelle={t.visite.planning} valeur={planningId} options={optPlannings} onChange={setPlanningId} />
             <div className="z-form__grille">
               <ChampDate libelle={t.visite.date} valeur={dateVisite} onChange={setDateVisite} requis />
-              <ChampSelect libelle={t.visite.raison} valeur={raison} options={optRaison} onChange={(v) => setRaison(v as RaisonVisite)} />
+              <ChampHeure libelle={t.visite.heure} valeur={heureVisite} onChange={setHeureVisite} />
+              <ChampNombre libelle={t.visite.duree} valeur={dureeMin} onChange={setDureeMin} pas="1" />
             </div>
+            <ChampSelect libelle={t.visite.raison} valeur={raison} options={optRaison} onChange={(v) => setRaison(v as RaisonVisite)} />
             <ChampZone libelle={t.visite.constatations} valeur={constatations} onChange={setConstatations} />
+            <ChampZone libelle={t.visite.actionsPrevues} valeur={actionsPrevues} onChange={setActionsPrevues} />
+            <ChampZone libelle={t.visite.actionsEffectuees} valeur={actionsEffectuees} onChange={setActionsEffectuees} />
+            <ChampZone libelle={t.visite.recommandations} valeur={recommandations} onChange={setRecommandations} />
             <div className="z-form__grille">
               <ChampSelect libelle={t.visite.effectif} valeur={effectif} options={optEffectif} onChange={setEffectif} />
               <ChampSelect libelle={t.visite.sante} valeur={sante} options={optSante} onChange={setSante} />
