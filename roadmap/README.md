@@ -9,20 +9,22 @@ charte que le cahier des charges (palette « miel & noir élégant »).
 ```
 roadmap/
 ├── roadmap_zumm.tex          # Document maître
-├── roadmap_zumm.pdf          # PDF compilé (31 pages)
+├── roadmap_zumm.pdf          # PDF compilé (50 pages)
 ├── operationnel/             # Sources opérationnelles (JSON/MD/CI) — voir GUIDE_MODIFICATION.md
 │   ├── 01_product_backlog/   # product_backlog.json | .md
-│   ├── 02_sprints/           # SPRINT-01…08.md + sprints.json
+│   ├── 02_sprints/           # SPRINT-00…18.md + sprints.json + REVUE-CONSOLIDEE.md
 │   ├── 03_devops_pipeline/   # Dockerfile, docker-compose.yml, github-actions.yml
 │   ├── 04_releases/          # releases.json
-│   └── 05_monitoring/        # monitoring.json
+│   ├── 05_monitoring/        # monitoring.json
+│   ├── 06_decisions/         # ADR-001…008 + registre
+│   └── 07_conformite/        # AIPD (RGPD)
 └── chapitres/
     ├── 01-methodologie.tex   # Scrum + DevOps, DoR, DoD
-    ├── 02-backlog.tex        # 10 epics, 40 US, 304 points
+    ├── 02-backlog.tex        # 19 epics, 80 US, 582 points
     ├── 03-sprints.tex        # Gantt + recommandations + plan d'exécution détaillé par sprint
     ├── 04-risques.tex        # Registre des risques coté (13 risques), charge j-h, vélocité
     ├── 05-devops.tex         # Environnements, pipeline CI/CD, IaC, mise en place progressive
-    ├── 06-releases.tex       # Plan SemVer v0.1.0 → v1.0.0
+    ├── 06-releases.tex       # Plan SemVer v0.1.0 → v1.5.0
     └── 07-monitoring.tex     # Dashboards Grafana, alertes, logs
 ```
 
@@ -40,10 +42,13 @@ depuis `../assets/logo/zumm-logo.png`.
 
 ## Note sur les story points
 
-Les fichiers JSON source annonçaient 284 points planifiés ; la somme réelle
-des stories affectées aux sprints est de **304 points** (écarts corrigés sur
-les sprints 5, 7 et 8). Les sprints 5 et 7 étaient en surcharge (50 et
-57 points) tandis que les sprints 2 et 4 restaient à 26 : la charge a été
-**rééquilibrée** dans une fourchette de **36 à 39 points**, sous une capacité
-de référence portée à **40 points**, sans retirer de story ni décaler de
-date. Le détail des mouvements figure au chapitre 3 du document.
+Le plan initial couvrait 8 sprints pour **304 points**, après un
+rééquilibrage de la charge dans une fourchette de 36 à 39 points sous une
+capacité de référence portée à 40 (détail au chapitre 3). Le périmètre s'est
+ensuite étendu jusqu'au SPRINT-18, pour un total de **19 epics, 80 user
+stories et 582 points**.
+
+⚠️ Sur ces 582 points, **21 ne sont pas livrés** : US-039 (diagrammes UML) et
+US-040 (rapport, poster, présentation) sont des livrables documentaires que la
+charte académique de l'épreuve interdit de générer, et qui restent à produire.
+La vélocité applicative réelle est donc de **561 points**.

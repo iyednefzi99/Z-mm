@@ -19,7 +19,7 @@
         "Harnais de tests d'intégration Testcontainers"
       ],
       "critere_acceptation": "Application déployable en HTTPS avec données de test",
-      "status": "Planifiée"
+      "status": "Livrée"
     },
     {
       "version": "0.2.0",
@@ -37,7 +37,7 @@
         "Contrôle d'accès RBAC complet"
       ],
       "critere_acceptation": "Parcours utilisateur complet en ligne et hors-ligne",
-      "status": "Planifiée"
+      "status": "Livrée"
     },
     {
       "version": "0.3.0",
@@ -57,7 +57,7 @@
         "Service web API (REST/OpenAPI)"
       ],
       "critere_acceptation": "Dashboards fonctionnels avec données réelles",
-      "status": "Planifiée"
+      "status": "Livrée"
     },
     {
       "version": "1.0.0",
@@ -75,7 +75,87 @@
         "Monitoring & alerting"
       ],
       "critere_acceptation": "Solution complète prête pour production",
-      "status": "Planifiée"
+      "status": "Livrée sous réserve",
+      "reserve": "Le périmètre applicatif est livré, mais la feature « Documentation & soutenance » ne l'est pas : US-039 (diagrammes UML) et US-040 (rapport, poster, présentation) restent à produire par l'étudiant, la charte académique de l'épreuve interdisant de les générer. 21 des 37 points du SPRINT-08 ne sont donc pas acquis."
+    },
+    {
+      "version": "1.1.0",
+      "nom": "Exploitation & intelligence spatiale",
+      "date_prevue": "2027-01-18",
+      "sprints": [
+        "SPRINT-09",
+        "SPRINT-10",
+        "SPRINT-11"
+      ],
+      "features": [
+        "Notifications d'alerte, rapport de visite PDF, journal d'audit, prévision de récolte",
+        "Requêtes spatiales PostGIS : grappes de sites, voisins, ordre de tournée",
+        "Socle de test du front (Vitest) et fiabilisation de la session"
+      ],
+      "critere_acceptation": "Exploitation quotidienne possible ; le front a des tests",
+      "status": "Livrée"
+    },
+    {
+      "version": "1.2.0",
+      "nom": "Sécurité durcie & PWA livrable",
+      "date_prevue": "2027-02-15",
+      "sprints": [
+        "SPRINT-12",
+        "SPRINT-13"
+      ],
+      "features": [
+        "tenant_id obligatoire, validation d'audience, RBAC deny-by-default, filtrage des positions GPS",
+        "Montée de Spring Boot 3.4.1 → 3.5.16 : 29 vulnérabilités ramenées à 0",
+        "PWA déployée derrière Nginx, graphiques SVG accessibles, carte MapLibre"
+      ],
+      "critere_acceptation": "Aucune vulnérabilité haute ; la PWA est servie par la pile",
+      "status": "Livrée"
+    },
+    {
+      "version": "1.3.0",
+      "nom": "Conformité miel & idempotence",
+      "date_prevue": "2027-03-15",
+      "sprints": [
+        "SPRINT-14",
+        "SPRINT-15"
+      ],
+      "features": [
+        "Lot de conditionnement et mention d'origine (directive UE 2024/1438)",
+        "Idempotence des mutations, index de mesure, gardes de volumétrie",
+        "Ressources de langue externalisées en JSON"
+      ],
+      "critere_acceptation": "La mention d'origine est conforme et prévisualisée avant impression",
+      "status": "Livrée"
+    },
+    {
+      "version": "1.4.0",
+      "nom": "Sessions serveur & portée par affectation",
+      "date_prevue": "2027-03-29",
+      "sprints": [
+        "SPRINT-16"
+      ],
+      "features": [
+        "BFF : plus aucun jeton dans le navigateur, cookie HttpOnly (ADR-006)",
+        "Autorisation horizontale : un agent ne voit que les ruches qui lui sont affectées (US-057)"
+      ],
+      "critere_acceptation": "Aucun jeton en localStorage ; la portée est prouvée sous le rôle applicatif zumm_app",
+      "status": "Livrée"
+    },
+    {
+      "version": "1.5.0",
+      "nom": "Dettes soldées",
+      "date_prevue": "2027-04-26",
+      "sprints": [
+        "SPRINT-17",
+        "SPRINT-18"
+      ],
+      "features": [
+        "Scission de TableauDeBordService, agrégats calculés en base, parité de types client/contrat",
+        "Couche anticorruption vers le microservice IA",
+        "Synthèse agrégée en base et courbes journalières par time_bucket (ADR-008 généralisé)"
+      ],
+      "critere_acceptation": "La liste des dettes de docs/ARCHITECTURE-SOLID.md est vide",
+      "status": "Livrée"
     }
   ],
   "branches_git": {

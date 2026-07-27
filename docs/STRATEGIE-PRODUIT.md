@@ -122,9 +122,14 @@ valeur/effort du backlog.
 Ce que HiveSense fait mieux que tout le monde, et que Zümm devrait prendre :
 
 - **saisie vocale** de la visite (Web Speech API) — les mains sont dans la ruche ;
-- **mode gant** : cibles ≥ 56 px, aucune saisie clavier obligatoire ;
+- ~~**mode gant** : cibles ≥ 56 px~~ *(fait : 44 px de plancher partout, 56 px
+  dans la barre de navigation du bas)* ;
 - **photo avec position et horodatage** rattachée à la ruche ;
 - **QR sur la ruche** pour ouvrir directement sa fiche.
+
+Le détail du parangonnage d'interface — conventions du marché, défauts constatés,
+corrections apportées et reste à faire — est dans
+[`BENCHMARK-UX.md`](BENCHMARK-UX.md).
 
 ### Priorité 5 — La valeur que personne ne vend
 
@@ -154,13 +159,31 @@ Ce que HiveSense fait mieux que tout le monde, et que Zümm devrait prendre :
 
 ### Ce qu'il faut corriger avant toute mise en production
 
-| Sujet | Pourquoi c'est bloquant |
+Trois des cinq points de cette liste ont été soldés depuis sa rédaction ; ils
+sont conservés, barrés, parce qu'une liste de blocages dont on efface les lignes
+ne se relit pas — on ne sait plus si le point a été traité ou oublié.
+
+| Sujet | Pourquoi c'était bloquant | État |
+|---|---|---|
+| ~~Jetons en `localStorage`~~ | Une XSS = vol de session durable. Voir [ADR-006](../roadmap/operationnel/06_decisions/ADR-006-stockage-des-jetons.md) — le pattern BFF est la cible. | ✅ **Soldé** au SPRINT-16 (US-073) : session serveur, cookie `HttpOnly`, plus aucun jeton dans le navigateur. |
+| ~~Autorisation horizontale~~ | Un saisonnier voit tout le parc de l'exploitation. | ✅ **Soldé** au SPRINT-16 — **US-057**, et non US-053 comme écrit ici initialement (`securite/FiltrePortee`, `ResolveurPortee`, `V16`). Les tests ont dû être refaits sous le rôle `zumm_app` : ils étaient verts à tort, l'application se connectant en test avec le propriétaire de la base, qui contourne la RLS. |
+| ~~Client d'API écrit à la main~~ | La parité des types avec le contrat OpenAPI n'est garantie par rien. | ✅ **Soldé** au SPRINT-17 (US-076) : `api/parite.ts` vérifie la parité à la compilation. La couverture est passée de 11 à 34 types. |
+| **Tuiles OSM publiques** | Leur politique d'usage exclut la production. | ⚠️ **Ouvert.** `VITE_TUILES_URL` existe depuis le SPRINT-13, mais aucun fournisseur ni serveur interne n'est retenu. |
+| **Keycloak en `start-dev`** | La pile « complète » lance encore le mode développement. | ⚠️ **Ouvert.** `infra/docker-compose.yml` lance `start-dev --import-realm` ; il n'existe pas de variante de production (`start`, realm provisionné, secrets injectés par un coffre). |
+
+### Dette technique reportée, sans échéance
+
+Ces points ne bloquent pas la mise en production mais restent dus. Ils sont
+listés ici parce qu'ils ne figurent dans aucune fiche de sprint et se
+perdraient autrement.
+
+| Sujet | Ce qui existe aujourd'hui |
 |---|---|
-| **Jetons en `localStorage`** | Une XSS = vol de session durable. Voir [ADR-006](../roadmap/operationnel/06_decisions/ADR-006-stockage-des-jetons.md) — le pattern BFF est la cible. |
-| **Autorisation horizontale** | Un saisonnier voit tout le parc de l'exploitation. US-053. |
-| **Client d'API écrit à la main** | La parité des types avec le contrat OpenAPI n'est garantie par rien. |
-| **Tuiles OSM publiques** | Leur politique d'usage exclut la production. `VITE_TUILES_URL` est prévu ; il faut un fournisseur ou un serveur interne. |
-| **Keycloak en `start-dev`** | La pile « complète » lance encore le mode développement. |
+| **Upload binaire des photos** | `PhotoCorps` ne porte qu'une **URL** : l'image vit ailleurs, le système ne la stocke pas. Un stockage objet (S3/MinIO) et l'upload multipart restent à faire — avec la purge des métadonnées EXIF, exigée par l'AIPD (une photo de rucher géolocalise le rucher). |
+| **Messages d'erreur d'API non traduits** | `GestionnaireExceptions` renvoie un `ProblemDetail` dont le `detail` est le message de l'exception, écrit en français dans le code. `messages_{fr,en,ar}.properties` existent et ne sont utilisés que par `/api/info`. Un client anglophone reçoit une erreur en français. |
+| **Fédération Google** | Prévue au cahier, elle relève de la **configuration Keycloak** (IdP à créer avec un client id/secret), pas du code : aucun IdP externe n'est déclaré dans `realm-zumm.json`. |
+| **Notifications e-mail** | `NotificationAlerteService` est écrit et testé, mais désactivé par défaut et sans `spring.mail.*` fourni ; son corps de message est codé en dur en français. |
+| **Résolution de conflits hors-ligne** | La file de mutations rejoue au retour du réseau ; deux agents modifiant la même visite hors ligne ne sont pas départagés. Limite identifiée depuis le SPRINT-04. |
 
 ### Modèle économique observé
 
@@ -183,12 +206,26 @@ public ne répond pas au besoin.
 | ~~12~~ | ~~Durcissement sécurité~~ | ✅ livré |
 | ~~13~~ | ~~PWA déployable, graphiques, carte~~ | ✅ livré |
 | ~~14~~ | ~~Idempotence, index, conformité miel~~ | ✅ livré |
-| **15** | Registre réglementaire, étiquette PDF, portail QR public | Achève la conformité et ouvre la vente directe |
-| **16** | Pont MQTT, connecteur BroodMinder, Web Bluetooth | Passe de « on peut ingérer » à « ça marche avec le matériel du marché » |
-| **17** | Alertes métier (vol, essaimage), corrélation météo | Meilleur rapport valeur/effort : aucune donnée nouvelle |
-| **18** | BFF cookie `HttpOnly`, autorisation horizontale, client généré | Prérequis d'une exploitation réelle |
-| **19** | Mode terrain (voix, gants, QR ruche) | Adoption quotidienne |
-| **20** | Comparaison anonymisée entre pairs | Le différenciateur que seul un multi-tenant peut offrir |
+| ~~15~~ | ~~Ressources de langue externalisées~~ | ✅ livré |
+| ~~16~~ | ~~BFF cookie `HttpOnly`, autorisation horizontale~~ | ✅ livré — c'était proposé ici au sprint 18, la sécurité est passée devant |
+| ~~17~~ | ~~Dettes techniques, client d'API vérifié~~ | ✅ livré |
+| ~~18~~ | ~~Les deux dernières dettes (synthèse, courbes)~~ | ✅ livré |
+
+**Ce que cette feuille de route proposait et qui n'a pas été fait.** Les sprints
+15 à 18 ont été employés à durcir et à solder, pas à étendre le produit. Les
+chantiers ci-dessous restent donc entiers, dans cet ordre de valeur :
+
+| Sprint | Contenu | Pourquoi maintenant |
+|---|---|---|
+| **19** | Registre d'élevage réglementaire, étiquette PDF, portail QR public | Achève la conformité et ouvre la vente directe |
+| **20** | Alertes métier (vol, essaimage), corrélation météo | Meilleur rapport valeur/effort : aucune donnée nouvelle à collecter |
+| **21** | Pont MQTT, connecteur BroodMinder, Web Bluetooth | Passe de « on peut ingérer » à « ça marche avec le matériel du marché » |
+| **22** | Mode terrain (voix, gabarits de visite, QR ruche) | Adoption quotidienne — détail dans [`BENCHMARK-UX.md`](BENCHMARK-UX.md) |
+| **23** | Comparaison anonymisée entre pairs | Le différenciateur que seul un multi-tenant peut offrir |
+
+Deux prérequis d'exploitation restent par ailleurs à traiter avant toute mise en
+production, quel que soit l'ordre retenu : le **fournisseur de tuiles** et le
+**mode production de Keycloak** (cf. § 4).
 
 ---
 

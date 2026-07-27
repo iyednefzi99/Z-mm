@@ -594,3 +594,110 @@ SPRINT-04 **entièrement livré** (39 SP). Backend : 14 unitaires + 41 d'intégr
 
 Dans `SPRINT-04.md`. Actions suivantes : idempotence + conflits pour la synchro,
 configurer l'IdP Google, nettoyer `ping`, gérer le refresh token OIDC.
+
+---
+
+## 2026-07-27 — Reprise : audit de complétude et fermeture des écarts
+
+**Interruption assumée.** Ce journal s'arrête au 2026-07-24, à la clôture du
+SPRINT-04, alors que le dépôt est allé jusqu'au SPRINT-18. **Quatorze sprints ne
+sont pas journalisés ici, et ne le seront pas** : reconstituer après coup des
+notes de séance donnerait un faux témoignage sur ce qui s'est passé en séance.
+La trace de ces sprints existe ailleurs, et elle est de première main :
+
+- une fiche par sprint dans `roadmap/operationnel/02_sprints/SPRINT-XX.md`
+  (contenu, DoD, rétrospective, ce qui reste ouvert) ;
+- la synthèse transversale dans
+  [`REVUE-CONSOLIDEE.md`](../roadmap/operationnel/02_sprints/REVUE-CONSOLIDEE.md),
+  qui couvre réellement S00 → S18 — en particulier son § 2, « ce que les revues
+  ont trouvé », et son § 5, « ce qui reste ouvert ».
+
+Ce qui est périmé dans les entrées ci-dessus est donc à lire comme historique :
+les « limites assumées » du SPRINT-04 (synchro sans idempotence, OIDC non testé
+en CI) ont été traitées depuis — l'idempotence au SPRINT-14 (US-055,
+`FiltreIdempotence`, `V14`).
+
+### Livré cette séance
+
+Audit de complétude du projet, puis fermeture des écarts trouvés. Le périmètre
+déclaré était complet ; l'audit a cherché ce que les indicateurs ne mesurent pas.
+
+**Fonctionnalités déclarées livrées qui ne l'étaient pas vraiment.**
+
+- **Le rapport de visite était amputé.** `VisitesVue.tsx` envoyait six champs
+  figés à `null` : `planningId`, `heureVisite`, `dureeMin`, `actionsPrevues`,
+  `actionsEffectuees`, `recommandations`. Le DTO les acceptait, `V6` les
+  stockait, `RapportVisitePdfService` en imprimait trois sections, et les trois
+  locales les traduisaient — mais aucun champ ne les rendait. Le lien
+  planning → visite (US-008) n'était donc jamais posé. Formulaire complété,
+  sélecteur restreint aux plannings **approuvés de la ruche visitée**.
+- Même défaut, moindre portée : `heurePrevue`/`dureeMin` (plannings) et les
+  notes de récolte et de reine.
+- **Le microservice IA n'était démarré par aucun compose.** `ia-service/` était
+  complet, testé et conteneurisé, mais `zumm.ia.url` n'était déclaré nulle part
+  et `test_scoring.py` ne tournait dans aucun workflow — les `paths` de `ci.yml`
+  ignoraient le répertoire. Le repli EWMA local était le seul chemin actif, US-035
+  du code mort en production. Service ajouté au compose (sans port publié,
+  `read_only`, `cap_drop: ALL`), propriété déclarée, job CI ajouté.
+- **Le ROI reposait sur deux constantes compilées** (`12 €/kg`, `25 €/visite`),
+  avec en commentaire « rejoindront `ConfigZumm.ini` lorsque le module récolte
+  sera livré ». Il l'est depuis le SPRINT-07. Section `[economie]` ajoutée au
+  gabarit, relue à chaud, affichée par l'écran de configuration.
+- **`getZummHoneyActualQuantity` (US-026) renvoyait un poids de ruche**, proxy
+  « en attendant le module récolte ». Or un poids de ruche comprend le corps, les
+  cadres et la colonie, et il **baisse** après une récolte — au moment même où la
+  production augmente. Un intégrateur tiers lisait un nombre qui n'était pas une
+  masse de miel. Somme des récoltes, calculée en base (JPQL, pas natif).
+- **L'état vide des graphiques affichait « — »** alors que la phrase existait,
+  traduite dans les trois langues, référencée nulle part.
+- **L'écran de connexion invitait encore à coller un jeton** dans un champ
+  supprimé au SPRINT-16 avec le passage au BFF.
+
+**Dette d'interface soldée.** La confirmation modale de suppression et
+l'annulation différée coexistaient sur le même risque. Les dix confirmations
+sont retirées. `LotsVue` était l'exception à traiter en premier : seule vue à ne
+pas passer par `useRessource`, elle appelait `lots.supprimer` directement, sans
+toast — y retirer la confirmation sans lui donner l'annulation aurait supprimé
+toute protection sur un objet réglementaire.
+
+**Documentation réalignée.** La roadmap LaTeX se contredisait elle-même : son
+chapitre 2 annonçait 19 epics / 80 US / 582 points, sa page de garde, son
+chapitre 1, son Gantt et son tableau de synthèse en étaient restés à 8–11 sprints
+et 304–398 points, alors que le même fichier contenait les sections Sprint 12 à
+18. Gantt étendu, tableau complété, PDF recompilé (50 pages).
+
+### Nouveaux pièges consignés
+
+25. **Un commentaire fait partie du checksum Flyway.** Corriger l'en-tête périmé
+    d'une migration déjà appliquée casse `flyway validate` sur toute base
+    existante. La note sur `ping` a donc été portée dans la javadoc de l'entité,
+    pas dans `V1`.
+26. **La validation native du navigateur court-circuite les gardes applicatifs.**
+    Le `setErreur('?')` de `VisitesVue` était inatteignable : les deux sélecteurs
+    portent `requis`, et le formulaire ne se soumet pas. Un test écrit pour
+    prouver le message a échoué — c'est le test qui avait raison.
+27. **Un test de vue est le seul filet contre un champ figé à `null`.** Aucun
+    `TODO`, aucun type, aucun test d'intégration ne signalait les six champs
+    manquants : le corps de requête était valide, simplement vide. 18 des 20 vues
+    n'avaient aucun test, dont toutes celles qui portaient le défaut.
+
+### Vérifié
+
+| Vérification | Résultat |
+|---|---|
+| `./mvnw -B verify` | ✅ **61 unitaires + 111 d'intégration**, `Skipped: 0`, plancher JaCoCo tenu |
+| `npm run typecheck && lint && test && build` | ✅ **139 tests Vitest** / 17 fichiers, 0 erreur ESLint |
+| `python -m unittest` (ia-service) | ✅ 4 tests |
+| `docker compose config` | ✅ valide, couche de base et surcouche dev |
+| `scripts/check-sync.sh` | ✅ 3 masters synchronisés (21 inclusions) |
+| Parité i18n | ✅ 336 clés identiques en fr/en/ar |
+| Parité contrat/types | ✅ étendue de 11 à **34 types**, aucune dérive |
+
+### Reste ouvert
+
+Inchangé et tracé : les 7 points de `REVUE-CONSOLIDEE.md` § 5, les 12 mesures
+RGPD de l'AIPD, le fournisseur de tuiles et le mode production de Keycloak. Et
+surtout **US-039 (diagrammes UML) et US-040 (rapport, poster, présentation)** :
+21 points du SPRINT-08 que la charte académique interdit de générer, et qui
+restent à produire. La régénération des PNG de classes et du MLD exige Graphviz
+(`dot`), absent du poste.

@@ -29,8 +29,11 @@ de savoir plus tard si la décision reste valable.
 | [ADR-003](ADR-003-exploitation.md) | Exploitation après livraison | 🟢 Accepté (hypothèses) | Cible de déploiement, budget transfert |
 | [ADR-004](ADR-004-reprise-donnees.md) | Reprise de l'existant | 🟢 Accepté (hypothèses) | Périmètre, planning de fin de projet |
 | [ADR-005](ADR-005-routage-front.md) | Routage du front (maison vs `react-router`) | 🟢 Accepté | US-051, découpage du paquet |
+| [ADR-006](ADR-006-stockage-des-jetons.md) | Où vivent les jetons de la PWA | 🟢 Accepté et **mis en œuvre** (SPRINT-16) | US-073, CSP du proxy, mise en production |
+| [ADR-007](ADR-007-graphiques-svg.md) | Graphiques : SVG maison plutôt que Chart.js | 🟢 Accepté | US-065, écart assumé au cahier |
+| [ADR-008](ADR-008-rls-contre-compression.md) | Isolation RLS ou fonctionnalités avancées de TimescaleDB | 🟢 Accepté — **généralisé au SPRINT-18** | US-070, US-080, volumétrie |
 
-> ✅ **Les quatre ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
+> ✅ **Les quatre premiers ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
 > Faute d'arbitrage client dans les délais du Sprint 0 (escalade J+5 échue),
 > l'équipe projet a tranché dans le sens des décisions proposées, chacune sous
 > réserves explicites détaillées dans sa section *Arbitrage*. **La construction du
@@ -41,6 +44,11 @@ de savoir plus tard si la décision reste valable.
 > chaque ADR liste ce qui reste à faire confirmer, et à quelle échéance (revue
 > client, ou avant EPIC-004 pour ADR-002). Le seul point dont un revirement client
 > imposerait une reprise est le lien utilisateur↔tenant d'ADR-001 (hypothèse 3).
+>
+> 📌 **ADR-005 à 008 sont postérieurs au Sprint 0** et ne relèvent pas de cet
+> arbitrage : ce sont des décisions techniques prises en cours de construction,
+> chacune en réponse à un fait constaté en revue — et non des hypothèses en attente
+> de confirmation client.
 
 ## Ajouter un ADR
 

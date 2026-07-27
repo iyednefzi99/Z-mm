@@ -148,26 +148,35 @@ bash infra/tester-restauration.sh           # exercice complet : écrit, sauvega
 L'exercice de restauration est un livrable de la Definition of Done du SPRINT-00 :
 une sauvegarde jamais restaurée n'est pas une sauvegarde.
 
-> **État au SPRINT-00.** La stack contient PostgreSQL et le backend. Keycloak,
-> Nginx/TLS, Prometheus et Grafana sont ajoutés tranche par tranche, chacun
-> lorsqu'il a été réellement vérifié. La cible complète est décrite dans
-> `roadmap/operationnel/03_devops_pipeline/docker-compose.yml`.
+> **État de la pile.** `infra/docker-compose.yml` démarre huit services :
+> PostgreSQL (PostGIS + TimescaleDB), Keycloak, le back-end, la PWA, le
+> microservice IA, Nginx/TLS, Prometheus et Grafana. Seul Nginx publie des ports ;
+> tout le reste est joint par le réseau interne.
 
 ## Base de données
 
 Le schéma appartient à **Flyway** (`backend/src/main/resources/db/migration`) ;
 Hibernate ne le modifie jamais (`ddl-auto: none`).
 
-La migration `V1` crée les extensions PostGIS et TimescaleDB et une table
-`ping`, **entité factice** du walking skeleton — elle sera supprimée dès que le
-modèle métier existera. Aucune colonne `tenant_id` ni politique RLS n'est
-introduite tant qu'**ADR-001 est au statut « Proposé »**.
+Dix-sept migrations, de `V1` à `V17`. La `V1` crée les extensions PostGIS et
+TimescaleDB et la table `ping`, sonde du walking skeleton — **conservée
+volontairement** : `WalkingSkeletonIT` s'en sert pour prouver la chaîne complète
+sur une base réelle (voir la javadoc de `domain/Ping.java`).
+
+Le multi-tenant arrive en `V2`/`V3`, ADR-001 ayant été accepté le 22/07/2026 :
+**toute table métier porte `tenant_id`, sa politique RLS et une clé étrangère
+composite `(id, tenant_id)`**. L'application se connecte avec le rôle
+non-superutilisateur `zumm_app`, soumis à la RLS ; les migrations, elles, tournent
+avec le propriétaire `zumm`.
 
 ## Configuration métier
 
 `config/ConfigZumm.ini` (copié depuis le gabarit `.example.ini`, non versionné)
-porte les seuils métier. Son chargement effectif et sa relecture à chaud sont
-livrés par l'**US-025** au SPRINT-01.
+porte les seuils métier, les langues actives et les hypothèses de valorisation du
+ROI (section `[economie]`). Il est **relu à chaud** dès que sa date de
+modification change (US-025) : le modifier ne demande ni recompilation ni
+redémarrage. Absent, l'application démarre sur les valeurs de repli de
+`SeuilsMetier`.
 
 Aucun secret dans ce fichier : identifiants et mots de passe passent par
 l'environnement (`.env`).

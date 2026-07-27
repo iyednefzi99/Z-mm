@@ -153,34 +153,48 @@ démonstration entièrement répétée à l'avance n'inspecte rien.
 
 ## 4. Traçabilité — de la user story au code
 
-| Domaine | US | Où le vérifier |
-|:---|:---|:---|
-| CRUD métier | US-001 → 010 | `controller/`, `service/`, `V2__modele_metier_sprint01.sql` |
-| Ruche, composition, mesure | US-011 → 020 | `V4`, `V5` (hypertable TimescaleDB) |
-| Visite et rapport | US-021 → 030 | `V6__visites_rapports_sprint03.sql` |
-| Hors-ligne, OIDC, RBAC | US-031 → 040 | `offline/file.ts`, `SecurityConfig`, `auth/` |
-| Capteurs, météo, anomalie | US-041 → 044 | `MeteoService`, `AnomalieService`, `ia-service/` |
-| Spatial PostGIS | US-045 → 049 | `SiteRepository` (requêtes natives), `CarteVue.tsx` |
-| Session et front | US-050 → 054 | `routage/`, `i18n/formats.ts`, `ui/dialogues.tsx` |
-| Idempotence, conformité | US-055, US-056 | `FiltreIdempotence`, `V14`, `V15` |
-| Portée par agent | US-057 | `securite/FiltrePortee`, `ResolveurPortee`, `V16` |
-| Sécurité | US-058 → 063 | `TenantFilter`, `ValidateurAudience`, `PolitiquePositions`, `infra/nginx/nginx.conf` |
-| PWA, graphiques, carte | US-064 → 068 | `infra/frontend.Dockerfile`, `ui/graphiques.tsx`, `CarteFond.tsx` |
-| Échelle et couverture | US-069 → 071 | `V13`, `@EntityGraph`, JaCoCo fusionné |
-| i18n externalisée | US-072 | `i18n/locales/{fr,en,ar}.json` |
-| BFF | US-073 | `config/`, `V17__sessions_serveur_sprint17.sql` |
-| Dettes | US-074 → 078 | `ProductionService`, `AlerteSanitaireService`, `CalendrierService`, `MoteurAnomalie`, `api/parite.ts` |
-| Dernières dettes | US-079, US-080 | `SyntheseService`, `MesureRepository` (`time_bucket`), `web/dto/PointJournalier` |
+Les plages sont celles de `sprints.json`, sprint par sprint — et non des
+intervalles reconstruits. Les numéros d'US ne suivent pas l'ordre de livraison :
+une story pouvait être créée tôt et réalisée tard (US-055 à 057 arrivent aux
+SPRINT-14 et 16), ce qui rend tout intervalle « US-0xx → US-0yy » trompeur.
+
+| Domaine | Sprint | US | Où le vérifier |
+|:---|:---|:---|:---|
+| CRUD métier, configuration | S1 | US-001/002/003/005/006/025 | `controller/`, `service/`, `V2__modele_metier_sprint01.sql` |
+| Ruche, composition, mesure, i18n | S2 | US-004/016/023/024/037 | `V4`, `V5` (hypertable TimescaleDB) |
+| Visite, rapport, photos | S3 | US-007/008/009/010/028 | `V6__visites_rapports_sprint03.sql`, `RapportVisitePdfService` |
+| Hors-ligne, OIDC, RBAC, unités | S4 | US-011/019/020/021/022 | `offline/file.ts`, `SecurityConfig`, `auth/` |
+| Tableaux de bord, tâches, export | S5 | US-012/013/014/027/031 | `TableauDeBordService`, `ExportService`, `V7` |
+| Synthèse, capteurs, API tierce, météo | S6 | US-015/017/018/026/029 | `SyntheseService`, `QuantiteMielService`, `MeteoService`, `V8` |
+| Anomalie EWMA, reine, récolte, QR | S7 | US-030/032/033/034/038 | `AnomalieService`, `V9`, `V10`, `RecoltesVue.tsx` |
+| Microservice IA, tests | S8 | US-035/036 *(+ US-039/040 non livrées)* | `ia-service/`, `ClientAnomalieIA` |
+| Notifications, audit, prévision | S9 | US-041/042/043/044 | `NotificationAlerteService`, `V11`, `V12` |
+| Spatial PostGIS | S10 | US-045 → 049 | `SiteRepository` (requêtes natives), `CarteVue.tsx` |
+| Session et front | S11 | US-050 → 054 | `routage/`, `i18n/formats.ts`, `ui/dialogues.tsx` |
+| Sécurité | S12 | US-058 → 063 | `TenantFilter`, `ValidateurAudience`, `PolitiquePositions`, `infra/nginx/nginx.conf` |
+| PWA, graphiques, carte | S13 | US-064 → 068 | `infra/frontend.Dockerfile`, `ui/graphiques.tsx`, `CarteFond.tsx` |
+| Idempotence, conformité miel, échelle | S14 | US-055/056/069/070/071 | `FiltreIdempotence`, `V13`, `V14`, `V15`, `@EntityGraph` |
+| i18n externalisée | S15 | US-072 | `i18n/locales/{fr,en,ar}.json` |
+| BFF, portée par agent | S16 | US-073, US-057 | `V17__sessions_serveur_sprint17.sql`, `securite/FiltrePortee`, `ResolveurPortee`, `V16` |
+| Dettes techniques | S17 | US-074 → 078 | `ProductionService`, `AlerteSanitaireService`, `CalendrierService`, `MoteurAnomalie`, `api/parite.ts` |
+| Dernières dettes | S18 | US-079, US-080 | `SyntheseService`, `MesureRepository` (`time_bucket`), `web/dto/PointJournalier` |
 
 **Ordres de grandeur à la fin du SPRINT-18** — 18 entités métier (dont la sonde
 `Ping` du SPRINT-00, conservée volontairement), 22 contrôleurs REST, 16 repositories,
 30 services, **17 migrations Flyway**, ~11 000 lignes Java et ~11 300 lignes
-TypeScript, 10 ADR, 20 classes de test d'intégration Testcontainers.
+TypeScript, **8 ADR**, 20 classes de test d'intégration Testcontainers.
 
-**Campagnes de test au dernier passage vérifié** — back : **59 unitaires +
+**Campagnes de test au dernier passage vérifié** — back : **61 unitaires +
 111 d'intégration, `Skipped : 0`**, `BUILD SUCCESS`, plancher JaCoCo tenu.
-Front : **118 tests Vitest**, 0 erreur ESLint, `typecheck` et `build` verts,
-paquet initial 230 ko (73,7 ko compressés).
+Front : **139 tests Vitest** répartis sur 17 fichiers, 0 erreur ESLint,
+`typecheck` et `build` verts, paquet initial 236 ko (75,2 ko compressés).
+
+> Ces chiffres ont été **mesurés**, et non recopiés. Trois valeurs
+> contradictoires circulaient dans le dépôt pour les tests du front (120, 101,
+> 118) et deux pour les tests unitaires du back (55, 59) : elles avaient été
+> reportées de fiche en fiche sans être rejouées. La règle est désormais de
+> relever la valeur dans la sortie de `./mvnw -B verify` et de `npm test` avant
+> de l'écrire quelque part.
 
 ---
 

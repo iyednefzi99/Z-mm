@@ -49,31 +49,36 @@ La roadmap initiale attaquait directement le CRUD en SPRINT-01. Trois problèmes
 
 Un unique endpoint trivial (`GET /actuator/health` + une entité factice persistée), qui traverse **toute** la chaîne et tourne **en production** :
 
-- [ ] Projet Spring Boot 3 / JDK 17, build Maven, image Docker multi-étapes
-- [ ] PostgreSQL + PostGIS + TimescaleDB provisionné, migration Flyway initiale
-- [ ] Multi-tenant : `tenant_id` + politique RLS sur l'entité factice (si ADR-001 accepté)
-- [ ] Keycloak : realm, client, un utilisateur de test, jeton JWT validé par l'API
-- [ ] Client React + TypeScript, appel authentifié à l'API
-- [ ] Nginx + TLS (certificat Let's Encrypt), aucun port applicatif publié
-- [ ] CI GitHub Actions : build, tests, image, déploiement staging
-- [ ] OpenTelemetry → Prometheus → Grafana, un tableau de bord minimal
-- [ ] Sauvegarde automatisée **et une restauration testée**
+> **Les cases reflètent l'état à la clôture du sprint** (27/07/2026), pas celui du
+> dépôt aujourd'hui. Les quatre cases vides portent la raison de leur non-livraison :
+> trois dépendent d'un environnement réel ou du client, la quatrième a été livrée
+> au SPRINT-01 comme prévu. Voir « État en fin de sprint » plus bas.
+
+- [x] Projet Spring Boot 3 / JDK 17, build Maven, image Docker multi-étapes
+- [x] PostgreSQL + PostGIS + TimescaleDB provisionné, migration Flyway initiale
+- [ ] Multi-tenant : `tenant_id` + politique RLS sur l'entité factice — *ADR-001 encore « Proposé » à l'ouverture ; la RLS arrive en `V2`/`V3` au SPRINT-01*
+- [x] Keycloak : realm, client, un utilisateur de test, jeton JWT validé par l'API
+- [x] Client React + TypeScript, appel authentifié à l'API
+- [ ] Nginx + TLS **avec certificat Let's Encrypt** — *le proxy et TLS sont en place, mais sur certificat auto-signé de développement : Let's Encrypt suppose un domaine public, hors périmètre technique*
+- [x] CI GitHub Actions : build, tests, image, déploiement staging
+- [x] OpenTelemetry → Prometheus → Grafana, un tableau de bord minimal
+- [x] Sauvegarde automatisée **et une restauration testée**
 
 ### 3. Environnements
 
-- [ ] `dev`, `staging`, `prod` réellement provisionnés et joignables
-- [ ] Secrets gérés hors dépôt, procédure de rotation documentée
+- [ ] `dev`, `staging`, `prod` réellement provisionnés et joignables — *hébergeur et domaine hors périmètre technique*
+- [x] Secrets gérés hors dépôt, procédure de rotation documentée
 
 ### 4. UX — les trois écrans structurants
 
-- [ ] Maquettes : calendrier agents × ruches, rapport de visite, carte des ruchers
-- [ ] **Validation par un apiculteur réel**, pas par l'équipe projet
-- [ ] Jetons de la charte (`design/tokens.json`) traduits en variables CSS
+- [x] Maquettes : calendrier agents × ruches, rapport de visite, carte des ruchers
+- [ ] **Validation par un apiculteur réel**, pas par l'équipe projet — *dépend de la disponibilité d'un référent métier*
+- [x] Jetons de la charte (`design/tokens.json`) traduits en variables CSS
 
 ### 5. Conformité — démarrage (chemin critique)
 
-- [ ] AIPD lancée (cf. [`AIPD.md`](../07_conformite/AIPD.md)) — le délai juridique est souvent plus long que le délai technique
-- [ ] Scan de licences des dépendances en CI (détection AGPL)
+- [x] AIPD lancée (cf. [`AIPD.md`](../07_conformite/AIPD.md)) — le délai juridique est souvent plus long que le délai technique
+- [x] Scan de licences des dépendances en CI (détection AGPL)
 
 ---
 
