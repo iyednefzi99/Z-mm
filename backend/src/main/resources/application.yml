@@ -127,6 +127,12 @@ zumm:
     # Ou renvoyer le navigateur une fois la session Keycloak close. Sur la meme
     # origine que la PWA : le proxy inverse rassemble les deux.
     apres-deconnexion: ${ZUMM_BFF_APRES_DECONNEXION:/}
+  # Microservice IA Python (US-035), joint par `ClientAnomalieIA`. VIDE par
+  # defaut : `mvn test` et un demarrage local ne doivent dependre d'aucun service
+  # externe, et `AnomalieService` retombe alors sur sa detection EWMA locale.
+  # La pile docker-compose, elle, renseigne ZUMM_IA_URL sur le service interne.
+  ia:
+    url: ${ZUMM_IA_URL:}
   # Notifications e-mail des alertes (SPRINT-09, US-041). Désactivées par défaut :
   # aucune dépendance SMTP en local ni en test. En production, activer et fournir
   # spring.mail.* (host/port/credentials) via l'environnement.

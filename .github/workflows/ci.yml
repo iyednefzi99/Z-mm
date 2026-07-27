@@ -8,12 +8,14 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'infra/**'
+      - 'ia-service/**'
       - '.github/workflows/ci.yml'
   pull_request:
     paths:
       - 'backend/**'
       - 'frontend/**'
       - 'infra/**'
+      - 'ia-service/**'
       - '.github/workflows/ci.yml'
 
 env:
@@ -128,6 +130,29 @@ jobs:
       - name: Build de production
         working-directory: frontend
         run: npm run build
+
+  ia:
+    name: Microservice IA — tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # `ia-service/test_scoring.py` existait depuis le SPRINT-08 et ne tournait
+      # dans AUCUN workflow : ni ce fichier ni le repertoire n'etaient dans les
+      # `paths` declencheurs, et aucun job Python n'existait. Le service pouvait
+      # donc casser sans que rien ne le dise.
+      #
+      # `unittest` et non pytest : le service n'a aucune dependance externe
+      # (requirements.txt est volontairement vide), et en ajouter une seulement
+      # pour lancer les tests irait contre ce choix.
+      - name: Tests unitaires
+        working-directory: ia-service
+        run: python -m unittest --verbose
 
   securite:
     name: Sécurité — secrets, dépendances, images, licences

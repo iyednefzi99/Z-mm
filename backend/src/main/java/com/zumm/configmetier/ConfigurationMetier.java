@@ -94,6 +94,7 @@ public class ConfigurationMetier {
         Map<String, String> visites = ini.getOrDefault("visites", Map.of());
         Map<String, String> carte = ini.getOrDefault("carte", Map.of());
         Map<String, String> listes = ini.getOrDefault("listes", Map.of());
+        Map<String, String> economie = ini.getOrDefault("economie", Map.of());
 
         return new SeuilsMetier(
                 application.getOrDefault("langue_par_defaut", defauts.langueParDefaut()),
@@ -104,7 +105,9 @@ public class ConfigurationMetier {
                 entier(seuilsIni.get("humidite_max_pourcent"), defauts.humiditeMaxPourcent()),
                 entier(visites.get("delai_alerte_jours"), defauts.delaiAlerteJours()),
                 entier(carte.get("arrondi_degres_public"), defauts.arrondiDegresPublic()),
-                entier(listes.get("taille_page_defaut"), defauts.taillePageParDefaut()));
+                entier(listes.get("taille_page_defaut"), defauts.taillePageParDefaut()),
+                decimal(economie.get("prix_miel_kg_eur"), defauts.prixMielKgEur()),
+                decimal(economie.get("cout_visite_eur"), defauts.coutVisiteEur()));
     }
 
     private static int entier(String valeur, int defaut) {
@@ -115,6 +118,22 @@ public class ConfigurationMetier {
             return Integer.parseInt(valeur.trim());
         } catch (NumberFormatException e) {
             LOG.warn("Valeur entiere invalide « {} » : defaut {} conserve.", valeur, defaut);
+            return defaut;
+        }
+    }
+
+    /**
+     * Valeur monetaire. {@code BigDecimal} et non {@code double} : ce sont des
+     * montants, et un arrondi binaire sur un prix se voit dans un ROI affiche.
+     */
+    private static java.math.BigDecimal decimal(String valeur, java.math.BigDecimal defaut) {
+        if (valeur == null || valeur.isBlank()) {
+            return defaut;
+        }
+        try {
+            return new java.math.BigDecimal(valeur.trim());
+        } catch (NumberFormatException e) {
+            LOG.warn("Valeur decimale invalide « {} » : defaut {} conserve.", valeur, defaut);
             return defaut;
         }
     }

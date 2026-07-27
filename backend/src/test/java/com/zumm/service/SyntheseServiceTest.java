@@ -10,8 +10,11 @@ import com.zumm.domain.RoleAgent;
 import com.zumm.domain.Ruche;
 import com.zumm.domain.TypeIndicateur;
 import com.zumm.domain.Visite;
+import com.zumm.configmetier.ConfigurationMetier;
+import com.zumm.configmetier.SeuilsMetier;
 import com.zumm.repository.AlerteRepository;
 import com.zumm.repository.MesureRepository;
+import com.zumm.repository.RecolteRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.dto.SyntheseReponse;
@@ -32,6 +35,8 @@ class SyntheseServiceTest {
     @Mock private MesureRepository mesures;
     @Mock private RucheRepository ruches;
     @Mock private AlerteRepository alertes;
+    @Mock private RecolteRepository recoltes;
+    @Mock private ConfigurationMetier configuration;
 
     /** Projection « visites par motif » telle que la rend la base. */
     private static VisiteRepository.CompteParRaison compte(RaisonVisite raison, long nombre) {
@@ -99,15 +104,22 @@ class SyntheseServiceTest {
         when(mesures.agregatPoids(TypeIndicateur.POIDS.enBase()))
                 .thenReturn(List.of(poids(1L, BigDecimal.valueOf(20))));
         when(alertes.countByOuverteTrue()).thenReturn(0L);
+        // La valorisation porte sur le miel REELLEMENT recolte, plus sur le poids
+        // des ruches : ce dernier comprend le corps, les cadres et la colonie, et
+        // il baisse apres une recolte — au moment ou la production augmente.
+        when(recoltes.quantiteTotaleRecoltee()).thenReturn(BigDecimal.valueOf(20));
+        when(configuration.seuils()).thenReturn(SeuilsMetier.defauts());
 
-        SyntheseReponse s = new SyntheseService(visites, mesures, ruches, alertes).synthese();
+        SyntheseReponse s = new SyntheseService(
+                visites, mesures, ruches, alertes, recoltes, configuration).synthese();
 
         assertThat(s.nombreRuches()).isEqualTo(2);
         assertThat(s.nombreVisites()).isEqualTo(2);
         assertThat(s.visitesParRaison()).containsEntry("controle", 1L).containsEntry("recolte", 1L);
         assertThat(s.productiviteMoyenne()).isEqualTo(2.5);
         assertThat(s.poidsTotalActuelKg()).isEqualByComparingTo(BigDecimal.valueOf(20).setScale(2));
-        // Valorisation = 20 kg × 12 € = 240 € ; coût = 2 visites × 25 € = 50 €.
+        // Valorisation = 20 kg récoltés × 12 € = 240 € ; coût = 2 visites × 25 € = 50 €.
+        // Les deux tarifs viennent de ConfigZumm.ini, section [economie].
         assertThat(s.roi().valeurProductionEur()).isEqualByComparingTo("240.00");
         assertThat(s.roi().coutInterventionsEur()).isEqualByComparingTo("50.00");
         // ROI = (240 − 50) / 50 × 100 = 380 %.

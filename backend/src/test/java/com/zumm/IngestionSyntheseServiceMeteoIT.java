@@ -95,11 +95,20 @@ class IngestionSyntheseServiceMeteoIT {
     }
 
     @Test
-    @DisplayName("US-026 : getZummHoneyActualQuantity convertit kg → g ; OpenAPI publié")
+    @DisplayName("US-026 : getZummHoneyActualQuantity somme les récoltes, kg → g ; OpenAPI publié")
     void serviceTierceEtOpenApi() throws Exception {
         String t = "sp06-miel";
         long rucheId = chaineRuche(t);
-        ingerer(t, rucheId, "poids", "16.0", "2026-06-02T10:00:00Z");
+
+        // Le service renvoyait le dernier POIDS de la ruche, en attendant le module
+        // recolte du SPRINT-07. Il est livre : la quantite de miel est la somme des
+        // recoltes. Un poids de ruche comprend corps, cadres et colonie, et baisse
+        // apres une recolte — l'inverse de ce qu'on veut mesurer. Le poids ingere
+        // ci-dessous est donc volontairement DIFFERENT du total recolte : si le
+        // service repassait au proxy, le test rougirait.
+        ingerer(t, rucheId, "poids", "42.0", "2026-06-02T10:00:00Z");
+        recolter(t, rucheId, "10.0", "2026-06-02");
+        recolter(t, rucheId, "6.0", "2026-06-09");
 
         String rep = mockMvc.perform(get("/api/services/getZummHoneyActualQuantity").with(tenant(t))
                         .param("rucheId", String.valueOf(rucheId)).param("unite", "g"))
@@ -124,14 +133,19 @@ class IngestionSyntheseServiceMeteoIT {
         idApres(t, "/api/visites",
                 ("{\"rucheId\":%d,\"agentId\":%d,\"dateVisite\":\"2026-06-03\",\"raison\":\"recolte\","
                         + "\"productivite\":3}").formatted(rucheId, agentId));
-        ingerer(t, rucheId, "poids", "20.0", "2026-06-03T10:00:00Z");
+        ingerer(t, rucheId, "poids", "35.0", "2026-06-03T10:00:00Z");
+        // Le poids total de la ruche (35 kg) et le miel recolte (20 kg) sont deux
+        // grandeurs distinctes : la synthese rend le premier, le ROI valorise le
+        // second. Les faire differer est ce qui rend le test capable de rougir.
+        recolter(t, rucheId, "20.0", "2026-06-03");
 
         mockMvc.perform(get("/api/tableaux/synthese").with(tenant(t)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nombreRuches").value(1))
                 .andExpect(jsonPath("$.nombreVisites").value(1))
                 .andExpect(jsonPath("$.visitesParRaison.recolte").value(1))
-                .andExpect(jsonPath("$.poidsTotalActuelKg").value(20.0))
+                .andExpect(jsonPath("$.poidsTotalActuelKg").value(35.0))
+                // 20 kg récoltés × 12 €/kg (ConfigZumm.ini, [economie]) = 240 €.
                 .andExpect(jsonPath("$.roi.valeurProductionEur").value(240.0))
                 .andExpect(jsonPath("$.roi.coutInterventionsEur").value(25.0));
     }
@@ -174,6 +188,15 @@ class IngestionSyntheseServiceMeteoIT {
                                 .formatted(rucheId, type, valeur, instant)))
                 .andExpect(status().isCreated())
                 .andReturn().getResponse().getContentAsString();
+    }
+
+    /** Enregistre une recolte ; le numero de lot est genere par le serveur. */
+    private void recolter(String t, long rucheId, String quantiteKg, String date) throws Exception {
+        mockMvc.perform(post("/api/recoltes").with(tenant(t))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(("{\"rucheId\":%d,\"dateRecolte\":\"%s\",\"quantiteKg\":%s}")
+                                .formatted(rucheId, date, quantiteKg)))
+                .andExpect(status().isCreated());
     }
 
     private long chaineRuche(String t) throws Exception {

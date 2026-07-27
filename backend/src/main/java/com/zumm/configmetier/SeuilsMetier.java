@@ -17,6 +17,8 @@ package com.zumm.configmetier;
  * @param delaiAlerteJours     jours sans visite avant signalement
  * @param arrondiDegresPublic  arrondi des positions pour les profils non proprietaires
  * @param taillePageParDefaut  nombre d'elements par page des listes (US-052)
+ * @param prixMielKgEur        valorisation du kg de miel produit, pour le ROI (US-015)
+ * @param coutVisiteEur        cout d'une intervention, pour le ROI (US-015)
  */
 public record SeuilsMetier(
         String langueParDefaut,
@@ -27,7 +29,9 @@ public record SeuilsMetier(
         int humiditeMaxPourcent,
         int delaiAlerteJours,
         int arrondiDegresPublic,
-        int taillePageParDefaut) {
+        int taillePageParDefaut,
+        java.math.BigDecimal prixMielKgEur,
+        java.math.BigDecimal coutVisiteEur) {
 
     /** Valeurs de repli, alignees sur le gabarit versionne. */
     public static SeuilsMetier defauts() {
@@ -40,6 +44,8 @@ public record SeuilsMetier(
                 70,
                 21,
                 2,
-                25);
+                25,
+                java.math.BigDecimal.valueOf(12),
+                java.math.BigDecimal.valueOf(25));
     }
 }

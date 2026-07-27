@@ -61,6 +61,13 @@ dist-ssr/
 # Rapports de couverture Vitest (regeneres par `npm run test:couverture`).
 coverage/
 
+# Microservice IA (Python). Le bytecode compile est un artefact de machine, pas un
+# livrable : deux .pyc du repertoire __pycache__ etaient versionnes faute de cette
+# regle, et changeaient a chaque version de l'interprete.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
 # Secrets et configuration locale : seuls les gabarits *.example.* sont versionnes.
 .env
 .env.*

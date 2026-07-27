@@ -1486,6 +1486,8 @@ export interface components {
             arrondiDegresPublic?: number;
             /** Format: int32 */
             taillePageParDefaut?: number;
+            prixMielKgEur?: number;
+            coutVisiteEur?: number;
         };
         AuditEntreeReponse: {
             /** Format: int64 */

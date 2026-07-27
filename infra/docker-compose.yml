@@ -84,6 +84,11 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_started
+      # `service_started` et non `service_healthy` : l'IA est un agrement, pas un
+      # prerequis. Attendre sa sonde retarderait le demarrage de l'API pour une
+      # dependance dont l'absence est deja geree par un repli.
+      ia-service:
+        condition: service_started
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/zumm
@@ -116,12 +121,46 @@ services:
       # n'est jamais versionne.
       ZUMM_BFF_CLIENT: ${ZUMM_BFF_CLIENT:-zumm-bff}
       ZUMM_BFF_SECRET: ${ZUMM_BFF_SECRET:?ZUMM_BFF_SECRET requis (cf. .env.example)}
+      # Microservice IA (US-035). Le service existait, testé et conteneurisé,
+      # mais AUCUN compose ne le demarrait et la propriete n'etait declaree
+      # nulle part : le repli EWMA local etait donc le seul chemin actif. Vider
+      # la variable rend le couplage optionnel, comme le prevoit ADR-007.
+      ZUMM_IA_URL: ${ZUMM_IA_URL:-http://ia-service:8000}
     volumes:
       - ../config/ConfigZumm.ini:/app/config/ConfigZumm.ini:ro
     # Aucun port publie : l'application n'est atteignable qu'a travers le proxy
     # inverse, qui assure la terminaison TLS et la limitation de debit.
     expose:
       - "8080"
+    networks:
+      - zumm-network
+
+  # ─── Microservice IA (US-035) ───
+  # Detection d'anomalie decouplee du back-end Java. Bibliothèque standard Python
+  # uniquement : l'image reste minimale et sans dependance a auditer.
+  #
+  # Aucun port publie : seul le back-end l'appelle, par le reseau interne. Le
+  # publier exposerait un service sans authentification — il n'en a pas, et n'en
+  # a pas besoin tant qu'il n'est joignable que depuis l'application.
+  ia-service:
+    build:
+      context: ../ia-service
+    container_name: zumm-ia
+    # Ce service ne touche ni la base ni Keycloak : rien a attendre au demarrage.
+    expose:
+      - "8000"
+    environment:
+      # Sans cela, CPython tenterait d'ecrire le bytecode de `scoring.py` dans
+      # /app, que `read_only` interdit. L'echec est silencieux et sans
+      # consequence, mais autant ne pas le provoquer.
+      PYTHONDONTWRITEBYTECODE: '1'
+    # Durcissement : le conteneur n'ecrit rien et n'a besoin d'aucun privilege.
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    restart: unless-stopped
     networks:
       - zumm-network
 

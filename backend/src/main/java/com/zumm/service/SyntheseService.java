@@ -1,8 +1,10 @@
 package com.zumm.service;
 
+import com.zumm.configmetier.ConfigurationMetier;
 import com.zumm.domain.TypeIndicateur;
 import com.zumm.repository.AlerteRepository;
 import com.zumm.repository.MesureRepository;
+import com.zumm.repository.RecolteRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.dto.SyntheseReponse;
@@ -25,30 +27,32 @@ import org.springframework.transaction.annotation.Transactional;
  * parc reel, la synthese — c'est-a-dire l'ecran d'accueil du responsable — etait
  * donc la page la plus couteuse de l'application.
  *
- * <p>Le ROI repose sur une economie de reference <em>indicative</em> (prix du miel,
- * cout d'une visite), destinee a la demonstration : ces constantes rejoindront
- * {@code ConfigZumm.ini} lorsque le module production/recolte sera livre.
+ * <p>Le ROI repose sur une economie de reference — prix du kg de miel, cout d'une
+ * intervention. Ces deux valeurs viennent de {@code ConfigZumm.ini} (section
+ * {@code [economie]}, relue a chaud) et non plus de constantes compilees : elles
+ * varient d'une exploitation a l'autre et d'une annee a l'autre, et les figer
+ * rendait le ROI faux pour tout le monde sauf le jeu de demonstration.
  */
 @Service
 @Transactional(readOnly = true)
 public class SyntheseService {
 
-    /** Valorisation indicative du kg de miel produit (EUR). */
-    private static final BigDecimal PRIX_MIEL_KG_EUR = BigDecimal.valueOf(12);
-    /** Cout indicatif d'une intervention/visite (EUR). */
-    private static final BigDecimal COUT_VISITE_EUR = BigDecimal.valueOf(25);
-
     private final VisiteRepository visites;
     private final MesureRepository mesures;
     private final RucheRepository ruches;
     private final AlerteRepository alertes;
+    private final RecolteRepository recoltes;
+    private final ConfigurationMetier configuration;
 
     public SyntheseService(VisiteRepository visites, MesureRepository mesures,
-            RucheRepository ruches, AlerteRepository alertes) {
+            RucheRepository ruches, AlerteRepository alertes, RecolteRepository recoltes,
+            ConfigurationMetier configuration) {
         this.visites = visites;
         this.mesures = mesures;
         this.ruches = ruches;
         this.alertes = alertes;
+        this.recoltes = recoltes;
+        this.configuration = configuration;
     }
 
     public SyntheseReponse synthese() {
@@ -71,7 +75,7 @@ public class SyntheseService {
         long alertesOuvertes = alertes.countByOuverteTrue();
 
         return new SyntheseReponse(nombreRuches, nombreVisites, parRaison, productiviteMoyenne,
-                poidsTotal, alertesOuvertes, roi(poidsTotal, nombreVisites));
+                poidsTotal, alertesOuvertes, roi(nombreVisites));
     }
 
     /**
@@ -90,9 +94,22 @@ public class SyntheseService {
                 .setScale(2, RoundingMode.HALF_UP);
     }
 
-    private Roi roi(BigDecimal poidsTotal, long nombreVisites) {
-        BigDecimal valeur = poidsTotal.multiply(PRIX_MIEL_KG_EUR).setScale(2, RoundingMode.HALF_UP);
-        BigDecimal cout = COUT_VISITE_EUR.multiply(BigDecimal.valueOf(nombreVisites))
+    /**
+     * Valorisation de la production et cout des interventions.
+     *
+     * <p>La production valorisee est la masse REELLEMENT recoltee, plus le poids
+     * courant des ruches. Le poids d'une ruche n'est pas une production : il
+     * comprend le corps, les cadres et la colonie, et il redescend apres une
+     * recolte — au moment meme ou la production, elle, augmente. Ce proxy datait
+     * d'avant le module recolte (SPRINT-07) ; il n'avait plus de raison d'etre.
+     */
+    private Roi roi(long nombreVisites) {
+        BigDecimal prixKg = configuration.seuils().prixMielKgEur();
+        BigDecimal coutVisite = configuration.seuils().coutVisiteEur();
+
+        BigDecimal recolteKg = recoltes.quantiteTotaleRecoltee();
+        BigDecimal valeur = recolteKg.multiply(prixKg).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal cout = coutVisite.multiply(BigDecimal.valueOf(nombreVisites))
                 .setScale(2, RoundingMode.HALF_UP);
         Double pourcent = cout.signum() == 0 ? null
                 : valeur.subtract(cout)

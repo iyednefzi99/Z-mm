@@ -4015,6 +4015,12 @@
           "taillePageParDefaut" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "prixMielKgEur" : {
+            "type" : "number"
+          },
+          "coutVisiteEur" : {
+            "type" : "number"
           }
         }
       },

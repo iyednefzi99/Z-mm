@@ -17,7 +17,25 @@ import java.time.Instant;
  * chaine JPA + Flyway + PostgreSQL fonctionne de bout en bout. Le modele metier
  * reel derive du dictionnaire de donnees et du MLD, et arrive au SPRINT-01.
  *
- * <p><strong>A supprimer</strong> des que les entites metier existent.
+ * <p><strong>Conservee volontairement</strong>, contrairement a ce que cette
+ * javadoc et l'en-tete de la migration V1 annoncaient. La dette « nettoyer ping » a
+ * ete reconduite des SPRINT-01 a 07 avant d'etre requalifiee en decision : la sonde
+ * a une valeur propre. {@code WalkingSkeletonIT} s'en sert pour prouver, sur une
+ * base reelle, que Flyway, PostGIS, TimescaleDB et la persistance JPA tiennent de
+ * bout en bout — une verification qu'aucune entite metier ne rend mieux, parce
+ * qu'aucune n'est aussi simple.
+ *
+ * <p><strong>Exception a connaitre.</strong> {@code ping} est la seule table sans
+ * {@code tenant_id} ni RLS, alors que la migration V3 accorde le DML a
+ * {@code zumm_app} sur toutes les tables. Ce n'est pas une brèche — la table ne
+ * porte ni donnee metier ni donnee de tenant, et rien ne s'y rattache — mais c'est
+ * une exception a l'invariant « toute table porte sa politique », consignee ici
+ * pour ne pas etre redecouverte en audit. La retirer demanderait de reecrire la
+ * sonde ; l'en-tete de V1 ne peut pas etre corrige, un commentaire faisant partie
+ * du checksum Flyway d'une migration deja appliquee.
+ *
+ * <p>Toute table METIER, elle, porte {@code tenant_id}, sa politique RLS et une
+ * cle etrangere composite — sans exception.
  */
 @Entity
 @Table(name = "ping")

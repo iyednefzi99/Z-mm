@@ -45,7 +45,7 @@ class PolitiquePositionsSelonRoleTest {
                 defauts.langueParDefaut(), defauts.languesActives(), defauts.poidsRucheAlerteKg(),
                 defauts.temperatureMinCelsius(), defauts.temperatureMaxCelsius(),
                 defauts.humiditeMaxPourcent(), defauts.delaiAlerteJours(), decimales,
-                defauts.taillePageParDefaut()));
+                defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur()));
     }
 
     @AfterEach
