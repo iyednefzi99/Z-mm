@@ -155,7 +155,10 @@ export function LotsVue(): ReactElement {
   return (
     <section className="z-section">
       <header className="z-section__entete">
-        <h1 className="z-section__titre">{t.onglets.lots}</h1>
+        <div>
+          <h1 className="z-section__titre">{t.onglets.lots}</h1>
+          <p className="z-section__soustitre">{t.soustitres.lots}</p>
+        </div>
         <Bouton variante="primaire" onClick={() => setOuvert(true)}>
           {t.actions.nouveau}
         </Bouton>

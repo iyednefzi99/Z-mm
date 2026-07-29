@@ -25,6 +25,7 @@ export const ONGLETS = [
   'lots',
   'carte',
   'agents',
+  'invitations',
   'config',
   'audit',
 ] as const;
@@ -67,6 +68,7 @@ export const ICONES: Record<Onglet, string> = {
   lots: '🏷️',
   carte: '🗺️',
   agents: '👥',
+  invitations: '🎟️',
   config: '⚙️',
   audit: '📜',
 };
@@ -103,7 +105,7 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
   cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'reines'],
   terrain: ['plannings', 'visites', 'taches', 'carte'],
   production: ['recoltes', 'lots'],
-  administration: ['agents', 'config', 'audit'],
+  administration: ['agents', 'invitations', 'config', 'audit'],
 };
 
 /** Chemin canonique d'un onglet. */

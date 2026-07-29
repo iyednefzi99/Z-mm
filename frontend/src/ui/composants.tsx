@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactElement,
@@ -421,21 +422,53 @@ export function ChampTexte({
   valeur,
   onChange,
   requis,
+  type = 'text',
+  autoComplete,
+  aide,
+  invalide,
 }: {
   libelle: string;
   valeur: string;
   onChange: (valeur: string) => void;
   requis?: boolean;
+  /** `password` et `email` amenent clavier adapte et gestionnaire de mots de passe. */
+  type?: 'text' | 'email' | 'password';
+  /** Indispensable sur un formulaire d'identite : sans lui, le navigateur
+   *  propose n'importe quoi, et l'utilisateur renonce au gestionnaire. */
+  autoComplete?: string;
+  /** Consigne affichee sous le champ, reliee par `aria-describedby`. */
+  aide?: string;
+  invalide?: boolean;
 }): ReactElement {
+  // Un identifiant stable par champ : `aria-describedby` doit pointer sur un
+  // noeud existant, et deux champs d'aide ne peuvent pas partager le meme id.
+  const idChamp = useId();
+  const idLibelle = `${idChamp}-libelle`;
+  const idAide = `${idChamp}-aide`;
   return (
     <label className="z-champ">
-      <span className="z-champ__libelle">{libelle}</span>
+      <span className="z-champ__libelle" id={idLibelle}>
+        {libelle}
+      </span>
       <input
         className="z-input"
+        type={type}
         value={valeur}
         required={requis}
+        autoComplete={autoComplete}
+        aria-invalid={invalide || undefined}
+        // Le nom accessible vient du seul libelle. Sans ce pointage, l'enveloppe
+        // `<label>` donnerait au champ le texte de TOUS ses descendants, consigne
+        // comprise : le champ s'appellerait « Mot de passe 12 caracteres… ».
+        aria-labelledby={idLibelle}
+        aria-describedby={aide ? idAide : undefined}
         onChange={(e) => onChange(e.target.value)}
       />
+      {aide ? (
+        <span className="z-champ__aide" id={idAide}>
+          {aide}
+        </span>
+      ) : null}
     </label>
   );
 }

@@ -92,7 +92,10 @@ export function ReinesVue(): ReactElement {
   return (
     <section className="z-section">
       <header className="z-section__entete">
-        <h1 className="z-section__titre">{t.onglets.reines}</h1>
+        <div>
+          <h1 className="z-section__titre">{t.onglets.reines}</h1>
+          <p className="z-section__soustitre">{t.soustitres.reines}</p>
+        </div>
       </header>
 
       {erreur && (

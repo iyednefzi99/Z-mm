@@ -85,7 +85,10 @@ export function CarteVue(): ReactElement {
     return (
       <section className="z-section">
         <header className="z-section__entete">
-          <h1 className="z-section__titre">{t.onglets.carte}</h1>
+          <div>
+            <h1 className="z-section__titre">{t.onglets.carte}</h1>
+            <p className="z-section__soustitre">{t.soustitres.carte}</p>
+          </div>
         </header>
         <p className="z-info">{t.carte.aucunSite}</p>
       </section>
@@ -113,7 +116,10 @@ export function CarteVue(): ReactElement {
   return (
     <section className="z-section">
       <header className="z-section__entete">
-        <h1 className="z-section__titre">{t.onglets.carte}</h1>
+        <div>
+          <h1 className="z-section__titre">{t.onglets.carte}</h1>
+          <p className="z-section__soustitre">{t.soustitres.carte}</p>
+        </div>
         <div className="z-actions-inline">
           <button
             type="button"

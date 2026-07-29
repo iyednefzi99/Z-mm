@@ -93,7 +93,10 @@ export function RecoltesVue(): ReactElement {
   };
 
   return (
-    <CorpsSection titre={t.onglets.recoltes} etat={etat} onNouveau={ouvrir}>
+    <CorpsSection
+      titre={t.onglets.recoltes}
+      sousTitre={t.soustitres.recoltes}
+      etat={etat} onNouveau={ouvrir}>
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={() => undefined} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}

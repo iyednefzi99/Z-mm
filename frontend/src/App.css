@@ -398,6 +398,40 @@
   margin-block-end: 1.25rem;
 }
 
+/* Le titre et son compteur forment un bloc ; le sous-titre passe dessous. Sur
+   téléphone, l'en-tête se replie plutôt que de comprimer le bouton d'action. */
+.z-section__ligne-titre {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.z-section__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .z-section__entete {
+    flex-wrap: wrap;
+  }
+}
+
+/* Compteur : recessif par construction. Il répond à « combien ? » sans entrer
+   en concurrence avec le titre — même graisse que le corps de texte, posé sur
+   un fond à peine teinté. */
+.z-section__volume {
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--z-radius-pill);
+  background: color-mix(in srgb, var(--z-text) 8%, transparent);
+  color: var(--z-text-muted);
+}
+
 .z-section__titre {
   font-size: 1.4rem;
   margin: 0;
@@ -1038,19 +1072,93 @@
   color: var(--z-text-muted);
 }
 
-/* ─── Écran de connexion ───────────────────────────────────────────────── */
+/* ─── Écran d'entrée : connexion et création de compte ─────────────────────
+   Deux volets : la marque à gauche, le formulaire à droite. Le volet de marque
+   est le seul endroit de l'application où le dégradé signature occupe une
+   surface — ailleurs il reste un accent (DESIGN.md § 2.1). Sous 900 px il
+   disparaît : sur un téléphone au rucher, l'écran doit servir à entrer, pas à
+   contempler. */
 
-.z-connexion {
-  min-height: 100dvh;
+.z-entree {
+  min-block-size: 100dvh;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .z-entree {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  }
+}
+
+.z-entree__marque {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  padding: 3rem;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  background: var(--z-gradient-signature);
+  color: #fdfcf7;
+}
+
+@media (min-width: 900px) {
+  .z-entree__marque {
+    display: flex;
+  }
+}
+
+/* Halo : une seule forme, très diffuse, pour que le dégradé ne soit pas plat.
+   Décoratif et inerte — aucun contenu ne s'y appuie. */
+.z-entree__halo {
+  position: absolute;
+  inset-block-start: -30%;
+  inset-inline-start: -20%;
+  inline-size: 90%;
+  aspect-ratio: 1;
+  border-radius: var(--z-radius-pill);
+  background: radial-gradient(circle, rgba(253, 252, 247, 0.45), transparent 62%);
+  pointer-events: none;
+}
+
+.z-marque--grand .z-marque__nom {
+  font-size: 2rem;
+  color: inherit;
+}
+
+.z-marque--grand .z-marque__pastille {
+  inline-size: 1.2rem;
+  block-size: 1.2rem;
+  background: #fdfcf7;
+}
+
+.z-entree__accroche {
+  margin: 1.5rem 0 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+  max-inline-size: 18ch;
+}
+
+.z-entree__baseline {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(253, 252, 247, 0.86);
+  max-inline-size: 34ch;
+}
+
+.z-entree__panneau {
   display: grid;
   place-items: center;
   padding: 1.25rem;
   background:
-    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--z-honey-500) 14%, transparent), transparent),
+    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--z-honey-500) 12%, transparent), transparent),
     var(--z-bg);
 }
 
-.z-connexion__carte {
+.z-entree__carte {
   inline-size: min(26rem, 100%);
   background: var(--z-surface);
   border: 1px solid var(--z-line);
@@ -1060,25 +1168,310 @@
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  animation: z-entree-apparition var(--z-duration-slow) var(--z-ease-out) both;
 }
 
-.z-connexion__titre {
-  margin: 0.25rem 0 0;
-  font-size: 1.25rem;
+@keyframes z-entree-apparition {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
 }
 
-.z-connexion__texte {
-  margin: 0;
-  font-size: 0.88rem;
+/* Onglets glissants : la pastille relie les deux états au lieu de les faire
+   clignoter (transitions Zümm, famille « translation »). */
+.z-onglets {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0.25rem;
+  border-radius: var(--z-radius-pill);
+  background: color-mix(in srgb, var(--z-text) 6%, transparent);
+}
+
+.z-onglets__item {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: none;
+  padding: 0.55rem 0.5rem;
+  border-radius: var(--z-radius-pill);
+  font: inherit;
+  font-weight: 600;
   color: var(--z-text-muted);
-  line-height: 1.5;
+  cursor: pointer;
+  transition: color var(--z-duration-base) var(--z-ease-out);
 }
 
-.z-connexion__ou {
+.z-onglets__item.is-actif {
+  color: var(--z-text);
+}
+
+.z-onglets__pastille {
+  position: absolute;
+  z-index: 0;
+  inset-block: 0.25rem;
+  inset-inline-start: 0.25rem;
+  inline-size: calc(50% - 0.25rem);
+  border-radius: var(--z-radius-pill);
+  background: var(--z-surface);
+  box-shadow: var(--z-shadow-1);
+  transition: transform var(--z-duration-base) var(--z-ease-out);
+}
+
+.z-onglets__pastille.is-droite {
+  transform: translateX(100%);
+}
+
+/* En écriture arabe, la pastille glisse dans l'autre sens : c'est le même
+   mouvement, pas une exception. */
+[dir='rtl'] .z-onglets__pastille.is-droite {
+  transform: translateX(-100%);
+}
+
+.z-entree__formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+/* Le champ mot de passe et sa bascule d'affichage. */
+.z-champ-secret {
+  position: relative;
+}
+
+.z-champ-secret__bascule {
+  position: absolute;
+  inset-block-start: 1.75rem;
+  inset-inline-end: 0.5rem;
+  border: 0;
+  background: none;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--z-radius-sm);
+  color: var(--z-text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.z-champ-secret__bascule:hover {
+  color: var(--z-text);
+}
+
+/* Hauteur réservée : sans elle, l'apparition du message pousse le bouton au
+   moment précis où l'utilisateur va cliquer. */
+.z-entree__erreur {
   margin: 0;
-  text-align: center;
+  min-block-size: 1.2rem;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: var(--z-danger);
+}
+
+.z-entree__erreur:not(:empty) {
+  animation: z-entree-apparition var(--z-duration-fast) var(--z-ease-out) both;
+}
+
+.z-entree__separateur {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   font-size: 0.8rem;
   color: var(--z-text-muted);
+}
+
+.z-entree__separateur::before,
+.z-entree__separateur::after {
+  content: '';
+  flex: 1;
+  block-size: 1px;
+  background: var(--z-line);
+}
+
+.z-entree__note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--z-text-muted);
+}
+
+.z-champ__aide {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--z-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-entree__carte,
+  .z-entree__erreur:not(:empty) {
+    animation: none;
+  }
+
+  .z-onglets__item,
+  .z-onglets__pastille {
+    transition: none;
+  }
+}
+
+/* ─── Menu de profil ───────────────────────────────────────────────────── */
+
+.z-profil {
+  position: relative;
+}
+
+.z-profil__declencheur {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  background: none;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  border-radius: var(--z-radius-pill);
+  font: inherit;
+  color: var(--z-text);
+  cursor: pointer;
+  transition: background-color var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-profil__declencheur:hover,
+.z-profil__declencheur[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--z-text) 7%, transparent);
+}
+
+/* Initiales plutôt qu'un avatar : aucune image à charger, aucun service tiers
+   à contacter, et le rendu est le même hors ligne — ce qui compte sur un
+   rucher sans réseau. */
+.z-profil__pastille {
+  display: grid;
+  place-items: center;
+  inline-size: 1.9rem;
+  block-size: 1.9rem;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-gradient-signature);
+  color: #fdfcf7;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.z-profil__nom {
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-inline-size: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .z-profil__nom {
+    display: none;
+  }
+}
+
+.z-profil__menu {
+  position: absolute;
+  inset-block-start: calc(100% + 0.4rem);
+  inset-inline-end: 0;
+  z-index: 30;
+  inline-size: max(14rem, 100%);
+  padding: 0.75rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  background: var(--z-surface);
+  box-shadow: var(--z-shadow-3);
+  /* Le menu naît du déclencheur : l'origine de la transformation le rattache
+     visuellement au bouton, au lieu de le faire apparaître de nulle part. */
+  transform-origin: top var(--z-origine-menu, right);
+  animation: z-menu-ouverture var(--z-duration-base) var(--z-ease-out) both;
+}
+
+[dir='rtl'] .z-profil__menu {
+  --z-origine-menu: left;
+}
+
+@keyframes z-menu-ouverture {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-0.25rem);
+  }
+}
+
+.z-profil__ligne {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.4rem;
+  font-size: 0.82rem;
+}
+
+.z-profil__cle {
+  color: var(--z-text-muted);
+}
+
+.z-profil__valeur {
+  font-weight: 600;
+  text-align: end;
+}
+
+.z-profil__action {
+  inline-size: 100%;
+  margin-block-start: 0.6rem;
+  padding: 0.5rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
+  background: none;
+  font: inherit;
+  color: var(--z-danger);
+  cursor: pointer;
+}
+
+.z-profil__action:hover {
+  background: color-mix(in srgb, var(--z-danger) 10%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-profil__menu {
+    animation: none;
+  }
+
+  .z-profil__declencheur {
+    transition: none;
+  }
+}
+
+/* ─── Codes d'invitation (US-058) ──────────────────────────────────────── */
+
+/* Le formulaire d'émission est en ligne, pas dans une modale : émettre un code
+   est l'action principale de l'écran, et la masquer derrière un bouton
+   ajouterait un clic à ce pour quoi on est venu. */
+.z-invitation__emission {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-block-end: 1rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  background: color-mix(in srgb, var(--z-honey-500) 6%, var(--z-surface));
+}
+
+.z-invitation__emission .z-champ {
+  min-inline-size: 8rem;
+}
+
+/* Chasse fixe et lettres espacées : un code se relit caractère par caractère,
+   souvent à voix haute. `unicode-bidi` le protège en arabe — un identifiant
+   latin dans un paragraphe RTL se réordonne sinon à l'affichage. */
+.z-code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--z-radius-sm);
+  background: color-mix(in srgb, var(--z-text) 7%, transparent);
+  unicode-bidi: isolate;
+  direction: ltr;
 }
 
 /* Indicateur de synchronisation / hors-ligne (US-011). */

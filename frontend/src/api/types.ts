@@ -270,6 +270,30 @@ export interface TacheCorps {
   faite: boolean;
 }
 
+/**
+ * Code d'invitation à rejoindre l'exploitation (US-058, ADR-009).
+ *
+ * <p>`epuise` est calculé par le serveur et non ici : « périmé » dépend de
+ * l'heure, et l'horloge du navigateur d'un téléphone au rucher n'est pas une
+ * référence — un poste en avance masquerait des codes encore valides.
+ */
+export interface Invitation {
+  id: number;
+  code: string;
+  role: RoleAgent;
+  utilisations: number;
+  utilisationsMax: number;
+  expireLe: string;
+  creePar: string | null;
+  epuise: boolean;
+}
+
+export interface InvitationCorps {
+  role: RoleAgent;
+  utilisationsMax: number;
+  joursValidite: number;
+}
+
 /** Résumé d'une visite dans une cellule du calendrier (US-012). */
 export interface VisiteBreve {
   id: number;

@@ -34,13 +34,13 @@ describe('table des routes', () => {
     expect(ongletDepuisChemin('/admin')).toBeNull();
   });
 
-  it('couvre les seize écrans de la console, sans doublon', () => {
+  it('couvre les dix-sept écrans de la console, sans doublon', () => {
     // Le nombre est volontairement écrit en dur : ajouter un onglet doit obliger
     // à passer ici, donc à vérifier qu'il a bien été déclaré dans les trois
     // langues et branché dans App. Un `ONGLETS.length` se contenterait de se
     // recopier lui-même et ne prouverait rien.
-    expect(ONGLETS).toHaveLength(16);
-    expect(new Set(ONGLETS).size).toBe(16);
+    expect(ONGLETS).toHaveLength(17);
+    expect(new Set(ONGLETS).size).toBe(17);
   });
 });
 

@@ -23,11 +23,17 @@ export interface EtatSection {
  */
 export function CorpsSection({
   titre,
+  sousTitre,
+  actions,
   etat,
   onNouveau,
   children,
 }: {
   titre: string;
+  /** Une phrase qui situe l'ecran. Omise, l'en-tete reste comme avant. */
+  sousTitre?: string;
+  /** Commandes propres a l'ecran (export, filtre), posees avant « Nouveau ». */
+  actions?: ReactNode;
   etat: EtatSection;
   onNouveau: () => void;
   children: ReactNode;
@@ -35,15 +41,39 @@ export function CorpsSection({
   const t = useT();
   const vide = !etat.chargement && !etat.erreur && etat.elements.length === 0;
 
+  /**
+   * Volume de la liste.
+   *
+   * <p>`total` quand la liste est paginee — sinon le compteur dirait « 20 » sur
+   * un parc de trois cents ruches, ce qui est pire que pas de compteur. Masque
+   * pendant le chargement et sur une liste vide : l'etat vide porte deja le
+   * message, et un « 0 » a cote du titre le repete sans rien ajouter.
+   */
+  const volume = etat.total ?? etat.elements.length;
+  const afficherVolume = !etat.chargement && !etat.erreur && volume > 0;
+
   return (
     // `aria-busy` : l'assistance technique sait que le contenu est en cours de
     // remplacement, et n'annonce pas une liste vide qui n'en est pas une.
     <section className="z-section" aria-busy={etat.chargement}>
       <header className="z-section__entete">
-        <h1 className="z-section__titre">{titre}</h1>
-        <Bouton variante="primaire" onClick={onNouveau}>
-          + {t.actions.nouveau}
-        </Bouton>
+        <div>
+          <div className="z-section__ligne-titre">
+            <h1 className="z-section__titre">{titre}</h1>
+            {afficherVolume && (
+              // Le compteur appartient au titre, pas a la liste : il repond a
+              // « combien en ai-je ? » avant que l'oeil descende dans le tableau.
+              <span className="z-section__volume">{volume}</span>
+            )}
+          </div>
+          {sousTitre && <p className="z-section__soustitre">{sousTitre}</p>}
+        </div>
+        <div className="z-section__actions">
+          {actions}
+          <Bouton variante="primaire" onClick={onNouveau}>
+            + {t.actions.nouveau}
+          </Bouton>
+        </div>
       </header>
 
       {etat.chargement && (

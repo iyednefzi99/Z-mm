@@ -139,7 +139,11 @@ public class SecurityConfig {
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
                 .authorizeHttpRequests(requetes -> {
-                    requetes.requestMatchers("/bff/session").permitAll();
+                    // On ne demande pas d'etre connecte pour se connecter. Ces
+                    // trois routes sont donc ouvertes — CSRF, lui, reste exige :
+                    // ce sont des mutations sur une origine a cookie (ADR-009).
+                    requetes.requestMatchers("/bff/session", "/bff/connexion", "/bff/inscription")
+                            .permitAll();
                     matriceRbac(requetes, contratPublic);
                 })
                 .oauth2Login(connexion -> connexion
@@ -191,6 +195,12 @@ public class SecurityConfig {
 
                 // Le journal d'audit (US-043) est reserve au pilotage.
                 .requestMatchers(HttpMethod.GET, "/api/audit", "/api/audit/**")
+                .hasAnyRole("responsable", "admin")
+                // Les codes d'invitation (US-058) decident QUI entre dans
+                // l'exploitation et avec quel role : c'est une prerogative de
+                // responsable. En lecture aussi — la liste des codes en cours est
+                // une liste de clefs valides.
+                .requestMatchers("/api/invitations", "/api/invitations/**")
                 .hasAnyRole("responsable", "admin")
                 // L'approbation d'un planning est la fonction propre du superviseur.
                 .requestMatchers(HttpMethod.POST,
@@ -275,6 +285,20 @@ public class SecurityConfig {
         }
         decodeur.setJwtValidator(new DelegatingOAuth2TokenValidator<>(validateurs));
         return decodeur;
+    }
+
+    /**
+     * Autorites portees par un jeton, pour les appelants qui n'ont pas de chaine
+     * de filtres pour les leur poser.
+     *
+     * <p>Ouverte au seul {@code IdentiteBffController}, qui etablit une session a
+     * partir d'un jeton obtenu en arriere-plan (ADR-009). Il lui faut LES MEMES
+     * autorites que la chaine de filtres, et refaire l'extraction chez lui serait
+     * le debut de la derive que cette classe s'attache a eviter : deux lectures
+     * de {@code realm_access}, dont une qu'on oublie de corriger.
+     */
+    public static Collection<GrantedAuthority> autoritesDeJeton(Jwt jeton) {
+        return ConvertisseurDeRoles.extraire(jeton);
     }
 
     /** Un administrateur garde l'acces au contrat OpenAPI, y compris en production. */

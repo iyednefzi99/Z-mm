@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useState, type ReactElement } from 'react';
-import { jetonCsrf, synchroniser } from './api/client';
-import { consommerRouteDeRetour, deconnexion } from './auth/oidc';
+import { synchroniser } from './api/client';
+import { consommerRouteDeRetour } from './auth/oidc';
 import {
   rafraichirSession,
   sessionCourante,
@@ -22,8 +22,9 @@ import {
 } from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
 import { SelecteurTheme } from './theme/theme';
-import { Bouton } from './ui/composants';
+import { Bouton, Squelette } from './ui/composants';
 import { PaletteCommandes } from './ui/palette';
+import { MenuProfil } from './ui/profil';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
@@ -47,6 +48,9 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
   lots: lazy(() => import('./vues/LotsVue').then((m) => ({ default: m.LotsVue }))),
   carte: lazy(() => import('./vues/CarteVue').then((m) => ({ default: m.CarteVue }))),
   agents: lazy(() => import('./vues/AgentsVue').then((m) => ({ default: m.AgentsVue }))),
+  invitations: lazy(() =>
+    import('./vues/InvitationsVue').then((m) => ({ default: m.InvitationsVue })),
+  ),
   config: lazy(() => import('./vues/ConfigVue').then((m) => ({ default: m.ConfigVue }))),
   audit: lazy(() => import('./vues/AuditVue').then((m) => ({ default: m.AuditVue }))),
 };
@@ -128,7 +132,7 @@ export default function App(): ReactElement {
   // devant un utilisateur pourtant deja authentifie.
   if (session === undefined) {
     return (
-      <main className="z-connexion">
+      <main className="z-entree__panneau">
         <p className="z-info">{t.etats.chargement}</p>
       </main>
     );
@@ -194,12 +198,7 @@ export default function App(): ReactElement {
             ))}
           </nav>
           <SelecteurTheme />
-          <Bouton
-            variante="fantome"
-            onClick={() => void deconnexion(jetonCsrf())}
-          >
-            {t.actions.seDeconnecter}
-          </Bouton>
+          <MenuProfil session={session} />
         </div>
       </header>
 
@@ -238,9 +237,17 @@ export default function App(): ReactElement {
         <main className="z-vue">
           <Suspense
             fallback={
-              <p className="z-info" role="status">
-                {t.etats.chargement}
-              </p>
+              // Un squelette plutôt qu'un « Chargement… » : il dit ce que la
+              // phrase ne dit pas — que la réponse aura la forme d'une liste, et
+              // à peu près sa longueur. L'écran ne se réorganise donc pas à
+              // l'arrivée du module. Le texte reste, pour les lecteurs d'écran :
+              // le squelette est décoratif et n'annonce rien.
+              <>
+                <p className="z-visuellement-cache" role="status">
+                  {t.etats.chargement}
+                </p>
+                <Squelette lignes={6} />
+              </>
             }
           >
             {Vue === null ? (

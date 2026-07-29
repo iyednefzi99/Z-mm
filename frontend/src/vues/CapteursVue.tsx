@@ -145,7 +145,10 @@ export function CapteursVue(): ReactElement {
   return (
     <section className="z-section">
       <header className="z-section__entete">
-        <h1 className="z-section__titre">{t.onglets.capteurs}</h1>
+        <div>
+          <h1 className="z-section__titre">{t.onglets.capteurs}</h1>
+          <p className="z-section__soustitre">{t.soustitres.capteurs}</p>
+        </div>
       </header>
 
       {erreur && (

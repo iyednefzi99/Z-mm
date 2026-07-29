@@ -149,7 +149,10 @@ export function PlanningsVue(): ReactElement {
   };
 
   return (
-    <CorpsSection titre={t.onglets.plannings} etat={etat} onNouveau={() => ouvrir(null)}>
+    <CorpsSection
+      titre={t.onglets.plannings}
+      sousTitre={t.soustitres.plannings}
+      etat={etat} onNouveau={() => ouvrir(null)}>
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
       )}

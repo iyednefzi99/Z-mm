@@ -81,7 +81,10 @@ export function TachesVue(): ReactElement {
   };
 
   return (
-    <CorpsSection titre={t.onglets.taches} etat={etat} onNouveau={() => ouvrir(null)}>
+    <CorpsSection
+      titre={t.onglets.taches}
+      sousTitre={t.soustitres.taches}
+      etat={etat} onNouveau={() => ouvrir(null)}>
       {rappels.length > 0 && (
         <div className="z-rappels" role="status">
           <strong>{t.tache.rappels} :</strong>{' '}

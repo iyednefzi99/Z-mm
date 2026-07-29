@@ -37,6 +37,8 @@ import type {
   AlerteMesure,
   Anomalie,
   LigneProduction,
+  Invitation,
+  InvitationCorps,
   Meteo,
   MesureCorps,
   MesureReponse,
@@ -251,6 +253,21 @@ export const taches = ressource<Tache, TacheCorps>('/api/taches');
 
 /** US-031 : rappels en cours (tâches non faites déjà échues). */
 export const listerRappels = () => requete<Tache[]>('/api/taches/rappels');
+
+/**
+ * US-058 : codes d'invitation (ADR-009).
+ *
+ * <p>Pas de `ressource()` générique : un code ne se MODIFIE pas. Le changer
+ * après émission invaliderait celui déjà communiqué, sans que personne ne le
+ * sache ; on en émet un autre et on révoque l'ancien.
+ */
+export const listerInvitations = () => requete<Invitation[]>('/api/invitations');
+
+export const emettreInvitation = (corps: InvitationCorps) =>
+  requete<Invitation>('/api/invitations', { method: 'POST', ...corpsJson(corps) });
+
+export const revoquerInvitation = (id: number) =>
+  requete<void>(`/api/invitations/${id}`, { method: 'DELETE' });
 
 /** US-012 : calendrier matriciel agents × ruches sur une période. */
 export const chargerCalendrier = (debut: string, fin: string) =>
