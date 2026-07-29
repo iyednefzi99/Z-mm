@@ -148,6 +148,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bff/inscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["inscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bff/connexion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["connexion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/visites": {
         parameters: {
             query?: never;
@@ -340,7 +372,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/fermiers": {
+    "/api/invitations": {
         parameters: {
             query?: never;
             header?: never;
@@ -348,6 +380,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["lister_7"];
+        put?: never;
+        post: operations["emettre"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/fermiers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_8"];
         put?: never;
         post: operations["creer_7"];
         delete?: never;
@@ -363,7 +411,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_8"];
+        get: operations["lister_9"];
         put?: never;
         post: operations["creer_8"];
         delete?: never;
@@ -379,7 +427,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_9"];
+        get: operations["lister_10"];
         put?: never;
         post: operations["creer_9"];
         delete?: never;
@@ -783,7 +831,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_10"];
+        get: operations["lister_11"];
         put?: never;
         post?: never;
         delete?: never;
@@ -835,6 +883,22 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["supprimer_10"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/invitations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revoquer"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1174,6 +1238,16 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        DemandeInscription: {
+            nom: string;
+            courriel: string;
+            motDePasse: string;
+            code: string;
+        };
+        DemandeConnexion: {
+            identifiant: string;
+            motDePasse: string;
+        };
         PhotoCorps: {
             url: string;
             legende?: string;
@@ -1274,6 +1348,27 @@ export interface components {
             instant?: string;
             valeur?: number;
             alertes?: components["schemas"]["AlerteReponse"][];
+        };
+        InvitationCorps: {
+            role?: string;
+            /** Format: int32 */
+            utilisationsMax?: number;
+            /** Format: int32 */
+            joursValidite?: number;
+        };
+        InvitationReponse: {
+            /** Format: int64 */
+            id?: number;
+            code?: string;
+            role?: string;
+            /** Format: int32 */
+            utilisations?: number;
+            /** Format: int32 */
+            utilisationsMax?: number;
+            /** Format: date-time */
+            expireLe?: string;
+            creePar?: string;
+            epuise?: boolean;
         };
         SessionReponse: {
             utilisateur?: string;
@@ -2146,6 +2241,58 @@ export interface operations {
             };
         };
     };
+    inscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemandeInscription"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
+    connexion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemandeConnexion"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     lister: {
         parameters: {
             query?: never;
@@ -2661,6 +2808,50 @@ export interface operations {
     };
     lister_7: {
         parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitationReponse"][];
+                };
+            };
+        };
+    };
+    emettre: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["InvitationReponse"];
+                };
+            };
+        };
+    };
+    lister_8: {
+        parameters: {
             query?: {
                 page?: number;
                 taille?: number;
@@ -2707,7 +2898,7 @@ export interface operations {
             };
         };
     };
-    lister_8: {
+    lister_9: {
         parameters: {
             query?: {
                 page?: number;
@@ -2755,7 +2946,7 @@ export interface operations {
             };
         };
     };
-    lister_9: {
+    lister_10: {
         parameters: {
             query?: {
                 page?: number;
@@ -3347,7 +3538,7 @@ export interface operations {
             };
         };
     };
-    lister_10: {
+    lister_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -3412,6 +3603,26 @@ export interface operations {
         };
     };
     supprimer_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    revoquer: {
         parameters: {
             query?: never;
             header?: never;

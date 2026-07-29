@@ -737,6 +737,68 @@
         }
       }
     },
+    "/bff/inscription" : {
+      "post" : {
+        "tags" : [ "identite-bff-controller" ],
+        "operationId" : "inscription",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DemandeInscription"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bff/connexion" : {
+      "post" : {
+        "tags" : [ "identite-bff-controller" ],
+        "operationId" : "connexion",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DemandeConnexion"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/visites" : {
       "get" : {
         "tags" : [ "visite-controller" ],
@@ -1411,10 +1473,57 @@
         }
       }
     },
+    "/api/invitations" : {
+      "get" : {
+        "tags" : [ "invitation-controller" ],
+        "operationId" : "lister_7",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/InvitationReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "invitation-controller" ],
+        "operationId" : "emettre",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InvitationCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InvitationReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/fermiers" : {
       "get" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "lister_7",
+        "operationId" : "lister_8",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1485,7 +1594,7 @@
     "/api/fermes" : {
       "get" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "lister_8",
+        "operationId" : "lister_9",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1556,7 +1665,7 @@
     "/api/agents" : {
       "get" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "lister_9",
+        "operationId" : "lister_10",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -2336,7 +2445,7 @@
     "/api/audit" : {
       "get" : {
         "tags" : [ "audit-controller" ],
-        "operationId" : "lister_10",
+        "operationId" : "lister_11",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2421,6 +2530,26 @@
       "delete" : {
         "tags" : [ "reine-controller" ],
         "operationId" : "supprimer_10",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/invitations/{id}" : {
+      "delete" : {
+        "tags" : [ "invitation-controller" ],
+        "operationId" : "revoquer",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -3226,6 +3355,48 @@
           }
         }
       },
+      "DemandeInscription" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "courriel" : {
+            "type" : "string",
+            "maxLength" : 180,
+            "minLength" : 0
+          },
+          "motDePasse" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 12
+          },
+          "code" : {
+            "type" : "string",
+            "maxLength" : 32,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "code", "courriel", "motDePasse", "nom" ]
+      },
+      "DemandeConnexion" : {
+        "type" : "object",
+        "properties" : {
+          "identifiant" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "motDePasse" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "identifiant", "motDePasse" ]
+      },
       "PhotoCorps" : {
         "type" : "object",
         "properties" : {
@@ -3481,6 +3652,55 @@
             "items" : {
               "$ref" : "#/components/schemas/AlerteReponse"
             }
+          }
+        }
+      },
+      "InvitationCorps" : {
+        "type" : "object",
+        "properties" : {
+          "role" : {
+            "type" : "string"
+          },
+          "utilisationsMax" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "joursValidite" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "InvitationReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "utilisations" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "utilisationsMax" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "expireLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "creePar" : {
+            "type" : "string"
+          },
+          "epuise" : {
+            "type" : "boolean"
           }
         }
       },
