@@ -88,7 +88,7 @@ décisions d'architecture.
 | **React 19 + TypeScript + Vite** | PWA cliente. Routeur maison (ADR-005), pas de `react-router`. |
 | **MapLibre GL** | Rendu cartographique des ruchers, fonds OpenStreetMap. |
 | **springdoc-openapi** | Génère le contrat OpenAPI 3.1 depuis le code ; `openapi-typescript` en dérive les types du front — la CI échoue si les deux divergent. |
-| **Python / FastAPI** (`ia-service`) | Scoring d'anomalie déporté sur les séries de mesures. |
+| **Python 3.12, bibliothèque standard** (`ia-service`) | Scoring d'anomalie déporté sur les séries de mesures. `requirements.txt` est volontairement vide : aucune dépendance externe à suivre tant que le moteur reste statistique. |
 | **Nginx** | Proxy inverse, terminaison TLS, en-têtes de sécurité et CSP. |
 | **Prometheus + Grafana** | Métriques Micrometer exposées par Actuator, tableaux de bord d'exploitation. |
 | **Testcontainers** | Tests d'intégration sur un PostgreSQL/PostGIS **réel**, pas sur une base en mémoire. |
@@ -115,7 +115,7 @@ flowchart TB
         end
 
         KC["Keycloak<br/>OIDC · rôles · tenant_id<br/>:8081"]
-        IA["ia-service<br/>FastAPI · scoring d'anomalie"]
+        IA["ia-service<br/>Python · scoring d'anomalie"]
         PG[("PostgreSQL 16<br/>PostGIS · TimescaleDB<br/>RLS par tenant")]
         PROM["Prometheus"]
         GRAF["Grafana<br/>:3000"]
@@ -216,7 +216,13 @@ retomber sur une valeur devinable.
 
 ### Lancer la pile complète
 
+Deux prérequis ne sont **pas** versionnés et doivent être produits une fois, sinon
+`postgres` et `nginx` refusent de démarrer : l'image PostgreSQL locale (défaut de
+`POSTGRES_IMAGE`) et le certificat TLS de développement.
+
 ```bash
+docker build -f infra/test-postgres.Dockerfile -t zumm/test-postgres:16 infra/
+bash infra/generer-certificat-dev.sh
 docker compose --env-file .env -f infra/docker-compose.yml up -d --build
 ```
 
@@ -279,10 +285,25 @@ sommet. Un jeton valide **sans rôle métier** n'atteint aucun endpoint.
 ## 8. Aperçu du produit
 
 Pas de démonstration en ligne : la pile est prévue pour tourner en local
-(section 6). Pour voir les écrans sans rien démarrer, des maquettes HTML
-statiques sont consultables directement :
-[`docs/maquettes/`](docs/maquettes/) — calendrier des agents, rapport de visite,
-carte des ruchers.
+(section 6).
+
+<!-- TODO — captures à prendre, puis retirer ce commentaire.
+     Format : 1440×900, thème clair, sur le jeu de démonstration
+     (tenant `exploitation-demo`), aucune donnée réelle :
+       docs/screenshots/tableau-de-bord.png  synthèse, production, alertes
+       docs/screenshots/carte.png            ruchers et ruches sur MapLibre
+       docs/screenshots/visite.png           saisie d'un rapport de visite
+       docs/screenshots/hors-ligne.png       bandeau hors-ligne + file de rejeu
+       docs/screenshots/rtl-ar.png           interface en arabe, RTL complet
+-->
+
+| Tableau de bord | Carte des ruchers |
+|---|---|
+| ![Tableau de bord](docs/screenshots/tableau-de-bord.png) | ![Carte des ruchers](docs/screenshots/carte.png) |
+
+En attendant, les maquettes HTML statiques de conception se consultent sans rien
+démarrer : [`docs/maquettes/`](docs/maquettes/) — calendrier des agents, rapport
+de visite, carte des ruchers.
 
 ## 9. Documentation de l'API
 
@@ -291,8 +312,14 @@ L'API expose **56 chemins / 89 opérations** sous OpenAPI 3.1. Le contrat est
 [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json) ; la CI échoue
 si le code et le contrat divergent.
 
-- Interface interactive une fois la pile démarrée : `http://localhost:8080/swagger-ui.html`
+- Interface interactive : `http://localhost:8080/swagger-ui.html`
 - Contrat brut : `http://localhost:8080/v3/api-docs`
+
+Ces deux adresses supposent le **backend joint directement** (`./mvnw
+spring-boot:run`). Sous la pile Docker complète, le port 8080 n'est pas publié et
+Nginx ne relaie que `/api/`, `/bff/`, `/actuator/`, `/oauth2/`, `/login/` et les
+routes Keycloak : Swagger UI n'y est pas exposé — c'est de l'outillage de
+développement, pas une surface de production.
 
 **Authentification.** Toutes les routes `/api/**` exigent une session
 authentifiée (cookie `HttpOnly`) et **au moins un rôle métier**. Le jeton sous-
@@ -484,7 +511,11 @@ vérifie, la CI le rejoue, et `scripts/check-pdf-current.sh` échoue si un PDF
 committé ne correspond plus à ses sources. Voir
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-## Contrainte académique
+## Licence et contrainte académique
+
+Projet académique — **tous droits réservés**. Aucun fichier `LICENSE` n'accompagne
+le dépôt : aucune licence d'utilisation, de modification ou de redistribution
+n'est accordée.
 
 L'usage de générateurs de code pour produire le livrable est proscrit par
 l'épreuve. La documentation et la conception de ce dépôt sont réalisées à la main.
