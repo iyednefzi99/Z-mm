@@ -108,18 +108,23 @@ tant que l'application s'y connecte, la couche 2 est inerte. Corrigé (migration
   les tables futures. Rôle et mot de passe via **placeholders Flyway** — aucun
   secret versionné ; `DB_APP_PASSWORD` alimente à la fois la création du rôle et
   la source de données applicative.
-- **Dissociation des connexions** : en production, l'application se connecte en
-  `zumm_app` (`SPRING_DATASOURCE_USERNAME`), tandis que **Flyway** garde `zumm`
-  (`SPRING_FLYWAY_USER/URL/PASSWORD`) pour les DDL. Câblé dans `docker-compose.yml`.
+- **Dissociation des connexions** : l'application se connecte en `zumm_app`
+  (`SPRING_DATASOURCE_USERNAME`), tandis que **Flyway** garde `zumm`
+  (`SPRING_FLYWAY_USER/PASSWORD`) pour les DDL. Câblé dans `docker-compose.yml`
+  **et posé en défaut** dans `application.yml` : le défaut historique était le
+  propriétaire `zumm`, si bien qu'un lancement hors `compose` — un IDE, un
+  `spring-boot:run`, un déploiement qui oublie la variable — éteignait la RLS
+  **sans un mot dans les journaux**. Le défaut échoue désormais fermé.
 - **Preuve** (`RoleApplicatifIT`) : connexion **directe avec le vrai rôle
   `zumm_app`** — il est bien non-superutilisateur, la RLS l'isole réellement entre
   tenants, et il ne peut pas faire de DDL (moindre privilège).
 
-> ℹ️ **En test et en dev local**, l'application se connecte encore en `zumm`
-> (Testcontainers `@ServiceConnection`, défaut local) : la couche 1 (`@TenantId`)
-> protège, et `RoleApplicatifIT` prouve la couche 2 sur le rôle réel. C'est en
-> **production** (compose) que l'application bascule sur `zumm_app`. La validation
-> de bout en bout de ce câblage se fait en montant la pile complète.
+> ℹ️ **En test**, l'application se connecte encore en `zumm` : Testcontainers
+> (`@ServiceConnection`) impose les identifiants du conteneur et écrase le défaut.
+> La couche 1 (`@TenantId`) protège, et `RoleApplicatifIT` prouve la couche 2 sur
+> le rôle réel. **Reste dû** : faire tourner la campagne d'intégration sous
+> `zumm_app`, faute de quoi un test reste capable d'être vert à tort — c'est
+> exactement ce qui s'est produit sur US-057 au SPRINT-16.
 
 ---
 
