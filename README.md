@@ -13,6 +13,10 @@
   <img src="https://img.shields.io/badge/langues-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="Trilingue FR EN AR">
 </p>
 
+<p align="center">
+  <strong>Français</strong> · <a href="README.en.md">English</a>
+</p>
+
 ---
 
 ## 1. Présentation
