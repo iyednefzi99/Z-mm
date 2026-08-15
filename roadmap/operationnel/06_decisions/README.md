@@ -32,6 +32,8 @@ de savoir plus tard si la décision reste valable.
 | [ADR-006](ADR-006-stockage-des-jetons.md) | Où vivent les jetons de la PWA | 🟢 Accepté et **mis en œuvre** (SPRINT-16) | US-073, CSP du proxy, mise en production |
 | [ADR-007](ADR-007-graphiques-svg.md) | Graphiques : SVG maison plutôt que Chart.js | 🟢 Accepté | US-065, écart assumé au cahier |
 | [ADR-008](ADR-008-rls-contre-compression.md) | Isolation RLS ou fonctionnalités avancées de TimescaleDB | 🟢 Accepté — **généralisé au SPRINT-18** | US-070, US-080, volumétrie |
+| [ADR-009](ADR-009-connexion-dans-l-application.md) | Connexion et inscription depuis l'application | 🟢 Accepté et **mis en œuvre** (SPRINT-18) | Parcours d'entrée, création de comptes |
+| [ADR-010](ADR-010-jetons-de-session-au-repos.md) | Les jetons de session au repos | 🟢 Accepté | Sauvegardes, restauration, procédure d'incident |
 
 > ✅ **Les quatre premiers ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
 > Faute d'arbitrage client dans les délais du Sprint 0 (escalade J+5 échue),
