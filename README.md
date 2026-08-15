@@ -291,7 +291,7 @@ sommet. Un jeton valide **sans rôle métier** n'atteint aucun endpoint.
 Pas de démonstration en ligne : la pile est prévue pour tourner en local
 (section 6).
 
-<!-- TODO — captures à prendre, puis retirer ce commentaire.
+<!-- TODO — captures à prendre, puis décommenter le tableau ci-dessous.
      Format : 1440×900, thème clair, sur le jeu de démonstration
      (tenant `exploitation-demo`), aucune donnée réelle :
        docs/screenshots/tableau-de-bord.png  synthèse, production, alertes
@@ -299,11 +299,13 @@ Pas de démonstration en ligne : la pile est prévue pour tourner en local
        docs/screenshots/visite.png           saisie d'un rapport de visite
        docs/screenshots/hors-ligne.png       bandeau hors-ligne + file de rejeu
        docs/screenshots/rtl-ar.png           interface en arabe, RTL complet
--->
 
-| Tableau de bord | Carte des ruchers |
-|---|---|
-| ![Tableau de bord](docs/screenshots/tableau-de-bord.png) | ![Carte des ruchers](docs/screenshots/carte.png) |
+     Tableau à rétablir tel quel, et à répercuter dans README.en.md :
+
+     | Tableau de bord | Carte des ruchers |
+     |:-:|:-:|
+     | ![Tableau de bord](docs/screenshots/tableau-de-bord.png) | ![Carte des ruchers](docs/screenshots/carte.png) |
+-->
 
 En attendant, les maquettes HTML statiques de conception se consultent sans rien
 démarrer : [`docs/maquettes/`](docs/maquettes/) — calendrier des agents, rapport

@@ -289,7 +289,7 @@ scope at the top. A valid token **without a business role** reaches no endpoint.
 
 No online demo: the stack is meant to run locally (section 6).
 
-<!-- TODO — screenshots to be taken, then remove this comment.
+<!-- TODO — screenshots to be taken, then uncomment the table below.
      Format: 1440×900, light theme, on the demo dataset
      (tenant `exploitation-demo`), no real data:
        docs/screenshots/tableau-de-bord.png  summary, production, alerts
@@ -297,11 +297,13 @@ No online demo: the stack is meant to run locally (section 6).
        docs/screenshots/visite.png           filling in a visit report
        docs/screenshots/hors-ligne.png       offline banner + replay queue
        docs/screenshots/rtl-ar.png           Arabic interface, full RTL
--->
 
-| Dashboard | Apiary map |
-|---|---|
-| ![Dashboard](docs/screenshots/tableau-de-bord.png) | ![Apiary map](docs/screenshots/carte.png) |
+     Table to restore as-is, and to mirror in README.md:
+
+     | Dashboard | Apiary map |
+     |:-:|:-:|
+     | ![Dashboard](docs/screenshots/tableau-de-bord.png) | ![Apiary map](docs/screenshots/carte.png) |
+-->
 
 In the meantime, the static HTML design mockups can be browsed without starting
 anything: [`docs/maquettes/`](docs/maquettes/) — agent calendar, visit report,
