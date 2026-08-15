@@ -104,6 +104,25 @@ spring:
 
 server:
   port: 8080
+  # Le TLS est terminé par le proxy inverse, qui parle ensuite en clair au
+  # conteneur. Sans cette ligne, l'application se croit en HTTP : elle n'appose
+  # pas l'attribut `Secure` sur le cookie de session et forge des `redirect_uri`
+  # en `http://` pour le flux OIDC. Les en-têtes X-Forwarded-* sont posés par
+  # nginx (infra/nginx/nginx.conf).
+  forward-headers-strategy: framework
+  servlet:
+    session:
+      cookie:
+        # Le cookie de session EST la session (ADR-006) : le navigateur ne
+        # détient rien d'autre. Les trois attributs sont donc posés
+        # explicitement plutôt que laissés au contexte de la requête.
+        http-only: true
+        # Accepté par les navigateurs sur `http://localhost`, considéré comme
+        # origine sûre : le développement local n'en souffre pas.
+        secure: true
+        # `lax` et non `strict` : le retour de Keycloak est une navigation
+        # entrante inter-site, que `strict` priverait du cookie.
+        same-site: lax
 
 management:
   endpoints:

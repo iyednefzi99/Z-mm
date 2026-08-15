@@ -159,7 +159,14 @@ public class SecurityConfig {
                         .logoutSuccessHandler(new DeconnexionOidc(emetteur, apresDeconnexion))
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID"))
+                        // `SESSION`, pas `JSESSIONID` : depuis le passage a
+                        // Spring Session JDBC (V17), c'est ce nom que porte le
+                        // cookie. Viser l'ancien revenait a n'effacer aucun
+                        // cookie — sans consequence, l'invalidation de session
+                        // suffisant a le rendre inerte, mais un filet qui ne
+                        // retient rien vaut moins qu'un filet absent : on le
+                        // croit tendu.
+                        .deleteCookies("SESSION"))
                 // Une requete d'API non authentifiee doit recevoir 401, pas une
                 // redirection vers Keycloak : c'est le client qui decide d'aller se
                 // connecter, pas le navigateur au milieu d'un appel `fetch`.
