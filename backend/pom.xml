@@ -36,7 +36,7 @@
     <couverture.minimale>0.80</couverture.minimale>
 
     <!-- ─── Correctifs de securite au-dessus du BOM Spring Boot ───
-         Trois versions relevees au-dessus de ce que gere le BOM de Boot 3.5.16,
+         Quatre versions relevees au-dessus de ce que gere le BOM de Boot 3.5.16,
          pour fermer des vulnerabilites qu'il ne couvre pas encore. Ce sont des
          correctifs de patch, sans changement d'API.
 
@@ -49,10 +49,20 @@
                                GHSA-5jmj-h7xm-6q6v (5.3)
          - commons-lang3     : GHSA-j288-q9x7-2f5v (6.5)
          - postgresql        : GHSA-j92g-9f8w-j867 (8.2) — le pilote parle au
-                               SGBD qui detient toutes les donnees. -->
+                               SGBD qui detient toutes les donnees.
+         - log4j-api         : GHSA-qv9r-c865-cp47 / CVE-2026-49844 (MODERATE).
+                               Le defaut est INATTEIGNABLE ici : il faut le
+                               resolveur de message du JSON Template Layout,
+                               donc log4j-layout-template-json ET log4j-core.
+                               Zumm journalise avec Logback ; log4j-api n'arrive
+                               que par le pont log4j-to-slf4j de Boot. La version
+                               est relevee quand meme — le garde OSV est bloquant
+                               par choix, et discuter la joignabilite a chaque
+                               avis coute plus cher qu'un correctif de patch. -->
     <jackson-bom.version>2.21.5</jackson-bom.version>
     <commons-lang3.version>3.18.0</commons-lang3.version>
     <postgresql.version>42.7.12</postgresql.version>
+    <log4j2.version>2.25.5</log4j2.version>
   </properties>
 
   <dependencies>
