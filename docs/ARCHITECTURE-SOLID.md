@@ -7,6 +7,25 @@
 
 ---
 
+## 0. Inventaire des couches
+
+Ordres de grandeur relevés le 16/08/2026, à recompter et non à recopier.
+
+| Couche | Compte | Détail |
+|---|---|---|
+| Contrôleurs REST | **24** | 22 sous `/api`, 2 sous `/bff` (`SessionBffController`, `IdentiteBffController`) |
+| Entités `@Entity` | **26** | dont `Ping`, sonde de bout en bout conservée volontairement |
+| Migrations Flyway | **18** | `V1` → `V18`, source de vérité du schéma |
+
+> ⚠️ **Piège de comptage des contrôleurs.** `grep -rl "@RestController"` en renvoie
+> **25** : le motif matche aussi `@RestControllerAdvice`, donc
+> `GestionnaireExceptions`, qui n'expose aucune route. Ce n'est pas un contrôleur
+> mais un gestionnaire d'erreurs transverse — le compte juste est 24. Compter sur
+> `@RequestMapping` donne directement les 23 préfixes de routes (`/api`, ses 21
+> familles, et `/bff` partagé par les deux contrôleurs BFF).
+
+---
+
 ## 1. Les cinq principes SOLID
 
 ### S — Responsabilité unique (*Single Responsibility*)
