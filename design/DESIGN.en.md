@@ -115,6 +115,8 @@ We extend it to the screen.
 - **Families**
   - *Headings & UI*: **Inter** (or system fallback `-apple-system, Segoe UI, Roboto, sans-serif`).
     Alternative faithful to the wordmark: *Poppins* / *Nunito Sans* (roundness).
+  - *Arabic*: **Cairo** / **Tajawal** / **IBM Plex Sans Arabic** — Inter does not cover
+    Arabic script. Match the weight of the Latin counterpart.
   - *Numbers & data*: Inter with **tabular-nums** (column alignment).
   - *Monospace* (logs, sensor IDs): `JetBrains Mono`, fallback `ui-monospace`.
 
@@ -153,6 +155,10 @@ Spacing scale on a **4 px** base (multiples):
 - `--z-shadow-1: 0 1px 2px rgba(28,74,66,.08)`
 - `--z-shadow-2: 0 4px 12px rgba(28,74,66,.10)`
 - `--z-shadow-3: 0 12px 32px rgba(28,74,66,.14)`
+
+> **RTL note**: in Arabic the layout mirrors. Use logical properties
+> (`padding-inline-start`/`-end`, `margin-inline-*`) rather than `left`/`right`, flip
+> directional icons (arrows), and right-align numbers and tables.
 
 ---
 
@@ -199,7 +205,8 @@ Intent specs — the front-end translates them into its own technology.
   - *Secondary*: `--z-green-500` fill, white text.
   - *Ghost*: `--z-line` border, `--z-slate-800` text.
 - **Cards / hive tiles**: `--z-bg` fill, `--z-line` border, shadow `1`, `lg` radius.
-  Colored status bar on the left (`success`/`warning`/`danger`) for a hive's state.
+  Colored status bar on the `inline-start` side (`success`/`warning`/`danger`) for a hive's
+  state — hence on the right in Arabic (see the RTL note in § 4).
 - **Status badges**: pill, 300-tint semantic background, 600-tint text.
 - **Input fields**: `--z-line` border, focus ring `--z-honey-500` (2 px).
 - **Data tables**: numbers in `tabular-nums`, zebra rows `--z-surface`, header `--z-slate-800`.

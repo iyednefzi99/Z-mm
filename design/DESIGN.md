@@ -117,6 +117,8 @@ Système sobre et lisible ; le logo utilise une grotesque humaniste (formes rond
 - **Familles**
   - *Titres & UI* : **Inter** (ou fallback système `-apple-system, Segoe UI, Roboto, sans-serif`).
     Alternative fidèle au wordmark : *Poppins* / *Nunito Sans* (rondeurs).
+  - *Arabe* : **Cairo** / **Tajawal** / **IBM Plex Sans Arabic** — Inter ne couvre pas
+    l'écriture arabe. Choisir la même graisse que la contrepartie latine.
   - *Chiffres & données* : Inter en variante **tabular-nums** (alignement des colonnes).
   - *Monospace* (logs, identifiants capteurs) : `JetBrains Mono`, fallback `ui-monospace`.
 
@@ -155,6 +157,10 @@ Système sobre et lisible ; le logo utilise une grotesque humaniste (formes rond
 - `--z-shadow-1: 0 1px 2px rgba(28,74,66,.08)`
 - `--z-shadow-2: 0 4px 12px rgba(28,74,66,.10)`
 - `--z-shadow-3: 0 12px 32px rgba(28,74,66,.14)`
+
+> **Note RTL** : en arabe, la mise en page est miroir. Utiliser les propriétés logiques
+> (`padding-inline-start`/`-end`, `margin-inline-*`) plutôt que `left`/`right`, retourner
+> les icônes directionnelles (flèches), et aligner à droite les chiffres et les tableaux.
 
 ---
 
@@ -202,7 +208,8 @@ Spécifications d'intention — le front-end les traduit dans sa techno.
   - *Secondaire* : fond `--z-green-500`, texte blanc.
   - *Fantôme* : bordure `--z-line`, texte `--z-slate-800`.
 - **Cartes / tuiles ruche** : fond `--z-bg`, bordure `--z-line`, ombre `1`, rayon `lg`.
-  Barre d'état colorée à gauche (`success`/`warning`/`danger`) pour l'état d'une ruche.
+  Barre d'état colorée côté `inline-start` (`success`/`warning`/`danger`) pour l'état
+  d'une ruche — donc à droite en arabe (voir la note RTL du § 4).
 - **Badges d'état** : pilule, fond teinte 300 de la sémantique, texte teinte 600.
 - **Champs de saisie** : bordure `--z-line`, focus anneau `--z-honey-500` (2 px).
 - **Tableaux de données** : chiffres en `tabular-nums`, lignes alternées `--z-surface`,
