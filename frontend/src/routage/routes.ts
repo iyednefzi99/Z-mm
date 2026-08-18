@@ -126,3 +126,33 @@ export function ongletDepuisChemin(chemin: string): Onglet | null {
   }
   return (ONGLETS as readonly string[]).includes(segment) ? (segment as Onglet) : null;
 }
+
+/**
+ * Routes servies <strong>hors console</strong>, et accessibles sans session
+ * (SPRINT-19).
+ *
+ * <p>Jusqu'ici l'application n'avait qu'une porte : sans session, l'écran de
+ * connexion occupait tout l'espace, quelle que soit l'URL. Un visiteur ne
+ * pouvait donc rien apprendre du produit avant d'avoir un compte — ce qui
+ * suppose déjà d'avoir un code d'exploitation. La page d'accueil comble ce
+ * trou : elle présente les fonctionnalités à <strong>tout le monde</strong>,
+ * visiteur compris, et reste consultable une fois connecté.
+ *
+ * <p>Ces chemins ne sont volontairement PAS des onglets : ils n'apparaissent ni
+ * dans le rail, ni dans la palette, et ne vivent pas dans la coquille de la
+ * console.
+ */
+export const ROUTES_PUBLIQUES = {
+  accueil: '/accueil',
+  connexion: '/connexion',
+} as const;
+
+export type RoutePublique = keyof typeof ROUTES_PUBLIQUES;
+
+const CHEMINS_PUBLICS = Object.entries(ROUTES_PUBLIQUES) as [RoutePublique, string][];
+
+/** Route publique correspondant à un chemin, ou {@code null} si ce n'en est pas une. */
+export function routePubliqueDepuisChemin(chemin: string): RoutePublique | null {
+  const segment = `/${chemin.replace(/^\/+/, '').replace(/\/+$/, '')}`;
+  return CHEMINS_PUBLICS.find(([, valeur]) => valeur === segment)?.[0] ?? null;
+}

@@ -1,6 +1,110 @@
 {
   "marque": "Zümm",
   "baseline": "Beekeeping management & monitoring",
+  "accueil": {
+    "accroche": "Your whole apiary, at a glance.",
+    "intro": "Zümm brings livestock, apiary visits, sensors and harvests together in a single application. It follows you into the field, even with no network, in French, English and Arabic.",
+    "seConnecter": "Sign in",
+    "creerCompte": "Create an account",
+    "ouvrirConsole": "Open the console",
+    "decouvrir": "See the features",
+    "retour": "Back to home",
+    "apercu": {
+      "titre": "What you keep track of",
+      "ruches": "Hives and colonies",
+      "capteurs": "Weight, temperature, humidity",
+      "recoltes": "Harvests and batches"
+    },
+    "fonctionnalites": {
+      "titre": "What Zümm can do",
+      "soustitre": "Six areas, from day-to-day steering to honey traceability.",
+      "pilotage": {
+        "titre": "Steering",
+        "texte": "Dashboards, health alerts and production curves: the state of the livestock reads at a glance."
+      },
+      "cheptel": {
+        "titre": "Livestock",
+        "texte": "Farmers, farms, apiaries, hives and queens — the whole holding hierarchy, kept up to date."
+      },
+      "terrain": {
+        "titre": "Field work",
+        "texte": "Planned rounds, inspection reports, tasks with due dates and a map of the apiaries."
+      },
+      "production": {
+        "titre": "Production",
+        "texte": "Harvests per hive, batching and the origin statement required by Directive (EU) 2024/1438."
+      },
+      "capteurs": {
+        "titre": "Sensors",
+        "texte": "Weight, temperature and humidity sent by the gateways, stored over time and compared."
+      },
+      "horsLigne": {
+        "titre": "Offline",
+        "texte": "Data entry carries on without a network at the apiary; everything syncs when the connection returns."
+      }
+    },
+    "profils": {
+      "titre": "Who it is for",
+      "soustitre": "Everyone sees what concerns them, according to their role.",
+      "apiculteur": {
+        "titre": "Beekeeper",
+        "texte": "Follows the colonies, plans the visits and records the harvests."
+      },
+      "agent": {
+        "titre": "Field agent",
+        "texte": "Receives the rounds and records observations at the apiary, even offline."
+      },
+      "responsable": {
+        "titre": "Holding manager",
+        "texte": "Invites agents, assigns roles and follows activity in the audit log."
+      }
+    },
+    "etapes": {
+      "titre": "Getting started",
+      "soustitre": "Three steps, and the monitoring begins.",
+      "un": {
+        "titre": "Create an account",
+        "texte": "With the holding code given to you by your manager."
+      },
+      "deux": {
+        "titre": "Declare the livestock",
+        "texte": "Apiaries, hives and queens — or take over a stock already recorded."
+      },
+      "trois": {
+        "titre": "Follow day to day",
+        "texte": "Visits, sensors, harvests: the history builds itself."
+      }
+    },
+    "confiance": {
+      "titre": "What is protected",
+      "soustitre": "Security was not bolted on afterwards.",
+      "cloisonnement": {
+        "titre": "Partitioned data",
+        "texte": "Each holding only sees its own data: the partitioning is enforced by the database itself."
+      },
+      "positions": {
+        "titre": "Apiaries located with care",
+        "texte": "The coordinates of an apiary are sensitive: they come out filtered according to your role."
+      },
+      "session": {
+        "titre": "Server-side session",
+        "texte": "No token is stored in the browser: the session lives in a cookie only the server can read."
+      },
+      "langues": {
+        "titre": "Three languages",
+        "texte": "French, English and Arabic, right-to-left writing included."
+      }
+    },
+    "final": {
+      "titre": "Ready to open the hive?",
+      "texte": "Creating an account requires a holding code. You do not have one? Ask the manager of your holding."
+    },
+    "pied": {
+      "ecrans": "{n} business screens",
+      "langues": "Français · English · العربية",
+      "note": "Zümm — beekeeping management & monitoring."
+    }
+  },
   "audit": {
     "titre": "Audit log",
     "instant": "Date",

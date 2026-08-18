@@ -30,8 +30,13 @@ type Onglet = 'connexion' | 'inscription';
  *       passe faux. Distinguer les deux transformerait cet écran en annuaire des
  *       comptes existants.
  * </ul>
+ *
+ * @param onAccueil retour vers la page d'accueil publique. Facultatif : l'écran
+ *   reste montable seul, mais l'application le fournit toujours — sans ce lien,
+ *   un visiteur qui a cliqué « Se connecter » sans avoir de compte se retrouve
+ *   coincé sur un formulaire qu'il ne peut pas remplir.
  */
-export function ConnexionVue(): ReactElement {
+export function ConnexionVue({ onAccueil }: { onAccueil?: () => void }): ReactElement {
   const t = useT();
   const [onglet, setOnglet] = useState<Onglet>('connexion');
   const [identifiant, setIdentifiant] = useState('');
@@ -232,6 +237,20 @@ export function ConnexionVue(): ReactElement {
           </Bouton>
 
           <p className="z-entree__note">{t.session.explication}</p>
+
+          {/* Sortie de secours : « Se connecter » a pu être cliqué par
+              curiosité, avant même d'avoir un code d'exploitation. Sans ce
+              retour, l'écran d'entrée serait un cul-de-sac. */}
+          {onAccueil ? (
+            <button type="button" className="z-lien z-entree__retour" onClick={onAccueil}>
+              {/* La flèche se retourne en arabe : « retour » ne pointe pas du
+                  même côté quand la page se lit de droite à gauche. */}
+              <span className="z-fleche-retour" aria-hidden="true">
+                ←
+              </span>{' '}
+              {t.accueil.retour}
+            </button>
+          ) : null}
         </div>
       </div>
     </main>

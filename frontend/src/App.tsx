@@ -16,8 +16,10 @@ import {
   GROUPES,
   GROUPES_CLES,
   ICONES,
+  ROUTES_PUBLIQUES,
   cheminDepuisOnglet,
   ongletDepuisChemin,
+  routePubliqueDepuisChemin,
   type Onglet,
 } from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
@@ -25,6 +27,7 @@ import { SelecteurTheme } from './theme/theme';
 import { Bouton, Squelette } from './ui/composants';
 import { PaletteCommandes } from './ui/palette';
 import { MenuProfil } from './ui/profil';
+import { AccueilVue } from './vues/AccueilVue';
 import { ConnexionVue } from './vues/ConnexionVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
@@ -60,6 +63,13 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
  * metier, selecteur de langue (FR/EN/AR, RTL en arabe) et zone de contenu. Chaque
  * ecran a son adresse (US-051). Sans session, l'ecran de connexion prend toute la
  * place — l'URL, elle, est conservee, pour y revenir apres reconnexion.
+ *
+ * <p>Deux ecrans vivent HORS de cette coquille et sans session : la page
+ * d'accueil publique (`/accueil`, et la racine tant qu'on n'est pas connecte) et
+ * l'ecran d'entree (`/connexion`). L'accueil est importe normalement et non
+ * paresseusement, contrairement aux vues metier : c'est la premiere page servie
+ * a un visiteur, la mettre derriere un second aller-retour reseau ferait
+ * commencer la decouverte du produit par un squelette de chargement.
  */
 export default function App(): ReactElement {
   const t = useT();
@@ -74,8 +84,18 @@ export default function App(): ReactElement {
   const [palette, setPalette] = useState(false);
 
   const onglet = ongletDepuisChemin(chemin);
+  const routePublique = routePubliqueDepuisChemin(chemin);
 
   useEffect(() => surSession(setSession), []);
+
+  // Un utilisateur déjà connecté n'a rien à faire sur l'écran d'entrée : s'il y
+  // arrive par un favori ou par le bouton retour, on le ramène à la console.
+  // L'accueil, lui, reste accessible connecté — c'est une vitrine, pas un sas.
+  useEffect(() => {
+    if (session && routePublique === 'connexion') {
+      naviguer('/');
+    }
+  }, [session, routePublique, naviguer]);
 
   // Ctrl/⌘ + K ouvre la palette depuis n'importe quel écran. Le raccourci est
   // capté sur le document et non sur un champ : il doit répondre où que soit le
@@ -137,8 +157,18 @@ export default function App(): ReactElement {
       </main>
     );
   }
+  // La vitrine passe AVANT le contrôle de session : c'est la seule page que
+  // l'application sert à un visiteur sans compte, et elle reste consultable une
+  // fois connecté. Sans session, elle tient aussi lieu de racine — arriver sur
+  // un formulaire de connexion quand on ne connaît pas encore le produit ne dit
+  // rien de ce qu'on est venu voir.
+  if (routePublique === 'accueil' || (session === null && chemin === '/')) {
+    return <AccueilVue session={session} onNaviguer={naviguer} />;
+  }
   if (session === null) {
-    return <ConnexionVue />;
+    // Toute autre adresse demande un compte. Le chemin n'est pas effacé : après
+    // authentification, l'écran demandé s'ouvre de lui-même (US-051).
+    return <ConnexionVue onAccueil={() => naviguer(ROUTES_PUBLIQUES.accueil)} />;
   }
 
   const Vue = onglet === null ? null : VUES[onglet];

@@ -72,18 +72,88 @@ describe('ossature de la console', () => {
     definir({ utilisateur: 'agent-test', roles: ['admin'], exploitation: 'demo' });
   });
 
-  it('affiche l’écran de connexion une fois la session connue absente', async () => {
-    // L'écran de connexion n'apparaît QU'APRÈS la réponse du serveur : le
-    // navigateur ne détient plus de jeton, il ne peut donc plus savoir seul s'il
-    // est connecté (ADR-006). D'où l'attente — et d'où l'écran de chargement
-    // intermédiaire, qui évite de faire clignoter « Session requise » devant un
-    // utilisateur pourtant authentifié.
+  /** Place le navigateur devant un serveur qui répond « pas de session ». */
+  function visiteurSansCompte() {
+    // Rien n'apparaît AVANT la réponse du serveur : le navigateur ne détient
+    // plus de jeton, il ne peut donc plus savoir seul s'il est connecté
+    // (ADR-006). D'où l'attente dans chaque test, et l'écran de chargement
+    // intermédiaire, qui évite de faire clignoter la page devant un utilisateur
+    // pourtant authentifié.
     reinitialiserSession();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 401 }));
+  }
+
+  it('sert la page d’accueil publique à la racine, sans session', async () => {
+    // La vitrine passe avant le formulaire : un visiteur qui découvre Zümm doit
+    // pouvoir savoir ce que fait le produit avant qu'on lui demande un compte.
+    visiteurSansCompte();
+
+    monter();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' }),
+    ).toBeInTheDocument();
+  });
+
+  it('mène de l’accueil à l’écran d’entrée', async () => {
+    visiteurSansCompte();
+    monter();
+    await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' });
+
+    // Deux boutons portent ce nom — la barre et l'appel du héros. C'est voulu :
+    // sur une page longue, l'entrée doit rester à portée sans remonter.
+    await userEvent.click(screen.getAllByRole('button', { name: 'Se connecter' })[0]);
+
+    expect(window.location.pathname).toBe('/connexion');
+    expect(await screen.findByText('Session requise')).toBeInTheDocument();
+  });
+
+  it('ramène de l’écran d’entrée vers l’accueil', async () => {
+    allerA('/connexion');
+    visiteurSansCompte();
+    monter();
+    await screen.findByText('Session requise');
+
+    await userEvent.click(screen.getByRole('button', { name: /Retour à l’accueil/ }));
+
+    expect(window.location.pathname).toBe('/accueil');
+    expect(
+      await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' }),
+    ).toBeInTheDocument();
+  });
+
+  it('exige une session sur une adresse de la console', async () => {
+    // L'accueil est la SEULE page publique : une vue métier demandée sans
+    // session mène au formulaire, et l'URL est conservée pour y revenir.
+    allerA('/ruches');
+    visiteurSansCompte();
 
     monter();
 
     expect(await screen.findByText('Session requise')).toBeInTheDocument();
+    expect(window.location.pathname).toBe('/ruches');
+  });
+
+  it('sert aussi l’accueil à un utilisateur connecté', async () => {
+    // La page reste une vitrine, pas un sas : elle ne se referme pas une fois
+    // le compte créé. Son appel principal change, lui.
+    allerA('/accueil');
+
+    monter();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Ouvrir la console' })[0]).toBeInTheDocument();
+  });
+
+  it('renvoie un utilisateur connecté de l’écran d’entrée vers la console', async () => {
+    allerA('/connexion');
+
+    monter();
+
+    await waitFor(() => expect(window.location.pathname).toBe('/'));
+    expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();
   });
 
   it('sert l’écran par défaut à la racine', async () => {

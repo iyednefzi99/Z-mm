@@ -1,6 +1,110 @@
 {
   "marque": "Zümm",
   "baseline": "Gestion et suivi apicole",
+  "accueil": {
+    "accroche": "Toute la ruche, sous les yeux.",
+    "intro": "Zümm rassemble le cheptel, les visites au rucher, les capteurs et les récoltes dans une seule application. Elle vous suit sur le terrain, même sans réseau, en français, en anglais et en arabe.",
+    "seConnecter": "Se connecter",
+    "creerCompte": "Créer un compte",
+    "ouvrirConsole": "Ouvrir la console",
+    "decouvrir": "Voir les fonctionnalités",
+    "retour": "Retour à l’accueil",
+    "apercu": {
+      "titre": "Ce que vous suivez",
+      "ruches": "Ruches et colonies",
+      "capteurs": "Poids, température, humidité",
+      "recoltes": "Récoltes et lots"
+    },
+    "fonctionnalites": {
+      "titre": "Ce que Zümm sait faire",
+      "soustitre": "Six domaines, du pilotage quotidien à la traçabilité du miel.",
+      "pilotage": {
+        "titre": "Pilotage",
+        "texte": "Tableaux de bord, alertes sanitaires et courbes de production : l’état du cheptel se lit d’un coup d’œil."
+      },
+      "cheptel": {
+        "titre": "Cheptel",
+        "texte": "Fermiers, fermes, ruchers, ruches et reines — toute la hiérarchie de l’exploitation, tenue à jour."
+      },
+      "terrain": {
+        "titre": "Terrain",
+        "texte": "Tournées planifiées, comptes rendus de visite, tâches à échéance et carte des ruchers."
+      },
+      "production": {
+        "titre": "Production",
+        "texte": "Récoltes par ruche, mise en lots et mention d’origine exigée par la directive (UE) 2024/1438."
+      },
+      "capteurs": {
+        "titre": "Capteurs",
+        "texte": "Poids, température et humidité remontés par les passerelles, historisés et comparés."
+      },
+      "horsLigne": {
+        "titre": "Hors ligne",
+        "texte": "La saisie continue sans réseau au rucher ; tout se synchronise au retour de la connexion."
+      }
+    },
+    "profils": {
+      "titre": "Pour qui",
+      "soustitre": "Chacun voit ce qui le concerne, selon son rôle.",
+      "apiculteur": {
+        "titre": "Apiculteur",
+        "texte": "Suit ses colonies, planifie les visites et déclare ses récoltes."
+      },
+      "agent": {
+        "titre": "Agent de terrain",
+        "texte": "Reçoit ses tournées et saisit ses observations au rucher, même hors réseau."
+      },
+      "responsable": {
+        "titre": "Responsable d’exploitation",
+        "texte": "Invite les agents, attribue les rôles et suit l’activité dans le journal d’audit."
+      }
+    },
+    "etapes": {
+      "titre": "Commencer",
+      "soustitre": "Trois étapes, et le suivi démarre.",
+      "un": {
+        "titre": "Créer un compte",
+        "texte": "Avec le code d’exploitation remis par votre responsable."
+      },
+      "deux": {
+        "titre": "Déclarer le cheptel",
+        "texte": "Ruchers, ruches et reines — ou reprendre un parc déjà enregistré."
+      },
+      "trois": {
+        "titre": "Suivre au quotidien",
+        "texte": "Visites, capteurs, récoltes : l’historique se construit tout seul."
+      }
+    },
+    "confiance": {
+      "titre": "Ce qui est protégé",
+      "soustitre": "La sécurité n’a pas été ajoutée après coup.",
+      "cloisonnement": {
+        "titre": "Données cloisonnées",
+        "texte": "Chaque exploitation ne voit que ses données : le cloisonnement est appliqué par la base elle-même."
+      },
+      "positions": {
+        "titre": "Ruchers localisés avec précaution",
+        "texte": "Les coordonnées d’un rucher sont sensibles : elles sortent filtrées selon votre rôle."
+      },
+      "session": {
+        "titre": "Session côté serveur",
+        "texte": "Aucun jeton n’est stocké dans le navigateur : la session tient dans un cookie que seul le serveur peut lire."
+      },
+      "langues": {
+        "titre": "Trois langues",
+        "texte": "Français, anglais et arabe, écriture de droite à gauche comprise."
+      }
+    },
+    "final": {
+      "titre": "Prêt à ouvrir la ruche ?",
+      "texte": "La création de compte demande un code d’exploitation. Vous n’en avez pas ? Demandez-le au responsable de votre exploitation."
+    },
+    "pied": {
+      "ecrans": "{n} écrans métier",
+      "langues": "Français · English · العربية",
+      "note": "Zümm — gestion et suivi apicole."
+    }
+  },
   "audit": {
     "titre": "Journal d’audit",
     "instant": "Date",

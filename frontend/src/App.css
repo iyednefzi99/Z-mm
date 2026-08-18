@@ -2203,3 +2203,338 @@ a:focus-visible,
   background: var(--z-honey-500);
   color: var(--z-on-honey);
 }
+
+/* ─── Page d'accueil publique (SPRINT-19) ──────────────────────────────────
+   La vitrine du produit : le seul écran qu'un visiteur sans compte peut voir.
+   Elle vit HORS de la coquille de la console — pas de rail, pas de barre de
+   recherche, rien qui suppose une session.
+
+   Deux règles tenues ici : le dégradé signature n'occupe qu'UNE surface (la
+   carte d'aperçu du héros), conformément à DESIGN.md § 2.1 — partout ailleurs
+   il reste un accent ; et toutes les distances sont logiques, pour que l'arabe
+   soit un miroir réel et non une exception traitée à part. */
+
+.z-accueil {
+  min-block-size: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--z-bg);
+}
+
+.z-accueil__barre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3rem);
+  background: var(--z-surface);
+  border-block-end: 1px solid var(--z-line);
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+}
+
+.z-accueil__barre-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Le héros. Une seule colonne sous 900 px : sur un téléphone, la carte d'aperçu
+   passe sous le texte plutôt que de le comprimer. */
+.z-accueil__hero {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem);
+  max-inline-size: 76rem;
+  margin-inline: auto;
+  inline-size: 100%;
+  background: radial-gradient(
+    70% 60% at 50% -10%,
+    color-mix(in srgb, var(--z-honey-500) 14%, transparent),
+    transparent
+  );
+  animation: z-entree-apparition var(--z-duration-slow) var(--z-ease-out) both;
+}
+
+@media (min-width: 900px) {
+  .z-accueil__hero {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+.z-accueil__accroche {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--z-text);
+  max-inline-size: 16ch;
+}
+
+.z-accueil__intro {
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--z-text-muted);
+  max-inline-size: 58ch;
+}
+
+.z-accueil__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-block-start: 1.75rem;
+}
+
+/* Carte d'aperçu : la seule surface de la page qui porte le dégradé signature.
+   Elle NOMME ce que l'application suit, sans afficher aucune valeur — un
+   visiteur n'a pas de données, et en inventer pour décorer serait mentir sur le
+   produit. */
+/* Encre SOMBRE sur le dégradé, et non l'encre claire du volet de connexion :
+   celui-ci pose son texte sur la fin verte du dégradé, alors que cette carte
+   couvre les deux extrémités. Du #fdfcf7 sur le miel plafonne à 2,2:1 — sous
+   l'AA exigé par DESIGN.md § 2.4. `--z-on-honey` est le jeton prévu pour ce
+   cas : il tient 7,4:1 côté miel et 5,0:1 côté vert. */
+.z-accueil__apercu {
+  position: relative;
+  overflow: hidden;
+  padding: 1.75rem;
+  border-radius: var(--z-radius-lg);
+  background: var(--z-gradient-signature);
+  color: var(--z-on-honey);
+  box-shadow: var(--z-shadow-3);
+}
+
+.z-accueil__halo {
+  position: absolute;
+  inset-block-start: -45%;
+  inset-inline-end: -25%;
+  inline-size: 80%;
+  aspect-ratio: 1;
+  border-radius: var(--z-radius-pill);
+  background: radial-gradient(circle, rgba(253, 252, 247, 0.4), transparent 62%);
+  pointer-events: none;
+}
+
+.z-accueil__apercu-titre {
+  position: relative;
+  margin: 0 0 1rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.z-accueil__apercu-liste {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.z-accueil__apercu-liste li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--z-radius-md);
+  /* Voile clair, pas sombre : il éclaircit le fond sous une encre sombre, donc
+     il AUGMENTE le contraste au lieu de le manger. */
+  background: rgba(253, 252, 247, 0.42);
+  font-size: 0.95rem;
+}
+
+/* ─── Sections de contenu ─────────────────────────────────────────────────── */
+
+.z-accueil__section,
+.z-accueil__final {
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 3rem);
+  max-inline-size: 76rem;
+  margin-inline: auto;
+  inline-size: 100%;
+}
+
+/* Bande pleine largeur, colonne de texte contenue : la teinte va d'un bord à
+   l'autre de l'écran, mais le contenu reste dans la même colonne de 76 rem que
+   les autres sections. Le `max()` remplace un div d'habillage — sur un écran
+   large, c'est la marge qui grandit, pas la ligne de texte. */
+.z-accueil__section--teinte {
+  background: var(--z-surface);
+  max-inline-size: none;
+  padding-inline: max(clamp(1rem, 4vw, 3rem), calc((100% - 76rem) / 2));
+  border-block: 1px solid var(--z-line);
+}
+
+.z-accueil__titre {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  line-height: 1.2;
+  color: var(--z-text);
+}
+
+.z-accueil__soustitre {
+  margin: 0.5rem 0 0;
+  color: var(--z-text-muted);
+  line-height: 1.55;
+  max-inline-size: 62ch;
+}
+
+.z-accueil__grille {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+/* Trois profils : forcer trois colonnes au bureau évite qu'une grille
+   automatique n'en pose deux et laisse un orphelin sur la seconde ligne. */
+@media (min-width: 900px) {
+  .z-accueil__grille--trois {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.z-accueil__carte {
+  padding: 1.25rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+  box-shadow: var(--z-shadow-1);
+  transition:
+    transform var(--z-duration-base) var(--z-ease-out),
+    box-shadow var(--z-duration-base) var(--z-ease-out);
+}
+
+/* Le survol soulève la carte d'un cheveu. C'est un signal de matière, pas une
+   invitation à cliquer : ces cartes ne sont pas des liens. */
+.z-accueil__carte:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--z-shadow-2);
+}
+
+.z-accueil__carte-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--z-radius-md);
+  background: color-mix(in srgb, var(--z-honey-500) 18%, transparent);
+  font-size: 1.25rem;
+}
+
+.z-accueil__carte-titre {
+  margin: 0.85rem 0 0;
+  font-size: 1.05rem;
+  color: var(--z-text);
+}
+
+.z-accueil__carte-texte {
+  margin: 0.4rem 0 0;
+  color: var(--z-text-muted);
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+/* ─── Les trois étapes ─────────────────────────────────────────────────────
+   Une liste ORDONNÉE : le rang est l'information. Le numéro est peint par un
+   compteur CSS et non écrit dans le texte — un lecteur d'écran annonce déjà
+   « 1 sur 3 », l'entendre deux fois n'aide personne. */
+
+.z-accueil__etapes {
+  counter-reset: z-etape;
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
+.z-accueil__etape {
+  counter-increment: z-etape;
+  padding: 1.25rem;
+  background: var(--z-bg);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+}
+
+.z-accueil__etape::before {
+  content: counter(z-etape);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-gradient-signature);
+  color: var(--z-on-honey);
+  font-weight: 700;
+}
+
+/* ─── Garanties ───────────────────────────────────────────────────────────── */
+
+.z-accueil__garanties {
+  list-style: none;
+  margin: 2rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+
+/* Un filet vert en bord de départ plutôt qu'une carte de plus : la page en
+   compte déjà neuf, et ces quatre points se lisent, ils ne se survolent pas. */
+.z-accueil__garantie {
+  padding-inline-start: 1rem;
+  border-inline-start: 3px solid var(--z-green-500);
+}
+
+.z-accueil__garantie .z-accueil__carte-titre {
+  margin-block-start: 0;
+}
+
+/* ─── Appel final et pied de page ─────────────────────────────────────────── */
+
+.z-accueil__final {
+  text-align: center;
+}
+
+.z-accueil__final .z-accueil__soustitre {
+  margin-inline: auto;
+}
+
+.z-accueil__final .z-accueil__cta {
+  justify-content: center;
+}
+
+.z-accueil__pied {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border-block-start: 1px solid var(--z-line);
+  color: var(--z-text-muted);
+  font-size: 0.85rem;
+}
+
+/* Retour vers l'accueil depuis l'écran d'entrée. La flèche se retourne en
+   arabe : « précédent » ne pointe pas du même côté selon le sens de lecture. */
+.z-entree__retour {
+  align-self: center;
+}
+
+.z-fleche-retour {
+  display: inline-block;
+}
+
+[dir='rtl'] .z-fleche-retour {
+  transform: scaleX(-1);
+}
