@@ -13,12 +13,14 @@ import { useLangue, useT } from './i18n/langue';
 import { surFile } from './offline/file';
 import { useNavigation } from './routage/navigation';
 import {
-  GROUPES,
   GROUPES_CLES,
   ICONES,
+  ROLES_ONGLET,
   ROUTES_PUBLIQUES,
   cheminDepuisOnglet,
+  ongletAutorise,
   ongletDepuisChemin,
+  ongletsVisibles,
   routePubliqueDepuisChemin,
   type Onglet,
 } from './routage/routes';
@@ -29,6 +31,7 @@ import { PaletteCommandes } from './ui/palette';
 import { MenuProfil } from './ui/profil';
 import { AccueilVue } from './vues/AccueilVue';
 import { ConnexionVue } from './vues/ConnexionVue';
+import { InterditVue } from './vues/InterditVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
 
@@ -172,6 +175,9 @@ export default function App(): ReactElement {
   }
 
   const Vue = onglet === null ? null : VUES[onglet];
+  // Le rail masque déjà ces écrans, mais une URL se tape et un favori survit à
+  // un changement de rôle : le contrôle se refait donc ici, sur le chemin.
+  const refuse = onglet !== null && !ongletAutorise(onglet, session.roles);
 
   return (
     <div className="z-app">
@@ -239,12 +245,21 @@ export default function App(): ReactElement {
           écran. Tout se joue donc en CSS. */}
       <div className="z-corps">
         <nav className="z-rail" aria-label={t.groupes.navigation}>
-          {GROUPES_CLES.map((groupe) => (
+          {GROUPES_CLES.map((groupe) => {
+            // Ne proposer que ce que les rôles ouvrent. Un onglet qui mène à un
+            // refus n'est pas une navigation, c'est une impasse annoncée. Une
+            // famille vidée de tous ses écrans disparaît avec eux : un
+            // intertitre sans rien dessous est un trou, pas une information.
+            const ecrans = ongletsVisibles(groupe, session.roles);
+            if (ecrans.length === 0) {
+              return null;
+            }
+            return (
             <div key={groupe} className="z-rail__groupe">
               {/* La famille situe, elle ne se clique pas. Masquée sur mobile,
                   où la barre du bas n'a pas la hauteur d'un intertitre. */}
               <span className="z-rail__famille">{t.groupes[groupe]}</span>
-              {GROUPES[groupe].map((cle) => (
+              {ecrans.map((cle) => (
                 <button
                   key={cle}
                   type="button"
@@ -261,7 +276,8 @@ export default function App(): ReactElement {
                 </button>
               ))}
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         <main className="z-vue">
@@ -282,6 +298,11 @@ export default function App(): ReactElement {
           >
             {Vue === null ? (
               <IntrouvableVue onRetour={() => naviguer('/')} />
+            ) : refuse ? (
+              <InterditVue
+                rolesRequis={onglet === null ? undefined : ROLES_ONGLET[onglet]}
+                onRetour={() => naviguer('/')}
+              />
             ) : (
               <Vue />
             )}
@@ -291,6 +312,7 @@ export default function App(): ReactElement {
 
       {palette && (
         <PaletteCommandes
+          roles={session.roles}
           onFermer={() => setPalette(false)}
           onChoisir={(cle) => {
             setPalette(false);

@@ -4,6 +4,7 @@ import {
   GROUPES,
   GROUPES_CLES,
   ICONES,
+  ongletAutorise,
   type Groupe,
   type Onglet,
 } from '../routage/routes';
@@ -63,9 +64,18 @@ export function correspond(requete: string, cible: string): boolean {
 export function PaletteCommandes({
   onChoisir,
   onFermer,
+  roles,
 }: {
   onChoisir: (onglet: Onglet) => void;
   onFermer: () => void;
+  /**
+   * Roles de la session. La palette doit voir EXACTEMENT ce que voit le rail :
+   * un accelerateur qui atteint un ecran que la navigation masque n'accelere
+   * rien, il contourne. Obligatoire, et sans valeur par defaut : un tableau
+   * vide implicite retirerait deux ecrans a un responsable sans que rien ne le
+   * signale.
+   */
+  roles: readonly string[];
 }): ReactElement {
   const t = useT();
   const [requete, setRequete] = useState('');
@@ -84,6 +94,9 @@ export function PaletteCommandes({
       for (const onglet of GROUPES[groupe]) {
         // Le nom de la famille est cherché lui aussi : taper « terrain » sort les
         // quatre écrans de terrain, ce qu'aucun libellé d'onglet ne permet.
+        if (!ongletAutorise(onglet, roles)) {
+          continue;
+        }
         if (
           correspond(requete, t.onglets[onglet]) ||
           correspond(requete, t.groupes[groupe])
@@ -93,7 +106,7 @@ export function PaletteCommandes({
       }
     }
     return retenus;
-  }, [requete, t]);
+  }, [requete, roles, t]);
 
   // Le curseur revient en tête à chaque frappe : le laisser en place le ferait
   // pointer un écran qui n'est plus celui que l'utilisateur regarde.

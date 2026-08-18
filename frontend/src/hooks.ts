@@ -30,6 +30,15 @@ export interface EtatRessource<E, C> {
   elements: E[];
   chargement: boolean;
   erreur: string | null;
+  /**
+   * Statut HTTP du dernier echec, `null` sinon (SPRINT-19).
+   *
+   * <p>`erreur` aplatit tout en une phrase, ce qui suffit a l'afficher mais pas
+   * a decider quoi afficher : un refus de role et une panne de serveur ne se
+   * traitent pas pareil, et ni l'un ni l'autre ne se resout en relisant le
+   * message. Le statut est donc conserve a cote du texte.
+   */
+  statut: number | null;
   recharger: () => void;
   creer: (corps: C) => Promise<void>;
   mettreAJour: (id: number, corps: C) => Promise<void>;
@@ -56,6 +65,7 @@ export function useRessource<E extends { id: number }, C>(
   const [elements, setElements] = useState<E[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [statut, setStatut] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
   const indisponible = t.etats.serviceIndisponible;
@@ -63,6 +73,7 @@ export function useRessource<E extends { id: number }, C>(
   const recharger = useCallback(() => {
     setChargement(true);
     setErreur(null);
+    setStatut(null);
     const chargement = api.listerPage
       ? api.listerPage(page, TAILLE_PAGE).then((p: PageResultat<E>) => {
           setElements(p.elements);
@@ -73,7 +84,10 @@ export function useRessource<E extends { id: number }, C>(
           setTotal(liste.length);
         });
     chargement
-      .catch((cause: unknown) => setErreur(messageErreur(cause, indisponible)))
+      .catch((cause: unknown) => {
+        setErreur(messageErreur(cause, indisponible));
+        setStatut(cause instanceof ErreurApi ? cause.statut : null);
+      })
       .finally(() => setChargement(false));
   }, [api, indisponible, page]);
 
@@ -141,6 +155,7 @@ export function useRessource<E extends { id: number }, C>(
     elements,
     chargement,
     erreur,
+    statut,
     recharger,
     creer: (corps: C) => muter(api.creer(corps), t.retours.cree, t.retours.echecCreation),
     mettreAJour: (id: number, corps: C) =>

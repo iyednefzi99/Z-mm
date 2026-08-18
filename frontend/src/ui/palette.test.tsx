@@ -7,10 +7,15 @@ import { ONGLETS } from '../routage/routes';
 
 /** Palette de commandes (Ctrl/⌘ + K) — filtrage, clavier, choix. */
 
-const monter = (onChoisir = vi.fn(), onFermer = vi.fn()) => {
+/** Roles par defaut : un responsable, qui ouvre les dix-sept ecrans. */
+const monter = (
+  onChoisir = vi.fn(),
+  onFermer = vi.fn(),
+  roles: readonly string[] = ['responsable'],
+) => {
   render(
     <LangueProvider>
-      <PaletteCommandes onChoisir={onChoisir} onFermer={onFermer} />
+      <PaletteCommandes onChoisir={onChoisir} onFermer={onFermer} roles={roles} />
     </LangueProvider>,
   );
   return { onChoisir, onFermer };
@@ -46,6 +51,17 @@ describe('palette de commandes', () => {
     monter();
 
     expect(screen.getAllByRole('option')).toHaveLength(ONGLETS.length);
+  });
+
+  it('cache les écrans que le rôle n’ouvre pas', () => {
+    // La palette doit voir EXACTEMENT ce que voit le rail. Un accélérateur qui
+    // atteint un écran masqué ne raccourcit pas la navigation, il la contourne
+    // — et mène droit au refus que le masquage évitait.
+    monter(vi.fn(), vi.fn(), ['apiculteur']);
+
+    expect(screen.getAllByRole('option')).toHaveLength(ONGLETS.length - 2);
+    expect(screen.queryByText('Audit')).toBeNull();
+    expect(screen.queryByText('Invitations')).toBeNull();
   });
 
   it('filtre à la frappe', async () => {

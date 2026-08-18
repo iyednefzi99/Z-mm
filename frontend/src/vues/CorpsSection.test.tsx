@@ -56,6 +56,38 @@ describe('ossature de section', () => {
     expect(screen.queryByText('0')).toBeNull();
   });
 
+  it('explique un refus de rôle au lieu de proposer de réessayer', () => {
+    // « Réessayer » sur un 403 rejoue la même requête pour obtenir le même
+    // refus. L'écran d'état remplace donc la section entière — titre compris :
+    // quand la liste n'a pas pu être lue, il ne reste rien à titrer.
+    monter({ erreur: 'Accès refusé.', statut: 403 });
+
+    expect(screen.getByRole('heading', { name: 'Accès réservé' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Ruches' })).toBeNull();
+  });
+
+  it('distingue une panne du serveur d’une erreur ordinaire', () => {
+    const recharger = vi.fn();
+    monter({ erreur: 'Boom.', statut: 503, recharger });
+
+    expect(
+      screen.getByRole('heading', { name: 'Service momentanément indisponible' }),
+    ).toBeInTheDocument();
+    // Là, réessayer a un sens — c'est même la seule action utile.
+    screen.getByRole('button', { name: 'Réessayer' }).click();
+    expect(recharger).toHaveBeenCalled();
+  });
+
+  it('garde le bandeau ordinaire pour les autres erreurs', () => {
+    // Un 400 ou une coupure réseau restent affichés au-dessus de l'écran : la
+    // section reste là, et la liste déjà chargée avec elle.
+    monter({ erreur: 'Requête invalide.', statut: 400 });
+
+    expect(screen.getByRole('heading', { name: 'Ruches' })).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toHaveTextContent('Requête invalide.');
+  });
+
   it('affiche le sous-titre et les actions quand on les fournit', () => {
     render(
       <LangueProvider>

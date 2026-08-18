@@ -548,6 +548,16 @@
     "explication": "Cette adresse ne correspond à aucun écran de la console. Le lien est peut-être incomplet ou périmé.",
     "retour": "Revenir à l’accueil"
   },
+  "interdit": {
+    "titre": "Accès réservé",
+    "explication": "Votre compte est bien connecté, mais son rôle n’ouvre pas cet écran. Rien n’a échoué : il n’y a simplement rien à réessayer ici.",
+    "rolesRequis": "Cet écran est réservé aux rôles suivants : {roles}. Le responsable de votre exploitation peut faire évoluer le vôtre.",
+    "retour": "Revenir à l’accueil"
+  },
+  "panne": {
+    "titre": "Service momentanément indisponible",
+    "explication": "Le serveur ne répond pas comme il devrait. Votre saisie n’est pas en cause. Réessayez dans un instant ; si cela persiste, prévenez le responsable de votre exploitation."
+  },
   "voisins": {
     "titre": "Sites les plus proches",
     "aucun": "Aucun autre site géolocalisé.",

@@ -548,6 +548,16 @@
     "explication": "This address matches no screen of the console. The link may be incomplete or outdated.",
     "retour": "Back to home"
   },
+  "interdit": {
+    "titre": "Restricted screen",
+    "explication": "Your account is signed in, but its role does not open this screen. Nothing failed: there is simply nothing to retry here.",
+    "rolesRequis": "This screen is restricted to the following roles: {roles}. The manager of your holding can change yours.",
+    "retour": "Back to home"
+  },
+  "panne": {
+    "titre": "Service temporarily unavailable",
+    "explication": "The server is not responding as it should. Your input is not at fault. Try again in a moment; if it persists, tell the manager of your holding."
+  },
   "voisins": {
     "titre": "Nearest sites",
     "aucun": "No other geolocated site.",

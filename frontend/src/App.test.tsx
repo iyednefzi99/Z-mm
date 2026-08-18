@@ -214,6 +214,48 @@ describe('ossature de la console', () => {
     expect(await screen.findByRole('heading', { name: 'Tableaux de bord' })).toBeInTheDocument();
   });
 
+  it('retire du rail les écrans que le rôle n’ouvre pas', async () => {
+    // `SecurityConfig` réserve `/api/audit` et `/api/invitations` au responsable
+    // et à l'administrateur. Les proposer à un apiculteur, c'est lui promettre
+    // une porte qui répondra 403.
+    definir({ utilisateur: 'agent-test', roles: ['apiculteur'], exploitation: 'demo' });
+
+    monter();
+    await screen.findByRole('heading', { name: 'Tableaux de bord' });
+
+    expect(screen.queryByRole('button', { name: 'Audit' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Invitations' })).toBeNull();
+    // Le référentiel, lui, reste : seules ses ÉCRITURES sont restreintes.
+    expect(screen.getByRole('button', { name: 'Agents' })).toBeInTheDocument();
+  });
+
+  it('garde le rail entier pour un responsable', async () => {
+    definir({ utilisateur: 'agent-test', roles: ['responsable'], exploitation: 'demo' });
+
+    monter();
+    await screen.findByRole('heading', { name: 'Tableaux de bord' });
+
+    expect(screen.getByRole('button', { name: 'Audit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Invitations' })).toBeInTheDocument();
+  });
+
+  it('explique le refus sur une URL réservée, au lieu de la servir', async () => {
+    // Le masquage du rail ne suffit pas : une URL se tape, et un favori survit
+    // à un changement de rôle.
+    allerA('/audit');
+    definir({ utilisateur: 'agent-test', roles: ['apiculteur'], exploitation: 'demo' });
+
+    monter();
+
+    expect(await screen.findByRole('heading', { name: 'Accès réservé' })).toBeInTheDocument();
+    // Les rôles qui ouvrent l'écran sont nommés : sinon l'utilisateur ne sait
+    // pas quoi demander à son responsable.
+    expect(screen.getByText(/Responsable, Administrateur/)).toBeInTheDocument();
+    // Et surtout : pas de redirection. Renvoyer vers une connexion déjà faite
+    // bouclerait.
+    expect(window.location.pathname).toBe('/audit');
+  });
+
   it('marque l’onglet courant pour les lecteurs d’écran', async () => {
     allerA('/carte');
 

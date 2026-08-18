@@ -108,6 +108,56 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
   administration: ['agents', 'invitations', 'config', 'audit'],
 };
 
+/**
+ * Écrans dont la LECTURE est réservée à certains rôles (SPRINT-19).
+ *
+ * <p>Cette table n'invente rien : elle recopie ce que
+ * `SecurityConfig.matriceRbac` refuse déjà côté serveur. Deux écrans seulement
+ * y figurent, et c'est volontaire :
+ *
+ * <ul>
+ *   <li>`audit` — `GET /api/audit` est réservé à `responsable` et `admin` ;
+ *   <li>`invitations` — `/api/invitations` l'est en entier, lecture comprise :
+ *       la liste des codes en cours est une liste de clefs valides.
+ * </ul>
+ *
+ * <p><strong>Ce qui n'y est PAS, et pourquoi.</strong> Le référentiel
+ * (`fermiers`, `fermes`, `sites`, `agents`, `ruches`) n'a que ses ÉCRITURES
+ * restreintes : un apiculteur a le droit de lire la liste des agents. Masquer
+ * ces écrans lui retirerait une consultation légitime ; c'est le bouton
+ * « Nouveau » qui doit disparaître, pas l'onglet. Ce gardiennage-là se joue au
+ * niveau de l'action, pas de la navigation, et reste à faire.
+ *
+ * <p><strong>Ce filtrage est un CONFORT, jamais une protection.</strong>
+ * L'autorisation est posée par le serveur ; ce que le navigateur cache, il
+ * pourrait le montrer. On masque pour ne pas proposer une porte fermée, pas
+ * pour fermer la porte.
+ */
+export const ROLES_ONGLET: Partial<Record<Onglet, readonly string[]>> = {
+  audit: ['responsable', 'admin'],
+  invitations: ['responsable', 'admin'],
+};
+
+/** L'écran est-il atteignable avec ces rôles ? */
+export function ongletAutorise(onglet: Onglet, roles: readonly string[]): boolean {
+  const requis = ROLES_ONGLET[onglet];
+  return requis === undefined || requis.some((role) => roles.includes(role));
+}
+
+/**
+ * Écrans d'une famille visibles avec ces rôles, dans l'ordre de la famille.
+ *
+ * <p>Une famille peut se retrouver vide — `administration` pour un apiculteur
+ * n'a plus que `agents` et `config`. Le rail doit alors ne rien peindre du tout
+ * plutôt qu'un intertitre sans écrans dessous.
+ */
+export function ongletsVisibles(
+  groupe: Groupe,
+  roles: readonly string[],
+): readonly Onglet[] {
+  return GROUPES[groupe].filter((onglet) => ongletAutorise(onglet, roles));
+}
+
 /** Chemin canonique d'un onglet. */
 export function cheminDepuisOnglet(onglet: Onglet): string {
   return `/${onglet}`;

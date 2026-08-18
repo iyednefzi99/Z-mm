@@ -1,11 +1,15 @@
 import type { ReactElement, ReactNode } from 'react';
 import { useT } from '../i18n/langue';
 import { Bouton, EtatVide, Pagination, Squelette } from '../ui/composants';
+import { InterditVue } from './InterditVue';
+import { PanneVue } from './PanneVue';
 
 /** Etat minimal attendu par la section (sous-ensemble de EtatRessource). */
 export interface EtatSection {
   chargement: boolean;
   erreur: string | null;
+  /** Statut HTTP du dernier echec (SPRINT-19). Absent : bandeau ordinaire. */
+  statut?: number | null;
   elements: unknown[];
   recharger: () => void;
   /** Pagination (US-052) : optionnelle, la barre ne s'affiche que si elle est la. */
@@ -40,6 +44,22 @@ export function CorpsSection({
 }): ReactElement {
   const t = useT();
   const vide = !etat.chargement && !etat.erreur && etat.elements.length === 0;
+
+  // Deux echecs ne se traitent pas comme les autres, et remplacent l'ecran au
+  // lieu de se poser en bandeau au-dessus d'une liste vide.
+  //
+  // Le titre de l'ecran part avec : quand la liste n'a pas pu etre lue, il ne
+  // reste rien a titrer. Le garder imposerait surtout DEUX `h1` sur la page,
+  // celui de la section et celui de l'ecran d'etat.
+  if (etat.statut === 403) {
+    // Refus de role : « Reessayer » rejouerait la meme requete pour le meme
+    // refus. On explique, on ne propose pas.
+    return <InterditVue />;
+  }
+  if (etat.statut !== null && etat.statut !== undefined && etat.statut >= 500) {
+    // Panne serveur : la, reessayer a un sens — c'est la seule action utile.
+    return <PanneVue onReessayer={etat.recharger} />;
+  }
 
   /**
    * Volume de la liste.
