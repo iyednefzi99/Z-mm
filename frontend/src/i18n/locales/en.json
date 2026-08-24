@@ -100,6 +100,10 @@
       "texte": "Creating an account requires a holding code. You do not have one? Ask the manager of your holding."
     },
     "pied": {
+      "fonctionnalites": "Features",
+      "ressources": "Resources",
+      "editions": "Editions",
+      "contact": "Contact",
       "navigation": "Legal information",
       "apropos": "About",
       "cgu": "Terms of use",
@@ -740,6 +744,158 @@
         "nom": "Keycloak",
         "pourquoi": "Authentication",
         "quoi": "Username, email address and password. It is not a third-party service: it is deployed together with the application."
+      }
+    ]
+  },
+  "fonctionnalites": {
+    "titre": "Features",
+    "chapo": "What Zümm can do, area by area. Every point described here exists in the application.",
+    "domaines": [
+      {
+        "titre": "Steering",
+        "texte": "The state of the livestock before anything else: it is the screen that opens first.",
+        "puces": [
+          "Dashboard: summary, health alerts, production",
+          "Production curves per hive and per period",
+          "Open alerts brought to the top",
+          "Export of visits and hives as CSV or text"
+        ]
+      },
+      {
+        "titre": "Livestock",
+        "texte": "The full hierarchy of the holding, from the owner down to the colony.",
+        "puces": [
+          "Farmers, farms and apiaries",
+          "Hives and their compartments, supers included",
+          "Health status and strength of each colony",
+          "Queen replacement: age, origin, supersedure"
+        ]
+      },
+      {
+        "titre": "Field work",
+        "texte": "What happens at the apiary: prepared before, recorded after.",
+        "puces": [
+          "Planned rounds, approved by a supervisor before they run",
+          "Inspection reports: findings, actions taken, photos",
+          "Tasks with due dates, and a reminder once the date passes",
+          "Map of the apiaries, positions filtered by role"
+        ]
+      },
+      {
+        "titre": "Production",
+        "texte": "From the super to the jar, with no break in traceability.",
+        "puces": [
+          "Harvests per hive and per date",
+          "Batch composition built from the harvests",
+          "Origin statement required by Directive (EU) 2024/1438",
+          "Tracing a batch back to the hives that produced it"
+        ]
+      },
+      {
+        "titre": "Sensors and telemetry",
+        "texte": "What the gateways report between two visits.",
+        "puces": [
+          "Weight, temperature and humidity, time-stamped",
+          "Daily series and comparison between hives",
+          "Anomaly detection on a series",
+          "Configurable alert thresholds"
+        ]
+      },
+      {
+        "titre": "Offline and multilingual",
+        "texte": "Two field constraints, treated as features in their own right.",
+        "puces": [
+          "Installs like a phone application",
+          "Data entry with no network, synchronised when the connection returns",
+          "French, English and Arabic, the latter written right to left",
+          "Light and dark themes"
+        ]
+      }
+    ],
+    "finalTitre": "What Zümm does not do",
+    "finalTexte": "No invoicing, no shop, no equipment stock management. The product stops at livestock monitoring and honey traceability, and that is where it is good."
+  },
+  "ressources": {
+    "titre": "Resources and help",
+    "chapo": "The questions that keep coming back, answered by describing the application as it actually works.",
+    "questions": [
+      {
+        "q": "How do I get an account?",
+        "r": "There is no open sign-up. Ask the manager of your holding for a holding code, then enter it in the “Create an account” tab of the sign-in screen. That code also determines the role you are given."
+      },
+      {
+        "q": "I forgot my password.",
+        "r": "Passwords are handled by the authentication service, not by Zümm. Go through the manager of your holding: they are the one who can restart the procedure."
+      },
+      {
+        "q": "Can I work with no network at the apiary?",
+        "r": "Yes. The application installs like a phone app and stays usable offline. Your entries wait on the device and leave at synchronisation; a counter at the top of the screen shows how many are still pending."
+      },
+      {
+        "q": "Why can I not see the Audit screen?",
+        "r": "Because your role does not open it: the audit log and the invitations are reserved for the manager and the administrator. It is not a failure and there is nothing to retry — ask your manager for a role change."
+      },
+      {
+        "q": "Who can see the exact location of my apiaries?",
+        "r": "Coordinates come out filtered according to the role of whoever asks, and are never returned as they are to everyone. The filter is applied by the server, not by the interface: working around it from a browser yields nothing."
+      },
+      {
+        "q": "How do I export my data?",
+        "r": "Visits and hives export as CSV or text from their own screens. For anything else, the request goes through the manager of your holding."
+      },
+      {
+        "q": "Is the application translated?",
+        "r": "Into French, English and Arabic. Arabic is written right to left: the layout is genuinely mirrored, not merely translated."
+      }
+    ]
+  },
+  "editions": {
+    "titre": "Editions",
+    "chapo": "What Zümm contains today, and what is still to be decided.",
+    "maj": "Last updated: 24 August 2026.",
+    "manques": [
+      "Business model: the tiers retained, if there are to be any",
+      "Prices, billing terms and commitment period"
+    ],
+    "sections": [
+      {
+        "titre": "One edition, everything included",
+        "texte": "The software carries no invoicing, no subscription and no locked feature: everything the Features page describes is available to every holding. There is therefore nothing to compare today, and nothing to pay inside the application."
+      },
+      {
+        "titre": "What is out of scope",
+        "texte": "No customer invoicing, no shop, no equipment stock management. These are scope decisions, not features held back for a higher tier."
+      },
+      {
+        "titre": "And if there are tiers one day",
+        "texte": "They are not defined, and no price is shown here until they are. An invented pricing page would commit the operator of the service to terms nobody has settled."
+      }
+    ]
+  },
+  "contact": {
+    "titre": "Contact",
+    "chapo": "Who to talk to, depending on what you are after.",
+    "maj": "Last updated: 24 August 2026.",
+    "manques": [
+      "Contact address of the publisher, for requests that do not concern a holding",
+      "Channel for reporting a defect or a security flaw"
+    ],
+    "sections": [
+      {
+        "titre": "You already use Zümm",
+        "texte": "Your contact is the manager of your holding. They assign the roles, issue the invitation codes and can restart a password procedure."
+      },
+      {
+        "titre": "You do not have an account yet",
+        "texte": "Signing up requires a holding code, and it is not issued from this site. Ask the holding you are joining for one."
+      },
+      {
+        "titre": "You want to report a defect",
+        "texte": "The reporting channel is not open yet. In the meantime, go through the manager of your holding, who will know how to pass it on."
+      },
+      {
+        "titre": "Why there is no form here",
+        "texte": "Because no service would receive it: the application exposes no contact endpoint. A form that sends nothing is worse than no form — it lets you believe the message went out."
       }
     ]
   },

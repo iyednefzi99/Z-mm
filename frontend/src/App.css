@@ -2718,3 +2718,127 @@ a:focus-visible,
 .z-accueil__pied-mentions {
   margin: 0;
 }
+
+/* ─── Pages d'acquisition : fonctionnalités, ressources (SPRINT-19) ────────
+   Elles partagent l'ossature de lecture des pages légales, mais pas sa colonne
+   étroite : une grille de six domaines a besoin de largeur, un texte de loi
+   non. D'où le modificateur, plutôt qu'une seconde ossature. */
+
+.z-legal--large {
+  max-inline-size: 68rem;
+}
+
+.z-domaines {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  margin-block-start: 2rem;
+}
+
+.z-domaine {
+  padding: 1.25rem;
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-lg);
+}
+
+.z-domaine__texte {
+  margin: 0.35rem 0 0;
+  color: var(--z-text-muted);
+  line-height: 1.55;
+}
+
+/* Puces à la coche plutôt qu'au point : chacune est une capacité qui EXISTE,
+   et la liste se lit comme un inventaire, pas comme un programme. La coche est
+   décorative — le libellé porte seul le sens, et `list-style: none` retirerait
+   la sémantique de liste aux lecteurs d'écran sans `role` explicite. */
+.z-domaine__puces {
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.z-domaine__puces li {
+  position: relative;
+  padding-inline-start: 1.5rem;
+}
+
+.z-domaine__puces li::before {
+  content: '✓';
+  position: absolute;
+  inset-inline-start: 0;
+  color: var(--z-green-500);
+  font-weight: 700;
+}
+
+/* ─── Aide : accordéon natif ──────────────────────────────────────────────
+   `details`/`summary` : repliable au clavier, annoncé correctement, et sans une
+   ligne de JavaScript. Le marqueur natif est retiré au profit d'un chevron qui
+   pivote — la seule chose que le natif ne sait pas faire proprement. */
+
+.z-faq {
+  margin-block-start: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.z-faq__entree {
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  background: var(--z-surface);
+}
+
+.z-faq__question {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  font-weight: 600;
+  color: var(--z-text);
+  cursor: pointer;
+  list-style: none;
+}
+
+/* Safari garde son triangle sans cette règle : elle n'est pas décorative. */
+.z-faq__question::-webkit-details-marker {
+  display: none;
+}
+
+.z-faq__question::before {
+  content: '›';
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--z-honey-600);
+  transition: transform var(--z-duration-base) var(--z-ease-out);
+}
+
+/* Le chevron pivote au lieu d'être remplacé : la forme se transforme, elle ne
+   saute pas (famille « morph » des transitions Zümm). */
+.z-faq__entree[open] > .z-faq__question::before {
+  transform: rotate(90deg);
+}
+
+[dir='rtl'] .z-faq__question::before {
+  transform: rotate(180deg);
+}
+
+[dir='rtl'] .z-faq__entree[open] > .z-faq__question::before {
+  transform: rotate(90deg);
+}
+
+.z-faq__question:hover {
+  color: var(--z-honey-600);
+}
+
+.z-faq__reponse {
+  margin: 0;
+  padding: 0 1.1rem 1.1rem;
+  line-height: 1.7;
+  color: var(--z-text-muted);
+}

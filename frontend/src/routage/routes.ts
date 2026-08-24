@@ -196,6 +196,10 @@ export const ROUTES_PUBLIQUES = {
   accueil: '/accueil',
   connexion: '/connexion',
   apropos: '/a-propos',
+  fonctionnalites: '/fonctionnalites',
+  ressources: '/ressources',
+  editions: '/editions',
+  contact: '/contact',
   cgu: '/cgu',
   confidentialite: '/confidentialite',
 } as const;

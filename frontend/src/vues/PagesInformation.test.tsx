@@ -3,6 +3,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { AProposVue } from './AProposVue';
 import { ConditionsVue } from './ConditionsVue';
 import { ConfidentialiteVue } from './ConfidentialiteVue';
+import { ContactVue } from './ContactVue';
+import { EditionsVue } from './EditionsVue';
+import { FonctionnalitesVue } from './FonctionnalitesVue';
+import { RessourcesVue } from './RessourcesVue';
 import { LangueProvider } from '../i18n/langue';
 
 /**
@@ -125,5 +129,79 @@ describe('page à propos', () => {
     await waitFor(() =>
       expect(screen.queryByRole('heading', { name: 'Ce qui tourne' })).toBeNull(),
     );
+  });
+});
+
+describe('page fonctionnalités', () => {
+  it('détaille les six domaines et ce que chacun permet', () => {
+    monter(<FonctionnalitesVue />);
+
+    for (const domaine of ['Pilotage', 'Cheptel', 'Terrain', 'Production']) {
+      expect(screen.getByRole('heading', { name: domaine })).toBeInTheDocument();
+    }
+    expect(screen.getByText(/Traçabilité d’un lot jusqu’aux ruches/)).toBeInTheDocument();
+  });
+
+  it('annonce aussi ce que le produit ne fait pas', () => {
+    // Une liste de fonctions sans limite annoncée oblige le lecteur à essayer
+    // pour découvrir le manque, et il le découvre au pire moment.
+    monter(<FonctionnalitesVue />);
+
+    expect(screen.getByRole('heading', { name: 'Ce que Zümm ne fait pas' })).toBeInTheDocument();
+    expect(screen.getByText(/Ni facturation, ni boutique/)).toBeInTheDocument();
+  });
+});
+
+describe('page ressources', () => {
+  it('répond aux questions dans un accordéon natif, la première ouverte', () => {
+    monter(<RessourcesVue />);
+
+    const entrees = document.querySelectorAll('details');
+    expect(entrees).toHaveLength(7);
+    expect(entrees[0]).toHaveAttribute('open');
+    expect(entrees[1]).not.toHaveAttribute('open');
+  });
+
+  it('explique le refus d’un écran par le rôle, et non par une panne', () => {
+    // La question revient forcément une fois le rail filtré : autant y répondre
+    // là où un utilisateur sans compte peut déjà la lire.
+    monter(<RessourcesVue />);
+
+    expect(
+      screen.getByText(/le journal d’audit et les invitations sont réservés/),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('page éditions', () => {
+  it('n’affiche aucun prix et aucun palier inventé', () => {
+    monter(<EditionsVue />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Une seule édition, tout inclus' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Modèle économique/)).toBeInTheDocument();
+    // Aucun montant : ni symbole monétaire, ni palier commercial.
+    expect(document.body.textContent).not.toMatch(/[€$]|\d+\s?(€|EUR|\/mois)/);
+  });
+});
+
+describe('page contact', () => {
+  it('ne propose pas de formulaire, faute de service pour le recevoir', () => {
+    // Un formulaire qui n'envoie rien est pire que pas de formulaire : il laisse
+    // croire que le message est parti.
+    monter(<ContactVue />);
+
+    expect(document.querySelector('form')).toBeNull();
+    expect(document.querySelector('input')).toBeNull();
+    expect(
+      screen.getByRole('heading', { name: 'Pourquoi il n’y a pas de formulaire ici' }),
+    ).toBeInTheDocument();
+  });
+
+  it('aiguille vers les interlocuteurs qui existent', () => {
+    monter(<ContactVue />);
+
+    expect(screen.getByText(/Votre interlocuteur est le responsable/)).toBeInTheDocument();
   });
 });

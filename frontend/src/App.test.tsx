@@ -151,6 +151,19 @@ describe('ossature de la console', () => {
     ).toBeInTheDocument();
   });
 
+  it('mène de la vitrine aux fonctionnalités par le second appel du héros', async () => {
+    // Le deuxième bouton du héros n'est plus une seconde porte d'entrée : un
+    // visiteur qui découvre le produit veut d'abord savoir ce qu'il fait.
+    visiteurSansCompte();
+    monter();
+    await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Voir les fonctionnalités' }));
+
+    expect(window.location.pathname).toBe('/fonctionnalites');
+    expect(await screen.findByRole('heading', { name: 'Fonctionnalités' })).toBeInTheDocument();
+  });
+
   it('exige une session sur une adresse de la console', async () => {
     // L'accueil est la SEULE page publique : une vue métier demandée sans
     // session mène au formulaire, et l'URL est conservée pour y revenir.

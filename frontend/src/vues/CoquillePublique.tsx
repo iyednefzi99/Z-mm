@@ -37,8 +37,18 @@ export function CoquillePublique({
   const versConnexion = () => onNaviguer(ROUTES_PUBLIQUES.connexion);
   const versConsole = () => onNaviguer('/');
 
-  /** Liens du pied : les pages qu'on ne trouve qu'ici. */
+  /**
+   * Liens du pied : les pages qu'on ne trouve qu'ici.
+   *
+   * <p>L'ordre suit l'intention du lecteur, pas l'ordre de livraison : d'abord
+   * ce qui fait décider (fonctionnalités, éditions), puis ce qui aide
+   * (ressources, contact), enfin ce qui engage (à propos, CGU, confidentialité).
+   */
   const LIENS = [
+    { chemin: ROUTES_PUBLIQUES.fonctionnalites, libelle: t.accueil.pied.fonctionnalites },
+    { chemin: ROUTES_PUBLIQUES.editions, libelle: t.accueil.pied.editions },
+    { chemin: ROUTES_PUBLIQUES.ressources, libelle: t.accueil.pied.ressources },
+    { chemin: ROUTES_PUBLIQUES.contact, libelle: t.accueil.pied.contact },
     { chemin: ROUTES_PUBLIQUES.apropos, libelle: t.accueil.pied.apropos },
     { chemin: ROUTES_PUBLIQUES.cgu, libelle: t.accueil.pied.cgu },
     { chemin: ROUTES_PUBLIQUES.confidentialite, libelle: t.accueil.pied.confidentialite },

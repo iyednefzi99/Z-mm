@@ -62,6 +62,7 @@ export function AccueilVue({
 
   const versConnexion = () => onNaviguer(ROUTES_PUBLIQUES.connexion);
   const versConsole = () => onNaviguer('/');
+  const versFonctionnalites = () => onNaviguer(ROUTES_PUBLIQUES.fonctionnalites);
 
   return (
     <CoquillePublique session={session} onNaviguer={onNaviguer}>
@@ -79,8 +80,12 @@ export function AccueilVue({
                 <Bouton variante="primaire" onClick={versConnexion}>
                   {a.creerCompte}
                 </Bouton>
-                <Bouton variante="secondaire" onClick={versConnexion}>
-                  {a.seConnecter}
+                {/* Deuxième appel : « en savoir plus » avant « entrer ». Un
+                    visiteur qui découvre le produit n'est pas prêt à se
+                    connecter, et lui proposer deux fois la même porte ne
+                    l'avance pas. */}
+                <Bouton variante="secondaire" onClick={versFonctionnalites}>
+                  {a.decouvrir}
                 </Bouton>
               </>
             )}

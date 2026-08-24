@@ -18,6 +18,7 @@ import {
   ongletsVisibles,
   routePubliqueDepuisChemin,
   type Onglet,
+  type RoutePublique,
 } from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
 import { SelecteurTheme } from './theme/theme';
@@ -29,7 +30,11 @@ import { AProposVue } from './vues/AProposVue';
 import { ConditionsVue } from './vues/ConditionsVue';
 import { ConfidentialiteVue } from './vues/ConfidentialiteVue';
 import { ConnexionVue } from './vues/ConnexionVue';
+import { ContactVue } from './vues/ContactVue';
 import { CoquillePublique } from './vues/CoquillePublique';
+import { EditionsVue } from './vues/EditionsVue';
+import { FonctionnalitesVue } from './vues/FonctionnalitesVue';
+import { RessourcesVue } from './vues/RessourcesVue';
 import { InterditVue } from './vues/InterditVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
@@ -58,6 +63,27 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
   ),
   config: lazy(() => import('./vues/ConfigVue').then((m) => ({ default: m.ConfigVue }))),
   audit: lazy(() => import('./vues/AuditVue').then((m) => ({ default: m.AuditVue }))),
+};
+
+/**
+ * Pages d'information servies dans la coquille publique (SPRINT-19).
+ *
+ * <p>Une table plutot qu'une cascade de ternaires : elles sont sept, et une
+ * huitieme s'ajoutera. `accueil` et `connexion` n'y sont pas — la vitrine porte
+ * sa propre mise en page, et l'ecran d'entree n'a pas de coquille du tout.
+ *
+ * <p>Aucune n'est chargee paresseusement : ce sont des pages de texte de
+ * quelques kilo-octets, et les decouper ferait payer un aller-retour reseau a
+ * chaque lecteur pour economiser moins que l'en-tete de la requete.
+ */
+const PAGES_PUBLIQUES: Partial<Record<RoutePublique, () => ReactElement>> = {
+  apropos: AProposVue,
+  fonctionnalites: FonctionnalitesVue,
+  ressources: RessourcesVue,
+  editions: EditionsVue,
+  contact: ContactVue,
+  cgu: ConditionsVue,
+  confidentialite: ConfidentialiteVue,
 };
 
 /**
@@ -160,26 +186,18 @@ export default function App(): ReactElement {
     );
   }
   // Les pages d'information vivent dans la même coquille que la vitrine, et sont
-  // servies avec ou sans session : ce sont les mentions légales du produit, pas
-  // un espace réservé. Un lien vers les CGU qui exige un compte pour être lu
-  // n'est pas un lien vers les CGU.
-  if (
-    routePublique === 'apropos' ||
-    routePublique === 'cgu' ||
-    routePublique === 'confidentialite'
-  ) {
+  // servies avec ou sans session : ce sont les mentions légales et la
+  // documentation du produit, pas un espace réservé. Un lien vers les CGU qui
+  // exige un compte pour être lu n'est pas un lien vers les CGU.
+  const PageInfo = routePublique === null ? undefined : PAGES_PUBLIQUES[routePublique];
+  if (PageInfo !== undefined) {
     return (
       <CoquillePublique session={session} onNaviguer={naviguer}>
-        {routePublique === 'apropos' ? (
-          <AProposVue />
-        ) : routePublique === 'cgu' ? (
-          <ConditionsVue />
-        ) : (
-          <ConfidentialiteVue />
-        )}
+        <PageInfo />
       </CoquillePublique>
     );
   }
+
   // La vitrine passe AVANT le contrôle de session : c'est la seule page que
   // l'application sert à un visiteur sans compte, et elle reste consultable une
   // fois connecté. Sans session, elle tient aussi lieu de racine — arriver sur

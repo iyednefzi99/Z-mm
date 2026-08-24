@@ -100,6 +100,10 @@
       "texte": "La création de compte demande un code d’exploitation. Vous n’en avez pas ? Demandez-le au responsable de votre exploitation."
     },
     "pied": {
+      "fonctionnalites": "Fonctionnalités",
+      "ressources": "Ressources",
+      "editions": "Éditions",
+      "contact": "Contact",
       "navigation": "Informations légales",
       "apropos": "À propos",
       "cgu": "Conditions d’utilisation",
@@ -740,6 +744,158 @@
         "nom": "Keycloak",
         "pourquoi": "Authentification",
         "quoi": "Identifiant, adresse électronique et mot de passe. Ce n’est pas un service tiers : il est déployé avec l’application."
+      }
+    ]
+  },
+  "fonctionnalites": {
+    "titre": "Fonctionnalités",
+    "chapo": "Ce que Zümm sait faire, domaine par domaine. Chaque point décrit ici existe dans l’application.",
+    "domaines": [
+      {
+        "titre": "Pilotage",
+        "texte": "L’état du cheptel avant tout le reste : c’est l’écran qui s’ouvre en premier.",
+        "puces": [
+          "Tableau de bord : synthèse, alertes sanitaires, production",
+          "Courbes de production par ruche et par période",
+          "Alertes ouvertes remontées en tête",
+          "Export des visites et des ruches en CSV ou en texte"
+        ]
+      },
+      {
+        "titre": "Cheptel",
+        "texte": "La hiérarchie complète de l’exploitation, du propriétaire jusqu’à la colonie.",
+        "puces": [
+          "Fermiers, fermes et ruchers",
+          "Ruches et leurs compartiments, hausses comprises",
+          "État sanitaire et effectif de chaque colonie",
+          "Renouvellement des reines : âge, origine, remplacement"
+        ]
+      },
+      {
+        "titre": "Terrain",
+        "texte": "Ce qui se passe au rucher : préparé avant, consigné après.",
+        "puces": [
+          "Plannings de tournées, approuvés par un superviseur avant exécution",
+          "Comptes rendus de visite : constatations, actions menées, photos",
+          "Tâches à échéance, avec rappel quand la date passe",
+          "Carte des ruchers, positions filtrées selon le rôle"
+        ]
+      },
+      {
+        "titre": "Production",
+        "texte": "De la hausse au pot, sans rupture dans la traçabilité.",
+        "puces": [
+          "Récoltes par ruche et par date",
+          "Composition des lots à partir des récoltes",
+          "Mention d’origine exigée par la directive (UE) 2024/1438",
+          "Traçabilité d’un lot jusqu’aux ruches qui l’ont produit"
+        ]
+      },
+      {
+        "titre": "Capteurs et télémétrie",
+        "texte": "Ce que les passerelles remontent entre deux visites.",
+        "puces": [
+          "Poids, température et humidité, horodatés",
+          "Séries journalières et comparaison entre ruches",
+          "Détection d’anomalie sur une série",
+          "Seuils d’alerte configurables"
+        ]
+      },
+      {
+        "titre": "Hors ligne et multilingue",
+        "texte": "Deux contraintes du terrain, traitées comme des fonctions à part entière.",
+        "puces": [
+          "Installation comme une application de téléphone",
+          "Saisie sans réseau, synchronisée au retour de la connexion",
+          "Français, anglais et arabe, ce dernier en écriture de droite à gauche",
+          "Thème clair et thème sombre"
+        ]
+      }
+    ],
+    "finalTitre": "Ce que Zümm ne fait pas",
+    "finalTexte": "Ni facturation, ni boutique, ni gestion de stock de matériel. Le produit s’arrête au suivi du cheptel et à la traçabilité du miel, et c’est là qu’il est bon."
+  },
+  "ressources": {
+    "titre": "Ressources et aide",
+    "chapo": "Les questions qui reviennent, avec des réponses qui décrivent l’application telle qu’elle fonctionne.",
+    "questions": [
+      {
+        "q": "Comment obtenir un compte ?",
+        "r": "Il n’y a pas d’inscription libre. Demandez un code d’exploitation au responsable de votre exploitation, puis saisissez-le dans l’onglet « Créer un compte » de l’écran de connexion. Ce code détermine aussi le rôle qui vous est attribué."
+      },
+      {
+        "q": "J’ai oublié mon mot de passe.",
+        "r": "Les mots de passe sont gérés par le service d’authentification, pas par Zümm. Passez par le responsable de votre exploitation : c’est lui qui peut relancer la procédure."
+      },
+      {
+        "q": "Puis-je travailler sans réseau au rucher ?",
+        "r": "Oui. L’application s’installe comme celle d’un téléphone et reste utilisable hors ligne. Vos saisies attendent dans l’appareil et partent à la synchronisation ; un compteur en haut de l’écran indique combien il en reste en attente."
+      },
+      {
+        "q": "Pourquoi je ne vois pas l’écran Audit ?",
+        "r": "Parce que votre rôle ne l’ouvre pas : le journal d’audit et les invitations sont réservés au responsable et à l’administrateur. Ce n’est pas une panne, et il n’y a rien à réessayer — demandez une évolution de rôle à votre responsable."
+      },
+      {
+        "q": "Qui peut voir la position exacte de mes ruchers ?",
+        "r": "Les coordonnées sortent filtrées selon le rôle de qui les demande, et ne sont jamais renvoyées telles quelles à tout le monde. Le filtre est appliqué par le serveur, pas par l’interface : le contourner depuis un navigateur ne donne rien."
+      },
+      {
+        "q": "Comment exporter mes données ?",
+        "r": "Les visites et les ruches s’exportent en CSV ou en texte depuis leurs écrans respectifs. Pour le reste, la demande passe par le responsable de votre exploitation."
+      },
+      {
+        "q": "L’application est-elle traduite ?",
+        "r": "En français, en anglais et en arabe. L’arabe est en écriture de droite à gauche : la mise en page est réellement en miroir, pas seulement traduite."
+      }
+    ]
+  },
+  "editions": {
+    "titre": "Éditions",
+    "chapo": "Ce que contient Zümm aujourd’hui, et ce qui reste à décider.",
+    "maj": "Dernière mise à jour : 24 août 2026.",
+    "manques": [
+      "Modèle économique : les paliers retenus, s’il doit y en avoir",
+      "Tarifs, conditions de facturation et durée d’engagement"
+    ],
+    "sections": [
+      {
+        "titre": "Une seule édition, tout inclus",
+        "texte": "Le logiciel ne comporte aucune facturation, aucun abonnement et aucune fonction verrouillée : tout ce que décrit la page Fonctionnalités est disponible pour chaque exploitation. Il n’y a donc rien à comparer aujourd’hui, et rien à payer dans l’application."
+      },
+      {
+        "titre": "Ce qui n’est pas dans le périmètre",
+        "texte": "Ni facturation client, ni boutique, ni gestion de stock de matériel. Ce sont des choix de périmètre, pas des fonctions réservées à un palier supérieur."
+      },
+      {
+        "titre": "Et s’il y a des paliers un jour",
+        "texte": "Ils ne sont pas définis, et aucun prix n’est affiché ici tant qu’ils ne le sont pas. Une page de tarifs inventée engagerait l’exploitant du service sur des conditions que personne n’a arrêtées."
+      }
+    ]
+  },
+  "contact": {
+    "titre": "Contact",
+    "chapo": "À qui s’adresser, selon ce que vous cherchez.",
+    "maj": "Dernière mise à jour : 24 août 2026.",
+    "manques": [
+      "Adresse de contact de l’éditeur, pour les demandes qui ne relèvent pas d’une exploitation",
+      "Canal de signalement d’un défaut ou d’une faille de sécurité"
+    ],
+    "sections": [
+      {
+        "titre": "Vous utilisez déjà Zümm",
+        "texte": "Votre interlocuteur est le responsable de votre exploitation. C’est lui qui attribue les rôles, émet les codes d’invitation et peut relancer une procédure de mot de passe."
+      },
+      {
+        "titre": "Vous n’avez pas encore de compte",
+        "texte": "L’inscription demande un code d’exploitation, et il n’est pas délivré depuis ce site. Demandez-le à l’exploitation que vous rejoignez."
+      },
+      {
+        "titre": "Vous voulez signaler un défaut",
+        "texte": "Le canal de signalement n’est pas encore ouvert. En attendant, passez par le responsable de votre exploitation, qui saura le faire remonter."
+      },
+      {
+        "titre": "Pourquoi il n’y a pas de formulaire ici",
+        "texte": "Parce qu’aucun service ne le recevrait : l’application n’expose aucun point d’entrée de contact. Un formulaire qui n’envoie rien est pire que pas de formulaire — il laisse croire que le message est parti."
       }
     ]
   },
