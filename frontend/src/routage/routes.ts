@@ -195,6 +195,9 @@ export function ongletDepuisChemin(chemin: string): Onglet | null {
 export const ROUTES_PUBLIQUES = {
   accueil: '/accueil',
   connexion: '/connexion',
+  apropos: '/a-propos',
+  cgu: '/cgu',
+  confidentialite: '/confidentialite',
 } as const;
 
 export type RoutePublique = keyof typeof ROUTES_PUBLIQUES;

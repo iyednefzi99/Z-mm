@@ -2538,3 +2538,183 @@ a:focus-visible,
 [dir='rtl'] .z-fleche-retour {
   transform: scaleX(-1);
 }
+
+/* ─── Pages d'information : à propos, CGU, confidentialité (SPRINT-19) ─────
+   Elles partagent la coquille publique de l'accueil, mais pas sa mise en page :
+   ici on lit, on ne balaye pas. La colonne est donc étroite et unique — un texte
+   légal en pleine largeur d'écran ne se lit plus du tout. */
+
+.z-legal {
+  display: block;
+  max-inline-size: 46rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 8vw, 5rem);
+}
+
+.z-legal__entete {
+  padding-block-end: 1.5rem;
+  margin-block-end: 0.5rem;
+  border-block-end: 1px solid var(--z-line);
+}
+
+.z-legal__titre {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.15;
+  color: var(--z-text);
+}
+
+.z-legal__chapo {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--z-text-muted);
+}
+
+.z-legal__maj {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: var(--z-text-muted);
+}
+
+.z-legal__section {
+  margin-block-start: 2rem;
+}
+
+.z-legal__soustitre {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  line-height: 1.3;
+  color: var(--z-text);
+}
+
+.z-legal__section p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--z-text);
+}
+
+/* Bandeau des manques. Teinté d'attention plutôt que de danger : le document
+   n'est pas faux, il est inachevé — et il doit rester impossible à confondre
+   avec un texte prêt à publier. */
+.z-legal__manques {
+  margin-block-start: 2rem;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid color-mix(in srgb, var(--z-warning) 45%, var(--z-line));
+  border-inline-start: 3px solid var(--z-warning);
+  border-radius: var(--z-radius-md);
+  background: color-mix(in srgb, var(--z-warning) 8%, transparent);
+}
+
+.z-legal__manques-titre {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  color: var(--z-text);
+}
+
+.z-legal__manques p {
+  margin: 0;
+  line-height: 1.6;
+  color: var(--z-text-muted);
+  font-size: 0.92rem;
+}
+
+.z-legal__manques ul {
+  margin: 0.6rem 0 0;
+  padding-inline-start: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.92rem;
+  color: var(--z-text);
+}
+
+/* Fiche « ce qui tourne » de la page à propos : deux colonnes au bureau, une
+   seule au doigt. Les valeurs sont des identifiants — version, codes de langue —
+   d'où la chasse fixe : « 0.1.0 » ne se lit pas comme une phrase. */
+.z-legal__fiche {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem 1.5rem;
+  margin: 0;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  background: var(--z-surface);
+  padding: 1rem 1.25rem;
+}
+
+@media (min-width: 600px) {
+  .z-legal__fiche {
+    grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  }
+}
+
+.z-legal__fiche dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--z-text-muted);
+  align-self: center;
+}
+
+.z-legal__fiche dd {
+  margin: 0 0 0.6rem;
+  color: var(--z-text);
+}
+
+.z-legal__fiche dd:last-child {
+  margin-block-end: 0;
+}
+
+.z-legal__valeur {
+  font-family: var(--z-font-mono);
+  font-size: 0.92rem;
+}
+
+/* Les deux tableaux de la page confidentialité débordent la colonne de lecture :
+   trois colonnes de texte ne tiennent pas dans 46 rem sans devenir illisibles. */
+.z-legal .z-table-enveloppe {
+  margin-block-start: 1rem;
+}
+
+.z-legal .z-table td {
+  vertical-align: top;
+  line-height: 1.55;
+}
+
+/* ─── Compléments de la coquille publique ─────────────────────────────────── */
+
+/* La marque ramène à l'accueil : c'est un bouton, il ne doit pas en avoir l'air. */
+.z-marque--lien {
+  border: 0;
+  background: none;
+  padding: 0.25rem;
+  margin-inline-start: -0.25rem;
+  border-radius: var(--z-radius-sm);
+  font: inherit;
+  cursor: pointer;
+  text-align: start;
+}
+
+.z-marque--lien:hover .z-marque__nom {
+  color: var(--z-honey-600);
+}
+
+/* Le pied porte désormais deux étages : les liens, puis les mentions. */
+.z-accueil__pied {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+
+.z-accueil__pied-liens {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.25rem 0.5rem;
+}
+
+.z-accueil__pied-mentions {
+  margin: 0;
+}

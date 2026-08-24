@@ -100,6 +100,10 @@
       "texte": "Creating an account requires a holding code. You do not have one? Ask the manager of your holding."
     },
     "pied": {
+      "navigation": "Legal information",
+      "apropos": "About",
+      "cgu": "Terms of use",
+      "confidentialite": "Privacy",
       "ecrans": "{n} business screens",
       "langues": "Français · English · العربية",
       "note": "Zümm — beekeeping management & monitoring."
@@ -463,6 +467,14 @@
     "humidite": "Humidity (%)",
     "vent": "Wind (km/h)",
     "source": "Source",
+    "previsions": "Forecast",
+    "horizon": "Horizon (days)",
+    "jour": "Day",
+    "tempMin": "Min (°C)",
+    "tempMax": "Max (°C)",
+    "pluie": "Rain (mm)",
+    "ventMax": "Max wind (km/h)",
+    "aucunePrevision": "No forecast available.",
     "quantiteMiel": "Honey quantity (getZummHoneyActualQuantity)",
     "unite": "Unit",
     "calculer": "Compute",
@@ -542,6 +554,194 @@
     "saisie": "Input",
     "information": "Information",
     "compris": "Got it"
+  },
+  "legal": {
+    "manquesTitre": "This document is not complete",
+    "manquesTexte": "The items below depend on the organisation putting Zümm online. They are not part of the software and have therefore not been written: an invented legal text would commit someone who promised nothing."
+  },
+  "apropos": {
+    "titre": "About Zümm",
+    "chapo": "A beekeeping management information system, built for the apiary as much as for the desk.",
+    "versionTitre": "What is running",
+    "champs": {
+      "nom": "Application",
+      "version": "Version",
+      "langues": "Active languages",
+      "message": "Server message"
+    },
+    "sections": [
+      {
+        "titre": "What Zümm is",
+        "texte": "Livestock, apiary visits, sensors, harvests and batch traceability in a single application. It exists so you can tell how the colonies are doing without cross-checking three notebooks."
+      },
+      {
+        "titre": "Who it is for",
+        "texte": "Beekeeping holdings and the people who work the livestock. You come in by invitation, with a role that decides what you see and what you may change."
+      },
+      {
+        "titre": "Three languages, two reading directions",
+        "texte": "The interface exists in French, English and Arabic. Arabic is not merely translated: the layout is genuinely mirrored, from the navigation to the tables."
+      },
+      {
+        "titre": "In the field",
+        "texte": "The application installs like a phone app and stays usable with no network. A visit recorded at the apiary waits on the device and leaves at synchronisation, when the connection returns."
+      }
+    ]
+  },
+  "cgu": {
+    "titre": "Terms of use",
+    "chapo": "What the software does, and what is expected of the people who use it.",
+    "maj": "Last updated: 24 August 2026.",
+    "manques": [
+      "Legal name, address and contact details of the publisher",
+      "Name and location of the host",
+      "Applicable law and competent jurisdiction",
+      "Guaranteed availability, termination terms and what becomes of the data at the end"
+    ],
+    "sections": [
+      {
+        "titre": "Purpose",
+        "texte": "Zümm is a beekeeping management and monitoring software: livestock, apiary visits, sensors, harvests and batches. These terms describe the expected use of the service by the members of a holding."
+      },
+      {
+        "titre": "Getting in",
+        "texte": "There is no open sign-up. Creating an account requires a holding code, issued by the manager of the holding you are joining. That code also determines the role you are given on arrival."
+      },
+      {
+        "titre": "Accounts and roles",
+        "texte": "Four human roles exist: beekeeper, supervisor, manager and administrator. They decide what each person may read and change. A fifth role is reserved for sensor gateways: it can only submit measurements."
+      },
+      {
+        "titre": "Your password",
+        "texte": "It must be at least twelve characters long, and it is personal to you. Creations, changes and deletions made with your account are written to the audit log under your name."
+      },
+      {
+        "titre": "Expected use",
+        "texte": "The service is used with the role you were given. Circumventing access controls, or extracting apiary locations in bulk, falls outside that use: the coordinates of an apiary carry a market value far beyond that of the software."
+      },
+      {
+        "titre": "Working offline",
+        "texte": "The application stays usable at the apiary with no network. Until an entry has been synchronised it exists only on the device that captured it: clearing the browser data before synchronisation loses it."
+      },
+      {
+        "titre": "Changes to the service",
+        "texte": "The software evolves and screens may change. The guaranteed level of availability, the termination terms and what becomes of the data at the end of the contract are matters for the organisation putting Zümm online."
+      }
+    ]
+  },
+  "confidentialite": {
+    "titre": "Privacy policy",
+    "chapo": "What the software processes, who it sends data to, and what protects the location of your apiaries.",
+    "maj": "Last updated: 24 August 2026.",
+    "manques": [
+      "Identity and contact details of the data controller",
+      "Address at which to exercise your rights, and data protection officer if there is one",
+      "Retention periods applied, and what triggers erasure",
+      "Host, and the country where the data is stored"
+    ],
+    "sections": [
+      {
+        "titre": "What this text describes",
+        "texte": "It describes the data the software processes as it is written in its code: the categories come from its tables, the recipients from its only outbound calls. What depends on the operating organisation — its identity, the periods it applies — is not covered here."
+      },
+      {
+        "titre": "The location of apiaries",
+        "texte": "This is the most sensitive data in the product, and not primarily for privacy reasons: the coordinates of an apiary are worth a stolen stock of hives. They never leave as they are. A server-side filter blurs or removes them according to the role of whoever asks, and every new screen carrying coordinates goes through it."
+      },
+      {
+        "titre": "Separation between holdings",
+        "texte": "Each holding only sees its own data. The separation is not applied by the interface but by the database itself, on every request: a programming mistake in one screen cannot let another holding's data out."
+      },
+      {
+        "titre": "Session and sign-in",
+        "texte": "No authentication token is kept in the browser. The session lives in a cookie only the server can read, and the server renews it. Ending the session revokes it server-side, not only in the tab."
+      },
+      {
+        "titre": "Audit log",
+        "texte": "Creations, changes and deletions are written to a log: who, what, when. It can be read by the holding manager and the administrator, and it cannot be altered."
+      },
+      {
+        "titre": "Retention periods",
+        "texte": "No automatic purge is programmed in the software: what is entered stays until the operator deletes it. The periods actually applied are therefore theirs, and are among the items to be completed above."
+      },
+      {
+        "titre": "Your rights",
+        "texte": "Access, rectification, erasure, restriction, portability and objection are exercised with the data controller. The application already exports visits and hives as CSV or text from the matching screens; for anything else, the request goes through the manager of your holding."
+      }
+    ],
+    "donneesTitre": "What Zümm processes",
+    "donneesTexte": "Each row matches data the software actually records. Nothing is collected for advertising, and the product carries neither analytics nor third-party trackers.",
+    "colonnes": {
+      "categorie": "Category",
+      "contenu": "Content",
+      "origine": "Source"
+    },
+    "donnees": [
+      {
+        "categorie": "Account",
+        "contenu": "Name, email address, username, role and holding",
+        "origine": "Entered when the account is created"
+      },
+      {
+        "categorie": "Holding",
+        "contenu": "Farmers, farms and apiaries",
+        "origine": "Entered"
+      },
+      {
+        "categorie": "Apiary locations",
+        "contenu": "Geographic coordinates of a site",
+        "origine": "Entered, or picked on the map"
+      },
+      {
+        "categorie": "Livestock",
+        "contenu": "Hives, compartments, queens, health status",
+        "origine": "Entered"
+      },
+      {
+        "categorie": "Field work",
+        "contenu": "Rounds, visits and their reports, photos, tasks",
+        "origine": "Entered"
+      },
+      {
+        "categorie": "Production",
+        "contenu": "Harvests, batches and origin statements",
+        "origine": "Entered"
+      },
+      {
+        "categorie": "Measurements",
+        "contenu": "Weight, temperature and humidity, time-stamped",
+        "origine": "Sent by the sensor gateways"
+      },
+      {
+        "categorie": "Audit log",
+        "contenu": "Author, action, entity, date",
+        "origine": "Produced by the application"
+      }
+    ],
+    "tiersTitre": "What leaves the application",
+    "tiersTexte": "The product makes only two outbound calls. The difference between them matters: one leaves from the server, the other from your browser — and only the second exposes your IP address.",
+    "colonnesTiers": {
+      "nom": "Recipient",
+      "pourquoi": "Why",
+      "quoi": "What it receives"
+    },
+    "tiers": [
+      {
+        "nom": "Open-Meteo",
+        "pourquoi": "Weather and forecasts for an apiary",
+        "quoi": "The latitude and longitude of the apiary. The call leaves from the server: the service never sees your browser or your IP address."
+      },
+      {
+        "nom": "Map tiles",
+        "pourquoi": "Displaying the map of apiaries",
+        "quoi": "The call leaves from the browser: the tile host sees your IP address and the area you are looking at. It can be replaced by an internal tile server, which removes this outbound call."
+      },
+      {
+        "nom": "Keycloak",
+        "pourquoi": "Authentication",
+        "quoi": "Username, email address and password. It is not a third-party service: it is deployed together with the application."
+      }
+    ]
   },
   "introuvable": {
     "titre": "Page not found",

@@ -1,12 +1,7 @@
 import { Suspense, lazy, useEffect, useState, type ReactElement } from 'react';
 import { synchroniser } from './api/client';
 import { consommerRouteDeRetour } from './auth/oidc';
-import {
-  rafraichirSession,
-  sessionCourante,
-  surSession,
-  type Session,
-} from './auth/session';
+import { rafraichirSession, sessionCourante, surSession, type Session } from './auth/session';
 import { gabarit } from './i18n/console';
 import { LANGUES } from './i18n/messages';
 import { useLangue, useT } from './i18n/langue';
@@ -30,7 +25,11 @@ import { Bouton, Squelette } from './ui/composants';
 import { PaletteCommandes } from './ui/palette';
 import { MenuProfil } from './ui/profil';
 import { AccueilVue } from './vues/AccueilVue';
+import { AProposVue } from './vues/AProposVue';
+import { ConditionsVue } from './vues/ConditionsVue';
+import { ConfidentialiteVue } from './vues/ConfidentialiteVue';
 import { ConnexionVue } from './vues/ConnexionVue';
+import { CoquillePublique } from './vues/CoquillePublique';
 import { InterditVue } from './vues/InterditVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
@@ -160,6 +159,27 @@ export default function App(): ReactElement {
       </main>
     );
   }
+  // Les pages d'information vivent dans la même coquille que la vitrine, et sont
+  // servies avec ou sans session : ce sont les mentions légales du produit, pas
+  // un espace réservé. Un lien vers les CGU qui exige un compte pour être lu
+  // n'est pas un lien vers les CGU.
+  if (
+    routePublique === 'apropos' ||
+    routePublique === 'cgu' ||
+    routePublique === 'confidentialite'
+  ) {
+    return (
+      <CoquillePublique session={session} onNaviguer={naviguer}>
+        {routePublique === 'apropos' ? (
+          <AProposVue />
+        ) : routePublique === 'cgu' ? (
+          <ConditionsVue />
+        ) : (
+          <ConfidentialiteVue />
+        )}
+      </CoquillePublique>
+    );
+  }
   // La vitrine passe AVANT le contrôle de session : c'est la seule page que
   // l'application sert à un visiteur sans compte, et elle reste consultable une
   // fois connecté. Sans session, elle tient aussi lieu de racine — arriver sur
@@ -255,27 +275,27 @@ export default function App(): ReactElement {
               return null;
             }
             return (
-            <div key={groupe} className="z-rail__groupe">
-              {/* La famille situe, elle ne se clique pas. Masquée sur mobile,
+              <div key={groupe} className="z-rail__groupe">
+                {/* La famille situe, elle ne se clique pas. Masquée sur mobile,
                   où la barre du bas n'a pas la hauteur d'un intertitre. */}
-              <span className="z-rail__famille">{t.groupes[groupe]}</span>
-              {ecrans.map((cle) => (
-                <button
-                  key={cle}
-                  type="button"
-                  className="z-onglet"
-                  aria-current={cle === onglet}
-                  onClick={() => naviguer(cheminDepuisOnglet(cle))}
-                >
-                  {/* Décoratif : le libellé traduit porte seul le sens. Sans
+                <span className="z-rail__famille">{t.groupes[groupe]}</span>
+                {ecrans.map((cle) => (
+                  <button
+                    key={cle}
+                    type="button"
+                    className="z-onglet"
+                    aria-current={cle === onglet}
+                    onClick={() => naviguer(cheminDepuisOnglet(cle))}
+                  >
+                    {/* Décoratif : le libellé traduit porte seul le sens. Sans
                       `aria-hidden`, le lecteur annoncerait « abeille Ruches ». */}
-                  <span className="z-onglet__icone" aria-hidden="true">
-                    {ICONES[cle]}
-                  </span>
-                  <span className="z-onglet__libelle">{t.onglets[cle]}</span>
-                </button>
-              ))}
-            </div>
+                    <span className="z-onglet__icone" aria-hidden="true">
+                      {ICONES[cle]}
+                    </span>
+                    <span className="z-onglet__libelle">{t.onglets[cle]}</span>
+                  </button>
+                ))}
+              </div>
             );
           })}
         </nav>

@@ -122,6 +122,35 @@ describe('ossature de la console', () => {
     ).toBeInTheDocument();
   });
 
+  it('sert les mentions légales sans session', async () => {
+    // Un lien vers les CGU qui exige un compte pour être lu n'est pas un lien
+    // vers les CGU. Elles sont servies dans la coquille publique, comme la
+    // vitrine, avec ou sans session.
+    allerA('/cgu');
+    visiteurSansCompte();
+
+    monter();
+
+    expect(
+      await screen.findByRole('heading', { name: 'Conditions générales d’utilisation' }),
+    ).toBeInTheDocument();
+    // La barre publique est là : on peut choisir sa langue et entrer.
+    expect(screen.getByRole('button', { name: 'Se connecter' })).toBeInTheDocument();
+  });
+
+  it('mène de l’accueil aux pages d’information par le pied', async () => {
+    visiteurSansCompte();
+    monter();
+    await screen.findByRole('heading', { name: 'Toute la ruche, sous les yeux.' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Confidentialité' }));
+
+    expect(window.location.pathname).toBe('/confidentialite');
+    expect(
+      await screen.findByRole('heading', { name: 'Politique de confidentialité' }),
+    ).toBeInTheDocument();
+  });
+
   it('exige une session sur une adresse de la console', async () => {
     // L'accueil est la SEULE page publique : une vue métier demandée sans
     // session mène au formulaire, et l'URL est conservée pour y revenir.

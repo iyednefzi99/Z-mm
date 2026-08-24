@@ -313,8 +313,48 @@ export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string
     `/api/services/getZummHoneyActualQuantity?${rucheId != null ? `rucheId=${rucheId}&` : ''}unite=${unite}`,
   );
 
-/** US-029 : contexte météo d'un site. */
-export const chargerMeteo = (siteId: number) => requete<Meteo>(`/api/meteo?siteId=${siteId}`);
+/**
+ * US-029 : contexte météo d'un site, prévisions comprises.
+ *
+ * `jours` est l'horizon de prévision (0 pour n'obtenir que l'instantané, 16 au
+ * plus — au-delà, le serveur ramène la demande à son plafond plutôt que de la
+ * rejeter). Un seul aller-retour rend les deux : le serveur n'interroge lui-même
+ * le fournisseur qu'une fois.
+ */
+/** Identite de l'application, servie SANS jeton (`GET /api/info`). */
+export interface InfoApplication {
+  nom: string;
+  version: string;
+  accueil: string;
+  langues: string[];
+}
+
+/**
+ * Lit l'identite de l'application — le seul endpoint metier ouvert a un
+ * visiteur (`permitAll` dans `SecurityConfig`).
+ *
+ * <p>Volontairement HORS de `requete` : celle-ci efface la session sur un 401,
+ * et une page publique ne doit pouvoir deconnecter personne. Aucun cookie n'est
+ * envoye non plus — il n'y en a pas besoin, et ne pas l'envoyer est la seule
+ * facon d'en etre sur.
+ *
+ * <p>La langue est passee en `Accept-Language` : le serveur traduit le message
+ * d'accueil, et il n'a aucun moyen de connaitre la langue choisie dans
+ * l'interface autrement.
+ */
+export const chargerInfo = async (langue: string): Promise<InfoApplication> => {
+  const reponse = await fetch('/api/info', {
+    credentials: 'omit',
+    headers: { Accept: 'application/json', 'Accept-Language': langue },
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  return (await reponse.json()) as InfoApplication;
+};
+
+export const chargerMeteo = (siteId: number, jours = 7) =>
+  requete<Meteo>(`/api/meteo?siteId=${siteId}&jours=${jours}`);
 
 /** US-032 : suivi de la reine. */
 export const listerReines = (rucheId: number) =>

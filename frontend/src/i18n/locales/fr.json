@@ -100,6 +100,10 @@
       "texte": "La création de compte demande un code d’exploitation. Vous n’en avez pas ? Demandez-le au responsable de votre exploitation."
     },
     "pied": {
+      "navigation": "Informations légales",
+      "apropos": "À propos",
+      "cgu": "Conditions d’utilisation",
+      "confidentialite": "Confidentialité",
       "ecrans": "{n} écrans métier",
       "langues": "Français · English · العربية",
       "note": "Zümm — gestion et suivi apicole."
@@ -463,6 +467,14 @@
     "humidite": "Humidité (%)",
     "vent": "Vent (km/h)",
     "source": "Source",
+    "previsions": "Prévisions",
+    "horizon": "Horizon (jours)",
+    "jour": "Jour",
+    "tempMin": "Min (°C)",
+    "tempMax": "Max (°C)",
+    "pluie": "Pluie (mm)",
+    "ventMax": "Vent max (km/h)",
+    "aucunePrevision": "Aucune prévision disponible.",
     "quantiteMiel": "Quantité de miel (getZummHoneyActualQuantity)",
     "unite": "Unité",
     "calculer": "Calculer",
@@ -542,6 +554,194 @@
     "saisie": "Saisie",
     "information": "Information",
     "compris": "J'ai compris"
+  },
+  "legal": {
+    "manquesTitre": "Ce document n’est pas complet",
+    "manquesTexte": "Les éléments ci-dessous dépendent de l’organisme qui met Zümm en ligne. Ils ne figurent pas dans le logiciel et n’ont donc pas été rédigés : un texte légal inventé engagerait quelqu’un qui n’a rien promis."
+  },
+  "apropos": {
+    "titre": "À propos de Zümm",
+    "chapo": "Un système d’information de gestion apicole, pensé pour le rucher autant que pour le bureau.",
+    "versionTitre": "Ce qui tourne",
+    "champs": {
+      "nom": "Application",
+      "version": "Version",
+      "langues": "Langues actives",
+      "message": "Message du serveur"
+    },
+    "sections": [
+      {
+        "titre": "Ce qu’est Zümm",
+        "texte": "Le cheptel, les visites au rucher, les capteurs, les récoltes et la traçabilité des lots dans une seule application. Elle sert à savoir où en sont les colonies sans avoir à recouper trois carnets."
+      },
+      {
+        "titre": "Pour qui",
+        "texte": "Les exploitations apicoles et les personnes qui interviennent sur le cheptel. On y entre par invitation, avec un rôle qui décide de ce que l’on voit et de ce que l’on peut modifier."
+      },
+      {
+        "titre": "Trois langues, deux sens de lecture",
+        "texte": "L’interface existe en français, en anglais et en arabe. L’arabe n’est pas seulement traduit : la mise en page est réellement en miroir, de la navigation aux tableaux."
+      },
+      {
+        "titre": "Sur le terrain",
+        "texte": "L’application s’installe comme celle d’un téléphone et reste utilisable sans réseau. Une visite saisie au rucher attend dans l’appareil et part à la synchronisation, au retour de la connexion."
+      }
+    ]
+  },
+  "cgu": {
+    "titre": "Conditions générales d’utilisation",
+    "chapo": "Ce que fait le logiciel, et ce qui est attendu de celles et ceux qui l’utilisent.",
+    "maj": "Dernière mise à jour : 24 août 2026.",
+    "manques": [
+      "Raison sociale, adresse et contact de l’éditeur",
+      "Nom et localisation de l’hébergeur",
+      "Droit applicable et juridiction compétente",
+      "Disponibilité garantie, conditions de résiliation et sort des données à la fin"
+    ],
+    "sections": [
+      {
+        "titre": "Objet",
+        "texte": "Zümm est un logiciel de gestion et de suivi apicole : cheptel, visites au rucher, capteurs, récoltes et lots. Ces conditions décrivent l’usage attendu du service par les membres d’une exploitation."
+      },
+      {
+        "titre": "Entrer dans l’application",
+        "texte": "Il n’y a pas d’inscription libre. Créer un compte demande un code d’exploitation, émis par le responsable de l’exploitation que l’on rejoint. Ce code détermine aussi le rôle attribué à l’arrivée."
+      },
+      {
+        "titre": "Comptes et rôles",
+        "texte": "Quatre rôles humains existent : apiculteur, superviseur, responsable et administrateur. Ils décident de ce que chacun peut lire et modifier. Un cinquième rôle est réservé aux passerelles de capteurs : il ne peut que déposer des mesures."
+      },
+      {
+        "titre": "Votre mot de passe",
+        "texte": "Il doit compter au moins douze caractères, et il vous est personnel. Les créations, modifications et suppressions faites avec votre compte sont inscrites au journal d’audit sous votre nom."
+      },
+      {
+        "titre": "Usage attendu",
+        "texte": "Le service se consulte avec le rôle qu’on a reçu. Contourner les contrôles d’accès, ou extraire en masse les emplacements de ruchers, sort de cet usage : les coordonnées d’un rucher ont une valeur marchande qui dépasse largement celle du logiciel."
+      },
+      {
+        "titre": "Travail hors ligne",
+        "texte": "L’application reste utilisable au rucher sans réseau. Tant qu’une saisie n’est pas synchronisée, elle n’existe que sur l’appareil qui l’a prise : effacer les données du navigateur avant la synchronisation la perd."
+      },
+      {
+        "titre": "Évolutions du service",
+        "texte": "Le logiciel évolue et des écrans peuvent changer. Le niveau de disponibilité garanti, les conditions de résiliation et le sort des données à la fin du contrat relèvent de l’organisme qui met Zümm en ligne."
+      }
+    ]
+  },
+  "confidentialite": {
+    "titre": "Politique de confidentialité",
+    "chapo": "Ce que le logiciel traite, à qui il le transmet, et ce qui protège l’emplacement de vos ruchers.",
+    "maj": "Dernière mise à jour : 24 août 2026.",
+    "manques": [
+      "Identité et coordonnées du responsable du traitement",
+      "Adresse à laquelle exercer ses droits, et délégué à la protection des données s’il en existe un",
+      "Durées de conservation retenues, et ce qui déclenche l’effacement",
+      "Hébergeur, et pays où les données sont stockées"
+    ],
+    "sections": [
+      {
+        "titre": "Ce que décrit ce texte",
+        "texte": "Il décrit les données traitées par le logiciel telles qu’elles sont écrites dans son code : les catégories viennent de ses tables, les destinataires de ses seuls appels sortants. Ce qui dépend de l’organisme qui l’exploite — son identité, les durées qu’il applique — n’y figure pas."
+      },
+      {
+        "titre": "La position des ruchers",
+        "texte": "C’est la donnée la plus sensible du produit, et pas d’abord pour des raisons de vie privée : les coordonnées d’un rucher valent un vol de cheptel. Elles ne sortent jamais telles quelles. Un filtre appliqué par le serveur les approxime ou les retire selon le rôle de qui les demande, et tout nouvel écran portant des coordonnées y est soumis."
+      },
+      {
+        "titre": "Cloisonnement entre exploitations",
+        "texte": "Chaque exploitation ne voit que ses propres données. Le cloisonnement n’est pas appliqué par l’interface mais par la base elle-même, à chaque requête : une erreur de programmation dans un écran ne peut pas faire sortir les données d’une autre exploitation."
+      },
+      {
+        "titre": "Session et connexion",
+        "texte": "Aucun jeton d’authentification n’est conservé dans le navigateur. La session tient dans un cookie que seul le serveur peut lire, et c’est lui qui la renouvelle. Fermer la session la révoque côté serveur, pas seulement dans l’onglet."
+      },
+      {
+        "titre": "Journal d’audit",
+        "texte": "Les créations, modifications et suppressions sont inscrites dans un journal : qui, quoi, quand. Il est consultable par le responsable de l’exploitation et par l’administrateur, et il ne se modifie pas."
+      },
+      {
+        "titre": "Durées de conservation",
+        "texte": "Aucune purge automatique n’est programmée dans le logiciel : ce qui est saisi reste tant que l’exploitant ne le supprime pas. Les durées effectivement appliquées relèvent donc de lui, et figurent parmi les éléments à compléter ci-dessus."
+      },
+      {
+        "titre": "Vos droits",
+        "texte": "L’accès, la rectification, l’effacement, la limitation, la portabilité et l’opposition s’exercent auprès du responsable du traitement. L’application exporte déjà les visites et les ruches en CSV ou en texte depuis les écrans correspondants ; pour le reste, la demande passe par le responsable de votre exploitation."
+      }
+    ],
+    "donneesTitre": "Ce que Zümm traite",
+    "donneesTexte": "Chaque ligne correspond à des données réellement enregistrées par le logiciel. Rien n’est collecté à des fins publicitaires, et le produit ne comporte ni mesure d’audience ni traceur tiers.",
+    "colonnes": {
+      "categorie": "Catégorie",
+      "contenu": "Contenu",
+      "origine": "Origine"
+    },
+    "donnees": [
+      {
+        "categorie": "Compte",
+        "contenu": "Nom, adresse électronique, identifiant, rôle et exploitation de rattachement",
+        "origine": "Saisi à la création du compte"
+      },
+      {
+        "categorie": "Exploitation",
+        "contenu": "Fermiers, fermes et ruchers",
+        "origine": "Saisi"
+      },
+      {
+        "categorie": "Position des ruchers",
+        "contenu": "Coordonnées géographiques d’un emplacement",
+        "origine": "Saisi, ou relevé sur la carte"
+      },
+      {
+        "categorie": "Cheptel",
+        "contenu": "Ruches, compartiments, reines, état sanitaire",
+        "origine": "Saisi"
+      },
+      {
+        "categorie": "Terrain",
+        "contenu": "Plannings, visites et leurs comptes rendus, photos, tâches",
+        "origine": "Saisi"
+      },
+      {
+        "categorie": "Production",
+        "contenu": "Récoltes, lots et mentions d’origine",
+        "origine": "Saisi"
+      },
+      {
+        "categorie": "Mesures",
+        "contenu": "Poids, température et humidité, horodatés",
+        "origine": "Transmis par les passerelles de capteurs"
+      },
+      {
+        "categorie": "Journal d’audit",
+        "contenu": "Auteur, action, entité concernée, date",
+        "origine": "Produit par l’application"
+      }
+    ],
+    "tiersTitre": "Ce qui sort de l’application",
+    "tiersTexte": "Le produit n’émet que deux appels vers l’extérieur. La différence entre les deux compte : l’un part du serveur, l’autre de votre navigateur — et seul le second expose votre adresse IP.",
+    "colonnesTiers": {
+      "nom": "Destinataire",
+      "pourquoi": "Pourquoi",
+      "quoi": "Ce qu’il reçoit"
+    },
+    "tiers": [
+      {
+        "nom": "Open-Meteo",
+        "pourquoi": "Météo et prévisions d’un rucher",
+        "quoi": "La latitude et la longitude du rucher. L’appel part du serveur : le service ne voit jamais votre navigateur ni votre adresse IP."
+      },
+      {
+        "nom": "Fond cartographique",
+        "pourquoi": "Afficher la carte des ruchers",
+        "quoi": "L’appel part du navigateur : l’hébergeur des tuiles voit votre adresse IP et la zone que vous consultez. Il est remplaçable par un serveur de tuiles interne, ce qui supprime cette sortie."
+      },
+      {
+        "nom": "Keycloak",
+        "pourquoi": "Authentification",
+        "quoi": "Identifiant, adresse électronique et mot de passe. Ce n’est pas un service tiers : il est déployé avec l’application."
+      }
+    ]
   },
   "introuvable": {
     "titre": "Page introuvable",
