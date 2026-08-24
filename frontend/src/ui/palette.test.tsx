@@ -59,9 +59,10 @@ describe('palette de commandes', () => {
     // — et mène droit au refus que le masquage évitait.
     monter(vi.fn(), vi.fn(), ['apiculteur']);
 
-    expect(screen.getAllByRole('option')).toHaveLength(ONGLETS.length - 2);
+    expect(screen.getAllByRole('option')).toHaveLength(ONGLETS.length - 3);
     expect(screen.queryByText('Audit')).toBeNull();
     expect(screen.queryByText('Invitations')).toBeNull();
+    expect(screen.queryByText('Permissions')).toBeNull();
   });
 
   it('filtre à la frappe', async () => {

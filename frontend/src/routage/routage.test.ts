@@ -37,13 +37,13 @@ describe('table des routes', () => {
     expect(ongletDepuisChemin('/admin')).toBeNull();
   });
 
-  it('couvre les dix-sept écrans de la console, sans doublon', () => {
+  it('couvre les dix-huit écrans de la console, sans doublon', () => {
     // Le nombre est volontairement écrit en dur : ajouter un onglet doit obliger
     // à passer ici, donc à vérifier qu'il a bien été déclaré dans les trois
     // langues et branché dans App. Un `ONGLETS.length` se contenterait de se
     // recopier lui-même et ne prouverait rien.
-    expect(ONGLETS).toHaveLength(17);
-    expect(new Set(ONGLETS).size).toBe(17);
+    expect(ONGLETS).toHaveLength(18);
+    expect(new Set(ONGLETS).size).toBe(18);
   });
 });
 
@@ -80,13 +80,14 @@ describe('écrans réservés à certains rôles', () => {
     // pas. En ajouter un troisième écran ici sans que le serveur le refuse
     // masquerait une consultation légitime ; le référentiel, par exemple, n'a
     // que ses ÉCRITURES restreintes.
-    expect(Object.keys(ROLES_ONGLET).sort()).toEqual(['audit', 'invitations']);
+    expect(Object.keys(ROLES_ONGLET).sort()).toEqual(['audit', 'invitations', 'permissions']);
   });
 
   it('ouvre les écrans réservés au responsable et à l’administrateur', () => {
     for (const role of ['responsable', 'admin']) {
       expect(ongletAutorise('audit', [role])).toBe(true);
       expect(ongletAutorise('invitations', [role])).toBe(true);
+      expect(ongletAutorise('permissions', [role])).toBe(true);
     }
   });
 
@@ -94,6 +95,7 @@ describe('écrans réservés à certains rôles', () => {
     for (const role of ['apiculteur', 'superviseur']) {
       expect(ongletAutorise('audit', [role])).toBe(false);
       expect(ongletAutorise('invitations', [role])).toBe(false);
+      expect(ongletAutorise('permissions', [role])).toBe(false);
     }
   });
 

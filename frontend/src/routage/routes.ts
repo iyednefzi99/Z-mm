@@ -27,6 +27,7 @@ export const ONGLETS = [
   'agents',
   'invitations',
   'config',
+  'permissions',
   'audit',
 ] as const;
 
@@ -70,6 +71,7 @@ export const ICONES: Record<Onglet, string> = {
   agents: '👥',
   invitations: '🎟️',
   config: '⚙️',
+  permissions: '🔐',
   audit: '📜',
 };
 
@@ -105,7 +107,7 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
   cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'reines'],
   terrain: ['plannings', 'visites', 'taches', 'carte'],
   production: ['recoltes', 'lots'],
-  administration: ['agents', 'invitations', 'config', 'audit'],
+  administration: ['agents', 'invitations', 'config', 'permissions', 'audit'],
 };
 
 /**
@@ -136,6 +138,10 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
 export const ROLES_ONGLET: Partial<Record<Onglet, readonly string[]>> = {
   audit: ['responsable', 'admin'],
   invitations: ['responsable', 'admin'],
+  // La matrice des permissions n'expose aucune donnée métier, mais elle décrit
+  // qui peut quoi : c'est une carte des serrures. Elle suit donc le même
+  // réglage que les deux écrans qu'elle documente.
+  permissions: ['responsable', 'admin'],
 };
 
 /** L'écran est-il atteignable avec ces rôles ? */
@@ -200,6 +206,7 @@ export const ROUTES_PUBLIQUES = {
   ressources: '/ressources',
   editions: '/editions',
   contact: '/contact',
+  recuperation: '/recuperation',
   cgu: '/cgu',
   confidentialite: '/confidentialite',
 } as const;
@@ -212,4 +219,32 @@ const CHEMINS_PUBLICS = Object.entries(ROUTES_PUBLIQUES) as [RoutePublique, stri
 export function routePubliqueDepuisChemin(chemin: string): RoutePublique | null {
   const segment = `/${chemin.replace(/^\/+/, '').replace(/\/+$/, '')}`;
   return CHEMINS_PUBLICS.find(([, valeur]) => valeur === segment)?.[0] ?? null;
+}
+
+/**
+ * Routes qui exigent une session sans appartenir à la console (SPRINT-19).
+ *
+ * <p>« Mon compte » est personnel, pas métier : il n'a rien à faire dans un rail
+ * qui range des ressources d'exploitation, et il se cherche là où le web l'a mis
+ * depuis toujours — sous son propre nom, dans le menu de profil. Il garde
+ * pourtant la coquille de la console : on y va depuis un écran de travail, et on
+ * y revient.
+ *
+ * <p>Cette table est le pendant de {@link ROUTES_PUBLIQUES}. Les trois
+ * ensembles — onglets, routes publiques, routes de session — sont disjoints ;
+ * `routage.test.ts` le vérifie, faute de quoi un chemin serait servi par deux
+ * branches et la seconde ne s'exécuterait jamais.
+ */
+export const ROUTES_SESSION = {
+  compte: '/compte',
+} as const;
+
+export type RouteSession = keyof typeof ROUTES_SESSION;
+
+const CHEMINS_SESSION = Object.entries(ROUTES_SESSION) as [RouteSession, string][];
+
+/** Route de session correspondant à un chemin, ou {@code null}. */
+export function routeSessionDepuisChemin(chemin: string): RouteSession | null {
+  const segment = `/${chemin.replace(/^\/+/, '').replace(/\/+$/, '')}`;
+  return CHEMINS_SESSION.find(([, valeur]) => valeur === segment)?.[0] ?? null;
 }

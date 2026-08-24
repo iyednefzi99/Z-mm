@@ -152,6 +152,7 @@
     "agents": "Agents",
     "invitations": "Invitations",
     "config": "Configuration",
+    "permissions": "Permissions",
     "audit": "Audit"
   },
   "soustitres": {
@@ -169,6 +170,7 @@
     "reines": "Requeening follow-up: age, origin, replacement of queens.",
     "lots": "Packed lots and origin statement — required by Directive (EU) 2024/1438.",
     "carte": "Apiaries in the field. Which positions you see depends on your role.",
+    "permissions": "Who may do what. The matrix the server applies, read-only.",
     "audit": "Who did what, and when. Read-only — the log cannot be edited."
   },
   "groupes": {
@@ -283,6 +285,7 @@
   "profil": {
     "exploitation": "Farm",
     "roles": "Roles",
+    "monCompte": "My account",
     "sansRole": "No business role"
   },
   "invitations": {
@@ -898,6 +901,66 @@
         "texte": "Because no service would receive it: the application exposes no contact endpoint. A form that sends nothing is worse than no form — it lets you believe the message went out."
       }
     ]
+  },
+  "compte": {
+    "titre": "My account",
+    "sousTitre": "What the server knows about you, and what is set elsewhere.",
+    "identiteTitre": "Identity",
+    "utilisateur": "User",
+    "securiteTitre": "Password and security",
+    "securiteTexte": "The password is not handled by Zümm but by the authentication service: it cannot be changed from this page. Go through the manager of your holding, who can restart the procedure.",
+    "preferencesTitre": "Language and appearance",
+    "preferencesTexte": "The language and theme choice is stored in this browser, not on the server: on another device you start again from the defaults. Both are set in the top bar.",
+    "donneesTitre": "Your data",
+    "donneesTexte": "Visits and hives export as CSV or text from their own screens. What you create, change and delete leaves a trace in the audit log, under your name.",
+    "sessionTitre": "Session",
+    "sessionTexte": "No token is stored in this browser: the session lives in a cookie only the server can read. Ending it revokes it server-side, not only in this tab."
+  },
+  "recuperation": {
+    "titre": "Forgotten password",
+    "chapo": "What to do, and why it is not done from this page.",
+    "maj": "Last updated: 24 August 2026.",
+    "manques": [
+      "Email delivery: no mail server is configured in the authentication realms",
+      "Address or request form, once email delivery is enabled"
+    ],
+    "sections": [
+      {
+        "titre": "Go through your manager",
+        "texte": "That is the only route today: the manager of your holding can restart the procedure on your account. They are also the person who gave you your holding code."
+      },
+      {
+        "titre": "Why there is no “forgotten password” link",
+        "texte": "Because it would send nothing. Password reset by email is a function of the authentication service, and no mail server is configured there: the link would exist, the message would not leave."
+      },
+      {
+        "titre": "What will not change",
+        "texte": "Zümm does not store your password and cannot remind you of it. A reset creates a new one; the old one is readable by nobody, not even your manager."
+      },
+      {
+        "titre": "Meanwhile, nothing is stuck",
+        "texte": "An account you cannot reach does not lock the livestock: the data belongs to the holding, not to your account, and the other agents reach it according to their role."
+      }
+    ]
+  },
+  "permissions": {
+    "titre": "Roles and permissions",
+    "sousTitre": "Who may do what. The server is the authority — this page describes what it applies.",
+    "intro": "The interface hides what it knows to be closed, but it decides nothing: every call is checked by the server. A valid token without a business role reaches no endpoint.",
+    "colonneRegle": "What is protected",
+    "colonneRoles": "Allowed roles",
+    "regles": {
+      "audit": "Reading the audit log",
+      "invitations": "Reading and issuing invitation codes",
+      "permissions": "Viewing this matrix",
+      "plannings": "Approving or refusing a round",
+      "referentiel": "Creating, changing or deleting in the reference data: farmers, farms, apiaries, agents, hives",
+      "mesures": "Submitting a sensor measurement",
+      "reste": "Everything else: consultation, and recording field work"
+    },
+    "ecransTitre": "Screens removed from the navigation",
+    "ecransTexte": "For the roles that do not open them, these screens appear neither in the rail nor in the palette: {ecrans}.",
+    "note": "Hiding is a navigation convenience, not a protection. What the browser hides, it could show — it is the server that refuses."
   },
   "introuvable": {
     "titre": "Page not found",

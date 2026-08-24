@@ -23,12 +23,14 @@ const session: Session = {
   exploitation: 'exploitation-demo',
 };
 
-const monter = (donnees: Session = session) =>
+const monter = (donnees: Session = session, onCompte = vi.fn()) => {
   render(
     <LangueProvider>
-      <MenuProfil session={donnees} />
+      <MenuProfil session={donnees} onCompte={onCompte} />
     </LangueProvider>,
   );
+  return onCompte;
+};
 
 describe('menu de profil', () => {
   it('montre le nom, et rien de plus tant qu’il est fermé', () => {
@@ -77,10 +79,24 @@ describe('menu de profil', () => {
   it('déconnecte en passant le jeton CSRF', async () => {
     monter();
 
-    await userEvent.click(screen.getByRole('button'));
-    await userEvent.click(screen.getByRole('menuitem'));
+    await userEvent.click(screen.getByRole('button', { name: /nour/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Fermer la session' }));
 
     // Sans jeton, une deconnexion forcee depuis un site tiers reste possible.
     expect(deconnexion).toHaveBeenCalledWith('jeton-de-test');
+  });
+});
+
+describe('accès à « Mon compte »', () => {
+  it('ouvre l’écran du compte et referme le menu', async () => {
+    // Le menu doit se refermer : le laisser ouvert par-dessus l'écran qu'il
+    // vient d'ouvrir masque la moitié de ce qu'on est venu lire.
+    const onCompte = monter();
+
+    await userEvent.click(screen.getByRole('button', { name: /nour/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Mon compte' }));
+
+    expect(onCompte).toHaveBeenCalled();
+    expect(screen.queryByRole('menuitem')).toBeNull();
   });
 });

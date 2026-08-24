@@ -298,6 +298,30 @@ describe('ossature de la console', () => {
     expect(window.location.pathname).toBe('/audit');
   });
 
+  it('sert « Mon compte » depuis le menu de profil, hors du rail', async () => {
+    // Personnel, pas métier : l'écran garde la coquille de la console mais n'a
+    // pas sa place dans un rail qui range des ressources d'exploitation.
+    monter();
+    await screen.findByRole('heading', { name: 'Tableaux de bord' });
+
+    await userEvent.click(screen.getByRole('button', { name: /agent-test/i }));
+    await userEvent.click(screen.getByRole('menuitem', { name: 'Mon compte' }));
+
+    expect(window.location.pathname).toBe('/compte');
+    expect(await screen.findByRole('heading', { name: 'Mon compte' })).toBeInTheDocument();
+    // Toujours dans la console : le rail est là, on peut repartir travailler.
+    expect(screen.getByRole('button', { name: 'Ruches' })).toBeInTheDocument();
+  });
+
+  it('réserve la matrice des permissions au responsable', async () => {
+    allerA('/permissions');
+    definir({ utilisateur: 'agent-test', roles: ['apiculteur'], exploitation: 'demo' });
+
+    monter();
+
+    expect(await screen.findByRole('heading', { name: 'Accès réservé' })).toBeInTheDocument();
+  });
+
   it('marque l’onglet courant pour les lecteurs d’écran', async () => {
     allerA('/carte');
 

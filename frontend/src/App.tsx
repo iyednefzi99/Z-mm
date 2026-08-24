@@ -12,11 +12,13 @@ import {
   ICONES,
   ROLES_ONGLET,
   ROUTES_PUBLIQUES,
+  ROUTES_SESSION,
   cheminDepuisOnglet,
   ongletAutorise,
   ongletDepuisChemin,
   ongletsVisibles,
   routePubliqueDepuisChemin,
+  routeSessionDepuisChemin,
   type Onglet,
   type RoutePublique,
 } from './routage/routes';
@@ -30,10 +32,12 @@ import { AProposVue } from './vues/AProposVue';
 import { ConditionsVue } from './vues/ConditionsVue';
 import { ConfidentialiteVue } from './vues/ConfidentialiteVue';
 import { ConnexionVue } from './vues/ConnexionVue';
+import { CompteVue } from './vues/CompteVue';
 import { ContactVue } from './vues/ContactVue';
 import { CoquillePublique } from './vues/CoquillePublique';
 import { EditionsVue } from './vues/EditionsVue';
 import { FonctionnalitesVue } from './vues/FonctionnalitesVue';
+import { RecuperationVue } from './vues/RecuperationVue';
 import { RessourcesVue } from './vues/RessourcesVue';
 import { InterditVue } from './vues/InterditVue';
 import { IntrouvableVue } from './vues/IntrouvableVue';
@@ -62,6 +66,9 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
     import('./vues/InvitationsVue').then((m) => ({ default: m.InvitationsVue })),
   ),
   config: lazy(() => import('./vues/ConfigVue').then((m) => ({ default: m.ConfigVue }))),
+  permissions: lazy(() =>
+    import('./vues/PermissionsVue').then((m) => ({ default: m.PermissionsVue })),
+  ),
   audit: lazy(() => import('./vues/AuditVue').then((m) => ({ default: m.AuditVue }))),
 };
 
@@ -82,6 +89,7 @@ const PAGES_PUBLIQUES: Partial<Record<RoutePublique, () => ReactElement>> = {
   ressources: RessourcesVue,
   editions: EditionsVue,
   contact: ContactVue,
+  recuperation: RecuperationVue,
   cgu: ConditionsVue,
   confidentialite: ConfidentialiteVue,
 };
@@ -113,6 +121,7 @@ export default function App(): ReactElement {
 
   const onglet = ongletDepuisChemin(chemin);
   const routePublique = routePubliqueDepuisChemin(chemin);
+  const routeSession = routeSessionDepuisChemin(chemin);
 
   useEffect(() => surSession(setSession), []);
 
@@ -272,7 +281,7 @@ export default function App(): ReactElement {
             ))}
           </nav>
           <SelecteurTheme />
-          <MenuProfil session={session} />
+          <MenuProfil session={session} onCompte={() => naviguer(ROUTES_SESSION.compte)} />
         </div>
       </header>
 
@@ -334,7 +343,11 @@ export default function App(): ReactElement {
               </>
             }
           >
-            {Vue === null ? (
+            {routeSession === 'compte' ? (
+              // Hors rail, mais dans la coquille : on y vient depuis un écran de
+              // travail, et on y retourne.
+              <CompteVue session={session} onNaviguer={naviguer} />
+            ) : Vue === null ? (
               <IntrouvableVue onRetour={() => naviguer('/')} />
             ) : refuse ? (
               <InterditVue

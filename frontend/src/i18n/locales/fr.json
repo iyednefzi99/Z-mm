@@ -152,6 +152,7 @@
     "agents": "Agents",
     "invitations": "Invitations",
     "config": "Configuration",
+    "permissions": "Permissions",
     "audit": "Audit"
   },
   "soustitres": {
@@ -169,6 +170,7 @@
     "reines": "Suivi du renouvellement : âge, origine, remplacement des reines.",
     "lots": "Lots mis en pot et mention d’origine — exigée par la directive (UE) 2024/1438.",
     "carte": "Les ruchers sur le terrain. Les positions affichées dépendent de votre rôle.",
+    "permissions": "Qui peut quoi. La matrice appliquée par le serveur, en lecture seule.",
     "audit": "Qui a fait quoi, et quand. Consultation seule — le journal ne se modifie pas."
   },
   "groupes": {
@@ -283,6 +285,7 @@
   "profil": {
     "exploitation": "Exploitation",
     "roles": "Rôles",
+    "monCompte": "Mon compte",
     "sansRole": "Aucun rôle métier"
   },
   "invitations": {
@@ -898,6 +901,66 @@
         "texte": "Parce qu’aucun service ne le recevrait : l’application n’expose aucun point d’entrée de contact. Un formulaire qui n’envoie rien est pire que pas de formulaire — il laisse croire que le message est parti."
       }
     ]
+  },
+  "compte": {
+    "titre": "Mon compte",
+    "sousTitre": "Ce que le serveur sait de vous, et ce qui se règle ailleurs.",
+    "identiteTitre": "Identité",
+    "utilisateur": "Utilisateur",
+    "securiteTitre": "Mot de passe et sécurité",
+    "securiteTexte": "Le mot de passe n’est pas géré par Zümm mais par le service d’authentification : il ne se change pas depuis cette page. Passez par le responsable de votre exploitation, qui peut relancer la procédure.",
+    "preferencesTitre": "Langue et apparence",
+    "preferencesTexte": "Le choix de langue et de thème est enregistré dans ce navigateur, pas sur le serveur : sur un autre appareil, vous repartez des réglages par défaut. Les deux se règlent dans la barre supérieure.",
+    "donneesTitre": "Vos données",
+    "donneesTexte": "Les visites et les ruches s’exportent en CSV ou en texte depuis leurs écrans. Ce que vous créez, modifiez et supprimez laisse une trace dans le journal d’audit, sous votre nom.",
+    "sessionTitre": "Session",
+    "sessionTexte": "Aucun jeton n’est stocké dans ce navigateur : la session tient dans un cookie que seul le serveur peut lire. La fermer la révoque côté serveur, pas seulement dans cet onglet."
+  },
+  "recuperation": {
+    "titre": "Mot de passe oublié",
+    "chapo": "Ce qu’il faut faire, et pourquoi cela ne se fait pas depuis cette page.",
+    "maj": "Dernière mise à jour : 24 août 2026.",
+    "manques": [
+      "Envoi de courriel : aucun serveur d’envoi n’est configuré dans les royaumes d’authentification",
+      "Adresse ou formulaire de demande, une fois l’envoi de courriel activé"
+    ],
+    "sections": [
+      {
+        "titre": "Passez par votre responsable",
+        "texte": "C’est aujourd’hui le seul chemin : le responsable de votre exploitation peut relancer la procédure sur votre compte. C’est aussi lui qui vous a remis votre code d’exploitation."
+      },
+      {
+        "titre": "Pourquoi il n’y a pas de lien « mot de passe oublié »",
+        "texte": "Parce qu’il n’enverrait rien. La réinitialisation par courriel est une fonction du service d’authentification, et aucun serveur d’envoi n’y est configuré : le lien existerait, le message ne partirait pas."
+      },
+      {
+        "titre": "Ce qui ne changera pas",
+        "texte": "Zümm ne stocke pas votre mot de passe et ne peut pas vous le rappeler. Une réinitialisation en crée un nouveau ; l’ancien n’est lisible par personne, pas même par votre responsable."
+      },
+      {
+        "titre": "En attendant, rien n’est bloqué",
+        "texte": "Un compte inaccessible ne verrouille pas le cheptel : les données appartiennent à l’exploitation et non à votre compte, et les autres agents y accèdent selon leur rôle."
+      }
+    ]
+  },
+  "permissions": {
+    "titre": "Rôles et permissions",
+    "sousTitre": "Qui peut quoi. Le serveur fait foi — cette page décrit ce qu’il applique.",
+    "intro": "L’interface masque ce qu’elle sait fermé, mais elle ne décide rien : chaque appel est vérifié par le serveur. Un jeton valide sans rôle métier n’atteint aucun endpoint.",
+    "colonneRegle": "Ce qui est protégé",
+    "colonneRoles": "Rôles autorisés",
+    "regles": {
+      "audit": "Lire le journal d’audit",
+      "invitations": "Lire et émettre les codes d’invitation",
+      "permissions": "Consulter cette matrice",
+      "plannings": "Approuver ou refuser un planning",
+      "referentiel": "Créer, modifier ou supprimer dans le référentiel : fermiers, fermes, ruchers, agents, ruches",
+      "mesures": "Déposer une mesure de capteur",
+      "reste": "Tout le reste : consultation, et saisie du travail de terrain"
+    },
+    "ecransTitre": "Écrans retirés de la navigation",
+    "ecransTexte": "Pour les rôles qui ne les ouvrent pas, ces écrans n’apparaissent ni dans le rail ni dans la palette : {ecrans}.",
+    "note": "Le masquage est un confort de navigation, pas une protection. Ce que le navigateur cache, il pourrait le montrer — c’est le serveur qui refuse."
   },
   "introuvable": {
     "titre": "Page introuvable",

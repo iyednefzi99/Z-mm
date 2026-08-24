@@ -17,7 +17,13 @@ import { useT } from '../i18n/langue';
  * qui ne voit pas l'écran des invitations doit pouvoir comprendre pourquoi sans
  * appeler son responsable.
  */
-export function MenuProfil({ session }: { session: Session }): ReactElement {
+export function MenuProfil({
+  session,
+  onCompte,
+}: {
+  session: Session;
+  onCompte: () => void;
+}): ReactElement {
   const t = useT();
   const [ouvert, setOuvert] = useState(false);
   const conteneur = useRef<HTMLDivElement>(null);
@@ -81,9 +87,24 @@ export function MenuProfil({ session }: { session: Session }): ReactElement {
             <span className="z-profil__valeur">
               {session.roles.length === 0
                 ? t.profil.sansRole
-                : session.roles.map((role) => t.roles[role as keyof typeof t.roles] ?? role).join(', ')}
+                : session.roles
+                    .map((role) => t.roles[role as keyof typeof t.roles] ?? role)
+                    .join(', ')}
             </span>
           </p>
+          {/* « Mon compte » avant « fermer la session » : on ouvre ce menu
+              bien plus souvent pour se situer que pour partir. */}
+          <button
+            type="button"
+            role="menuitem"
+            className="z-profil__action"
+            onClick={() => {
+              setOuvert(false);
+              onCompte();
+            }}
+          >
+            {t.profil.monCompte}
+          </button>
           <button
             type="button"
             role="menuitem"
