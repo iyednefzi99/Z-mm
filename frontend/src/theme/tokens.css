@@ -90,6 +90,14 @@
   --z-text-muted: #5b6b65;
   --z-line: #dce4e0;
 
+  /* Vert LISIBLE sur le fond courant, pour les glyphes et le texte vert. Il
+     bascule avec le theme, contrairement aux verts de marque : `--z-green-500`
+     plafonne a 3,4:1 sur fond clair et `--z-green-600` tombe a 2,3:1 sur fond
+     sombre — aucun des deux ne tient les deux cotes. Mesures : 5,3:1 en clair,
+     5,7:1 en sombre. Les aplats et les bordures, eux, gardent le vert de
+     marque : ce jeton-ci ne sert qu'a ce qui se LIT. */
+  --z-vert-encre: #1f7a2e;
+
   /* Encre POSEE SUR une couleur de marque. Ces valeurs ne suivent pas le theme :
      un bouton miel reste miel en clair comme en sombre, donc son encre aussi.
      Elles etaient ecrites en dur dans App.css, ce qui les rendait invisibles a
@@ -98,6 +106,12 @@
      teintes, comme le reste (cf. design/principes/). */
   --z-on-honey: #24170a;
   --z-on-danger: #fff5f4;
+  /* Encre posee sur le vert ardoise. Meme logique que `--z-on-honey` : le pied
+     de la vitrine reste ardoise en clair comme en sombre, donc son encre aussi.
+     Mesure sur #2C4A42 : 8,5:1 pour le texte, 4,9:1 pour le secondaire — les
+     deux au-dessus du plancher AA de DESIGN.md § 2.4. */
+  --z-on-slate: #eaf1ee;
+  --z-on-slate-muted: #a9bdb6;
 
   /* Voile de la modale. Vert ardoise translucide, pas un noir : un scrim noir
      desature la page qu'il recouvre au lieu de la mettre en retrait. */
@@ -113,6 +127,7 @@
     --z-text: #eaf1ee;
     --z-text-muted: #a9bdb6;
     --z-line: rgba(255, 255, 255, 0.1);
+    --z-vert-encre: #6fc46b;
     /* Palette de series recalculee POUR le fond sombre : memes teintes, pas de
        clarte differents. Un simple eclaircissement automatique sortirait de la
        bande lisible ou effondrerait le contraste. */
@@ -135,6 +150,7 @@
   --z-text: #eaf1ee;
   --z-text-muted: #a9bdb6;
   --z-line: rgba(255, 255, 255, 0.1);
+  --z-vert-encre: #6fc46b;
   /* Palette de series recalculee POUR le fond sombre : memes teintes, pas de
      clarte differents. Un simple eclaircissement automatique sortirait de la
      bande lisible ou effondrerait le contraste. */
@@ -155,6 +171,7 @@
   --z-text: #1b2320;
   --z-text-muted: #5b6b65;
   --z-line: #dce4e0;
+  --z-vert-encre: #1f7a2e;
   --z-cat-1: #d9a521;
   --z-cat-2: #2a78d6;
   --z-cat-3: #2e9e3f;

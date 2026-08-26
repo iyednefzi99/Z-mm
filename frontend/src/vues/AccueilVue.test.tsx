@@ -42,7 +42,14 @@ describe('page d’accueil publique', () => {
     ).toBeInTheDocument();
     // Les six domaines mis en avant, et les trois profils : ce sont eux qui
     // répondent à « à quoi sert ce logiciel » avant toute demande de compte.
-    for (const titre of ['Pilotage', 'Cheptel', 'Terrain', 'Production', 'Capteurs', 'Hors ligne']) {
+    for (const titre of [
+      'Pilotage',
+      'Cheptel',
+      'Terrain',
+      'Production',
+      'Capteurs',
+      'Hors ligne',
+    ]) {
       expect(screen.getByRole('heading', { name: titre })).toBeInTheDocument();
     }
     expect(screen.getByRole('heading', { name: 'Agent de terrain' })).toBeInTheDocument();
@@ -82,6 +89,28 @@ describe('page d’accueil publique', () => {
     monter(null);
 
     expect(screen.getByText(`${ONGLETS.length} écrans métier`)).toBeInTheDocument();
+  });
+
+  it('garde la texture de papier décorative : rien à annoncer, rien à tabuler', () => {
+    // La vitrine est la seule page à porter des déchirures et des pictogrammes.
+    // Ils n'existent que pour l'œil : le titre traduit porte seul le sens. Un
+    // SVG qui perdrait son `aria-hidden` ferait annoncer neuf images sans nom à
+    // chaque lecteur d'écran, et la page passerait de dix repères à dix-neuf.
+    const { container } = render(
+      <LangueProvider>
+        <ThemeProvider>
+          <AccueilVue session={null} onNaviguer={vi.fn()} />
+        </ThemeProvider>
+      </LangueProvider>,
+    );
+
+    const svgs = container.querySelectorAll('svg');
+    expect(svgs.length).toBeGreaterThan(0);
+    for (const svg of svgs) {
+      expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+    }
+    // Et aucune image accessible n'apparaît : la page ne compte que du texte.
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
   });
 
   it('se traduit : les fonctionnalités suivent la langue choisie', async () => {

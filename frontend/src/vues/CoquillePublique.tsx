@@ -6,6 +6,7 @@ import { useLangue, useT } from '../i18n/langue';
 import { ONGLETS, ROUTES_PUBLIQUES } from '../routage/routes';
 import { SelecteurTheme } from '../theme/theme';
 import { Bouton } from '../ui/composants';
+import { BordDechire } from '../ui/papier';
 
 /**
  * Ossature des pages publiques — barre, pied, et rien d'autre (SPRINT-19).
@@ -21,6 +22,13 @@ import { Bouton } from '../ui/composants';
  *
  * <p>Comme l'accueil, elle <strong>n'appelle aucune API</strong> : c'est
  * l'ossature de tout ce que l'application sert sans jeton.
+ *
+ * <p><strong>Le pied est arraché du reste de la page.</strong> Il change de
+ * fond — vert ardoise sous une encre claire — et la déchirure marque ce
+ * changement plutôt qu'un filet d'un pixel. Un filet sépare deux zones de même
+ * matière ; ici la matière change, et le bord doit le dire. C'est le seul
+ * endroit de la coquille qui porte cette texture : les pages légales sont de la
+ * prose longue, et une trame sous un texte de loi le rend plus dur à lire.
  */
 export function CoquillePublique({
   session,
@@ -98,6 +106,7 @@ export function CoquillePublique({
       <main>{children}</main>
 
       <footer className="z-accueil__pied">
+        <BordDechire teinte="fond" />
         <nav className="z-accueil__pied-liens" aria-label={t.accueil.pied.navigation}>
           {LIENS.map(({ chemin, libelle }) => (
             <button
@@ -114,7 +123,7 @@ export function CoquillePublique({
           <span>{t.accueil.pied.note}</span>
           <span aria-hidden="true"> · </span>
           {/* Le nombre d'écrans se lit dans la table des routes : une vitrine qui
-              promet seize écrans quand le produit en sert dix-sept vieillit mal. */}
+              promet un total que le produit a dépassé depuis vieillit mal. */}
           <span>{gabarit(t.accueil.pied.ecrans, { n: String(ONGLETS.length) })}</span>
           <span aria-hidden="true"> · </span>
           <span>{t.accueil.pied.langues}</span>

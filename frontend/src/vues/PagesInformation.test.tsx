@@ -186,6 +186,42 @@ describe('page éditions', () => {
   });
 });
 
+describe('papier arraché des pages d’acquisition', () => {
+  // La déchirure du pied (`CoquillePublique`) est peinte en teinte de FOND. Une
+  // page publique qui se terminerait sur une bande en surface laisserait donc un
+  // liseré à la jointure — un défaut qui ne se voit qu'en bas de page, et qu'on
+  // ne remarque pas en développant le haut.
+  it.each([
+    ['fonctionnalités', <FonctionnalitesVue key="f" />],
+    ['à propos', <AProposVue key="a" />],
+  ])('%s se termine sur une bande de fond', (_nom, vue) => {
+    const { container } = monter(vue);
+
+    const bandes = container.querySelectorAll('.z-bande');
+    expect(bandes.length).toBeGreaterThan(0);
+    expect(bandes[bandes.length - 1].classList).toContain('z-bande--fond');
+  });
+
+  it('garde les pictogrammes des domaines décoratifs', () => {
+    // Six alvéoles sans `aria-hidden`, et un lecteur d'écran annoncerait six
+    // images sans nom avant chaque titre de domaine.
+    const { container } = monter(<FonctionnalitesVue />);
+
+    expect(container.querySelectorAll('.z-alveole svg')).toHaveLength(6);
+    // Les déchirures sont des SVG elles aussi : la règle vaut pour toutes.
+    for (const svg of container.querySelectorAll('svg')) {
+      expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+    }
+  });
+
+  it('laisse les textes légaux sur une colonne nue, sans texture', () => {
+    // La règle qui délimite le papier : acquisition oui, texte de loi non.
+    const { container } = monter(<ConditionsVue />);
+
+    expect(container.querySelector('.z-bande')).toBeNull();
+  });
+});
+
 describe('page contact', () => {
   it('ne propose pas de formulaire, faute de service pour le recevoir', () => {
     // Un formulaire qui n'envoie rien est pire que pas de formulaire : il laisse

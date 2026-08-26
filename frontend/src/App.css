@@ -101,7 +101,8 @@
   padding: 0.3rem 0.6rem;
   border-radius: var(--z-radius-pill);
   cursor: pointer;
-  transition: background var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    background var(--z-duration-fast) var(--z-ease-out),
     color var(--z-duration-fast) var(--z-ease-out);
 }
 
@@ -131,7 +132,8 @@
   color: var(--z-text-muted);
   font-size: 0.85rem;
   cursor: pointer;
-  transition: border-color var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    border-color var(--z-duration-fast) var(--z-ease-out),
     color var(--z-duration-fast) var(--z-ease-out);
 }
 
@@ -171,7 +173,7 @@
 
    UN SEUL élément dans le DOM, deux présentations : rail latéral persistant au
    bureau, barre du bas au pouce sur mobile. Dupliquer le balisage aurait
-   dupliqué seize noms accessibles.
+   dupliqué dix-huit noms accessibles.
    ─────────────────────────────────────────────────────────────────────────── */
 
 .z-corps {
@@ -221,7 +223,8 @@
   font-size: 0.92rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: color var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    color var(--z-duration-fast) var(--z-ease-out),
     background var(--z-duration-fast) var(--z-ease-out),
     border-color var(--z-duration-base) var(--z-ease-out);
 }
@@ -272,7 +275,7 @@
 }
 
 /* Barre d'onglets classique — sous-onglets d'une vue (tableaux de bord). Elle
-   garde la forme horizontale : cinq entrées, pas seize. */
+   garde la forme horizontale : cinq entrées, pas dix-huit. */
 .z-nav {
   display: flex;
   gap: 0.25rem;
@@ -463,7 +466,8 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    transform var(--z-duration-fast) var(--z-ease-out),
     filter var(--z-duration-fast) var(--z-ease-out),
     background var(--z-duration-fast) var(--z-ease-out);
 }
@@ -1027,7 +1031,8 @@
   background: var(--z-bg);
   color: var(--z-text);
   font-size: 0.95rem;
-  transition: border-color var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    border-color var(--z-duration-fast) var(--z-ease-out),
     box-shadow var(--z-duration-fast) var(--z-ease-out);
 }
 
@@ -1154,7 +1159,11 @@
   place-items: center;
   padding: 1.25rem;
   background:
-    radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--z-honey-500) 12%, transparent), transparent),
+    radial-gradient(
+      120% 80% at 50% -10%,
+      color-mix(in srgb, var(--z-honey-500) 12%, transparent),
+      transparent
+    ),
     var(--z-bg);
 }
 
@@ -1850,7 +1859,9 @@
   background: var(--z-honey-500);
   /* Ancrage visuel : le halo detache la pastille du fond cartographique, quelle
      que soit la couleur des tuiles dessous. */
-  box-shadow: 0 0 0 2px var(--z-bg), var(--z-shadow-2);
+  box-shadow:
+    0 0 0 2px var(--z-bg),
+    var(--z-shadow-2);
   color: var(--z-slate-900);
   font-weight: 700;
   font-size: 0.75rem;
@@ -1966,6 +1977,7 @@
    ne doit pas declencher l'anneau, seul le clavier en a besoin. */
 .z-btn:focus-visible,
 .z-icone-btn:focus-visible,
+.z-lien:focus-visible,
 .z-langue:focus-visible,
 .z-onglet:focus-visible,
 .z-toast__action:focus-visible,
@@ -2191,7 +2203,8 @@ a:focus-visible,
   padding: 0.35rem 0.5rem;
   border-radius: var(--z-radius-pill);
   cursor: pointer;
-  transition: background var(--z-duration-fast) var(--z-ease-out),
+  transition:
+    background var(--z-duration-fast) var(--z-ease-out),
     color var(--z-duration-fast) var(--z-ease-out);
 }
 
@@ -2219,6 +2232,142 @@ a:focus-visible,
   display: flex;
   flex-direction: column;
   background: var(--z-bg);
+
+  /* Grain du papier. Bruit fractal SVG en data-URI : aucune requête, aucun
+     fichier à versionner, et il se répète sans couture. L'opacité est cuite
+     DANS le SVG plutôt que posée sur un calque — un calque au-dessus du contenu
+     voile le texte, et un calque en dessous demanderait un contexte
+     d'empilement par bande.
+
+     Il est déclaré ICI, sur la coquille publique, et nulle part ailleurs : la
+     console n'a rien à faire d'une texture sous un tableau de vingt lignes. */
+  --z-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Sur fond sombre, un grain noir ne se voit pas : la fibre s'y lit en clair.
+   Même ordre que `theme/tokens.css` — la requête média d'abord, puis les deux
+   choix explicites, qui la surchargent par spécificité. */
+@media (prefers-color-scheme: dark) {
+  .z-accueil {
+    --z-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' fill='%23eaf1ee' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+  }
+}
+
+:root[data-theme='dark'] .z-accueil {
+  --z-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' fill='%23eaf1ee' filter='url(%23g)' opacity='0.07'/%3E%3C/svg%3E");
+}
+
+:root[data-theme='light'] .z-accueil {
+  --z-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* ─── Papier arraché : bandes et déchirures ────────────────────────────────
+   Trois pièces, et pas une de plus. La BANDE porte le fond et le grain ; la
+   DÉCHIRURE marque le passage d'un fond à l'autre ; la carte prend un tiers de
+   degré pour ne pas s'aligner au cordeau. Rien n'est tiré au hasard — la raison
+   est écrite dans `ui/papier.tsx`, et elle tient en un mot : reproductibilité.
+
+   La déchirure ne sert QUE là où le fond change réellement. Entre deux bandes
+   de même teinte elle ne se lit pas ; répétée à chaque section, elle cesse
+   d'être une matière pour devenir un tic. */
+
+.z-bande {
+  position: relative;
+  background-image: var(--z-grain);
+}
+
+/* Le fond des cartes se renverse avec la bande : sur une bande claire elles
+   sont en surface, sur une bande en surface elles reviennent au fond. Sans ce
+   renversement, une carte grise sur bande grise disparaît. */
+.z-bande--surface {
+  background-color: var(--z-surface);
+  --z-carte-fond: var(--z-bg);
+}
+
+.z-bande--fond {
+  background-color: var(--z-bg);
+  --z-carte-fond: var(--z-surface);
+}
+
+.z-dechirure {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: 0;
+  block-size: clamp(0.9rem, 2.2vw, 1.6rem);
+  /* Un pixel vers le haut : la déchirure appartient à la bande PRÉCÉDENTE, elle
+     doit donc mordre dessus et ne laisser aucun filet clair à la jointure. */
+  transform: translateY(-1px);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.z-dechirure svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+/* La teinte nommée est celle de la bande qui se déchire, pas celle qu'elle
+   coiffe : c'est du papier de la section d'AU-DESSUS qu'on voit l'arrachement. */
+.z-dechirure--fond {
+  color: var(--z-bg);
+}
+
+.z-dechirure--surface {
+  color: var(--z-surface);
+}
+
+.z-dechirure__bord {
+  fill: currentColor;
+}
+
+/* La fibre : une seconde copie du même tracé, décalée d'un cheveu vers le bas et
+   teintée miel. C'est elle qui fait lire « papier arraché » plutôt que
+   « découpé aux ciseaux ». Le miel n'y porte aucun texte — il reste un accent,
+   comme l'exige DESIGN.md § 2.1. */
+.z-dechirure__fibre {
+  fill: color-mix(in srgb, var(--z-honey-500) 60%, currentColor);
+}
+
+/* Colonne de lecture DANS une bande. Les pages d'acquisition — fonctionnalités,
+   à propos — étaient bâties sur `.z-legal`, qui porte à la fois le fond et la
+   colonne. Une bande a besoin de l'inverse : le fond va d'un bord à l'autre de
+   l'écran, la colonne reste au milieu. D'où la séparation en deux éléments,
+   plutôt qu'un `max()` sur le padding — ici la bande porte aussi une déchirure
+   en absolu, qui doit couvrir toute la largeur.
+
+   Les deux largeurs reprennent celles de `.z-legal` : 46 rem pour de la prose,
+   68 rem quand une grille de six domaines a besoin de respirer. */
+.z-bande__colonne {
+  max-inline-size: 46rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 3rem);
+}
+
+.z-bande__colonne--large {
+  max-inline-size: 68rem;
+}
+
+/* Bande de clôture : elle existe pour la jointure avec le pied, pas pour son
+   contenu — qui peut être vide quand l'API n'a rien rendu (voir `AProposVue`).
+   Elle est donc réduite à une respiration. */
+.z-bande--cloture .z-bande__colonne:empty {
+  padding-block: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+/* Dans une bande, l'en-tête n'a plus à se séparer de ce qui suit : la déchirure
+   le fait, et deux séparateurs pour une seule frontière en font un de trop. */
+.z-bande .z-legal__entete {
+  padding-block-end: 0;
+  margin-block-end: 0;
+  border-block-end: 0;
+}
+
+/* La marge d'espacement entre sections ne vaut qu'ENTRE sections : en tête de
+   bande, elle s'ajouterait au rembourrage de la colonne. */
+.z-bande__colonne > .z-legal__section:first-child,
+.z-bande__colonne > .z-domaines:first-child {
+  margin-block-start: 0;
 }
 
 .z-accueil__barre {
@@ -2251,11 +2400,16 @@ a:focus-visible,
   max-inline-size: 76rem;
   margin-inline: auto;
   inline-size: 100%;
-  background: radial-gradient(
-    70% 60% at 50% -10%,
-    color-mix(in srgb, var(--z-honey-500) 14%, transparent),
-    transparent
-  );
+  /* Le grain PAR-DESSUS le halo de miel : la lueur vient de la page, la fibre
+     est le papier sur lequel elle est imprimée. L'ordre inverse donnerait un
+     halo posé sur le grain, c'est-à-dire du vernis. */
+  background-image:
+    var(--z-grain),
+    radial-gradient(
+      70% 60% at 50% -10%,
+      color-mix(in srgb, var(--z-honey-500) 14%, transparent),
+      transparent
+    );
   animation: z-entree-apparition var(--z-duration-slow) var(--z-ease-out) both;
 }
 
@@ -2348,6 +2502,16 @@ a:focus-visible,
   font-size: 0.95rem;
 }
 
+/* Pictogrammes de la vitrine (`ui/icones.tsx`). Une seule taille et une seule
+   graisse pour les neuf : c'est précisément ce que les émojis ne savaient pas
+   tenir. `flex: none` parce qu'ils vivent dans des lignes en flex — sans lui,
+   un SVG se laisse écraser par le texte à côté. */
+.z-icone {
+  flex: none;
+  inline-size: 1.35rem;
+  block-size: 1.35rem;
+}
+
 /* ─── Sections de contenu ─────────────────────────────────────────────────── */
 
 .z-accueil__section,
@@ -2356,17 +2520,6 @@ a:focus-visible,
   max-inline-size: 76rem;
   margin-inline: auto;
   inline-size: 100%;
-}
-
-/* Bande pleine largeur, colonne de texte contenue : la teinte va d'un bord à
-   l'autre de l'écran, mais le contenu reste dans la même colonne de 76 rem que
-   les autres sections. Le `max()` remplace un div d'habillage — sur un écran
-   large, c'est la marge qui grandit, pas la ligne de texte. */
-.z-accueil__section--teinte {
-  background: var(--z-surface);
-  max-inline-size: none;
-  padding-inline: max(clamp(1rem, 4vw, 3rem), calc((100% - 76rem) / 2));
-  border-block: 1px solid var(--z-line);
 }
 
 .z-accueil__titre {
@@ -2402,31 +2555,59 @@ a:focus-visible,
 
 .z-accueil__carte {
   padding: 1.25rem;
-  background: var(--z-surface);
+  background: var(--z-carte-fond, var(--z-surface));
   border: 1px solid var(--z-line);
   border-radius: var(--z-radius-lg);
   box-shadow: var(--z-shadow-1);
   transition:
     transform var(--z-duration-base) var(--z-ease-out),
+    rotate var(--z-duration-base) var(--z-ease-out),
     box-shadow var(--z-duration-base) var(--z-ease-out);
 }
 
-/* Le survol soulève la carte d'un cheveu. C'est un signal de matière, pas une
-   invitation à cliquer : ces cartes ne sont pas des liens. */
+/* Les cartes ne sont pas collées à la règle : un tiers de degré suffit à faire
+   lire « posées » plutôt que « alignées ». Trois valeurs FIXES en rotation, pas
+   un tirage aléatoire — deux builds doivent rendre la même page. On garde
+   `rotate` et non `transform`, pour que le soulèvement au survol s'y compose
+   sans écraser l'inclinaison.
+
+   Au-delà d'un demi-degré, le texte d'une carte cesse d'être à l'horizontale et
+   la lecture se paie : l'effet doit se sentir, pas se voir. */
+.z-bande .z-accueil__carte {
+  rotate: -0.35deg;
+}
+
+.z-bande .z-accueil__carte:nth-child(3n + 2) {
+  rotate: 0.3deg;
+}
+
+.z-bande .z-accueil__carte:nth-child(3n) {
+  rotate: -0.12deg;
+}
+
+/* Le survol soulève la carte d'un cheveu et la redresse. C'est un signal de
+   matière, pas une invitation à cliquer : ces cartes ne sont pas des liens. */
 .z-accueil__carte:hover {
   transform: translateY(-2px);
   box-shadow: var(--z-shadow-2);
 }
 
-.z-accueil__carte-icone {
+.z-bande .z-accueil__carte:hover {
+  rotate: 0deg;
+}
+
+/* Alvéole, pas carré à coins ronds : c'est le seul endroit de la vitrine où la
+   métaphore apicole prend une forme. Elle ne rogne aucun texte ni aucune zone
+   cliquable — un hexagone qui coupe un mot est un hexagone de trop. */
+.z-alveole {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  inline-size: 2.5rem;
-  block-size: 2.5rem;
-  border-radius: var(--z-radius-md);
-  background: color-mix(in srgb, var(--z-honey-500) 18%, transparent);
-  font-size: 1.25rem;
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: color-mix(in srgb, var(--z-honey-500) 22%, var(--z-carte-fond, var(--z-surface)));
+  color: var(--z-text);
 }
 
 .z-accueil__carte-titre {
@@ -2460,7 +2641,7 @@ a:focus-visible,
 .z-accueil__etape {
   counter-increment: z-etape;
   padding: 1.25rem;
-  background: var(--z-bg);
+  background: var(--z-carte-fond, var(--z-bg));
   border: 1px solid var(--z-line);
   border-radius: var(--z-radius-lg);
 }
@@ -2514,15 +2695,28 @@ a:focus-visible,
   justify-content: center;
 }
 
+/* Le pied est arraché du reste de la page : il change de matière, et c'est la
+   déchirure qui le dit — plus de filet d'un pixel, elle le remplace.
+
+   L'encre claire est obtenue en REBRANCHANT les jetons sémantiques sur la
+   portée du pied, plutôt qu'en repeignant chaque élément : `.z-lien` et les
+   mentions suivent alors sans rien savoir du fond sombre. Le vert clair pour
+   les liens tient 4,5:1 sur l'ardoise, le secondaire 4,9:1 — mesurés, pas
+   supposés. */
 .z-accueil__pied {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1.5rem;
-  border-block-start: 1px solid var(--z-line);
-  color: var(--z-text-muted);
+  padding: 3rem 1.5rem 2rem;
+  background: var(--z-slate-800);
   font-size: 0.85rem;
+
+  --z-text: var(--z-on-slate);
+  --z-text-muted: var(--z-on-slate-muted);
+  --z-info: var(--z-green-300);
+  color: var(--z-text-muted);
 }
 
 /* Retour vers l'accueil depuis l'écran d'entrée. La flèche se retourne en
@@ -2737,9 +2931,15 @@ a:focus-visible,
 
 .z-domaine {
   padding: 1.25rem;
-  background: var(--z-surface);
+  background: var(--z-carte-fond, var(--z-surface));
   border: 1px solid var(--z-line);
   border-radius: var(--z-radius-lg);
+}
+
+/* Le titre de domaine n'a pas de marge haute — c'est l'alvéole qui pose la
+   distance, comme le fait le titre de carte sur l'accueil. */
+.z-domaine .z-alveole {
+  margin-block-end: 0.85rem;
 }
 
 .z-domaine__texte {
@@ -2768,11 +2968,15 @@ a:focus-visible,
   padding-inline-start: 1.5rem;
 }
 
+/* `--z-vert-encre` et non `--z-green-500` : la coche est décorative, mais elle
+   reste un GLYPHE, et le vert de marque plafonne à 3,4:1 sur fond clair — sous
+   le plancher de DESIGN.md § 2.4. Le jeton d'encre bascule avec le thème, ce
+   qu'un vert de marque ne fait pas. */
 .z-domaine__puces li::before {
   content: '✓';
   position: absolute;
   inset-inline-start: 0;
-  color: var(--z-green-500);
+  color: var(--z-vert-encre);
   font-weight: 700;
 }
 
