@@ -151,7 +151,7 @@ class IngestionSyntheseServiceMeteoIT {
     }
 
     @Test
-    @DisplayName("US-029 : contexte météo d'un site (simulation hors-ligne)")
+    @DisplayName("US-029 : contexte météo d'un site, prévisions comprises (simulation hors-ligne)")
     void meteoSite() throws Exception {
         String t = "sp06-meteo";
         long fermierId = idApres(t, "/api/fermiers", "{\"nom\":\"F\",\"contact\":null}");
@@ -160,11 +160,33 @@ class IngestionSyntheseServiceMeteoIT {
                 "{\"nom\":\"S\",\"fermeId\":" + fermeId
                         + ",\"latitude\":36.8,\"longitude\":10.2,\"dateMiseEnOeuvre\":\"2026-04-01\"}");
 
+        // Sans parametre : l'horizon par defaut du controleur (7 jours).
         mockMvc.perform(get("/api/meteo").with(tenant(t)).param("siteId", String.valueOf(siteId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.siteId").value((int) siteId))
                 .andExpect(jsonPath("$.source").value("simulation"))
-                .andExpect(jsonPath("$.temperatureCelsius").exists());
+                .andExpect(jsonPath("$.temperatureCelsius").exists())
+                .andExpect(jsonPath("$.previsions.length()").value(7))
+                .andExpect(jsonPath("$.previsions[0].date").exists())
+                .andExpect(jsonPath("$.previsions[0].temperatureMinCelsius").exists())
+                .andExpect(jsonPath("$.previsions[0].temperatureMaxCelsius").exists());
+
+        // Horizon explicite, et borne haute : la demande est ramenee a 16 jours,
+        // pas rejetee — priver l'apiculteur de sa meteo serait la pire reponse.
+        mockMvc.perform(get("/api/meteo").with(tenant(t))
+                        .param("siteId", String.valueOf(siteId)).param("jours", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.previsions.length()").value(3));
+        mockMvc.perform(get("/api/meteo").with(tenant(t))
+                        .param("siteId", String.valueOf(siteId)).param("jours", "99"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.previsions.length()").value(16));
+
+        // jours=0 : le comportement d'avant les previsions reste accessible.
+        mockMvc.perform(get("/api/meteo").with(tenant(t))
+                        .param("siteId", String.valueOf(siteId)).param("jours", "0"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.previsions.length()").value(0));
     }
 
     @Test
