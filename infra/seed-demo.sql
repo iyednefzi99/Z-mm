@@ -33,9 +33,15 @@ DECLARE
     v_site_kairouan BIGINT;
     v_r1 BIGINT; v_r2 BIGINT; v_r3 BIGINT; v_r4 BIGINT; v_r5 BIGINT; v_r6 BIGINT;
     v_plan1 BIGINT; v_plan2 BIGINT;
-    v_vis1 BIGINT;
+    v_vis1 BIGINT; v_vis4 BIGINT;
 BEGIN
     -- ─── Purge du tenant (ordre enfant → parent) ───────────────────────────
+    -- Les quatre tables du SPRINT-20 partent d'abord : elles référencent la
+    -- visite et la ruche, et `observation_pathologie` cascade sur la visite.
+    DELETE FROM observation_pathologie WHERE tenant_id = t;
+    DELETE FROM comptage_varroa        WHERE tenant_id = t;
+    DELETE FROM nourrissement          WHERE tenant_id = t;
+    DELETE FROM traitement             WHERE tenant_id = t;
     DELETE FROM alerte       WHERE tenant_id = t;
     DELETE FROM mesure       WHERE tenant_id = t;
     DELETE FROM recolte      WHERE tenant_id = t;
@@ -122,13 +128,87 @@ BEGIN
                         constatations, effectif_qualitatif, etat_sante, productivite)
     VALUES (t, v_r2, v_ag_api, CURRENT_DATE - 4, 'recolte',
             'Hausse operculée à 80 %, récolte imminente.', 'fort', 'bon', 3),
-           (t, v_r4, v_ag_sup, CURRENT_DATE - 12, 'traitement',
-            'Présence de varroa, traitement à l''acide oxalique appliqué.', 'moyen', 'moyen', 2),
            (t, v_r5, v_ag_api, CURRENT_DATE - 30, 'controle',
             'Colonie affaiblie, reine peu prolifique — à surveiller.', 'faible', 'mauvais', 1);
+    -- La visite de traitement rend son identifiant : c'est elle qui porte la
+    -- pathologie constatée, et le traitement qui en découle.
+    INSERT INTO visite (tenant_id, ruche_id, agent_id, date_visite, raison,
+                        constatations, effectif_qualitatif, etat_sante, productivite)
+    VALUES (t, v_r4, v_ag_sup, CURRENT_DATE - 12, 'traitement',
+            'Chute de varroa élevée au lange, traitement posé.', 'moyen', 'moyen', 2)
+    RETURNING id INTO v_vis4;
 
     INSERT INTO photo (tenant_id, visite_id, url, legende)
     VALUES (t, v_vis1, 'https://demo.zumm.tn/photos/couvain-r1.jpg', 'Cadre de couvain operculé');
+
+    -- ─── Grille d'inspection & météo figée (SPRINT-20) ─────────────────────
+    -- Une visite remplie à la grille, avec le relevé météo du jour figé. Les
+    -- autres visites n'en portent AUCUNE : « non observé » n'est pas « non »,
+    -- et un jeu de démonstration qui remplirait tout ferait croire l'inverse.
+    UPDATE visite SET couvain_oeufs = true, couvain_larves = true, couvain_opercule = true,
+                      motif_ponte = 'compact', reine_vue = true,
+                      cadres_couvain = 6, cadres_miel = 4, cadres_pollen = 2,
+                      temperament = 'doux',
+                      meteo_temperature_c = 24.5, meteo_humidite_pct = 58,
+                      meteo_vent_kmh = 11.0, meteo_source = 'open-meteo'
+     WHERE tenant_id = t AND id = v_vis1;
+
+    -- La visite de traitement, elle, dit ce qu'elle a vu : ponte lacunaire et
+    -- varroose confirmée. C'est le couple qui justifie le traitement ci-dessous.
+    UPDATE visite SET couvain_oeufs = true, couvain_opercule = true,
+                      motif_ponte = 'lacunaire', reine_vue = false,
+                      cadres_couvain = 3, cadres_miel = 2, cadres_pollen = 1,
+                      temperament = 'normal'
+     WHERE tenant_id = t AND id = v_vis4;
+
+    INSERT INTO observation_pathologie (tenant_id, visite_id, pathologie, gravite, note)
+    VALUES (t, v_vis4, 'varroose', 'moderee',
+            'Chute naturelle de 7 varroas par jour au lange.');
+
+    -- ─── Référentiel de la ruche (SPRINT-20) ───────────────────────────────
+    -- `modele` reste le texte libre ; ces colonnes-ci sont le référentiel
+    -- au-dessus, celui qui rend possible une statistique par type.
+    UPDATE ruche SET type_ruche = 'dadant', couleur = 'jaune', origine = 'division'
+     WHERE tenant_id = t AND id IN (v_r1, v_r2, v_r3);
+    UPDATE ruche SET type_ruche = 'langstroth', couleur = 'bleu', origine = 'essaim_capture'
+     WHERE tenant_id = t AND id IN (v_r4, v_r5);
+    UPDATE ruche SET type_ruche = 'warre', couleur = 'bois', origine = 'nucleus'
+     WHERE tenant_id = t AND id = v_r6;
+
+    -- ─── Registre sanitaire (SPRINT-20) ────────────────────────────────────
+    -- Le premier traitement est terminé mais ENCORE SOUS CARENCE : c'est le cas
+    -- que la démonstration doit montrer — la ruche r4 apparaît au bandeau des
+    -- carences, et son miel ne part pas en récolte avant `date_retrait`
+    -- (colonne générée : date_fin + delai_carence_jours).
+    INSERT INTO traitement (tenant_id, ruche_id, agent_id, visite_id, produit, substance_active,
+                            cible, dose, dose_unite, date_debut, date_fin,
+                            delai_carence_jours, ordonnance, note)
+    VALUES (t, v_r4, v_ag_sup, v_vis4, 'Apivar', 'amitraze', 'varroa', 2, 'laniere',
+            CURRENT_DATE - 12, CURRENT_DATE - 2, 14, 'ORD-2027-0142',
+            'Deux lanières posées entre les cadres de couvain.'),
+           -- Le second est soldé : sa carence est nulle, il ne bloque rien.
+           (t, v_r1, v_ag_api, NULL, 'Acide oxalique 3,2 %', 'acide oxalique', 'varroa',
+            50, 'ml', CURRENT_DATE - 200, CURRENT_DATE - 199, 0, NULL,
+            'Dégouttement hors couvain, traitement d''hiver.');
+
+    INSERT INTO nourrissement (tenant_id, ruche_id, agent_id, date_apport, type_aliment,
+                               quantite, quantite_unite, motif, note)
+    VALUES (t, v_r5, v_ag_api, CURRENT_DATE - 25, 'sirop_2_1', 8, 'kg', 'hivernage',
+            'Colonie faible, constitution des réserves.'),
+           (t, v_r3, v_ag_api, CURRENT_DATE - 40, 'sirop_1_1', 4, 'l', 'stimulation',
+            'Stimulation de ponte avant la miellée.');
+
+    -- Deux comptages, deux méthodes, deux unités — et c'est tout l'intérêt :
+    -- 21 varroas sur 3 jours de lange donnent 7,00 varroas/jour (« traiter ») ;
+    -- 2 varroas sur 300 abeilles donnent 0,67 % (« faible »). Le taux n'est pas
+    -- stocké : il est calculé par `ComptageVarroaService`, avec son unité.
+    INSERT INTO comptage_varroa (tenant_id, ruche_id, agent_id, visite_id, date_comptage,
+                                 methode, varroas_comptes, abeilles_echantillon,
+                                 jours_exposition, note)
+    VALUES (t, v_r4, v_ag_sup, v_vis4, CURRENT_DATE - 12, 'lange', 21, NULL, 3,
+            'Lange graissé posé trois jours avant la visite.'),
+           (t, v_r1, v_ag_api, NULL, CURRENT_DATE - 6, 'sucre_glace', 2, 300, NULL,
+            'Échantillon prélevé sur cadre de couvain.');
 
     -- ─── Mesures (séries temporelles) ──────────────────────────────────────
     -- Poids r1 : série stable ~34 kg, une pointe (anomalie EWMA) puis un poids bas
@@ -178,5 +258,7 @@ BEGIN
         (t, v_r1, CURRENT_DATE - 5, 'en_ponte', 'vert', 2024, 'Buckfast', 'Ponte régulière, bon couvain.'),
         (t, v_r5, CURRENT_DATE - 30, 'disparue', NULL, NULL, 'Locale', 'Reine non retrouvée, colonie bourdonneuse.');
 
-    RAISE NOTICE 'Seed « % » : fermier %, 2 fermes, 4 agents, 3 sites, 6 ruches.', t, v_fermier;
+    RAISE NOTICE 'Seed « % » : fermier %, 2 fermes, 4 agents, 3 sites, 6 ruches, '
+                 '2 traitements (dont 1 sous carence), 2 nourrissements, 2 comptages de varroa.',
+                 t, v_fermier;
 END $$;
