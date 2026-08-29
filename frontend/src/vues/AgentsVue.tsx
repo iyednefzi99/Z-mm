@@ -3,13 +3,15 @@ import { agents, fermes } from '../api/client';
 import type { Agent, AgentCorps, Ferme, RoleAgent } from '../api/types';
 import { ROLES_AGENT } from '../api/types';
 import { useT } from '../i18n/langue';
-import { useRessource } from '../hooks';
+import { useRessource, useRoles } from '../hooks';
+import { peutEcrire } from '../routage/routes';
 import { Bouton, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
 
 export function AgentsVue(): ReactElement {
   const t = useT();
   const etat = useRessource<Agent, AgentCorps>(agents);
+  const ecriture = peutEcrire('agents', useRoles());
   const [optionsFerme, setOptionsFerme] = useState<Option[]>([]);
   const [edition, setEdition] = useState<Agent | null>(null);
   const [ouvert, setOuvert] = useState(false);
@@ -71,9 +73,9 @@ export function AgentsVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.agents}
       sousTitre={t.soustitres.agents}
-      etat={etat} onNouveau={() => ouvrir(null)}>
+      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.agents} onFermer={() => setOuvert(false)}>

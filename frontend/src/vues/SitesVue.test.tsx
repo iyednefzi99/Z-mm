@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { definir, reinitialiserSession } from '../auth/session';
 import { LangueProvider } from '../i18n/langue';
 import { DialoguesProvider } from '../ui/dialogues';
 import { SitesVue } from './SitesVue';
@@ -58,7 +59,12 @@ describe('vue Sites', () => {
     vi.mocked(sites.lister).mockResolvedValue([RUCHER]);
     vi.mocked(fermes.lister).mockResolvedValue([]);
     vi.mocked(voisinsSite).mockResolvedValue([]);
+    // Le referentiel ne s'ecrit qu'avec `responsable` ou `admin` : sans session,
+    // les commandes d'ecriture ne sont plus rendues du tout (SPRINT-19).
+    definir({ utilisateur: 'lea', roles: ['responsable'], exploitation: 'demo' });
   });
+
+  afterEach(() => reinitialiserSession());
 
   it('affiche les sites avec leurs coordonnées à quatre décimales', async () => {
     monter();
@@ -129,5 +135,27 @@ describe('vue Sites', () => {
 
     expect(await screen.findByLabelText(/Nom/)).toHaveValue('Rucher du Lot');
     expect(screen.getByLabelText(/Latitude/)).toHaveValue(44.447);
+  });
+});
+
+describe('vue Sites — rôle sans droit d’écriture', () => {
+  beforeEach(() => {
+    vi.mocked(sites.lister).mockResolvedValue([RUCHER]);
+    vi.mocked(fermes.lister).mockResolvedValue([]);
+    vi.mocked(voisinsSite).mockResolvedValue([]);
+    definir({ utilisateur: 'noe', roles: ['apiculteur'], exploitation: 'demo' });
+  });
+
+  afterEach(() => reinitialiserSession());
+
+  it('garde la liste mais retire « Nouveau », « Modifier » et « Supprimer »', async () => {
+    // Le serveur refuserait les trois en 403 (`SecurityConfig.matriceRbac`).
+    // L'écran reste : un apiculteur a le droit de consulter le référentiel.
+    monter();
+
+    expect(await screen.findByText('Rucher du Lot')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '+ Nouveau' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Modifier' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Supprimer' })).not.toBeInTheDocument();
   });
 });

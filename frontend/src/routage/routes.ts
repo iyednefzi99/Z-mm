@@ -15,6 +15,7 @@ export const ONGLETS = [
   'fermes',
   'sites',
   'ruches',
+  'sanitaire',
   'plannings',
   'visites',
   'taches',
@@ -48,7 +49,7 @@ export const ONGLET_PAR_DEFAUT: Onglet = 'tableaux';
 /**
  * Pictogramme de chaque écran.
  *
- * <p>Un emoji plutôt qu'un jeu d'icônes : seize destinations, aucune dépendance
+ * <p>Un emoji plutôt qu'un jeu d'icônes : dix-neuf destinations, aucune dépendance
  * de plus, et un rendu identique en clair comme en sombre. Ils sont
  * <strong>décoratifs</strong> — toujours posés en `aria-hidden`, le libellé
  * traduit porte seul le sens. Un lecteur d'écran ne doit pas annoncer « abeille
@@ -59,6 +60,7 @@ export const ICONES: Record<Onglet, string> = {
   fermes: '🏡',
   sites: '📍',
   ruches: '🐝',
+  sanitaire: '💊',
   plannings: '🗓️',
   visites: '🔎',
   taches: '✅',
@@ -87,9 +89,9 @@ export const GROUPES_CLES = [
 export type Groupe = (typeof GROUPES_CLES)[number];
 
 /**
- * Répartition des seize écrans en cinq familles.
+ * Répartition des dix-neuf écrans en cinq familles.
  *
- * <p><strong>Pourquoi grouper.</strong> Seize onglets alignés dans une barre qui
+ * <p><strong>Pourquoi grouper.</strong> Dix-neuf onglets alignés dans une barre qui
  * défile horizontalement ne forment pas une navigation : au-delà du septième,
  * l'utilisateur ne balaye plus, il cherche. Les familles suivent le déroulé du
  * métier — on pilote, on gère un cheptel, on va au rucher, on récolte, on
@@ -104,7 +106,7 @@ export type Groupe = (typeof GROUPES_CLES)[number];
  */
 export const GROUPES: Record<Groupe, readonly Onglet[]> = {
   pilotage: ['tableaux', 'capteurs'],
-  cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'reines'],
+  cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'reines', 'sanitaire'],
   terrain: ['plannings', 'visites', 'taches', 'carte'],
   production: ['recoltes', 'lots'],
   administration: ['agents', 'invitations', 'config', 'permissions', 'audit'],
@@ -128,7 +130,7 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
  * restreintes : un apiculteur a le droit de lire la liste des agents. Masquer
  * ces écrans lui retirerait une consultation légitime ; c'est le bouton
  * « Nouveau » qui doit disparaître, pas l'onglet. Ce gardiennage-là se joue au
- * niveau de l'action, pas de la navigation, et reste à faire.
+ * niveau de l'action : il est porté par {@link ROLES_ECRITURE}.
  *
  * <p><strong>Ce filtrage est un CONFORT, jamais une protection.</strong>
  * L'autorisation est posée par le serveur ; ce que le navigateur cache, il
@@ -147,6 +149,40 @@ export const ROLES_ONGLET: Partial<Record<Onglet, readonly string[]>> = {
 /** L'écran est-il atteignable avec ces rôles ? */
 export function ongletAutorise(onglet: Onglet, roles: readonly string[]): boolean {
   const requis = ROLES_ONGLET[onglet];
+  return requis === undefined || requis.some((role) => roles.includes(role));
+}
+
+/**
+ * Écrans dont l'ÉCRITURE est réservée à certains rôles.
+ *
+ * <p>Pendant de {@link ROLES_ONGLET}, pour le cas que celle-ci laissait ouvert.
+ * Le référentiel se lit avec n'importe quel rôle métier et ne s'écrit qu'avec
+ * `responsable` ou `admin` : `SecurityConfig.matriceRbac` refuse déjà les
+ * `POST`, `PUT` et `DELETE` sur `/api/{fermiers,fermes,sites,agents,ruches}/**`.
+ * Retirer l'onglet à un apiculteur lui ôterait une consultation légitime ; lui
+ * laisser le bouton « Nouveau » lui promet un formulaire qui finira en 403 à
+ * l'enregistrement, après la saisie. Ni l'un ni l'autre : l'écran reste, les
+ * commandes d'écriture s'effacent.
+ *
+ * <p><strong>Même réserve que pour la navigation :</strong> c'est un confort, pas
+ * une protection. Le refus est prononcé par le serveur, sur chacune des trois
+ * méthodes — ce que le navigateur cache, il pourrait le montrer.
+ *
+ * <p>Un onglet absent de cette table s'écrit avec tout rôle métier : c'est le cas
+ * des visites, mesures, tâches, récoltes et lots, qui sont le travail quotidien
+ * de l'apiculteur.
+ */
+export const ROLES_ECRITURE: Partial<Record<Onglet, readonly string[]>> = {
+  fermiers: ['responsable', 'admin'],
+  fermes: ['responsable', 'admin'],
+  sites: ['responsable', 'admin'],
+  ruches: ['responsable', 'admin'],
+  agents: ['responsable', 'admin'],
+};
+
+/** L'écran est-il modifiable avec ces rôles ? */
+export function peutEcrire(onglet: Onglet, roles: readonly string[]): boolean {
+  const requis = ROLES_ECRITURE[onglet];
   return requis === undefined || requis.some((role) => roles.includes(role));
 }
 

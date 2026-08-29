@@ -2,13 +2,15 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { fermes, fermiers } from '../api/client';
 import type { Ferme, FermeCorps, Fermier } from '../api/types';
 import { useT } from '../i18n/langue';
-import { useRessource } from '../hooks';
+import { useRessource, useRoles } from '../hooks';
+import { peutEcrire } from '../routage/routes';
 import { Bouton, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
 
 export function FermesVue(): ReactElement {
   const t = useT();
   const etat = useRessource<Ferme, FermeCorps>(fermes);
+  const ecriture = peutEcrire('fermes', useRoles());
   const [optionsFermier, setOptionsFermier] = useState<Option[]>([]);
   const [edition, setEdition] = useState<Ferme | null>(null);
   const [ouvert, setOuvert] = useState(false);
@@ -56,9 +58,9 @@ export function FermesVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.fermes}
       sousTitre={t.soustitres.fermes}
-      etat={etat} onNouveau={() => ouvrir(null)}>
+      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.fermes} onFermer={() => setOuvert(false)}>

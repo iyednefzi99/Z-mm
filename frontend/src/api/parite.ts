@@ -9,7 +9,7 @@
  *
  * <p><strong>Pourquoi vérifier plutôt que générer.</strong> Remplacer purement le
  * client écrit à la main par un client généré aurait touché quarante fonctions et
- * seize vues, pour un gain limité au seul typage : les fonctions elles-mêmes sont
+ * dix-neuf vues, pour un gain limité au seul typage : les fonctions elles-mêmes sont
  * lisibles et stables. Ce fichier obtient la garantie recherchée — **aucune dérive
  * silencieuse** — sans réécrire ce qui fonctionne. Une divergence casse `tsc`,
  * donc la chaîne, avec le nom du champ fautif.
@@ -33,6 +33,7 @@ import type {
   AuditEntree,
   CalendrierCellule,
   Compartiment,
+  ComptageVarroa,
   EtapeTournee,
   Ferme,
   Fermier,
@@ -42,10 +43,15 @@ import type {
   MentionOrigine,
   MesureReponse,
   Meteo,
+  MeteoVisite,
+  Nourrissement,
+  ObservationVisite,
   PartLot,
+  PathologieObservee,
   Photo,
   Planning,
   PointJournalier,
+  PrevisionJour,
   PrevisionRecolte,
   QuantiteMiel,
   Recolte,
@@ -57,6 +63,7 @@ import type {
   Tache,
   Tournee,
   Trace,
+  Traitement,
   Visite,
   VisiteBreve,
   VoisinSite,
@@ -134,6 +141,7 @@ export type _CalendrierCellule = Conforme<CalendrierCellule, TolerantAuNull<Sche
 export type _VisiteBreve = Conforme<VisiteBreve, TolerantAuNull<Schemas['VisiteBreve']>>;
 export type _PointJournalier = Conforme<PointJournalier, TolerantAuNull<Schemas['PointJournalier']>>;
 export type _Meteo = Conforme<Meteo, TolerantAuNull<Schemas['MeteoReponse']>>;
+export type _PrevisionJour = Conforme<PrevisionJour, TolerantAuNull<Schemas['PrevisionJour']>>;
 export type _Anomalie = Conforme<Anomalie, TolerantAuNull<Schemas['AnomalieReponse']>>;
 export type _Trace = Conforme<Trace, TolerantAuNull<Schemas['TraceReponse']>>;
 export type _GrappeSites = Conforme<GrappeSites, TolerantAuNull<Schemas['GrappeSites']>>;
@@ -144,3 +152,23 @@ export type _QuantiteMiel = Conforme<QuantiteMiel, TolerantAuNull<Schemas['Quant
 export type _MentionOrigine = Conforme<MentionOrigine, TolerantAuNull<Schemas['MentionOrigine']>>;
 export type _PartLot = Conforme<PartLot, TolerantAuNull<Schemas['PartReponse']>>;
 export type _Seuils = Conforme<Seuils, TolerantAuNull<Schemas['SeuilsMetier']>>;
+
+/*
+ * Registre sanitaire (SPRINT-20).
+ *
+ * <p>Ces six types-la ne sont pas seulement nouveaux : ce sont ceux dont la
+ * derive se verrait le moins. Un `tauxUnite` renomme ou une `gravite` devenue
+ * `severite` n'aurait fait echouer aucun formulaire — le champ serait
+ * simplement arrive vide, et un taux de varroa affiche sans son unite est pire
+ * qu'un taux absent.
+ */
+export type _Traitement = Conforme<Traitement, TolerantAuNull<Schemas['TraitementReponse']>>;
+export type _Nourrissement =
+  Conforme<Nourrissement, TolerantAuNull<Schemas['NourrissementReponse']>>;
+export type _ComptageVarroa =
+  Conforme<ComptageVarroa, TolerantAuNull<Schemas['ComptageVarroaReponse']>>;
+export type _PathologieObservee =
+  Conforme<PathologieObservee, TolerantAuNull<Schemas['PathologieReponse']>>;
+export type _ObservationVisite =
+  Conforme<ObservationVisite, TolerantAuNull<Schemas['ObservationVisite']>>;
+export type _MeteoVisite = Conforme<MeteoVisite, TolerantAuNull<Schemas['MeteoVisite']>>;

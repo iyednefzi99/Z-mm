@@ -1,9 +1,27 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { agents, fermes, ruches, sites } from '../api/client';
-import type { Agent, EtatRuche, Ferme, Ruche, RucheCorps, Site } from '../api/types';
-import { ETATS_RUCHE } from '../api/types';
+import type {
+  Agent,
+  CauseCloture,
+  CouleurRuche,
+  EtatRuche,
+  Ferme,
+  OrigineRuche,
+  Ruche,
+  RucheCorps,
+  Site,
+  TypeRuche,
+} from '../api/types';
+import {
+  CAUSES_CLOTURE,
+  COULEURS_RUCHE,
+  ETATS_RUCHE,
+  ORIGINES_RUCHE,
+  TYPES_RUCHE,
+} from '../api/types';
 import { useT } from '../i18n/langue';
-import { useRessource } from '../hooks';
+import { useRessource, useRoles } from '../hooks';
+import { peutEcrire } from '../routage/routes';
 import { Bouton, ChampNombre, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
 
@@ -12,6 +30,7 @@ const MAX_HAUSSES = 5;
 export function RuchesVue(): ReactElement {
   const t = useT();
   const etat = useRessource<Ruche, RucheCorps>(ruches);
+  const ecriture = peutEcrire('ruches', useRoles());
   const [optSites, setOptSites] = useState<Option[]>([]);
   const [optFermes, setOptFermes] = useState<Option[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
@@ -22,17 +41,28 @@ export function RuchesVue(): ReactElement {
   const [fermeId, setFermeId] = useState('');
   const [agentId, setAgentId] = useState('');
   const [etatRuche, setEtatRuche] = useState<EtatRuche>('creee');
+  const [typeRuche, setTypeRuche] = useState('');
+  const [couleur, setCouleur] = useState('');
+  const [origine, setOrigine] = useState('');
+  const [causeCloture, setCauseCloture] = useState('');
   const [corpsCadres, setCorpsCadres] = useState('10');
   const [hausses, setHausses] = useState<string[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optionsEtat: Option[] = ETATS_RUCHE.map((e) => ({ valeur: e, libelle: t.etatsRuche[e] }));
+  const aucun: Option = { valeur: '', libelle: t.champs.aucun };
+  const r = t.referentielRuche;
+  const optionsType: Option[] = [aucun, ...TYPES_RUCHE.map((v) => ({ valeur: v, libelle: r.types[v] }))];
+  const optionsCouleur: Option[] = [aucun, ...COULEURS_RUCHE.map((v) => ({ valeur: v, libelle: r.couleurs[v] }))];
+  const optionsOrigine: Option[] = [aucun, ...ORIGINES_RUCHE.map((v) => ({ valeur: v, libelle: r.origines[v] }))];
+  const optionsCause: Option[] = [aucun, ...CAUSES_CLOTURE.map((v) => ({ valeur: v, libelle: r.causesCloture[v] }))];
 
   const colonnes: Colonne<Ruche>[] = [
-    { entete: t.champs.modele, rendu: (r) => r.modele },
-    { entete: t.champs.site, rendu: (r) => r.siteNom },
-    { entete: t.champs.etat, rendu: (r) => t.etatsRuche[r.etat] },
-    { entete: t.champs.hausses, rendu: (r) => String(r.nbHausses) },
+    { entete: t.champs.modele, rendu: (x) => x.modele },
+    { entete: t.champs.site, rendu: (x) => x.siteNom },
+    { entete: t.champs.typeRuche, rendu: (x) => (x.typeRuche ? r.types[x.typeRuche] : '—') },
+    { entete: t.champs.etat, rendu: (x) => t.etatsRuche[x.etat] },
+    { entete: t.champs.hausses, rendu: (x) => String(x.nbHausses) },
   ];
 
   useEffect(() => {
@@ -47,16 +77,22 @@ export function RuchesVue(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [etat.elements]);
 
-  const ouvrir = (r: Ruche | null) => {
-    setEdition(r);
-    setModele(r?.modele ?? '');
-    setSiteId(r ? String(r.siteId) : '');
-    setFermeId(r ? String(r.fermeId) : '');
-    setAgentId(r?.agentResponsableId != null ? String(r.agentResponsableId) : '');
-    setEtatRuche(r?.etat ?? 'creee');
-    const corps = r?.compartiments.find((c) => c.type === 'corps');
+  const ouvrir = (ruche: Ruche | null) => {
+    setEdition(ruche);
+    setModele(ruche?.modele ?? '');
+    setSiteId(ruche ? String(ruche.siteId) : '');
+    setFermeId(ruche ? String(ruche.fermeId) : '');
+    setAgentId(ruche?.agentResponsableId != null ? String(ruche.agentResponsableId) : '');
+    setEtatRuche(ruche?.etat ?? 'creee');
+    setTypeRuche(ruche?.typeRuche ?? '');
+    setCouleur(ruche?.couleur ?? '');
+    setOrigine(ruche?.origine ?? '');
+    setCauseCloture(ruche?.causeCloture ?? '');
+    const corps = ruche?.compartiments.find((c) => c.type === 'corps');
     setCorpsCadres(corps ? String(corps.nbCadres) : '10');
-    setHausses(r ? r.compartiments.filter((c) => c.type === 'hausse').map((c) => String(c.nbCadres)) : []);
+    setHausses(
+      ruche ? ruche.compartiments.filter((c) => c.type === 'hausse').map((c) => String(c.nbCadres)) : [],
+    );
     setErreur(null);
     setOuvert(true);
   };
@@ -76,6 +112,14 @@ export function RuchesVue(): ReactElement {
         { type: 'corps', nbCadres: Number(corpsCadres) },
         ...hausses.map((h) => ({ type: 'hausse' as const, nbCadres: Number(h) })),
       ],
+      typeRuche: typeRuche === '' ? null : (typeRuche as TypeRuche),
+      couleur: couleur === '' ? null : (couleur as CouleurRuche),
+      origine: origine === '' ? null : (origine as OrigineRuche),
+      // La base refuse une cause de cloture sur une ruche encore active : ne
+      // l'envoyer que dans l'etat qui la justifie evite un 400 sur une saisie
+      // que l'utilisateur croirait bonne — le champ est deja masque au-dessus.
+      causeCloture:
+        etatRuche === 'cloturee' && causeCloture !== '' ? (causeCloture as CauseCloture) : null,
     };
     try {
       await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
@@ -92,9 +136,9 @@ export function RuchesVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.ruches}
       sousTitre={t.soustitres.ruches}
-      etat={etat} onNouveau={() => ouvrir(null)}>
+      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.ruches} onFermer={() => setOuvert(false)}>
@@ -124,6 +168,38 @@ export function RuchesVue(): ReactElement {
                 onChange={(v) => setEtatRuche(v as EtatRuche)}
               />
             </div>
+
+            <div className="z-form__grille">
+              <ChampSelect
+                libelle={t.champs.typeRuche}
+                valeur={typeRuche}
+                options={optionsType}
+                onChange={setTypeRuche}
+              />
+              <ChampSelect
+                libelle={t.champs.couleur}
+                valeur={couleur}
+                options={optionsCouleur}
+                onChange={setCouleur}
+              />
+              <ChampSelect
+                libelle={t.champs.origine}
+                valeur={origine}
+                options={optionsOrigine}
+                onChange={setOrigine}
+              />
+            </div>
+            {/* La cause de cloture n'apparait que sur une ruche cloturee : la
+                demander avant serait demander pourquoi on ferme une porte
+                ouverte, et la base le refuse de toute facon. */}
+            {etatRuche === 'cloturee' && (
+              <ChampSelect
+                libelle={t.champs.causeCloture}
+                valeur={causeCloture}
+                options={optionsCause}
+                onChange={setCauseCloture}
+              />
+            )}
 
             <fieldset className="z-composition">
               <legend className="z-champ__libelle">

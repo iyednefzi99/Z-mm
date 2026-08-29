@@ -20,7 +20,7 @@ import type {
   TypeIndicateur,
 } from '../api/types';
 import { TYPES_INDICATEUR } from '../api/types';
-import { useLangue, useT } from '../i18n/langue';
+import { useFormats, useLangue, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampNombre, ChampSelect, Option } from '../ui/composants';
 import { Courbe, type Serie } from '../ui/graphiques';
@@ -31,6 +31,7 @@ const UNITES = ['kg', 'g', 'lb', 't'];
 export function CapteursVue(): ReactElement {
   const t = useT();
   const { langue } = useLangue();
+  const f = useFormats();
   const [optRuches, setOptRuches] = useState<Option[]>([]);
   const [optSites, setOptSites] = useState<Option[]>([]);
   const [alertes, setAlertes] = useState<AlerteMesure[]>([]);
@@ -38,6 +39,9 @@ export function CapteursVue(): ReactElement {
   const [indicateur, setIndicateur] = useState<TypeIndicateur>('poids');
   const [valeur, setValeur] = useState('');
   const [siteId, setSiteId] = useState('');
+  // Horizon de prévision. Le serveur borne à 16 jours plutôt que de rejeter,
+  // mais autant ne pas lui envoyer d'emblée une valeur qu'il devra corriger.
+  const [horizon, setHorizon] = useState('7');
   const [meteo, setMeteo] = useState<Meteo | null>(null);
   const [mielRuche, setMielRuche] = useState('');
   const [unite, setUnite] = useState('kg');
@@ -61,7 +65,21 @@ export function CapteursVue(): ReactElement {
 
   useEffect(() => {
     void ruches.lister().then((l: Ruche[]) => setOptRuches(l.map((r) => ({ valeur: String(r.id), libelle: r.modele })))).catch(() => setOptRuches([]));
-    void sites.lister().then((l: Site[]) => setOptSites(l.map((s) => ({ valeur: String(s.id), libelle: s.nom })))).catch(() => setOptSites([]));
+    void sites
+      .lister()
+      .then((l: Site[]) => {
+        setOptSites(l.map((s) => ({ valeur: String(s.id), libelle: s.nom })));
+        // Le `<select>` affiche le premier site dès qu'il a des options, alors que
+        // l'état reste vide : « Afficher » ne faisait alors rien, en silence, sur
+        // ce qui semble pourtant être un site choisi. On aligne l'état sur ce qui
+        // est vu. Lecture seule, donc sans risque — les sélecteurs de RUCHE, eux,
+        // restent vides à dessein : préremplir une cible d'ingestion ferait courir
+        // le risque d'écrire une mesure sur la mauvaise ruche.
+        if (l.length > 0) {
+          setSiteId((actuel) => (actuel === '' ? String(l[0].id) : actuel));
+        }
+      })
+      .catch(() => setOptSites([]));
     rafraichirAlertes();
   }, []);
 
@@ -86,7 +104,7 @@ export function CapteursVue(): ReactElement {
     if (siteId === '') return;
     setErreur(null);
     try {
-      setMeteo(await chargerMeteo(Number(siteId)));
+      setMeteo(await chargerMeteo(Number(siteId), Number(horizon)));
     } catch (cause) {
       setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
@@ -196,6 +214,13 @@ export function CapteursVue(): ReactElement {
           <legend className="z-champ__libelle">{t.capteur.meteo}</legend>
           <div className="z-form__grille">
             <ChampSelect libelle={t.capteur.site} valeur={siteId} options={optSites} onChange={setSiteId} />
+            <ChampNombre
+              libelle={t.capteur.horizon}
+              valeur={horizon}
+              onChange={setHorizon}
+              min={0}
+              max={16}
+            />
             <div className="z-champ z-champ--aligne-bas">
               <Bouton variante="secondaire" onClick={() => void voirMeteo()}>
                 {t.tableau.afficher}
@@ -203,11 +228,42 @@ export function CapteursVue(): ReactElement {
             </div>
           </div>
           {meteo && (
-            <p className="z-info">
-              {t.capteur.temperature} : {meteo.temperatureCelsius} · {t.capteur.humidite} :{' '}
-              {meteo.humiditePourcent ?? '—'} · {t.capteur.vent} : {meteo.ventKmh ?? '—'} ·{' '}
-              {t.capteur.source} : {meteo.source}
-            </p>
+            <>
+              <p className="z-info">
+                {t.capteur.temperature} : {meteo.temperatureCelsius} · {t.capteur.humidite} :{' '}
+                {meteo.humiditePourcent ?? '—'} · {t.capteur.vent} : {meteo.ventKmh ?? '—'} ·{' '}
+                {t.capteur.source} : {meteo.source}
+              </p>
+              <p className="z-champ__libelle">{t.capteur.previsions}</p>
+              {meteo.previsions.length === 0 ? (
+                <p className="z-info">{t.capteur.aucunePrevision}</p>
+              ) : (
+                <div className="z-table-enveloppe">
+                  <table className="z-table">
+                    <thead>
+                      <tr>
+                        <th>{t.capteur.jour}</th>
+                        <th>{t.capteur.tempMin}</th>
+                        <th>{t.capteur.tempMax}</th>
+                        <th>{t.capteur.pluie}</th>
+                        <th>{t.capteur.ventMax}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {meteo.previsions.map((p) => (
+                        <tr key={p.date}>
+                          <td>{f.date(p.date)}</td>
+                          <td>{f.nombre(p.temperatureMinCelsius, 1)}</td>
+                          <td>{f.nombre(p.temperatureMaxCelsius, 1)}</td>
+                          <td>{f.nombre(p.precipitationsMm, 1)}</td>
+                          <td>{f.nombre(p.ventMaxKmh, 1)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
           )}
         </fieldset>
 

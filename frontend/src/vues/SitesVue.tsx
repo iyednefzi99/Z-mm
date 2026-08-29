@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactElement } from 'react';
 import { fermes, sites, voisinsSite } from '../api/client';
 import type { Ferme, Site, SiteCorps, VoisinSite } from '../api/types';
 import { useFormats, useT } from '../i18n/langue';
-import { useRessource } from '../hooks';
+import { useRessource, useRoles } from '../hooks';
+import { peutEcrire } from '../routage/routes';
 import {
   Bouton,
   ChampDate,
@@ -22,6 +23,7 @@ export function SitesVue(): ReactElement {
   const t = useT();
   const f = useFormats();
   const etat = useRessource<Site, SiteCorps>(sites);
+  const ecriture = peutEcrire('sites', useRoles());
   const [optionsFerme, setOptionsFerme] = useState<Option[]>([]);
   const [edition, setEdition] = useState<Site | null>(null);
   const [ouvert, setOuvert] = useState(false);
@@ -113,9 +115,9 @@ export function SitesVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.sites}
       sousTitre={t.soustitres.sites}
-      etat={etat} onNouveau={() => ouvrir(null)}>
+      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
       {siteVoisine && (
         <Modale

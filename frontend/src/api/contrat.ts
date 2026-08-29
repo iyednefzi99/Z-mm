@@ -212,6 +212,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/varroa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["serie"];
+        put?: never;
+        post: operations["enregistrer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/traitements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registre"];
+        put?: never;
+        post: operations["enregistrer_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/taches": {
         parameters: {
             query?: never;
@@ -269,7 +301,7 @@ export interface paths {
         };
         get: operations["historique"];
         put?: never;
-        post: operations["enregistrer"];
+        post: operations["enregistrer_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -340,6 +372,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/nourrissements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registre_1"];
+        put?: never;
+        post: operations["enregistrer_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/mesures": {
         parameters: {
             query?: never;
@@ -347,7 +395,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["serie"];
+        get: operations["serie_1"];
         put?: never;
         post: operations["ingerer"];
         delete?: never;
@@ -460,6 +508,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["rapportPdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/traitements/carence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sousCarence"];
         put?: never;
         post?: never;
         delete?: never;
@@ -872,7 +936,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/reines/{id}": {
+    "/api/varroa/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -883,6 +947,54 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["supprimer_10"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/traitements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_11"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_12"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/nourrissements/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -908,6 +1020,35 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        MeteoVisite: {
+            temperatureCelsius?: number;
+            /** Format: int32 */
+            humiditePourcent?: number;
+            ventKmh?: number;
+            source?: string;
+        };
+        ObservationVisite: {
+            couvainOeufs?: boolean;
+            couvainLarves?: boolean;
+            couvainOpercule?: boolean;
+            motifPonte?: string;
+            reineVue?: boolean;
+            /** Format: int32 */
+            cellulesRoyales?: number;
+            cellulesRoyalesCause?: string;
+            /** Format: int32 */
+            cadresCouvain?: number;
+            /** Format: int32 */
+            cadresMiel?: number;
+            /** Format: int32 */
+            cadresPollen?: number;
+            temperament?: string;
+        };
+        PathologieCorps: {
+            pathologie: string;
+            gravite?: string;
+            note?: string;
+        };
         VisiteCorps: {
             /** Format: int64 */
             rucheId: number;
@@ -936,6 +1077,16 @@ export interface components {
             etatSante?: "bon" | "moyen" | "mauvais";
             /** Format: int32 */
             productivite?: number;
+            observation?: components["schemas"]["ObservationVisite"];
+            meteo?: components["schemas"]["MeteoVisite"];
+            pathologies?: components["schemas"]["PathologieCorps"][];
+        };
+        PathologieReponse: {
+            /** Format: int64 */
+            id?: number;
+            pathologie?: string;
+            gravite?: string;
+            note?: string;
         };
         PhotoReponse: {
             /** Format: int64 */
@@ -977,6 +1128,9 @@ export interface components {
             etatSante?: "bon" | "moyen" | "mauvais";
             /** Format: int32 */
             productivite?: number;
+            observation?: components["schemas"]["ObservationVisite"];
+            meteo?: components["schemas"]["MeteoVisite"];
+            pathologies?: components["schemas"]["PathologieReponse"][];
             photos?: components["schemas"]["PhotoReponse"][];
             /** Format: date-time */
             creeLe?: string;
@@ -1063,6 +1217,10 @@ export interface components {
             /** @enum {string} */
             etat?: "creee" | "peuplee" | "active" | "en_division" | "en_collecte" | "cloturee";
             compartiments: components["schemas"]["CompartimentCorps"][];
+            typeRuche?: string;
+            couleur?: string;
+            origine?: string;
+            causeCloture?: string;
         };
         CompartimentReponse: {
             /** Format: int64 */
@@ -1090,6 +1248,10 @@ export interface components {
             /** Format: int32 */
             nbHausses?: number;
             compartiments?: components["schemas"]["CompartimentReponse"][];
+            typeRuche?: string;
+            couleur?: string;
+            origine?: string;
+            causeCloture?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -1252,6 +1414,106 @@ export interface components {
             url: string;
             legende?: string;
         };
+        ComptageVarroaCorps: {
+            /** Format: int64 */
+            rucheId: number;
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateComptage: string;
+            methode: string;
+            /** Format: int32 */
+            varroasComptes: number;
+            /** Format: int32 */
+            abeillesEchantillon?: number;
+            /** Format: int32 */
+            joursExposition?: number;
+            note?: string;
+        };
+        ComptageVarroaReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateComptage?: string;
+            methode?: string;
+            /** Format: int32 */
+            varroasComptes?: number;
+            /** Format: int32 */
+            abeillesEchantillon?: number;
+            /** Format: int32 */
+            joursExposition?: number;
+            taux?: number;
+            tauxUnite?: string;
+            verdict?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        TraitementCorps: {
+            /** Format: int64 */
+            rucheId: number;
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            visiteId?: number;
+            produit: string;
+            substanceActive?: string;
+            cible: string;
+            dose?: number;
+            doseUnite?: string;
+            /** Format: date */
+            dateDebut: string;
+            /** Format: date */
+            dateFin?: string;
+            /** Format: int32 */
+            delaiCarenceJours?: number;
+            ordonnance?: string;
+            note?: string;
+        };
+        TraitementReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            visiteId?: number;
+            produit?: string;
+            substanceActive?: string;
+            cible?: string;
+            dose?: number;
+            doseUnite?: string;
+            /** Format: date */
+            dateDebut?: string;
+            /** Format: date */
+            dateFin?: string;
+            /** Format: int32 */
+            delaiCarenceJours?: number;
+            /** Format: date */
+            dateRetrait?: string;
+            sousCarence?: boolean;
+            ordonnance?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
         ReineCorps: {
             /** Format: int64 */
             rucheId: number;
@@ -1312,6 +1574,44 @@ export interface components {
         };
         DecisionCorps: {
             motif?: string;
+        };
+        NourrissementCorps: {
+            /** Format: int64 */
+            rucheId: number;
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateApport: string;
+            typeAliment: string;
+            quantite: number;
+            quantiteUnite: string;
+            motif?: string;
+            note?: string;
+        };
+        NourrissementReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateApport?: string;
+            typeAliment?: string;
+            quantite?: number;
+            quantiteUnite?: string;
+            motif?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
         };
         MesureCorps: {
             /** Format: int64 */
@@ -1530,6 +1830,19 @@ export interface components {
             source?: string;
             /** Format: date-time */
             instant?: string;
+            previsions?: components["schemas"]["PrevisionJour"][];
+        };
+        PrevisionJour: {
+            /** Format: date */
+            date?: string;
+            /** Format: double */
+            temperatureMinCelsius?: number;
+            /** Format: double */
+            temperatureMaxCelsius?: number;
+            /** Format: double */
+            precipitationsMm?: number;
+            /** Format: double */
+            ventMaxKmh?: number;
         };
         PointJournalier: {
             /** Format: date-time */
@@ -2385,6 +2698,98 @@ export interface operations {
             };
         };
     };
+    serie: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ComptageVarroaReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComptageVarroaCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ComptageVarroaReponse"];
+                };
+            };
+        };
+    };
+    registre: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TraitementReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TraitementCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TraitementReponse"];
+                };
+            };
+        };
+    };
     lister_1: {
         parameters: {
             query?: {
@@ -2551,7 +2956,7 @@ export interface operations {
             };
         };
     };
-    enregistrer: {
+    enregistrer_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -2715,7 +3120,53 @@ export interface operations {
             };
         };
     };
-    serie: {
+    registre_1: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NourrissementReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NourrissementCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NourrissementReponse"];
+                };
+            };
+        };
+    };
+    serie_1: {
         parameters: {
             query: {
                 rucheId: number;
@@ -3036,6 +3487,26 @@ export interface operations {
             };
         };
     };
+    sousCarence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TraitementReponse"][];
+                };
+            };
+        };
+    };
     rappels: {
         parameters: {
             query?: never;
@@ -3347,6 +3818,7 @@ export interface operations {
         parameters: {
             query: {
                 siteId: number;
+                jours?: number;
             };
             header?: never;
             path?: never;
@@ -3603,6 +4075,66 @@ export interface operations {
         };
     };
     supprimer_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_12: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_13: {
         parameters: {
             query?: never;
             header?: never;

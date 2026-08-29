@@ -140,6 +140,7 @@
     "fermes": "Farms",
     "sites": "Sites",
     "ruches": "Hives",
+    "sanitaire": "Health record",
     "plannings": "Schedules",
     "visites": "Visits",
     "taches": "Tasks",
@@ -160,6 +161,7 @@
     "fermes": "A farmer’s operating units. One farm groups several apiaries.",
     "sites": "Apiary locations. Their coordinates are sensitive: they are filtered on the way out according to your role.",
     "ruches": "The colony fleet: state, composition, responsible agent.",
+    "sanitaire": "Treatments, feedings and varroa counts — the register that makes a harvest defensible.",
     "plannings": "Planned rounds. A supervisor approves them before execution.",
     "visites": "Inspection reports: findings, actions taken, photos.",
     "taches": "To do at the apiary. An overdue task surfaces as a reminder on the home screen.",
@@ -211,7 +213,8 @@
     "champsRequis": "Fill in the required fields before saving.",
     "serviceIndisponible": "Service unavailable. Check your connection.",
     "videTitre": "Nothing to show yet",
-    "videTexte": "Create the first item — it will appear here, along with the ones that follow."
+    "videTexte": "Create the first item — it will appear here, along with the ones that follow.",
+    "videLecture": "Nothing has been created yet. A manager can add entries."
   },
   "champs": {
     "nom": "Name",
@@ -233,7 +236,11 @@
     "corps": "Brood box",
     "hausses": "Supers",
     "cadres": "frames",
-    "aucun": "— none —"
+    "aucun": "— none —",
+    "typeRuche": "Hive type",
+    "couleur": "Colour",
+    "origine": "Origin",
+    "causeCloture": "Closing cause"
   },
   "roles": {
     "apiculteur": "Beekeeper",
@@ -248,6 +255,46 @@
     "en_division": "Splitting",
     "en_collecte": "Harvesting",
     "cloturee": "Closed"
+  },
+  "referentielRuche": {
+    "types": {
+      "langstroth": "Langstroth",
+      "dadant": "Dadant",
+      "warre": "Warré",
+      "voirnot": "Voirnot",
+      "top_bar": "Top bar",
+      "kenyane": "Kenyan",
+      "autre": "Other"
+    },
+    "couleurs": {
+      "blanc": "White",
+      "jaune": "Yellow",
+      "orange": "Orange",
+      "rouge": "Red",
+      "vert": "Green",
+      "bleu": "Blue",
+      "violet": "Purple",
+      "gris": "Grey",
+      "bois": "Bare wood"
+    },
+    "origines": {
+      "essaim_capture": "Caught swarm",
+      "essaim_achete": "Bought swarm",
+      "division": "Split",
+      "nucleus": "Nucleus",
+      "paquet": "Package bees",
+      "achat": "Purchase",
+      "autre": "Other"
+    },
+    "causesCloture": {
+      "morte": "Dead",
+      "fusionnee": "Merged",
+      "vendue": "Sold",
+      "volee": "Stolen",
+      "reformee": "Retired",
+      "essaimee": "Absconded",
+      "autre": "Other"
+    }
   },
   "session": {
     "titre": "Session required",
@@ -366,6 +413,51 @@
       "bon": "Good",
       "moyen": "Fair",
       "mauvais": "Poor"
+    },
+    "observation": "Inspection sheet",
+    "couvainOeufs": "Eggs",
+    "couvainLarves": "Larvae",
+    "couvainOpercule": "Capped brood",
+    "motifPonte": "Laying pattern",
+    "reineVue": "Queen seen",
+    "cellulesRoyales": "Queen cells",
+    "cellulesRoyalesCause": "Queen cell cause",
+    "cadresCouvain": "Brood frames",
+    "cadresMiel": "Honey frames",
+    "cadresPollen": "Pollen frames",
+    "temperament": "Temperament",
+    "meteo": "Weather recorded",
+    "temperature": "Temperature (°C)",
+    "humidite": "Humidity (%)",
+    "vent": "Wind (km/h)",
+    "sourceMeteo": "Source",
+    "pathologiesConstatees": "Diseases observed",
+    "pathologie": "Disease",
+    "gravite": "Severity",
+    "ajouterPathologie": "Add",
+    "nonObserve": "— not observed —",
+    "oui": "Yes",
+    "non": "No",
+    "motifsPonte": {
+      "compact": "Compact",
+      "lacunaire": "Spotty",
+      "irregulier": "Irregular",
+      "absent": "None"
+    },
+    "causesCellules": {
+      "essaimage": "Swarming",
+      "supersedure": "Supersedure",
+      "urgence": "Emergency"
+    },
+    "temperaments": {
+      "doux": "Gentle",
+      "normal": "Normal",
+      "agressif": "Defensive"
+    },
+    "sourcesMeteo": {
+      "open-meteo": "Open-Meteo",
+      "simulation": "Simulation",
+      "saisie": "Manual reading"
     }
   },
   "tache": {
@@ -522,6 +614,124 @@
       "rouge": "Red",
       "vert": "Green",
       "bleu": "Blue"
+    }
+  },
+  "sanitaire": {
+    "choisirRuche": "Pick a hive",
+    "traitements": "Treatments",
+    "nourrissements": "Feedings",
+    "varroa": "Varroa",
+    "carence": "Withdrawal periods running",
+    "carenceExplication": "These hives cannot be harvested: their honey is still within a withdrawal period.",
+    "aucuneCarence": "No hive is under a withdrawal period today.",
+    "sousCarence": "Under withdrawal",
+    "recolteAPartirDu": "Harvest allowed from {date}",
+    "produit": "Product",
+    "substanceActive": "Active substance",
+    "cible": "Target",
+    "dose": "Dose",
+    "doseUnite": "Dose unit",
+    "dateDebut": "Start",
+    "dateFin": "End",
+    "delaiCarence": "Withdrawal period (days)",
+    "dateRetrait": "Withdrawal ends",
+    "ordonnance": "Prescription",
+    "note": "Note",
+    "agent": "Agent",
+    "dateApport": "Date",
+    "typeAliment": "Feed",
+    "quantite": "Quantity",
+    "quantiteUnite": "Unit",
+    "motif": "Reason",
+    "dateComptage": "Date",
+    "methode": "Method",
+    "varroasComptes": "Varroa counted",
+    "abeillesEchantillon": "Bees in the sample",
+    "joursExposition": "Days the board was in place",
+    "taux": "Rate",
+    "verdict": "Reading",
+    "ajouterTraitement": "Record a treatment",
+    "ajouterNourrissement": "Record a feeding",
+    "ajouterComptage": "Record a count",
+    "denominateurLange": "A sticky-board count relates to a number of days, not to a number of bees.",
+    "denominateurEchantillon": "A sample count relates to a number of bees, not to a number of days.",
+    "traitementEnCours": "Ongoing",
+    "cibles": {
+      "varroa": "Varroa",
+      "loque_americaine": "American foulbrood",
+      "loque_europeenne": "European foulbrood",
+      "nosema": "Nosemosis",
+      "petit_coleoptere": "Small hive beetle",
+      "fausse_teigne": "Wax moth",
+      "frelon": "Hornet",
+      "autre": "Other"
+    },
+    "unitesDose": {
+      "mg": "mg",
+      "g": "g",
+      "ml": "ml",
+      "l": "l",
+      "laniere": "strip(s)",
+      "plaquette": "tablet(s)"
+    },
+    "aliments": {
+      "sirop_1_1": "1:1 syrup (stimulation)",
+      "sirop_2_1": "2:1 syrup (wintering)",
+      "candi": "Fondant",
+      "pollen": "Pollen",
+      "substitut_pollen": "Pollen substitute",
+      "miel": "Honey",
+      "eau": "Water"
+    },
+    "unitesQuantite": {
+      "kg": "kg",
+      "g": "g",
+      "l": "l",
+      "ml": "ml"
+    },
+    "motifs": {
+      "stimulation": "Stimulation",
+      "hivernage": "Wintering",
+      "disette": "Dearth",
+      "secours": "Emergency",
+      "transhumance": "Migration",
+      "autre": "Other"
+    },
+    "methodes": {
+      "lange": "Sticky board (natural drop)",
+      "sucre_glace": "Powdered sugar",
+      "alcool": "Alcohol wash",
+      "co2": "CO₂",
+      "desoperculation": "Drone brood uncapping"
+    },
+    "unitesTaux": {
+      "varroas_par_jour": "varroa/day",
+      "pour_cent_abeilles": "% of bees"
+    },
+    "verdicts": {
+      "faible": "Low",
+      "surveiller": "Watch",
+      "traiter": "Treat",
+      "inconnu": "Not computable"
+    },
+    "pathologies": {
+      "varroose": "Varroosis",
+      "loque_americaine": "American foulbrood",
+      "loque_europeenne": "European foulbrood",
+      "nosemose": "Nosemosis",
+      "petit_coleoptere": "Small hive beetle",
+      "fausse_teigne": "Wax moth",
+      "frelon_asiatique": "Asian hornet",
+      "couvain_sacciforme": "Sacbrood",
+      "mycose": "Chalkbrood",
+      "pesticide": "Pesticide poisoning",
+      "autre": "Other"
+    },
+    "gravites": {
+      "suspectee": "Suspected",
+      "legere": "Mild",
+      "moderee": "Moderate",
+      "severe": "Severe"
     }
   },
   "recolte": {

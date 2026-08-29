@@ -2,13 +2,15 @@ import { useState, type ReactElement } from 'react';
 import { fermiers } from '../api/client';
 import type { Fermier, FermierCorps } from '../api/types';
 import { useT } from '../i18n/langue';
-import { useRessource } from '../hooks';
+import { useRessource, useRoles } from '../hooks';
+import { peutEcrire } from '../routage/routes';
 import { Bouton, ChampTexte, Colonne, Modale, Table } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
 
 export function FermiersVue(): ReactElement {
   const t = useT();
   const etat = useRessource<Fermier, FermierCorps>(fermiers);
+  const ecriture = peutEcrire('fermiers', useRoles());
   const [edition, setEdition] = useState<Fermier | null>(null);
   const [ouvert, setOuvert] = useState(false);
   const [nom, setNom] = useState('');
@@ -42,9 +44,9 @@ export function FermiersVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.fermiers}
       sousTitre={t.soustitres.fermiers}
-      etat={etat} onNouveau={() => ouvrir(null)}>
+      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
       {etat.elements.length > 0 && (
-        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} />
+        <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
       {ouvert && (
         <Modale titre={t.onglets.fermiers} onFermer={() => setOuvert(false)}>

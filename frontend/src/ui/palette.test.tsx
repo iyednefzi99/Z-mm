@@ -7,7 +7,7 @@ import { ONGLETS } from '../routage/routes';
 
 /** Palette de commandes (Ctrl/⌘ + K) — filtrage, clavier, choix. */
 
-/** Roles par defaut : un responsable, qui ouvre les dix-sept ecrans. */
+/** Roles par defaut : un responsable, qui ouvre les dix-neuf ecrans. */
 const monter = (
   onChoisir = vi.fn(),
   onFermer = vi.fn(),
@@ -47,7 +47,7 @@ describe('correspondance par sous-séquence', () => {
 });
 
 describe('palette de commandes', () => {
-  it('s’ouvre sur les seize écrans plutôt que sur le vide', () => {
+  it('s’ouvre sur les dix-neuf écrans plutôt que sur le vide', () => {
     monter();
 
     expect(screen.getAllByRole('option')).toHaveLength(ONGLETS.length);

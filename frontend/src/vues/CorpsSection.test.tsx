@@ -17,10 +17,15 @@ const base: EtatSection = {
   recharger: vi.fn(),
 };
 
-const monter = (etat: Partial<EtatSection>) =>
+const monter = (etat: Partial<EtatSection>, ecriture?: boolean) =>
   render(
     <LangueProvider>
-      <CorpsSection titre="Ruches" etat={{ ...base, ...etat }} onNouveau={vi.fn()}>
+      <CorpsSection
+        titre="Ruches"
+        etat={{ ...base, ...etat }}
+        onNouveau={vi.fn()}
+        ecriture={ecriture}
+      >
         <p>contenu</p>
       </CorpsSection>
     </LangueProvider>,
@@ -105,5 +110,31 @@ describe('ossature de section', () => {
 
     expect(screen.getByText('Le parc de l’exploitation.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Exporter' })).toBeInTheDocument();
+  });
+});
+
+describe('commandes d’écriture selon le rôle', () => {
+  it('propose « Nouveau » par défaut', () => {
+    // Le défaut est ouvert : la plupart des écrans s'écrivent avec tout rôle
+    // métier, et un défaut restrictif aurait fait disparaître des commandes
+    // légitimes au premier oubli.
+    monter({ elements: [1] });
+
+    expect(screen.getByRole('button', { name: /Nouveau/ })).toBeInTheDocument();
+  });
+
+  it('le retire quand le rôle ne peut pas écrire', () => {
+    // Le serveur refuserait l'enregistrement en 403 : proposer le formulaire,
+    // c'est faire saisir pour rien.
+    monter({ elements: [1] }, false);
+
+    expect(screen.queryByRole('button', { name: /Nouveau/ })).not.toBeInTheDocument();
+  });
+
+  it('change le texte de la liste vide au lieu d’inviter à créer', () => {
+    monter({ elements: [] }, false);
+
+    expect(screen.queryByRole('button', { name: /Nouveau/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/responsable peut en ajouter/)).toBeInTheDocument();
   });
 });

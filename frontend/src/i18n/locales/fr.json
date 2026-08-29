@@ -140,6 +140,7 @@
     "fermes": "Fermes",
     "sites": "Sites",
     "ruches": "Ruches",
+    "sanitaire": "Sanitaire",
     "plannings": "Plannings",
     "visites": "Visites",
     "taches": "Tâches",
@@ -160,6 +161,7 @@
     "fermes": "Unités d’exploitation d’un fermier. Une ferme regroupe plusieurs ruchers.",
     "sites": "Emplacements des ruchers. Leurs coordonnées sont sensibles : elles sortent filtrées selon votre rôle.",
     "ruches": "Le parc de colonies : état, composition, agent responsable.",
+    "sanitaire": "Traitements, nourrissements et comptages de varroa — le registre qui rend une récolte défendable.",
     "plannings": "Tournées prévues. Un superviseur les approuve avant exécution.",
     "visites": "Comptes rendus d’inspection : constatations, actions menées, photos.",
     "taches": "À faire au rucher. Une échéance dépassée remonte en rappel sur l’accueil.",
@@ -211,7 +213,8 @@
     "champsRequis": "Renseignez les champs obligatoires avant d’enregistrer.",
     "serviceIndisponible": "Service indisponible. Vérifiez votre connexion.",
     "videTitre": "Rien à afficher pour l’instant",
-    "videTexte": "Créez le premier élément : il apparaîtra ici, avec tous les suivants."
+    "videTexte": "Créez le premier élément : il apparaîtra ici, avec tous les suivants.",
+    "videLecture": "Aucun élément n’a encore été créé. Un responsable peut en ajouter."
   },
   "champs": {
     "nom": "Nom",
@@ -233,7 +236,11 @@
     "corps": "Corps",
     "hausses": "Hausses",
     "cadres": "cadres",
-    "aucun": "— aucun —"
+    "aucun": "— aucun —",
+    "typeRuche": "Type de ruche",
+    "couleur": "Couleur",
+    "origine": "Origine",
+    "causeCloture": "Cause de clôture"
   },
   "roles": {
     "apiculteur": "Apiculteur",
@@ -248,6 +255,46 @@
     "en_division": "En division",
     "en_collecte": "En collecte",
     "cloturee": "Clôturée"
+  },
+  "referentielRuche": {
+    "types": {
+      "langstroth": "Langstroth",
+      "dadant": "Dadant",
+      "warre": "Warré",
+      "voirnot": "Voirnot",
+      "top_bar": "Barrettes (top bar)",
+      "kenyane": "Kényane",
+      "autre": "Autre"
+    },
+    "couleurs": {
+      "blanc": "Blanc",
+      "jaune": "Jaune",
+      "orange": "Orange",
+      "rouge": "Rouge",
+      "vert": "Vert",
+      "bleu": "Bleu",
+      "violet": "Violet",
+      "gris": "Gris",
+      "bois": "Bois brut"
+    },
+    "origines": {
+      "essaim_capture": "Essaim capturé",
+      "essaim_achete": "Essaim acheté",
+      "division": "Division",
+      "nucleus": "Nucléus",
+      "paquet": "Paquet d’abeilles",
+      "achat": "Achat",
+      "autre": "Autre"
+    },
+    "causesCloture": {
+      "morte": "Morte",
+      "fusionnee": "Fusionnée",
+      "vendue": "Vendue",
+      "volee": "Volée",
+      "reformee": "Réformée",
+      "essaimee": "Essaimée",
+      "autre": "Autre"
+    }
   },
   "session": {
     "titre": "Session requise",
@@ -366,6 +413,51 @@
       "bon": "Bon",
       "moyen": "Moyen",
       "mauvais": "Mauvais"
+    },
+    "observation": "Grille d’inspection",
+    "couvainOeufs": "Œufs",
+    "couvainLarves": "Larves",
+    "couvainOpercule": "Couvain operculé",
+    "motifPonte": "Motif de ponte",
+    "reineVue": "Reine vue",
+    "cellulesRoyales": "Cellules royales",
+    "cellulesRoyalesCause": "Cause des cellules",
+    "cadresCouvain": "Cadres de couvain",
+    "cadresMiel": "Cadres de miel",
+    "cadresPollen": "Cadres de pollen",
+    "temperament": "Tempérament",
+    "meteo": "Météo relevée",
+    "temperature": "Température (°C)",
+    "humidite": "Humidité (%)",
+    "vent": "Vent (km/h)",
+    "sourceMeteo": "Source",
+    "pathologiesConstatees": "Pathologies constatées",
+    "pathologie": "Pathologie",
+    "gravite": "Gravité",
+    "ajouterPathologie": "Ajouter",
+    "nonObserve": "— non observé —",
+    "oui": "Oui",
+    "non": "Non",
+    "motifsPonte": {
+      "compact": "Compact",
+      "lacunaire": "Lacunaire",
+      "irregulier": "Irrégulier",
+      "absent": "Absent"
+    },
+    "causesCellules": {
+      "essaimage": "Essaimage",
+      "supersedure": "Supersédure",
+      "urgence": "Sauveté"
+    },
+    "temperaments": {
+      "doux": "Doux",
+      "normal": "Normal",
+      "agressif": "Agressif"
+    },
+    "sourcesMeteo": {
+      "open-meteo": "Open-Meteo",
+      "simulation": "Simulation",
+      "saisie": "Relevé manuel"
     }
   },
   "tache": {
@@ -522,6 +614,124 @@
       "rouge": "Rouge",
       "vert": "Vert",
       "bleu": "Bleu"
+    }
+  },
+  "sanitaire": {
+    "choisirRuche": "Choisir une ruche",
+    "traitements": "Traitements",
+    "nourrissements": "Nourrissements",
+    "varroa": "Varroa",
+    "carence": "Carences en cours",
+    "carenceExplication": "Ces ruches ne se récoltent pas : leur miel est encore sous délai de carence.",
+    "aucuneCarence": "Aucune ruche sous carence aujourd’hui.",
+    "sousCarence": "Sous carence",
+    "recolteAPartirDu": "Récolte possible à partir du {date}",
+    "produit": "Produit",
+    "substanceActive": "Substance active",
+    "cible": "Cible",
+    "dose": "Dose",
+    "doseUnite": "Unité de dose",
+    "dateDebut": "Début",
+    "dateFin": "Fin",
+    "delaiCarence": "Délai de carence (jours)",
+    "dateRetrait": "Fin de carence",
+    "ordonnance": "Ordonnance",
+    "note": "Note",
+    "agent": "Agent",
+    "dateApport": "Date",
+    "typeAliment": "Aliment",
+    "quantite": "Quantité",
+    "quantiteUnite": "Unité",
+    "motif": "Motif",
+    "dateComptage": "Date",
+    "methode": "Méthode",
+    "varroasComptes": "Varroas comptés",
+    "abeillesEchantillon": "Abeilles de l’échantillon",
+    "joursExposition": "Jours de pose du lange",
+    "taux": "Taux",
+    "verdict": "Lecture",
+    "ajouterTraitement": "Enregistrer un traitement",
+    "ajouterNourrissement": "Enregistrer un nourrissement",
+    "ajouterComptage": "Enregistrer un comptage",
+    "denominateurLange": "Un comptage par lange se rapporte à une durée de pose, pas à un nombre d’abeilles.",
+    "denominateurEchantillon": "Un comptage par échantillon se rapporte à un nombre d’abeilles, pas à une durée.",
+    "traitementEnCours": "En cours",
+    "cibles": {
+      "varroa": "Varroa",
+      "loque_americaine": "Loque américaine",
+      "loque_europeenne": "Loque européenne",
+      "nosema": "Nosémose",
+      "petit_coleoptere": "Petit coléoptère de la ruche",
+      "fausse_teigne": "Fausse teigne",
+      "frelon": "Frelon",
+      "autre": "Autre"
+    },
+    "unitesDose": {
+      "mg": "mg",
+      "g": "g",
+      "ml": "ml",
+      "l": "l",
+      "laniere": "lanière(s)",
+      "plaquette": "plaquette(s)"
+    },
+    "aliments": {
+      "sirop_1_1": "Sirop 1:1 (stimulation)",
+      "sirop_2_1": "Sirop 2:1 (hivernage)",
+      "candi": "Candi",
+      "pollen": "Pollen",
+      "substitut_pollen": "Substitut de pollen",
+      "miel": "Miel",
+      "eau": "Eau"
+    },
+    "unitesQuantite": {
+      "kg": "kg",
+      "g": "g",
+      "l": "l",
+      "ml": "ml"
+    },
+    "motifs": {
+      "stimulation": "Stimulation",
+      "hivernage": "Hivernage",
+      "disette": "Disette",
+      "secours": "Secours",
+      "transhumance": "Transhumance",
+      "autre": "Autre"
+    },
+    "methodes": {
+      "lange": "Lange graissé (chute naturelle)",
+      "sucre_glace": "Sucre glace",
+      "alcool": "Alcool",
+      "co2": "CO₂",
+      "desoperculation": "Désoperculation du couvain"
+    },
+    "unitesTaux": {
+      "varroas_par_jour": "varroas/jour",
+      "pour_cent_abeilles": "% des abeilles"
+    },
+    "verdicts": {
+      "faible": "Faible",
+      "surveiller": "À surveiller",
+      "traiter": "Traiter",
+      "inconnu": "Incalculable"
+    },
+    "pathologies": {
+      "varroose": "Varroose",
+      "loque_americaine": "Loque américaine",
+      "loque_europeenne": "Loque européenne",
+      "nosemose": "Nosémose",
+      "petit_coleoptere": "Petit coléoptère de la ruche",
+      "fausse_teigne": "Fausse teigne",
+      "frelon_asiatique": "Frelon asiatique",
+      "couvain_sacciforme": "Couvain sacciforme",
+      "mycose": "Mycose (couvain plâtré)",
+      "pesticide": "Intoxication (pesticide)",
+      "autre": "Autre"
+    },
+    "gravites": {
+      "suspectee": "Suspectée",
+      "legere": "Légère",
+      "moderee": "Modérée",
+      "severe": "Sévère"
     }
   },
   "recolte": {

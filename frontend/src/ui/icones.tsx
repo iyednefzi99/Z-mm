@@ -4,7 +4,7 @@ import type { ReactElement } from 'react';
  * Pictogrammes de la vitrine publique (SPRINT-19).
  *
  * <p><strong>Pourquoi pas les émojis de la console.</strong> Dans l'application,
- * l'émoji est un repère parmi dix-huit onglets déjà nommés : il aide à retrouver
+ * l'émoji est un repère parmi dix-neuf onglets déjà nommés : il aide à retrouver
  * une ligne, et son rendu approximatif ne coûte rien. Sur la vitrine, il devient
  * la première chose qu'un visiteur voit du produit — et il n'est pas rendu deux
  * fois pareil : 🧑‍🌾 tombe en carré tofu sur les Windows sans police de secours,
@@ -19,7 +19,7 @@ import type { ReactElement } from 'react';
  * `aria-hidden` posé sur le SVG lui-même.
  *
  * <p>La console garde ses émojis : les remplacer partout est un autre chantier,
- * qui touche dix-huit onglets, la palette de commandes et leurs tests.
+ * qui touche dix-neuf onglets, la palette de commandes et leurs tests.
  */
 const TRACES = {
   /** Histogramme : ce que « pilotage » montre réellement à l'ouverture. */

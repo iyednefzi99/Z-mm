@@ -173,7 +173,7 @@
 
    UN SEUL élément dans le DOM, deux présentations : rail latéral persistant au
    bureau, barre du bas au pouce sur mobile. Dupliquer le balisage aurait
-   dupliqué dix-huit noms accessibles.
+   dupliqué dix-neuf noms accessibles.
    ─────────────────────────────────────────────────────────────────────────── */
 
 .z-corps {
@@ -275,7 +275,7 @@
 }
 
 /* Barre d'onglets classique — sous-onglets d'une vue (tableaux de bord). Elle
-   garde la forme horizontale : cinq entrées, pas dix-huit. */
+   garde la forme horizontale : cinq entrées, pas dix-neuf. */
 .z-nav {
   display: flex;
   gap: 0.25rem;
@@ -1236,6 +1236,33 @@
    mouvement, pas une exception. */
 [dir='rtl'] .z-onglets__pastille.is-droite {
   transform: translateX(-100%);
+}
+
+/* Trois volets — le registre sanitaire (SPRINT-20). Même mécanique, un tiers de
+   largeur : la pastille glisse d'un ou deux crans au lieu de faire clignoter
+   trois registres qui se saisissent dans la même minute. */
+.z-onglets--trois {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.z-onglets--trois .z-onglets__pastille {
+  inline-size: calc(33.333% - 0.17rem);
+}
+
+.z-onglets__pastille.is-milieu {
+  transform: translateX(100%);
+}
+
+.z-onglets--trois .z-onglets__pastille.is-droite {
+  transform: translateX(200%);
+}
+
+[dir='rtl'] .z-onglets__pastille.is-milieu {
+  transform: translateX(-100%);
+}
+
+[dir='rtl'] .z-onglets--trois .z-onglets__pastille.is-droite {
+  transform: translateX(-200%);
 }
 
 .z-entree__formulaire {

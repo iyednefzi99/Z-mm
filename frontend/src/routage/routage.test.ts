@@ -5,11 +5,13 @@ import {
   ICONES,
   ONGLETS,
   ONGLET_PAR_DEFAUT,
+  ROLES_ECRITURE,
   ROLES_ONGLET,
   cheminDepuisOnglet,
   ongletAutorise,
   ongletDepuisChemin,
   ongletsVisibles,
+  peutEcrire,
 } from './routes';
 import { consommerRouteDeRetour, memoriserRouteDeRetour } from './navigation';
 
@@ -37,13 +39,13 @@ describe('table des routes', () => {
     expect(ongletDepuisChemin('/admin')).toBeNull();
   });
 
-  it('couvre les dix-huit écrans de la console, sans doublon', () => {
+  it('couvre les dix-neuf écrans de la console, sans doublon', () => {
     // Le nombre est volontairement écrit en dur : ajouter un onglet doit obliger
     // à passer ici, donc à vérifier qu'il a bien été déclaré dans les trois
     // langues et branché dans App. Un `ONGLETS.length` se contenterait de se
     // recopier lui-même et ne prouverait rien.
-    expect(ONGLETS).toHaveLength(18);
-    expect(new Set(ONGLETS).size).toBe(18);
+    expect(ONGLETS).toHaveLength(19);
+    expect(new Set(ONGLETS).size).toBe(19);
   });
 });
 
@@ -142,5 +144,47 @@ describe('reprise de route après connexion', () => {
 
   it('rend null quand aucune route n’a été mémorisée', () => {
     expect(consommerRouteDeRetour()).toBeNull();
+  });
+});
+
+describe('écriture réservée sur le référentiel', () => {
+  /**
+   * Les cinq ressources dont `SecurityConfig.matriceRbac` réserve les POST, PUT
+   * et DELETE à `responsable` et `admin`. Recopiées ici : si le serveur en ajoute
+   * ou en retire une, ce test le rappelle.
+   */
+  const REFERENTIEL = ['fermiers', 'fermes', 'sites', 'ruches', 'agents'] as const;
+
+  it('couvre exactement les écrans du référentiel', () => {
+    expect(Object.keys(ROLES_ECRITURE).sort()).toEqual([...REFERENTIEL].sort());
+  });
+
+  it('ouvre l’écriture au responsable et à l’administrateur', () => {
+    for (const onglet of REFERENTIEL) {
+      expect(peutEcrire(onglet, ['responsable'])).toBe(true);
+      expect(peutEcrire(onglet, ['admin'])).toBe(true);
+    }
+  });
+
+  it('la ferme à l’apiculteur et au superviseur, qui gardent la lecture', () => {
+    for (const onglet of REFERENTIEL) {
+      expect(peutEcrire(onglet, ['apiculteur'])).toBe(false);
+      expect(peutEcrire(onglet, ['superviseur'])).toBe(false);
+      // La lecture, elle, reste ouverte : l'onglet ne quitte pas la navigation.
+      expect(ongletAutorise(onglet, ['apiculteur'])).toBe(true);
+    }
+  });
+
+  it('laisse écrire partout ailleurs — visites, tâches, récoltes, mesures', () => {
+    // Le travail quotidien de l'apiculteur ne passe pas par le responsable.
+    for (const onglet of ONGLETS.filter((o) => !(o in ROLES_ECRITURE))) {
+      expect(peutEcrire(onglet, ['apiculteur'])).toBe(true);
+    }
+  });
+
+  it('ne laisse rien écrire à une session sans rôle', () => {
+    for (const onglet of REFERENTIEL) {
+      expect(peutEcrire(onglet, [])).toBe(false);
+    }
   });
 });

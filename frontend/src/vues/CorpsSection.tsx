@@ -31,6 +31,7 @@ export function CorpsSection({
   actions,
   etat,
   onNouveau,
+  ecriture = true,
   children,
 }: {
   titre: string;
@@ -40,6 +41,17 @@ export function CorpsSection({
   actions?: ReactNode;
   etat: EtatSection;
   onNouveau: () => void;
+  /**
+   * Le role courant peut-il creer sur cet ecran ?
+   *
+   * <p>Faux, « Nouveau » disparait de l'en-tete ET de l'etat vide, et ce dernier
+   * change de texte : « Creez le premier element » adresse a quelqu'un qui n'en a
+   * pas le droit est une invitation a se heurter a un refus. Les autres commandes
+   * (`actions` : export, filtre) restent — elles ne mutent rien.
+   *
+   * <p>Par defaut vrai : la plupart des ecrans s'ecrivent avec tout role metier.
+   */
+  ecriture?: boolean;
   children: ReactNode;
 }): ReactElement {
   const t = useT();
@@ -90,9 +102,11 @@ export function CorpsSection({
         </div>
         <div className="z-section__actions">
           {actions}
-          <Bouton variante="primaire" onClick={onNouveau}>
-            + {t.actions.nouveau}
-          </Bouton>
+          {ecriture && (
+            <Bouton variante="primaire" onClick={onNouveau}>
+              + {t.actions.nouveau}
+            </Bouton>
+          )}
         </div>
       </header>
 
@@ -117,11 +131,13 @@ export function CorpsSection({
       {vide && (
         <EtatVide
           titre={t.etats.videTitre}
-          texte={t.etats.videTexte}
+          texte={ecriture ? t.etats.videTexte : t.etats.videLecture}
           action={
-            <Bouton variante="primaire" onClick={onNouveau}>
-              + {t.actions.nouveau}
-            </Bouton>
+            ecriture ? (
+              <Bouton variante="primaire" onClick={onNouveau}>
+                + {t.actions.nouveau}
+              </Bouton>
+            ) : undefined
           }
         />
       )}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ErreurApi, type PageResultat } from './api/client';
+import { sessionCourante, surSession } from './auth/session';
 import { useT } from './i18n/langue';
 import { useToasts } from './ui/toasts';
 
@@ -166,4 +167,23 @@ export function useRessource<E extends { id: number }, C>(
     total,
     allerPage: setPage,
   };
+}
+
+/**
+ * Rôles de la session en cours, réévalués si elle change.
+ *
+ * <p>Les écrans sont chargés à la demande et ne reçoivent pas la session en
+ * paramètre ; la faire descendre depuis `App` jusqu'à cinq vues du référentiel
+ * imposerait une signature à toutes les autres pour rien. Le module de session
+ * est déjà un magasin observable — ce crochet ne fait que s'y abonner.
+ *
+ * <p>Une session non encore connue rend un tableau vide, c'est-à-dire « aucun
+ * rôle » : pendant ce laps, les commandes d'écriture ne s'affichent pas. Le
+ * défaut prudent est le bon sens ici — proposer puis retirer serait pire que
+ * d'afficher un instant plus tard.
+ */
+export function useRoles(): readonly string[] {
+  const [roles, setRoles] = useState<readonly string[]>(sessionCourante()?.roles ?? []);
+  useEffect(() => surSession((session) => setRoles(session?.roles ?? [])), []);
+  return roles;
 }

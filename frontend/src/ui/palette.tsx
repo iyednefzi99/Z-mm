@@ -10,11 +10,11 @@ import {
 } from '../routage/routes';
 
 /**
- * Palette de commandes (Ctrl/⌘ + K) — accès direct aux seize écrans.
+ * Palette de commandes (Ctrl/⌘ + K) — accès direct aux dix-neuf écrans.
  *
  * <p><strong>Pourquoi.</strong> La navigation groupée règle la lisibilité, pas la
  * distance : atteindre « Lots & origines » depuis « Visites » demande toujours de
- * viser une cible dans une liste de seize. La palette est l'accélérateur, la
+ * viser une cible dans une liste de dix-neuf. La palette est l'accélérateur, la
  * navigation reste la voie visible — un raccourci que personne ne découvre ne
  * navigue personne. C'est pourquoi la barre supérieure porte un bouton qui
  * l'ouvre <em>et</em> affiche le raccourci.
@@ -24,7 +24,7 @@ import {
  * `includes()` ne rendrait rien sur ces frappes-là, et une palette qui répond
  * « aucun résultat » à une abréviation plausible passe pour cassée.
  *
- * <p>La palette ne s'ouvre jamais sur le vide : sans saisie, elle liste les seize
+ * <p>La palette ne s'ouvre jamais sur le vide : sans saisie, elle liste les dix-neuf
  * écrans, groupés comme dans la navigation.
  */
 

@@ -28,6 +28,7 @@ vi.mock('../api/client', () => ({
   ruches: { lister: vi.fn() },
   agents: { lister: vi.fn() },
   plannings: { lister: vi.fn() },
+  chargerMeteo: vi.fn(),
   listerPhotos: vi.fn(),
   ajouterPhoto: vi.fn(),
   supprimerPhoto: vi.fn(),
@@ -73,6 +74,9 @@ const VISITE: Visite = {
   effectifQualitatif: 'fort',
   etatSante: 'bon',
   productivite: 3,
+  observation: null,
+  meteo: null,
+  pathologies: [],
   photos: [],
   creeLe: '2026-05-12T14:30:00Z',
   majLe: '2026-05-12T14:30:00Z',
@@ -90,16 +94,17 @@ const monter = () =>
 describe('vue Visites', () => {
   beforeEach(() => {
     vi.mocked(visites.lister).mockResolvedValue([VISITE]);
-    vi.mocked(ruches.lister).mockResolvedValue([]);
-    vi.mocked(agents.lister).mockResolvedValue([]);
+    // Les listes ne sont pas decoratives : sans l'option correspondante, le
+    // `select` requis reste vide pour le navigateur, et la soumission est
+    // bloquee avant meme d'atteindre le client d'API.
+    vi.mocked(ruches.lister).mockResolvedValue([
+      { id: 1, modele: 'Dadant 10', siteId: 2 } as never,
+    ]);
+    vi.mocked(agents.lister).mockResolvedValue([{ id: 3, nom: 'Awa Diop' } as never]);
     vi.mocked(plannings.lister).mockResolvedValue([PLANNING]);
   });
 
   it('transmet les six champs du rapport, au lieu de les figer à null', async () => {
-    vi.mocked(ruches.lister).mockResolvedValue([
-      { id: 1, modele: 'Dadant 10' } as never,
-    ]);
-    vi.mocked(agents.lister).mockResolvedValue([{ id: 3, nom: 'Awa Diop' } as never]);
     monter();
     await screen.findByText('Dadant 10');
 
@@ -142,6 +147,68 @@ describe('vue Visites', () => {
     expect(screen.getByLabelText('Recommandations')).toHaveValue(
       'Repasser sous quinze jours.',
     );
+  });
+
+  it('distingue « non observé » de « non » (SPRINT-20)', async () => {
+    monter();
+    await screen.findByText('Dadant 10');
+    await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+    // Grille laissée telle quelle : rien n'a été observé, donc rien n'est
+    // envoyé. Un objet plein de `false` ferait croire à une colonie sans œufs,
+    // sans larves et sans reine — et fausserait toute statistique construite
+    // dessus.
+    await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(visites.mettreAJour).toHaveBeenCalledWith(
+      42,
+      expect.objectContaining({ observation: null, meteo: null, pathologies: [] }),
+    );
+  });
+
+  it('transmet la grille d’inspection et les pathologies constatées (SPRINT-20)', async () => {
+    monter();
+    await screen.findByText('Dadant 10');
+    await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+    await userEvent.selectOptions(await screen.findByLabelText('Œufs'), 'oui');
+    await userEvent.selectOptions(screen.getByLabelText('Couvain operculé'), 'non');
+    await userEvent.selectOptions(screen.getByLabelText('Motif de ponte'), 'compact');
+    await userEvent.type(screen.getByLabelText('Cadres de couvain'), '5');
+    await userEvent.selectOptions(screen.getByLabelText('Pathologie'), 'varroose');
+    await userEvent.selectOptions(screen.getByLabelText('Gravité'), 'moderee');
+    await userEvent.click(screen.getByRole('button', { name: '+ Ajouter' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(visites.mettreAJour).toHaveBeenCalledWith(
+      42,
+      expect.objectContaining({
+        observation: expect.objectContaining({
+          couvainOeufs: true,
+          // « Non » est une observation, pas une absence d'observation.
+          couvainOpercule: false,
+          couvainLarves: null,
+          motifPonte: 'compact',
+          cadresCouvain: 5,
+        }),
+        pathologies: [{ pathologie: 'varroose', gravite: 'moderee', note: null }],
+      }),
+    );
+  });
+
+  it('n’envoie pas de cause de cellules royales sans cellule (SPRINT-20)', async () => {
+    monter();
+    await screen.findByText('Dadant 10');
+    await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+    // Le champ n'apparaît qu'à partir d'une cellule : « supersédure, zéro
+    // cellule » est une contradiction que la base refuse, et qu'il vaut mieux
+    // ne pas laisser saisir que faire rejeter après coup.
+    expect(screen.queryByLabelText('Cause des cellules')).not.toBeInTheDocument();
+
+    await userEvent.type(await screen.findByLabelText('Cellules royales'), '3');
+
+    expect(screen.getByLabelText('Cause des cellules')).toBeInTheDocument();
   });
 
   it('ne propose que les plannings approuvés de la ruche visitée (US-008)', async () => {

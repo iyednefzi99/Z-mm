@@ -44,7 +44,7 @@ import { IntrouvableVue } from './vues/IntrouvableVue';
 import './App.css';
 
 /**
- * Chargement paresseux par route (US-051) : sans lui, les quinze vues partent
+ * Chargement paresseux par route (US-051) : sans lui, les dix-neuf vues partent
  * dans le même paquet, alors qu'une session n'en visite que quelques-unes.
  */
 const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
@@ -52,6 +52,9 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
   fermes: lazy(() => import('./vues/FermesVue').then((m) => ({ default: m.FermesVue }))),
   sites: lazy(() => import('./vues/SitesVue').then((m) => ({ default: m.SitesVue }))),
   ruches: lazy(() => import('./vues/RuchesVue').then((m) => ({ default: m.RuchesVue }))),
+  sanitaire: lazy(() =>
+    import('./vues/SanitaireVue').then((m) => ({ default: m.SanitaireVue })),
+  ),
   plannings: lazy(() => import('./vues/PlanningsVue').then((m) => ({ default: m.PlanningsVue }))),
   visites: lazy(() => import('./vues/VisitesVue').then((m) => ({ default: m.VisitesVue }))),
   taches: lazy(() => import('./vues/TachesVue').then((m) => ({ default: m.TachesVue }))),
@@ -287,7 +290,7 @@ export default function App(): ReactElement {
 
       {/* Un SEUL élément de navigation dans le DOM, présenté différemment selon
           la largeur : rail latéral persistant au bureau, barre du bas au pouce
-          sur mobile. Dupliquer la navigation aurait dupliqué seize noms
+          sur mobile. Dupliquer la navigation aurait dupliqué dix-neuf noms
           accessibles, et un lecteur d'écran aurait annoncé deux fois chaque
           écran. Tout se joue donc en CSS. */}
       <div className="z-corps">

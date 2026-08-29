@@ -3,7 +3,7 @@
  *
  * <p>Ce client reste ECRIT A LA MAIN, et c'est un choix (SPRINT-17). L'en-tete
  * precedent annonçait une generation complete depuis le contrat OpenAPI ; elle
- * aurait touche quarante fonctions et seize vues pour un gain limite au seul
+ * aurait touche quarante fonctions et dix-neuf vues pour un gain limite au seul
  * typage — les fonctions elles-memes sont courtes, lisibles et stables.
  *
  * <p>Ce qui manquait vraiment, c'etait la GARANTIE : rien n'empechait les types
@@ -29,6 +29,8 @@ import type {
   AgentCorps,
   AlerteSanitaire,
   CalendrierCellule,
+  ComptageVarroa,
+  ComptageVarroaCorps,
   Ferme,
   FermeCorps,
   Fermier,
@@ -42,6 +44,8 @@ import type {
   Meteo,
   MesureCorps,
   MesureReponse,
+  Nourrissement,
+  NourrissementCorps,
   AuditEntree,
   Photo,
   PhotoCorps,
@@ -63,6 +67,8 @@ import type {
   Tache,
   TacheCorps,
   Tournee,
+  Traitement,
+  TraitementCorps,
   Lot,
   LotCorps,
   MentionOrigine,
@@ -383,6 +389,52 @@ export const chargerMentionOrigine = (id: number, langue: string) =>
   requete<MentionOrigine>(`/api/lots/${id}/mention`, {
     headers: { 'Accept-Language': langue },
   });
+
+/*
+ * Registre sanitaire (SPRINT-20).
+ *
+ * <p>Pas de `ressource()` generique pour ces trois-la : un acte sanitaire ne se
+ * MODIFIE pas. Corriger un traitement deja consigne reviendrait a reecrire un
+ * registre d'elevage apres coup — exactement ce qu'un controle vient verifier.
+ * On saisit, et on supprime une saisie fausse ; il n'y a pas de troisieme
+ * geste. Les listes sont par ruche, comme le suivi de reine (US-032) : ces
+ * registres se lisent colonne par colonne, jamais a plat.
+ */
+export const listerTraitements = (rucheId: number) =>
+  requete<Traitement[]>(`/api/traitements?rucheId=${rucheId}`);
+
+export const enregistrerTraitement = (corps: TraitementCorps) =>
+  requete<Traitement>('/api/traitements', { method: 'POST', ...corpsJson(corps) });
+
+export const supprimerTraitement = (id: number) =>
+  requete<void>(`/api/traitements/${id}`, { method: 'DELETE' });
+
+/**
+ * Traitements dont la carence court encore, a l'echelle de l'exploitation.
+ *
+ * <p>La seule route sanitaire qui ne prend pas de ruche : elle repond a « que
+ * puis-je recolter aujourd'hui », et c'est une question de cheptel, pas de
+ * colonie.
+ */
+export const listerCarencesEnCours = () => requete<Traitement[]>('/api/traitements/carence');
+
+export const listerNourrissements = (rucheId: number) =>
+  requete<Nourrissement[]>(`/api/nourrissements?rucheId=${rucheId}`);
+
+export const enregistrerNourrissement = (corps: NourrissementCorps) =>
+  requete<Nourrissement>('/api/nourrissements', { method: 'POST', ...corpsJson(corps) });
+
+export const supprimerNourrissement = (id: number) =>
+  requete<void>(`/api/nourrissements/${id}`, { method: 'DELETE' });
+
+export const listerComptagesVarroa = (rucheId: number) =>
+  requete<ComptageVarroa[]>(`/api/varroa?rucheId=${rucheId}`);
+
+export const enregistrerComptageVarroa = (corps: ComptageVarroaCorps) =>
+  requete<ComptageVarroa>('/api/varroa', { method: 'POST', ...corpsJson(corps) });
+
+export const supprimerComptageVarroa = (id: number) =>
+  requete<void>(`/api/varroa/${id}`, { method: 'DELETE' });
 
 /** US-034 : détection d'anomalie EWMA. */
 export const detecterAnomalie = (rucheId: number, type: TypeIndicateur) =>

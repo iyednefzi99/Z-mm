@@ -94,13 +94,13 @@ export function Pastille({
 /**
  * Dialogue modal, ouvert ET fermé avec transition (`design/motion/dialog.md`).
  *
- * <p><strong>Pourquoi la modale retarde elle-même sa fermeture.</strong> Les seize
- * vues l'appellent sous la forme `{ouvert && <Modale …/>}` : dès que le parent
+ * <p><strong>Pourquoi la modale retarde elle-même sa fermeture.</strong> Ses douze
+ * appels prennent la forme `{ouvert && <Modale …/>}` : dès que le parent
  * repasse à `false`, React démonte le nœud, et une animation de sortie n'a plus
  * de support sur lequel jouer. C'est pourquoi la modale disparaissait net alors
  * qu'elle s'ouvrait en fondu.
  *
- * <p>Plutôt que de réécrire seize appels, la modale intercepte la fermeture :
+ * <p>Plutôt que de réécrire douze appels, la modale intercepte la fermeture :
  * elle passe en `is-closing`, laisse l'animation se jouer, puis appelle
  * `onFermer` — le parent démonte alors un nœud dont la sortie est terminée. Le
  * piège classique (« la modale saute à la réouverture ») vient de l'ordre
@@ -371,11 +371,26 @@ export function Table<E extends { id: number }>({
   elements,
   onModifier,
   onSupprimer,
+  ecriture = true,
 }: {
   colonnes: Colonne<E>[];
   elements: E[];
   onModifier: (element: E) => void;
   onSupprimer: (element: E) => void;
+  /**
+   * Le rôle courant peut-il modifier cette ressource ?
+   *
+   * <p>Faux, la colonne d'actions disparaît — en-tête compris, sans quoi le
+   * tableau garderait une colonne vide dont personne ne saurait dire ce qu'elle
+   * attend. Les gestionnaires restent exigés : c'est l'affichage qui varie, pas
+   * le contrat du composant, et un tableau ne devient pas à moitié lisible parce
+   * qu'il est en lecture seule.
+   *
+   * <p>Par défaut vrai : la très grande majorité des écrans s'écrit avec tout
+   * rôle métier, et une valeur par défaut restrictive aurait fait disparaître
+   * des commandes légitimes au premier oubli.
+   */
+  ecriture?: boolean;
 }): ReactElement {
   const t = useT();
   return (
@@ -386,7 +401,7 @@ export function Table<E extends { id: number }>({
             {colonnes.map((colonne) => (
               <th key={colonne.entete}>{colonne.entete}</th>
             ))}
-            <th className="z-table__actions" aria-label={t.actions.modifier} />
+            {ecriture && <th className="z-table__actions" aria-label={t.actions.modifier} />}
           </tr>
         </thead>
         <tbody>
@@ -395,18 +410,20 @@ export function Table<E extends { id: number }>({
               {colonnes.map((colonne) => (
                 <td key={colonne.entete}>{colonne.rendu(element)}</td>
               ))}
-              <td className="z-table__actions">
-                <button type="button" className="z-lien" onClick={() => onModifier(element)}>
-                  {t.actions.modifier}
-                </button>
-                <button
-                  type="button"
-                  className="z-lien z-lien--danger"
-                  onClick={() => onSupprimer(element)}
-                >
-                  {t.actions.supprimer}
-                </button>
-              </td>
+              {ecriture && (
+                <td className="z-table__actions">
+                  <button type="button" className="z-lien" onClick={() => onModifier(element)}>
+                    {t.actions.modifier}
+                  </button>
+                  <button
+                    type="button"
+                    className="z-lien z-lien--danger"
+                    onClick={() => onSupprimer(element)}
+                  >
+                    {t.actions.supprimer}
+                  </button>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
@@ -479,12 +496,18 @@ export function ChampNombre({
   onChange,
   requis,
   pas = 'any',
+  min,
+  max,
 }: {
   libelle: string;
   valeur: string;
   onChange: (valeur: string) => void;
   requis?: boolean;
   pas?: string;
+  /** Bornes optionnelles. Le serveur reste seul juge — elles évitent la saisie
+   *  d'une valeur qu'il corrigera en silence, elles ne la remplacent pas. */
+  min?: number;
+  max?: number;
 }): ReactElement {
   return (
     <label className="z-champ">
@@ -493,6 +516,8 @@ export function ChampNombre({
         className="z-input"
         type="number"
         step={pas}
+        min={min}
+        max={max}
         value={valeur}
         required={requis}
         onChange={(e) => onChange(e.target.value)}

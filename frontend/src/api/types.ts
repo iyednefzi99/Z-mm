@@ -8,7 +8,7 @@
  * autrement : la parite est VERIFIEE plutot que generee.
  *
  * <p>Voir `api/parite.ts` pour le detail de l'arbitrage — en resume, generer le
- * client aurait touche quarante fonctions et seize vues pour un gain limite au
+ * client aurait touche quarante fonctions et dix-neuf vues pour un gain limite au
  * seul typage, alors qu'une verification obtient la meme garantie (aucune derive
  * silencieuse) sans reecrire ce qui fonctionne. Une divergence casse `tsc`.
  */
@@ -123,6 +123,102 @@ export interface CompartimentCorps {
   nbCadres: number;
 }
 
+/**
+ * Referentiel de type de ruche (SPRINT-20).
+ *
+ * <p>`modele` reste le texte libre — « Dadant 10 cadres, fond grillage Nicot ».
+ * Ce type-ci est le referentiel AU-DESSUS : c'est lui qui rend possible une
+ * statistique par type, qu'un texte libre interdisait.
+ */
+export type TypeRuche =
+  | 'langstroth'
+  | 'dadant'
+  | 'warre'
+  | 'voirnot'
+  | 'top_bar'
+  | 'kenyane'
+  | 'autre';
+
+export const TYPES_RUCHE: readonly TypeRuche[] = [
+  'langstroth',
+  'dadant',
+  'warre',
+  'voirnot',
+  'top_bar',
+  'kenyane',
+  'autre',
+];
+
+/** Couleur du corps, telle qu'on la repere au rucher — avant tout scan. */
+export type CouleurRuche =
+  | 'blanc'
+  | 'jaune'
+  | 'orange'
+  | 'rouge'
+  | 'vert'
+  | 'bleu'
+  | 'violet'
+  | 'gris'
+  | 'bois';
+
+export const COULEURS_RUCHE: readonly CouleurRuche[] = [
+  'blanc',
+  'jaune',
+  'orange',
+  'rouge',
+  'vert',
+  'bleu',
+  'violet',
+  'gris',
+  'bois',
+];
+
+/** D'ou vient la colonie : ce que le cheptel doit a lui-meme, et ce qu'il achete. */
+export type OrigineRuche =
+  | 'essaim_capture'
+  | 'essaim_achete'
+  | 'division'
+  | 'nucleus'
+  | 'paquet'
+  | 'achat'
+  | 'autre';
+
+export const ORIGINES_RUCHE: readonly OrigineRuche[] = [
+  'essaim_capture',
+  'essaim_achete',
+  'division',
+  'nucleus',
+  'paquet',
+  'achat',
+  'autre',
+];
+
+/**
+ * Pourquoi une ruche est cloturee (SPRINT-20).
+ *
+ * <p>`EtatRuche.cloturee` confondait une ruche morte, une ruche vendue et une
+ * ruche fusionnee : trois issues qui ne disent pas du tout la meme chose du
+ * cheptel. Le serveur refuse cette cause sur une ruche encore active.
+ */
+export type CauseCloture =
+  | 'morte'
+  | 'fusionnee'
+  | 'vendue'
+  | 'volee'
+  | 'reformee'
+  | 'essaimee'
+  | 'autre';
+
+export const CAUSES_CLOTURE: readonly CauseCloture[] = [
+  'morte',
+  'fusionnee',
+  'vendue',
+  'volee',
+  'reformee',
+  'essaimee',
+  'autre',
+];
+
 export interface Ruche {
   id: number;
   modele: string;
@@ -135,6 +231,10 @@ export interface Ruche {
   etat: EtatRuche;
   nbHausses: number;
   compartiments: Compartiment[];
+  typeRuche: TypeRuche | null;
+  couleur: CouleurRuche | null;
+  origine: OrigineRuche | null;
+  causeCloture: CauseCloture | null;
   creeLe: string;
   majLe: string;
 }
@@ -146,6 +246,10 @@ export interface RucheCorps {
   agentResponsableId: number | null;
   etat: EtatRuche;
   compartiments: CompartimentCorps[];
+  typeRuche: TypeRuche | null;
+  couleur: CouleurRuche | null;
+  origine: OrigineRuche | null;
+  causeCloture: CauseCloture | null;
 }
 
 export type RaisonVisite =
@@ -226,6 +330,9 @@ export interface Visite {
   effectifQualitatif: EffectifQualitatif | null;
   etatSante: EtatSante | null;
   productivite: number | null;
+  observation: ObservationVisite | null;
+  meteo: MeteoVisite | null;
+  pathologies: PathologieObservee[];
   photos: Photo[];
   creeLe: string;
   majLe: string;
@@ -246,6 +353,9 @@ export interface VisiteCorps {
   effectifQualitatif: EffectifQualitatif | null;
   etatSante: EtatSante | null;
   productivite: number | null;
+  observation: ObservationVisite | null;
+  meteo: MeteoVisite | null;
+  pathologies: PathologieCorps[];
 }
 
 /** Tâche ou rappel de l'apiculteur (US-031). */
@@ -423,7 +533,22 @@ export interface QuantiteMiel {
   unite: string;
 }
 
-/** Contexte météo local d'un site (US-029). */
+/**
+ * Prévision météo d'une journée (US-029).
+ *
+ * Minimale et maximale plutôt qu'une moyenne : ce sont elles qui décident d'une
+ * visite. Tous les champs sont nullables — une série météo peut arriver
+ * incomplète, et `null` dit « inconnu » là où `0` dirait « pas de pluie ».
+ */
+export interface PrevisionJour {
+  date: string;
+  temperatureMinCelsius: number | null;
+  temperatureMaxCelsius: number | null;
+  precipitationsMm: number | null;
+  ventMaxKmh: number | null;
+}
+
+/** Contexte météo local d'un site (US-029) : instantané + prévisions. */
 export interface Meteo {
   siteId: number;
   latitude: number;
@@ -433,6 +558,7 @@ export interface Meteo {
   ventKmh: number | null;
   source: string;
   instant: string;
+  previsions: PrevisionJour[];
 }
 
 export type StatutReine = 'introduite' | 'en_ponte' | 'remplacee' | 'disparue' | 'essaimee';
@@ -640,4 +766,342 @@ export interface PointJournalier {
   minimum: number;
   maximum: number;
   nombre: number;
+}
+
+/* =========================================================================
+ * Registre sanitaire et observations structurees (SPRINT-20)
+ *
+ * Trois actes qui n'etaient jusqu'ici qu'une valeur de `RaisonVisite` : on
+ * savait QU'ON avait traite, jamais avec quoi, a quelle dose, ni sous quel
+ * delai de carence. Et « varroa » n'existait nulle part dans le depot hors de
+ * la prose du jeu de demonstration.
+ *
+ * Les trois ressources partagent leur maille — ruche, date, agent — sans
+ * partager leur forme : la dose et la carence n'ont de sens que pour un
+ * traitement, le motif que pour un nourrissement, la methode de comptage que
+ * pour le varroa. Les fondre rendrait facultatif tout ce qui fait la valeur de
+ * chaque acte (voir le commentaire de tete de `V19`).
+ * ========================================================================= */
+
+/** Ce contre quoi on traite. */
+export type CibleTraitement =
+  | 'varroa'
+  | 'loque_americaine'
+  | 'loque_europeenne'
+  | 'nosema'
+  | 'petit_coleoptere'
+  | 'fausse_teigne'
+  | 'frelon'
+  | 'autre';
+
+export const CIBLES_TRAITEMENT: readonly CibleTraitement[] = [
+  'varroa',
+  'loque_americaine',
+  'loque_europeenne',
+  'nosema',
+  'petit_coleoptere',
+  'fausse_teigne',
+  'frelon',
+  'autre',
+];
+
+/** Unite de dose. Une dose sans unite ne se relit pas : « 2 » ne dit ni 2 ml ni 2 lanieres. */
+export type UniteDose = 'mg' | 'g' | 'ml' | 'l' | 'laniere' | 'plaquette';
+
+export const UNITES_DOSE: readonly UniteDose[] = ['mg', 'g', 'ml', 'l', 'laniere', 'plaquette'];
+
+/**
+ * Traitement sanitaire applique a une ruche.
+ *
+ * @property dateRetrait fin de carence, calculee par la base
+ *   (`dateFin + delaiCarenceJours`) : avant elle, le miel ne part pas en recolte
+ * @property sousCarence verdict du jour, calcule par le serveur. Le client ne
+ *   refait pas ce calcul de dates — et surtout pas differemment
+ */
+export interface Traitement {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  agentId: number;
+  agentNom: string;
+  visiteId: number | null;
+  produit: string;
+  substanceActive: string | null;
+  cible: CibleTraitement;
+  dose: number | null;
+  doseUnite: UniteDose | null;
+  dateDebut: string;
+  dateFin: string | null;
+  delaiCarenceJours: number | null;
+  dateRetrait: string | null;
+  sousCarence: boolean;
+  ordonnance: string | null;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface TraitementCorps {
+  rucheId: number;
+  agentId: number;
+  visiteId: number | null;
+  produit: string;
+  substanceActive: string | null;
+  cible: CibleTraitement;
+  dose: number | null;
+  doseUnite: UniteDose | null;
+  dateDebut: string;
+  dateFin: string | null;
+  delaiCarenceJours: number | null;
+  ordonnance: string | null;
+  note: string | null;
+}
+
+/**
+ * Type d'aliment apporte.
+ *
+ * <p>Les deux sirops sont distingues parce qu'ils ne servent pas a la meme
+ * chose : le 1:1 stimule la ponte au printemps, le 2:1 constitue les reserves
+ * d'hiver. Les confondre rendrait le motif illisible.
+ */
+export type TypeAliment =
+  | 'sirop_1_1'
+  | 'sirop_2_1'
+  | 'candi'
+  | 'pollen'
+  | 'substitut_pollen'
+  | 'miel'
+  | 'eau';
+
+export const TYPES_ALIMENT: readonly TypeAliment[] = [
+  'sirop_1_1',
+  'sirop_2_1',
+  'candi',
+  'pollen',
+  'substitut_pollen',
+  'miel',
+  'eau',
+];
+
+export type UniteQuantite = 'kg' | 'g' | 'l' | 'ml';
+
+export const UNITES_QUANTITE: readonly UniteQuantite[] = ['kg', 'g', 'l', 'ml'];
+
+export type MotifNourrissement =
+  | 'stimulation'
+  | 'hivernage'
+  | 'disette'
+  | 'secours'
+  | 'transhumance'
+  | 'autre';
+
+export const MOTIFS_NOURRISSEMENT: readonly MotifNourrissement[] = [
+  'stimulation',
+  'hivernage',
+  'disette',
+  'secours',
+  'transhumance',
+  'autre',
+];
+
+/** Apport nourricier a une ruche. */
+export interface Nourrissement {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  agentId: number;
+  agentNom: string;
+  visiteId: number | null;
+  dateApport: string;
+  typeAliment: TypeAliment;
+  quantite: number;
+  quantiteUnite: UniteQuantite;
+  motif: MotifNourrissement | null;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface NourrissementCorps {
+  rucheId: number;
+  agentId: number;
+  visiteId: number | null;
+  dateApport: string;
+  typeAliment: TypeAliment;
+  quantite: number;
+  quantiteUnite: UniteQuantite;
+  motif: MotifNourrissement | null;
+  note: string | null;
+}
+
+/**
+ * Methode de comptage du varroa.
+ *
+ * <p>Elle decide du denominateur : le lange se rapporte a une DUREE de pose,
+ * toute autre methode a un NOMBRE D'ABEILLES. C'est aussi ce qui interdit un
+ * taux unique — « 3,5 » ne veut rien dire sans son unite.
+ */
+export type MethodeVarroa = 'lange' | 'sucre_glace' | 'alcool' | 'co2' | 'desoperculation';
+
+export const METHODES_VARROA: readonly MethodeVarroa[] = [
+  'lange',
+  'sucre_glace',
+  'alcool',
+  'co2',
+  'desoperculation',
+];
+
+/** Le lange compte une chute naturelle ; les autres methodes echantillonnent. */
+export const parLange = (methode: MethodeVarroa): boolean => methode === 'lange';
+
+export type UniteTauxVarroa = 'varroas_par_jour' | 'pour_cent_abeilles';
+
+/** `inconnu` quand le denominateur manque : rassurer sans savoir serait pire. */
+export type VerdictVarroa = 'faible' | 'surveiller' | 'traiter' | 'inconnu';
+
+export interface ComptageVarroa {
+  id: number;
+  rucheId: number;
+  rucheModele: string;
+  agentId: number;
+  agentNom: string;
+  visiteId: number | null;
+  dateComptage: string;
+  methode: MethodeVarroa;
+  varroasComptes: number;
+  abeillesEchantillon: number | null;
+  joursExposition: number | null;
+  taux: number | null;
+  tauxUnite: UniteTauxVarroa;
+  verdict: VerdictVarroa;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface ComptageVarroaCorps {
+  rucheId: number;
+  agentId: number;
+  visiteId: number | null;
+  dateComptage: string;
+  methode: MethodeVarroa;
+  varroasComptes: number;
+  abeillesEchantillon: number | null;
+  joursExposition: number | null;
+  note: string | null;
+}
+
+/** Maladies et ravageurs NOMMES, constates pendant une visite. */
+export type Pathologie =
+  | 'varroose'
+  | 'loque_americaine'
+  | 'loque_europeenne'
+  | 'nosemose'
+  | 'petit_coleoptere'
+  | 'fausse_teigne'
+  | 'frelon_asiatique'
+  | 'couvain_sacciforme'
+  | 'mycose'
+  | 'pesticide'
+  | 'autre';
+
+export const PATHOLOGIES: readonly Pathologie[] = [
+  'varroose',
+  'loque_americaine',
+  'loque_europeenne',
+  'nosemose',
+  'petit_coleoptere',
+  'fausse_teigne',
+  'frelon_asiatique',
+  'couvain_sacciforme',
+  'mycose',
+  'pesticide',
+  'autre',
+];
+
+/** « suspectee » par defaut : au rucher on constate un symptome, on ne diagnostique pas. */
+export type GravitePathologie = 'suspectee' | 'legere' | 'moderee' | 'severe';
+
+export const GRAVITES_PATHOLOGIE: readonly GravitePathologie[] = [
+  'suspectee',
+  'legere',
+  'moderee',
+  'severe',
+];
+
+export interface PathologieObservee {
+  id: number;
+  pathologie: Pathologie;
+  gravite: GravitePathologie;
+  note: string | null;
+}
+
+export interface PathologieCorps {
+  pathologie: Pathologie;
+  gravite: GravitePathologie | null;
+  note: string | null;
+}
+
+export type MotifPonte = 'compact' | 'lacunaire' | 'irregulier' | 'absent';
+
+export const MOTIFS_PONTE: readonly MotifPonte[] = [
+  'compact',
+  'lacunaire',
+  'irregulier',
+  'absent',
+];
+
+/** Pourquoi la colonie eleve : la donnee actionnable derriere un nombre de cellules. */
+export type CauseCellules = 'essaimage' | 'supersedure' | 'urgence';
+
+export const CAUSES_CELLULES: readonly CauseCellules[] = ['essaimage', 'supersedure', 'urgence'];
+
+export type Temperament = 'doux' | 'normal' | 'agressif';
+
+export const TEMPERAMENTS: readonly Temperament[] = ['doux', 'normal', 'agressif'];
+
+/**
+ * Grille d'inspection structuree d'une visite (SPRINT-20).
+ *
+ * <p>Ce qui vivait en texte libre dans `constatations` et n'etait donc
+ * analysable par rien. Le texte libre reste — il porte ce qu'aucune case ne
+ * prevoit — mais il cesse d'etre la SEULE trace du couvain, des reserves et des
+ * cellules royales.
+ *
+ * <p><strong>Chaque champ vaut `null` tant qu'il n'a pas ete observe</strong>, et
+ * c'est la distinction a tenir jusque dans les formulaires : « non observe » et
+ * « non » ne disent pas la meme chose, et une statistique construite sur leur
+ * confusion serait fausse. La visite entiere rend `null` quand rien n'a ete
+ * coche, plutot qu'un objet plein de `null`.
+ */
+export interface ObservationVisite {
+  couvainOeufs: boolean | null;
+  couvainLarves: boolean | null;
+  couvainOpercule: boolean | null;
+  motifPonte: MotifPonte | null;
+  reineVue: boolean | null;
+  cellulesRoyales: number | null;
+  cellulesRoyalesCause: CauseCellules | null;
+  cadresCouvain: number | null;
+  cadresMiel: number | null;
+  cadresPollen: number | null;
+  temperament: Temperament | null;
+}
+
+/** D'ou vient le releve : une estimation ne se traite pas comme une mesure. */
+export type SourceMeteo = 'open-meteo' | 'simulation' | 'saisie';
+
+/**
+ * Meteo FIGEE au moment de la visite (SPRINT-20).
+ *
+ * <p>Recopiee du fournisseur a la saisie, jamais rappelee ensuite : une
+ * prevision se revise, un releve non. Aller rechercher la meteo du 12 mars six
+ * mois plus tard donnerait la valeur reconstituee d'aujourd'hui, et rendrait
+ * fausse la correlation meteo x production qu'elle sert precisement a etablir.
+ */
+export interface MeteoVisite {
+  temperatureCelsius: number | null;
+  humiditePourcent: number | null;
+  ventKmh: number | null;
+  source: SourceMeteo | null;
 }

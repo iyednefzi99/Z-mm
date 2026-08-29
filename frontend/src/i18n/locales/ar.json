@@ -140,6 +140,7 @@
     "fermes": "المزارع",
     "sites": "المواقع",
     "ruches": "الخلايا",
+    "sanitaire": "السجلّ الصحّي",
     "plannings": "البرامج",
     "visites": "الزيارات",
     "taches": "المهام",
@@ -160,6 +161,7 @@
     "fermes": "وحدات استغلال المربّي. تجمع المزرعة عدّة مناحل.",
     "sites": "مواقع المناحل. إحداثياتها حسّاسة: تُرشَّح عند الإخراج حسب دورك.",
     "ruches": "حظيرة الطوائف: الحالة، التركيب، العون المسؤول.",
+    "sanitaire": "العلاجات والتغذية وعدّ الفاروا — السجلّ الذي يجعل الجني قابلاً للإثبات.",
     "plannings": "الجولات المبرمجة. يوافق عليها مشرف قبل التنفيذ.",
     "visites": "تقارير التفقّد: الملاحظات، الأعمال المنجزة، الصور.",
     "taches": "ما يجب إنجازه في المنحل. المهمة المتأخرة تظهر كتذكير في الصفحة الرئيسية.",
@@ -211,7 +213,8 @@
     "champsRequis": "املأ الحقول الإلزامية قبل الحفظ.",
     "serviceIndisponible": "الخدمة غير متاحة. تحقّق من اتصالك.",
     "videTitre": "لا يوجد ما يُعرض بعد",
-    "videTexte": "أنشئ العنصر الأول، وسيظهر هنا مع ما يليه."
+    "videTexte": "أنشئ العنصر الأول، وسيظهر هنا مع ما يليه.",
+    "videLecture": "لم يُنشأ أي عنصر بعد. يمكن لمسؤول أن يضيف عناصر."
   },
   "champs": {
     "nom": "الاسم",
@@ -233,7 +236,11 @@
     "corps": "الصندوق",
     "hausses": "العاسلات",
     "cadres": "إطارات",
-    "aucun": "— لا شيء —"
+    "aucun": "— لا شيء —",
+    "typeRuche": "نوع الخلية",
+    "couleur": "اللون",
+    "origine": "الأصل",
+    "causeCloture": "سبب الإغلاق"
   },
   "roles": {
     "apiculteur": "نحّال",
@@ -248,6 +255,46 @@
     "en_division": "قيد التقسيم",
     "en_collecte": "قيد الجني",
     "cloturee": "مُغلقة"
+  },
+  "referentielRuche": {
+    "types": {
+      "langstroth": "لانغستروث",
+      "dadant": "دادان",
+      "warre": "واريه",
+      "voirnot": "فوارنو",
+      "top_bar": "ذات العوارض العلوية",
+      "kenyane": "الكينية",
+      "autre": "أخرى"
+    },
+    "couleurs": {
+      "blanc": "أبيض",
+      "jaune": "أصفر",
+      "orange": "برتقالي",
+      "rouge": "أحمر",
+      "vert": "أخضر",
+      "bleu": "أزرق",
+      "violet": "بنفسجي",
+      "gris": "رمادي",
+      "bois": "خشب طبيعي"
+    },
+    "origines": {
+      "essaim_capture": "طرد ملتقط",
+      "essaim_achete": "طرد مُشترى",
+      "division": "تقسيم",
+      "nucleus": "نواة",
+      "paquet": "طرد نحل معبّأ",
+      "achat": "شراء",
+      "autre": "أخرى"
+    },
+    "causesCloture": {
+      "morte": "نافقة",
+      "fusionnee": "مدمجة",
+      "vendue": "مباعة",
+      "volee": "مسروقة",
+      "reformee": "مستبعدة",
+      "essaimee": "هاجرت",
+      "autre": "أخرى"
+    }
   },
   "session": {
     "titre": "الجلسة مطلوبة",
@@ -366,6 +413,51 @@
       "bon": "جيّد",
       "moyen": "متوسط",
       "mauvais": "سيّئ"
+    },
+    "observation": "بطاقة المعاينة",
+    "couvainOeufs": "بيض",
+    "couvainLarves": "يرقات",
+    "couvainOpercule": "حضنة مغلقة",
+    "motifPonte": "نمط البيض",
+    "reineVue": "شوهدت الملكة",
+    "cellulesRoyales": "بيوت ملكية",
+    "cellulesRoyalesCause": "سبب البيوت الملكية",
+    "cadresCouvain": "أقراص الحضنة",
+    "cadresMiel": "أقراص العسل",
+    "cadresPollen": "أقراص حبوب اللقاح",
+    "temperament": "الطبع",
+    "meteo": "الطقس المسجّل",
+    "temperature": "الحرارة (°م)",
+    "humidite": "الرطوبة (٪)",
+    "vent": "الرياح (كم/س)",
+    "sourceMeteo": "المصدر",
+    "pathologiesConstatees": "الأمراض الملاحظة",
+    "pathologie": "المرض",
+    "gravite": "الخطورة",
+    "ajouterPathologie": "إضافة",
+    "nonObserve": "— لم يُلاحظ —",
+    "oui": "نعم",
+    "non": "لا",
+    "motifsPonte": {
+      "compact": "متراصّ",
+      "lacunaire": "متفرّق",
+      "irregulier": "غير منتظم",
+      "absent": "منعدم"
+    },
+    "causesCellules": {
+      "essaimage": "تطريد",
+      "supersedure": "استبدال الملكة",
+      "urgence": "طوارئ"
+    },
+    "temperaments": {
+      "doux": "هادئ",
+      "normal": "عادي",
+      "agressif": "شرس"
+    },
+    "sourcesMeteo": {
+      "open-meteo": "Open-Meteo",
+      "simulation": "محاكاة",
+      "saisie": "قراءة يدوية"
     }
   },
   "tache": {
@@ -522,6 +614,124 @@
       "rouge": "أحمر",
       "vert": "أخضر",
       "bleu": "أزرق"
+    }
+  },
+  "sanitaire": {
+    "choisirRuche": "اختيار خلية",
+    "traitements": "العلاجات",
+    "nourrissements": "التغذية",
+    "varroa": "الفاروا",
+    "carence": "فترات الأمان الجارية",
+    "carenceExplication": "لا تُجنى هذه الخلايا: عسلها ما زال ضمن فترة أمان بعد العلاج.",
+    "aucuneCarence": "لا توجد اليوم خلية ضمن فترة أمان.",
+    "sousCarence": "ضمن فترة أمان",
+    "recolteAPartirDu": "الجني ممكن ابتداءً من {date}",
+    "produit": "المنتج",
+    "substanceActive": "المادة الفعّالة",
+    "cible": "الهدف",
+    "dose": "الجرعة",
+    "doseUnite": "وحدة الجرعة",
+    "dateDebut": "البداية",
+    "dateFin": "النهاية",
+    "delaiCarence": "فترة الأمان (أيام)",
+    "dateRetrait": "نهاية فترة الأمان",
+    "ordonnance": "الوصفة البيطرية",
+    "note": "ملاحظة",
+    "agent": "العون",
+    "dateApport": "التاريخ",
+    "typeAliment": "نوع الغذاء",
+    "quantite": "الكمية",
+    "quantiteUnite": "الوحدة",
+    "motif": "السبب",
+    "dateComptage": "التاريخ",
+    "methode": "الطريقة",
+    "varroasComptes": "عدد الفاروا",
+    "abeillesEchantillon": "عدد نحل العيّنة",
+    "joursExposition": "أيام وضع اللوح",
+    "taux": "المعدّل",
+    "verdict": "القراءة",
+    "ajouterTraitement": "تسجيل علاج",
+    "ajouterNourrissement": "تسجيل تغذية",
+    "ajouterComptage": "تسجيل عدّ",
+    "denominateurLange": "العدّ باللوح اللاصق يُنسب إلى عدد الأيام، لا إلى عدد النحل.",
+    "denominateurEchantillon": "العدّ بالعيّنة يُنسب إلى عدد النحل، لا إلى عدد الأيام.",
+    "traitementEnCours": "جارٍ",
+    "cibles": {
+      "varroa": "الفاروا",
+      "loque_americaine": "تعفّن الحضنة الأمريكي",
+      "loque_europeenne": "تعفّن الحضنة الأوروبي",
+      "nosema": "النوزيما",
+      "petit_coleoptere": "خنفساء الخلية الصغيرة",
+      "fausse_teigne": "عثّة الشمع",
+      "frelon": "الدبّور",
+      "autre": "أخرى"
+    },
+    "unitesDose": {
+      "mg": "ملغ",
+      "g": "غ",
+      "ml": "مل",
+      "l": "ل",
+      "laniere": "شريط",
+      "plaquette": "قرص"
+    },
+    "aliments": {
+      "sirop_1_1": "محلول ١:١ (تحفيز)",
+      "sirop_2_1": "محلول ٢:١ (تشتية)",
+      "candi": "عجينة سكرية",
+      "pollen": "حبوب اللقاح",
+      "substitut_pollen": "بديل حبوب اللقاح",
+      "miel": "عسل",
+      "eau": "ماء"
+    },
+    "unitesQuantite": {
+      "kg": "كغ",
+      "g": "غ",
+      "l": "ل",
+      "ml": "مل"
+    },
+    "motifs": {
+      "stimulation": "تحفيز",
+      "hivernage": "تشتية",
+      "disette": "قلّة المرعى",
+      "secours": "إنقاذ",
+      "transhumance": "ترحال",
+      "autre": "أخرى"
+    },
+    "methodes": {
+      "lange": "لوح لاصق (السقوط الطبيعي)",
+      "sucre_glace": "السكر المطحون",
+      "alcool": "الغسل بالكحول",
+      "co2": "ثاني أكسيد الكربون",
+      "desoperculation": "كشف حضنة الذكور"
+    },
+    "unitesTaux": {
+      "varroas_par_jour": "فاروا/يوم",
+      "pour_cent_abeilles": "٪ من النحل"
+    },
+    "verdicts": {
+      "faible": "ضعيف",
+      "surveiller": "للمراقبة",
+      "traiter": "يستوجب العلاج",
+      "inconnu": "غير قابل للحساب"
+    },
+    "pathologies": {
+      "varroose": "داء الفاروا",
+      "loque_americaine": "تعفّن الحضنة الأمريكي",
+      "loque_europeenne": "تعفّن الحضنة الأوروبي",
+      "nosemose": "النوزيما",
+      "petit_coleoptere": "خنفساء الخلية الصغيرة",
+      "fausse_teigne": "عثّة الشمع",
+      "frelon_asiatique": "الدبّور الآسيوي",
+      "couvain_sacciforme": "الحضنة الكيسية",
+      "mycose": "الحضنة الطباشيرية",
+      "pesticide": "تسمّم بالمبيدات",
+      "autre": "أخرى"
+    },
+    "gravites": {
+      "suspectee": "مشتبه بها",
+      "legere": "خفيفة",
+      "moderee": "متوسطة",
+      "severe": "شديدة"
     }
   },
   "recolte": {

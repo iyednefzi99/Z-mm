@@ -10,7 +10,7 @@ import { Modale, Squelette, EtatVide } from './composants';
  * état vide.
  *
  * <p>Le défaut corrigé : la modale s'ouvrait en fondu et disparaissait net. Les
- * seize vues l'appellent sous la forme `{ouvert && <Modale/>}` — dès que le
+ * douze appels prennent la forme `{ouvert && <Modale/>}` — dès que le
  * parent repasse à `false`, le nœud est démonté et aucune animation de sortie ne
  * peut jouer. La modale retarde donc elle-même sa fermeture. Ce qui est vérifié
  * ici, c'est précisément ce **délai** : sans lui, le correctif n'en est pas un.
