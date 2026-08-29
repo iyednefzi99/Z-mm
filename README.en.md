@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="README.md">Français</a> · <strong>English</strong>
+  <a href="README.md">Français</a> · <strong>English</strong> · <a href="README.ar.md">العربية</a>
 </p>
 
 ---
@@ -42,11 +42,27 @@ design system, and an architecture decision log.
 
 - Record farms, apiaries, hives and their composition (brood boxes, supers,
   frames), along with queen history and requeening events.
-- Fill in a visit report with photos, then export it as a PDF.
+- Fill in a visit report with photos, then export it as a PDF. The inspection
+  sheet is **structured** — brood, stores, queen cells, temperament — and keeps
+  "not observed" distinct from "no".
 - Plan rounds, assign field agents, and have a manager approve or reject a
   schedule.
 - Work **offline**: the PWA keeps what was entered and replays it when the
   network returns.
+
+**Health record**
+
+- Log treatments with their product, active substance, dose **and its unit**, and
+  withdrawal period — the end of the withdrawal period is computed by the
+  database, and the list of hives that cannot be harvested today reads off one
+  screen.
+- Log feedings, keeping 1:1 syrup distinct from 2:1: they do not serve the same
+  purpose.
+- Count varroa by sticky board or by sample. The rate is **not stored**: it does
+  not carry the same unit depending on the method, and it is computed — with its
+  unit and its verdict — where it can be explained.
+- Name the diseases observed during a visit, with their severity, instead of
+  leaving them in a free-text field.
 
 **Mapping**
 
@@ -86,7 +102,7 @@ design system, and an architecture decision log.
 |---|---|
 | **Spring Boot 3.5** (JDK 17) | REST API, business layer, security. Spring MVC + Spring Data JPA. |
 | **PostgreSQL 16 + PostGIS + TimescaleDB** | Single instance. PostGIS carries the spatial queries (proximity, clusters, neighbours); TimescaleDB the sensor-measurement hypertable. |
-| **Flyway** | 18 versioned migrations — the schema rebuilds identically from scratch. |
+| **Flyway** | 19 versioned migrations — the schema rebuilds identically from scratch. |
 | **Keycloak** | OIDC identity provider. Issues the tokens, carries the roles and the `tenant_id` claim. |
 | **Spring Session JDBC** | Server-side BFF sessions: the browser only ever receives an `HttpOnly` cookie, never a token. |
 | **React 19 + TypeScript + Vite** | Client PWA. In-house router (ADR-005), no `react-router`. |
@@ -96,7 +112,7 @@ design system, and an architecture decision log.
 | **Nginx** | Reverse proxy, TLS termination, security headers and CSP. |
 | **Prometheus + Grafana** | Micrometer metrics exposed through Actuator, operational dashboards. |
 | **Testcontainers** | Integration tests against a **real** PostgreSQL/PostGIS, not an in-memory database. |
-| **JaCoCo** | Merged unit + integration coverage, blocking floor at 80%. |
+| **JaCoCo** | Merged unit + integration coverage, blocking floors at 80% (instructions) and 60% (branches). |
 
 ## 4. Architecture
 
@@ -114,7 +130,7 @@ flowchart TB
         subgraph api["Spring Boot 3 — :8080"]
             BFF["BFF layer<br/>/bff/connexion · /bff/session<br/>keeps the tokens server-side"]
             SEC["Security chain<br/>TenantFilter · ValidateurAudience<br/>PolitiquePositions"]
-            REST["22 REST controllers<br/>/api/**"]
+            REST["25 REST controllers<br/>/api/**"]
             METIER["Business services<br/>+ Spring Data JPA"]
         end
 
@@ -152,14 +168,14 @@ database**, under a non-superuser role that cannot bypass it.
 Zümm/
 ├── backend/                  Spring Boot API (Maven, wrapper included)
 │   └── src/main/
-│       ├── java/…/controller/    22 REST controllers + 2 BFF controllers
-│       ├── java/…/domain/        26 JPA entities + enums
+│       ├── java/…/controller/    25 REST controllers + 2 BFF controllers
+│       ├── java/…/domain/        23 JPA entities + enums
 │       ├── java/…/service/       business services
 │       ├── java/…/tenant/        TenantFilter, multi-tenant context and resolver
 │       ├── java/…/securite/      PolitiquePositions, agent scoping
 │       ├── java/…/config/        SecurityConfig, ValidateurAudience, OpenAPI
 │       ├── java/…/web/           DTOs, pagination, idempotency, error handling
-│       └── resources/db/migration/  18 Flyway migrations (V1 → V18)
+│       └── resources/db/migration/  19 Flyway migrations (V1 → V19)
 ├── frontend/                 React 19 + TypeScript PWA (Vite)
 │   └── src/
 │       ├── vues/                 business screens (hives, sites, visits, batches, map…)
@@ -252,7 +268,7 @@ cd frontend && npm install && npm run dev
 
 ### Database
 
-No manual step: **Flyway applies the 18 migrations at startup**, creating the
+No manual step: **Flyway applies the 19 migrations at startup**, creating the
 application role, the RLS policies, the PostGIS extension and the TimescaleDB
 hypertable. To start over:
 
@@ -311,7 +327,7 @@ apiary map.
 
 ## 9. API documentation
 
-The API exposes **56 paths / 89 operations** under OpenAPI 3.1. The contract is
+The API exposes **63 paths / 99 operations** under OpenAPI 3.1. The contract is
 **generated from the code** and versioned in
 [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json); CI fails if the
 code and the contract diverge.
@@ -427,14 +443,14 @@ Security invariants not to undo: [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ## 11. Testing
 
-Figures read on 2026-08-15 from the suites' own output, not copied over:
+Figures read from the suites' own output on 2026-08-29, not copied over:
 
 | Suite | Volume | Tooling |
 |---|---|---|
-| Backend — unit | **79** tests, 0 failures, 0 skipped | JUnit 5, Mockito |
-| Backend — integration | **119** tests, 0 failures, **0 skipped** | Testcontainers on a real PostgreSQL/PostGIS/TimescaleDB |
-| Backend — coverage | **81.2%** instructions, 81.5% lines (branches 63.5%) | JaCoCo, merged campaigns, **blocking** floor at 80% |
-| Frontend | **155** tests, 20 files | Vitest, Testing Library, jsdom |
+| Backend — unit | **92** tests across 20 classes, 0 failures, 0 skipped | JUnit 5, Mockito |
+| Backend — integration | **133** tests across 22 classes, 0 failures, **0 skipped** | Testcontainers on a real PostgreSQL/PostGIS/TimescaleDB |
+| Backend — coverage | **81.9%** instructions, 82.3% lines, **65.3%** branches | JaCoCo, merged campaigns, **blocking** floors at 80% (instructions) and 60% (branches) |
+| Frontend | **238** tests, 26 files | Vitest, Testing Library, jsdom |
 
 What is covered: the security chain (missing tenant, invalid audience, token
 without a role), RLS isolation between farms, PostGIS spatial queries, idempotent
@@ -471,8 +487,9 @@ version.
 
 **What does not work perfectly yet**
 
-- **Branch coverage at 63.5%**, not enforced by the threshold: only instructions
-  block the build. Error paths are less covered than nominal ones.
+- **Branch coverage at 65.3%**, against 81.9% for instructions: error paths
+  remain less covered than nominal ones. The blocking floor sits at 60% — an
+  anti-regression ratchet, not a target.
 - **Uncompressed measurements**: an accepted consequence of ADR-008. At a much
   larger volume, another trade-off will be needed (partitioning, cold archival).
 - **`Ping`** survives as the end-to-end probe from SPRINT-00. That is a decision
@@ -486,7 +503,8 @@ version.
 
 **What would come next**
 
-- Extend the JaCoCo floor to branches, not just instructions.
+- Raise the branch floor as error paths get covered — 60% freezes what exists,
+  it aims at nothing.
 - Push notifications on health alerts instead of active checking.
 - An anomaly model trained on the flock's real history, instead of a statistical
   threshold.

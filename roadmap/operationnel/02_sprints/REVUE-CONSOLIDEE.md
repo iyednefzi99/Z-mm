@@ -1,4 +1,4 @@
-# 🎯 Revue de sprint consolidée — SPRINT-00 → SPRINT-18
+# 🎯 Revue de sprint consolidée — SPRINT-00 → SPRINT-20
 
 > **Ce que ce document est.** La revue de sprint (*Sprint Review*) est l'inspection
 > de l'incrément par les parties prenantes. Chaque sprint a la sienne, dans sa
@@ -10,8 +10,8 @@
 > les défauts trouvés *en séance* y figurent au même titre que les démonstrations
 > réussies — ce sont eux qui ont fait bouger le backlog.
 
-**Périmètre :** 19 sprints, du 2026-07-14 au 2027-04-26.
-**Dernière mise à jour :** 2026-07-26.
+**Périmètre :** 21 sprints tenus, du 2026-07-14 au 2027-05-24.
+**Dernière mise à jour :** 2026-08-29.
 
 ---
 
@@ -38,15 +38,17 @@
 | [16](SPRINT-16.md) | 2027-03-16 → 03-29 | Sessions sans jeton, portée par affectation | 34 | 40 |
 | [17](SPRINT-17.md) | 2027-03-30 → 04-12 | Dettes techniques | 29 | 40 |
 | [18](SPRINT-18.md) | 2027-04-13 → 04-26 | Les deux dernières dettes | 13 | 40 |
+| [19](SPRINT-19.md) | 2027-04-27 → 05-10 | Le produit avant le compte | 34 | 40 |
+| [20](SPRINT-20.md) | 2027-05-11 → 05-24 | Le registre sanitaire | 35 | 40 |
 
-**Total : 582 points sur 18 sprints de livraison** — moyenne 32,3, capacité de
+**Total : 651 points sur 20 sprints de livraison** — moyenne 32,6, capacité de
 référence 40.
 
 **Lecture de la vélocité.** Elle se casse en deux, et la rupture est délibérée.
 
 - **Sprints 01 → 08 : 36 à 39 points par sprint.** Phase de construction du
   périmètre fonctionnel, sur une capacité de 40.
-- **Sprints 09 → 18 : 8 à 34 points.** La capacité n'a pas baissé ; ce sont les
+- **Sprints 09 → 20 : 8 à 35 points.** La capacité n'a pas baissé ; ce sont les
   sprints qui ont cessé d'être remplis jusqu'au bord. Deux raisons, toutes deux
   assumées en revue : à partir du SPRINT-09 le travail porte de plus en plus sur
   la **qualité de l'existant** (sécurité, tenue à l'échelle, dette), dont le
@@ -62,7 +64,7 @@ ce que les revues font systématiquement apparaître.
 
 ## 2. Ce que les revues ont réellement trouvé
 
-C'est la partie utile. Neuf revues sur dix-neuf ont produit une découverte qui
+C'est la partie utile. Dix revues sur vingt ont produit une découverte qui
 n'était **au programme d'aucune d'entre elles**, et qui a changé le plan.
 
 | Sprint | Découvert en séance | Conséquence |
@@ -75,9 +77,11 @@ n'était **au programme d'aucune d'entre elles**, et qui a changé le plan.
 | **16** | Les tests d'US-057 étaient **verts à tort** : en test, l'application se connecte avec le propriétaire de la base, qui contourne la RLS | Tests refaits sous le rôle applicatif `zumm_app`. **Leçon : un test vert ne dit rien tant qu'on n'a pas vérifié qu'il peut rougir** |
 | **17** | Le contrôle de parité trouve un défaut **dans le contrat publié** dès sa première exécution : `LocalTime` décrit comme `{hour, minute, second, nano}` alors que l'API sérialise `"14:30:00"` | Corrigé au niveau du type, pas champ par champ. Tout intégrateur tiers générant son client depuis le contrat aurait produit du code cassé |
 | **18** | **US-080 est irréalisable telle qu'elle a été planifiée** : PostgreSQL refuse un agrégat continu sur une hypertable sous RLS — seconde manifestation du conflit de l'ADR-008, et le contournement par vue filtrante tombe aussi, le refus arrivant à la *création* | ADR-008 **généralisé** plutôt que complété au cas par cas : sous RLS, aucune fonctionnalité *matérialisante* de TimescaleDB n'est disponible. Le bénéfice est obtenu autrement (`time_bucket` à la demande) : ~105 000 points transportés → ~1 100 |
+| **19** | Le filtrage de la navigation par rôle ne couvre que la **lecture** d'un écran entier : les boutons d'écriture du référentiel restent proposés à un apiculteur, qui reçoit un 403 en cliquant | Le gardiennage au niveau de l'**action** est reporté explicitement, et noté dans la javadoc de `ROLES_ONGLET`, plutôt que laissé implicite. **Leçon : masquer une porte n'est pas la fermer, et ne dispense pas de retirer la poignée** |
+| **20** | Le registre sanitaire se **lit** comme une contrainte et ne s'**applique** nulle part : rien n'empêche d'enregistrer une récolte sur une ruche dont la carence court encore | Livrer la donnée juste sans le blocage plutôt que l'inverse — un blocage bâti sur une donnée qu'on ne saisit pas encore n'aurait protégé personne. Le point part au backlog **avec** les interventions groupées et les tâches engendrées : les trois supposent ce registre, et aucune ne tient sans les deux autres |
 | **18** | Une requête **native** échappe au discriminant `@TenantId` d'Hibernate, qui ne réécrit que le JPQL | En production la RLS couvre ce trou, mais le projet a toujours voulu **deux** barrières. Les trois requêtes natives portent désormais un filtre de tenant explicite |
 
-Deux de ces neuf découvertes viennent d'une démonstration qui **a échoué devant
+Deux de ces dix découvertes viennent d'une démonstration qui **a échoué devant
 les parties prenantes** (sprints 14 et 16), et une troisième d'une user story
 livrée **autrement** que planifiée (sprint 18). C'est le résultat le plus
 difficile à obtenir d'une revue, et celui qui a le plus de valeur : une
@@ -149,6 +153,27 @@ démonstration entièrement répétée à l'avance n'inspecte rien.
   indiscernable), et ce qui est perdu — la mémorisation du résultat — est dit
   explicitement.
 
+### Phase 4 — Ouvrir le produit à qui n'a pas de compte (19)
+
+- **SPRINT-19.** Première revue jouée **en navigation privée**, sans session : sept
+  pages d'information atteignables sans compte, puis le serveur est éteint et
+  elles se rendent toujours. Le refus de rôle est joué avec `apiculteur-test`,
+  URL tapée à la main — un écran qui nomme les rôles requis, sans « Réessayer »
+  ni redirection en boucle. La séance valide explicitement de **ne pas** combler
+  les manques des pages légales (raison sociale, hébergeur, durées de
+  conservation) par des valeurs plausibles : le bandeau qui les liste vaut mieux
+  qu'un engagement que personne n'a pris.
+
+### Phase 5 — Rendre les actes sanitaires analysables (20)
+
+- **SPRINT-20.** Le même comptage de varroa est saisi deux fois en séance, par
+  lange et au sucre glace : deux taux, **deux unités**, deux verdicts — et l'unité
+  voyage avec la valeur jusqu'à l'écran. La démonstration porte autant sur ce qui
+  est refusé : une dose sans son unité, un comptage dont le dénominateur ne
+  correspond pas à sa méthode, une cause de cellules royales sans cellule. Deux
+  visites closent la séance, l'une remplie à la grille, l'autre éclair : la
+  seconde ne stocke **aucun** « non », parce que « non observé » n'est pas « non ».
+
 ---
 
 ## 4. Traçabilité — de la user story au code
@@ -178,16 +203,22 @@ SPRINT-14 et 16), ce qui rend tout intervalle « US-0xx → US-0yy » trompeur.
 | BFF, portée par agent | S16 | US-073, US-057 | `V17__sessions_serveur_sprint17.sql`, `securite/FiltrePortee`, `ResolveurPortee`, `V16` |
 | Dettes techniques | S17 | US-074 → 078 | `ProductionService`, `AlerteSanitaireService`, `CalendrierService`, `MoteurAnomalie`, `api/parite.ts` |
 | Dernières dettes | S18 | US-079, US-080 | `SyntheseService`, `MesureRepository` (`time_bucket`), `web/dto/PointJournalier` |
+| Site public, états et rôles | S19 | US-081 → 085 | `vues/AccueilVue.tsx`, `vues/CoquillePublique.tsx`, `vues/PageLegale.tsx`, `vues/InterditVue.tsx`, `vues/PermissionsVue.tsx`, `routage/routes.ts` (`ROUTES_PUBLIQUES`, `ROLES_ONGLET`) |
+| Registre sanitaire, grille d'inspection | S20 | US-086 → 092 | `V19__sanitaire_observations_sprint20.sql`, `TraitementService`, `ComptageVarroaService`, `web/dto/ObservationVisite`, `vues/SanitaireVue.tsx` |
 
-**Ordres de grandeur à la fin du SPRINT-18** — 18 entités métier (dont la sonde
-`Ping` du SPRINT-00, conservée volontairement), 22 contrôleurs REST, 16 repositories,
-30 services, **17 migrations Flyway**, ~11 000 lignes Java et ~11 300 lignes
-TypeScript, **8 ADR**, 20 classes de test d'intégration Testcontainers.
+**Ordres de grandeur à la fin du SPRINT-20**, relevés le 29/08/2026 — **23 entités
+métier** (`grep @Entity` en renvoie 30 : il matche aussi `@EntityGraph`) (dont la sonde `Ping` du SPRINT-00, conservée volontairement),
+**27 contrôleurs REST** (25 sous `/api`, 2 sous `/bff` ; `grep @RestController` en
+renvoie 28, car il matche aussi `@RestControllerAdvice`), 22 repositories,
+35 services, **19 migrations Flyway**, ~14 400 lignes Java et ~16 100 lignes
+TypeScript hors tests, **11 ADR produit** plus un ADR d'implémentation,
+22 classes de test d'intégration Testcontainers.
 
-**Campagnes de test au dernier passage vérifié** — back : **61 unitaires +
-111 d'intégration, `Skipped : 0`**, `BUILD SUCCESS`, plancher JaCoCo tenu.
-Front : **139 tests Vitest** répartis sur 17 fichiers, 0 erreur ESLint,
-`typecheck` et `build` verts, paquet initial 236 ko (75,2 ko compressés).
+**Campagnes de test**, relevées le 29/08/2026. Front : **238 tests Vitest** sur
+26 fichiers, `typecheck` et `lint` sans erreur, `build` vert, précache de
+36 entrées. Back : **92 unitaires + 133 d'intégration, `Skipped : 0`**,
+couverture JaCoCo **81,9 %** d'instructions (plancher bloquant 80 %) et
+**65,3 %** de branches (plancher 60 %, posé après le SPRINT-19).
 
 > Ces chiffres ont été **mesurés**, et non recopiés. Trois valeurs
 > contradictoires circulaient dans le dépôt pour les tests du front (120, 101,
@@ -198,7 +229,7 @@ Front : **139 tests Vitest** répartis sur 17 fichiers, 0 erreur ESLint,
 
 ---
 
-## 5. Ce qui reste ouvert après le SPRINT-18
+## 5. Ce qui reste ouvert après le SPRINT-20
 
 Une revue consolidée qui se terminerait sur un bilan positif ne serait pas une
 inspection. Voici ce qui n'est **pas** fait.
@@ -207,7 +238,10 @@ inspection. Voici ce qui n'est **pas** fait.
 l'agrégat continu TimescaleDB est **définitivement écarté** — impossible sous RLS,
 règle généralisée dans l'ADR-008, bénéfice obtenu par `time_bucket` à la demande
 (US-080) ; l'analyse statique du code est couverte par CodeQL (Java, TypeScript,
-Python) et le scan des images construites est entré dans la CI.
+Python) et le scan des images construites est entré dans la CI. **Le contexte
+météo réel et les prévisions à sept jours** (extension d'US-029, ouverte au
+SPRINT-19) sont livrés au SPRINT-20 : la météo *figée* d'US-091 n'aurait rien
+valu sans source réelle à recopier.
 
 | Point ouvert | Nature | Depuis |
 |:---|:---|:---|
@@ -215,9 +249,16 @@ Python) et le scan des images construites est entré dans la CI.
 | DAST non exécuté en continu | Un balayage utile exige la pile entière ; procédure manuelle documentée dans [`docs/SECURITE.md`](../../../docs/SECURITE.md) | à rejuger quand une pré-production permanente existera |
 | Flux OIDC toujours non joué en CI | 19 tests, mais tous avec un Keycloak simulé — précisément l'angle mort qui avait laissé passer l'absence de rafraîchissement | SPRINT-11 |
 | Pagination sur 7 listes seulement | Visites et récoltes ont un chargement composite | SPRINT-11 |
-| Couverture des vues front faible | 12,9 % sur `src/vues` à la dernière mesure | SPRINT-11 |
+| Couverture des vues front inégale | **58,0 %** sur `src/vues` au 29/08/2026 (12,9 % au SPRINT-11) — mais neuf écrans restent à **0 %** : fermiers, fermes, agents, invitations, tâches, reines, récoltes, configuration, audit. Ce sont les CRUD les plus simples, et c'est précisément pourquoi ils sont passés en dernier | SPRINT-11 |
 | Aucune alerte sur anomalie d'accès | Le journal d'audit enregistre, personne ne le lit en continu | SPRINT-09 |
 | `style-src 'unsafe-inline'` conservé | Contrainte MapLibre ; impact borné, mais le point n'est pas refermé | SPRINT-13 |
+| ~~Gardiennage des **actions**, pas seulement des écrans~~ | **Soldé le 26/08/2026** : `ROLES_ECRITURE` recopie les règles d'écriture du serveur ; « Nouveau », « Modifier » et « Supprimer » disparaissent pour un rôle qui recevrait un 403, l'écran restant consultable | SPRINT-19 |
+| Administration **de la plateforme** absente | L'administration du tenant existe (`agents`, `invitations`, `config`, `audit`) ; l'administration transverse aux exploitations, non | SPRINT-19 |
+| Pages légales incomplètes par construction | Raison sociale, hébergeur et durées de conservation relèvent de l'exploitant et ne sont pas dans le dépôt ; le bandeau des manques les porte en tête de page | SPRINT-19 |
+| ~~Contexte météo réel et prévisions à 7 jours~~ | **Soldé le 29/08/2026** : `MeteoService` sert l'instantané et l'horizon en un seul aller-retour, et la visite en fige le relevé avec sa source | SPRINT-19 |
+| Le délai de carence n'**interdit** pas la récolte | La donnée est juste, consignée et affichée ; aucune règle ne refuse une récolte sur une ruche sous carence. Le registre est opposable en lecture, pas contraignant en écriture | SPRINT-20 |
+| Mutations toutes unitaires | Sur un rucher de quarante ruches, un traitement se saisit quarante fois : le registre est juste, il n'est pas utilisable à l'échelle qu'il vise | SPRINT-20 |
+| Le rapport PDF de visite n'imprime pas la grille | Il imprime les constatations en texte libre, comme avant : rien n'est perdu, mais le document remis à un vétérinaire reste moins riche que l'écran | SPRINT-20 |
 
 **Reconductions.** Trois points ont figuré à l'identique dans « ce qui reste
 ouvert » des SPRINT-14, 15 et 16 avant d'être soldés au SPRINT-17. La règle posée

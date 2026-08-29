@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <strong>Français</strong> · <a href="README.en.md">English</a>
+  <strong>Français</strong> · <a href="README.en.md">English</a> · <a href="README.ar.md">العربية</a>
 </p>
 
 ---
@@ -43,11 +43,27 @@ décisions d'architecture.
 
 - Recenser les exploitations, les ruchers, les ruches et leur composition
   (corps, hausses, cadres), avec l'historique des reines et des remérages.
-- Saisir un rapport de visite avec photos, puis l'exporter en PDF.
+- Saisir un rapport de visite avec photos, puis l'exporter en PDF. La grille
+  d'inspection est **structurée** — couvain, réserves, cellules royales,
+  tempérament — et distingue « non observé » de « non ».
 - Planifier les tournées, affecter les agents, faire approuver ou refuser un
   planning par un responsable.
 - Travailler **hors connexion** : la PWA garde la saisie et la rejoue au retour
   du réseau.
+
+**Registre sanitaire**
+
+- Consigner les traitements avec leur produit, leur substance active, leur dose
+  **et son unité**, et leur délai de carence — la fin de carence est calculée par
+  la base, et la liste des ruches qu'on ne peut pas récolter aujourd'hui se lit
+  d'un écran.
+- Consigner les nourrissements, en distinguant le sirop 1:1 du 2:1 : ils ne
+  servent pas à la même chose.
+- Compter le varroa par lange ou par échantillon. Le taux **n'est pas stocké** :
+  il n'a pas la même unité selon la méthode, et il est calculé — avec son unité
+  et son verdict — là où on peut l'expliquer.
+- Nommer les pathologies constatées lors d'une visite, avec leur gravité, plutôt
+  que de les laisser dans un champ de texte libre.
 
 **Cartographie**
 
@@ -86,7 +102,7 @@ décisions d'architecture.
 |---|---|
 | **Spring Boot 3.5** (JDK 17) | API REST, couche métier, sécurité. Spring MVC + Spring Data JPA. |
 | **PostgreSQL 16 + PostGIS + TimescaleDB** | Instance unique. PostGIS porte les requêtes spatiales (proximité, grappes, voisins) ; TimescaleDB l'hypertable des mesures capteurs. |
-| **Flyway** | 18 migrations versionnées — le schéma se reconstruit à l'identique depuis zéro. |
+| **Flyway** | 19 migrations versionnées — le schéma se reconstruit à l'identique depuis zéro. |
 | **Keycloak** | Fournisseur d'identité OIDC. Émet les jetons, porte les rôles et le claim `tenant_id`. |
 | **Spring Session JDBC** | Sessions serveur du BFF : le navigateur ne reçoit qu'un cookie `HttpOnly`, jamais un jeton. |
 | **React 19 + TypeScript + Vite** | PWA cliente. Routeur maison (ADR-005), pas de `react-router`. |
@@ -96,7 +112,7 @@ décisions d'architecture.
 | **Nginx** | Proxy inverse, terminaison TLS, en-têtes de sécurité et CSP. |
 | **Prometheus + Grafana** | Métriques Micrometer exposées par Actuator, tableaux de bord d'exploitation. |
 | **Testcontainers** | Tests d'intégration sur un PostgreSQL/PostGIS **réel**, pas sur une base en mémoire. |
-| **JaCoCo** | Couverture fusionnée unitaire + intégration, plancher bloquant à 80 %. |
+| **JaCoCo** | Couverture fusionnée unitaire + intégration, planchers bloquants à 80 % (instructions) et 60 % (branches). |
 
 ## 4. Architecture
 
@@ -114,7 +130,7 @@ flowchart TB
         subgraph api["Spring Boot 3 — :8080"]
             BFF["Couche BFF<br/>/bff/connexion · /bff/session<br/>garde les jetons côté serveur"]
             SEC["Chaîne de sécurité<br/>TenantFilter · ValidateurAudience<br/>PolitiquePositions"]
-            REST["22 contrôleurs REST<br/>/api/**"]
+            REST["25 contrôleurs REST<br/>/api/**"]
             METIER["Services métier<br/>+ Spring Data JPA"]
         end
 
@@ -152,14 +168,14 @@ rôle non-superutilisateur qui ne peut pas la contourner.
 Zümm/
 ├── backend/                  API Spring Boot (Maven, wrapper embarqué)
 │   └── src/main/
-│       ├── java/…/controller/    22 contrôleurs REST + 2 contrôleurs BFF
-│       ├── java/…/domain/        26 entités JPA + énumérations
+│       ├── java/…/controller/    25 contrôleurs REST + 2 contrôleurs BFF
+│       ├── java/…/domain/        23 entités JPA + énumérations
 │       ├── java/…/service/       services métier
 │       ├── java/…/tenant/        TenantFilter, contexte et résolveur multi-tenant
 │       ├── java/…/securite/      PolitiquePositions, portée des agents
 │       ├── java/…/config/        SecurityConfig, ValidateurAudience, OpenAPI
 │       ├── java/…/web/           DTO, pagination, idempotence, gestion d'erreurs
-│       └── resources/db/migration/  18 migrations Flyway (V1 → V18)
+│       └── resources/db/migration/  19 migrations Flyway (V1 → V19)
 ├── frontend/                 PWA React 19 + TypeScript (Vite)
 │   └── src/
 │       ├── vues/                 écrans métier (ruches, sites, visites, lots, carte…)
@@ -252,7 +268,7 @@ cd frontend && npm install && npm run dev
 
 ### Base de données
 
-Aucune étape manuelle : **Flyway applique les 18 migrations au démarrage**, crée
+Aucune étape manuelle : **Flyway applique les 19 migrations au démarrage**, crée
 le rôle applicatif, les politiques RLS, l'extension PostGIS et l'hypertable
 TimescaleDB. Pour repartir de zéro :
 
@@ -313,7 +329,7 @@ de visite, carte des ruchers.
 
 ## 9. Documentation de l'API
 
-L'API expose **56 chemins / 89 opérations** sous OpenAPI 3.1. Le contrat est
+L'API expose **63 chemins / 99 opérations** sous OpenAPI 3.1. Le contrat est
 **généré depuis le code** et versionné dans
 [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json) ; la CI échoue
 si le code et le contrat divergent.
@@ -430,14 +446,14 @@ Invariants de sécurité à ne pas défaire : [`docs/SECURITE.md`](docs/SECURITE
 
 ## 11. Tests
 
-Chiffres relevés le 15/08/2026 dans la sortie des suites, pas recopiés :
+Chiffres relevés dans la sortie des suites le 29/08/2026, pas recopiés :
 
 | Suite | Volume | Outillage |
 |---|---|---|
-| Backend — unitaires | **79** tests, 0 échec, 0 ignoré | JUnit 5, Mockito |
-| Backend — intégration | **119** tests, 0 échec, **0 ignoré** | Testcontainers sur PostgreSQL/PostGIS/TimescaleDB réel |
-| Backend — couverture | **81,2 %** d'instructions, 81,5 % de lignes (branches 63,5 %) | JaCoCo, campagnes fusionnées, plancher **bloquant** à 80 % |
-| Frontend | **155** tests, 20 fichiers | Vitest, Testing Library, jsdom |
+| Backend — unitaires | **92** tests sur 20 classes, 0 échec, 0 ignoré | JUnit 5, Mockito |
+| Backend — intégration | **133** tests sur 22 classes, 0 échec, **0 ignoré** | Testcontainers sur PostgreSQL/PostGIS/TimescaleDB réel |
+| Backend — couverture | **81,9 %** d'instructions, 82,3 % de lignes, **65,3 %** de branches | JaCoCo, campagnes fusionnées, planchers **bloquants** à 80 % (instructions) et 60 % (branches) |
+| Frontend | **238** tests, 26 fichiers | Vitest, Testing Library, jsdom |
 
 Ce qui est couvert : la chaîne de sécurité (tenant manquant, audience invalide,
 jeton sans rôle), l'isolation RLS entre exploitations, les requêtes spatiales
@@ -475,9 +491,9 @@ silencieusement** toute la campagne d'intégration, build vert à l'appui. Le
 
 **Ce qui ne fonctionne pas encore parfaitement**
 
-- **Couverture de branches à 63,5 %**, non contrôlée par le seuil : seules les
-  instructions bloquent le build. Les chemins d'erreur sont moins couverts que
-  les chemins nominaux.
+- **Couverture de branches à 65,3 %**, contre 81,9 % en instructions : les
+  chemins d'erreur restent moins couverts que les chemins nominaux. Le plancher
+  bloquant est posé à 60 % — un cliquet anti-régression, pas une cible.
 - **Mesures non compressées** : conséquence assumée de l'ADR-008. À très grande
   volumétrie, il faudra trancher autrement (partitionnement, archivage froid).
 - **`Ping`** subsiste comme sonde de bout en bout du SPRINT-00. C'est une
@@ -492,7 +508,8 @@ silencieusement** toute la campagne d'intégration, build vert à l'appui. Le
 
 **Ce qui viendrait ensuite**
 
-- Porter le plancher JaCoCo sur les branches, pas seulement les instructions.
+- Remonter le plancher de branches à mesure que les chemins d'erreur se
+  couvrent — 60 % fige l'acquis, il ne vise rien.
 - Notifications push sur les alertes sanitaires plutôt que consultation active.
 - Modèle d'anomalie entraîné sur l'historique réel du cheptel, au lieu d'un
   seuil statistique.

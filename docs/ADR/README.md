@@ -14,7 +14,7 @@ un ADR avec son dossier.
 
 | Registre | Contenu | Arbitrage |
 |---|---|---|
-| `roadmap/operationnel/06_decisions/` | 8 ADR **produit** : multi-tenant, volumétrie, exploitation, reprise, routage front, stockage des jetons, graphiques SVG, RLS contre TimescaleDB | Client (ADR-001 à 004) ou équipe (005 à 008) |
+| `roadmap/operationnel/06_decisions/` | 11 ADR **produit** : multi-tenant, volumétrie, exploitation, reprise, routage front, stockage des jetons, graphiques SVG, RLS contre TimescaleDB, connexion dans l'application, jetons de session au repos, positions au repos (🟡 proposé) | Client (ADR-001 à 004) ou équipe (005 à 011) |
 | `docs/ADR/` *(ce dossier)* | Décisions **d'implémentation** prises pendant la construction | Équipe |
 
 ## Statut des ADR produit (rappel)

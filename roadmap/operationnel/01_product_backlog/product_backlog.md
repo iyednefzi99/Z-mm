@@ -3,8 +3,8 @@
 **Projet:** Zümm - Système de gestion apicole  
 **Date:** 2026-07-13  
 **Méthode:** Scrum + DevOps  
-**Total Story Points:** 582 (80 user stories, 19 epics)  
-**Dernière mise à jour :** 2026-07-26 (fin du SPRINT-18)  
+**Total Story Points:** 651 (92 user stories, 21 epics)  
+**Dernière mise à jour :** 2026-08-29 (SPRINT-20 clos)  
 
 ---
 
@@ -258,7 +258,7 @@ pas les agents à l'intérieur d'une même exploitation.
 | US-057 | Portée d'autorisation par affectation d'agent | 13 | Critique | Règle posée **dans le SGBD** ; tenant et portée posés dans la **même** requête préparée ; l'absence de portée vaut « rien voir » ; lien compte-agent par le `sub` OIDC, pas par le courriel |
 
 ### EPIC-019: Dette technique et contrat vérifié
-**Priorité:** Haute | **Source CdC:** Annexe B, [ADR-002](../06_decisions/ADR-002-volumetrie.md) | **Total Points:** 29
+**Priorité:** Haute | **Source CdC:** Annexe B, [ADR-002](../06_decisions/ADR-002-volumetrie.md) | **Total Points:** 42
 
 Vider la liste de dettes de [`docs/ARCHITECTURE-SOLID.md`](../../../docs/ARCHITECTURE-SOLID.md)
 plutôt que la reconduire de sprint en sprint. Trois de ces points figuraient **mot
@@ -273,3 +273,49 @@ pour mot** dans « ce qui reste ouvert » des SPRINT-14, 15 et 16.
 | US-078 | Sessions serveur persistées en base | 5 | Haute | Schéma créé par **Flyway** et non par Spring Session ; la session survit à un redémarrage du back-end ; exception à la convention multi-tenant motivée dans la migration |
 | US-079 | Synthèse de pilotage agrégée en base | 5 | Haute | Poids, motifs de visite et alertes ouvertes agrégés en SQL ; la somme des poids réutilise l'agrégat du tableau de bord |
 | US-080 | Courbes journalières agrégées côté serveur | 8 | Haute | Agrégation `time_bucket` **à la demande** — l'agrégat continu est refusé sous RLS ([ADR-008](../06_decisions/ADR-008-rls-contre-compression.md) généralisé) ; volume transporté divisé par ~95 ; série brute conservée pour la détection d'anomalie |
+
+### EPIC-020: Site public, états et rôles visibles
+**Priorité:** Haute | **Source CdC:** §8.2, §8.3, Annexe I | **Total Points:** 34
+
+Le produit n'avait qu'une porte. Sans session, l'écran de connexion occupait tout
+l'espace : un visiteur — apiculteur qui découvre Zümm, correcteur, agent sans code
+d'exploitation — ne pouvait rien apprendre du produit avant d'avoir un compte. Un
+refus de rôle arrivait sous la forme d'un bandeau rouge avec un bouton
+« Réessayer » qui rejouait le même refus, et aucune page n'énonçait les conditions
+d'utilisation ni le traitement des positions de ruchers. Épic ouvert sur
+l'arborescence des pages arrêtée le 18/08/2026
+([`docs/PROMPT-ARBORESCENCE-PAGES.md`](../../../docs/PROMPT-ARBORESCENCE-PAGES.md)).
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-081 | Accueil public et coquille des pages hors console | 8 | Haute | Accueil servi sans session et consultable en session (l'appel devient « Ouvrir la console ») ; **aucun appel d'API** sur ce qui est servi sans jeton ; barre et pied communs, langue et thème conservés d'une page à l'autre |
+| US-082 | Navigation filtrée par rôle, refus et panne expliqués | 5 | Haute | La table des rôles du front **recopie** `SecurityConfig.matriceRbac` ; un refus de rôle rend un écran dédié, sans « Réessayer » ni redirection en boucle ; un 5xx rend un écran qui ne dépend d'aucune donnée ; le hors-ligne n'y est jamais assimilé |
+| US-083 | Pages d'information et pages légales (CGU, RGPD) | 8 | Haute | Contenu **relevé dans le code**, jamais inventé ; bandeau listant en tête de page ce qui relève de l'exploitant (raison sociale, hébergeur, durées de conservation) ; position des ruchers et appel du fond de carte traités explicitement |
+| US-084 | Pages d'acquisition — fonctionnalités, éditions, ressources, contact | 5 | Moyenne | Aucun montant ni palier inventé ; centre d'aide servi **en public** ; pas de formulaire de contact tant qu'aucun endpoint ni serveur d'envoi n'existe ; les limites du produit sont écrites |
+| US-085 | Compte, récupération de mot de passe et matrice des permissions | 8 | Haute | « Mon compte » ne lit que la session serveur ; **aucun** changement de mot de passe simulé — il appartient à Keycloak ; la matrice dérive de `ROLES_ONGLET` pour les écrans masqués, et un test échoue si les deux divergent |
+
+### EPIC-021: Registre sanitaire et observations analysables
+**Priorité:** Haute | **Source CdC:** §4.2.1, Annexe F | **Total Points:** 35
+
+Les trois actes sanitaires du métier — traiter, nourrir, compter le varroa —
+n'étaient qu'une valeur de `RaisonVisite` : on savait **qu'on** avait traité,
+jamais avec quoi, à quelle dose, ni sous quel délai de carence. « Varroa »
+n'apparaissait nulle part dans le dépôt hors de la prose du jeu de démonstration,
+alors que **huit des douze catalogues concurrents le nomment**. Et les
+constatations d'inspection vivaient en texte libre, où rien ne se compte ni ne se
+compare — ce qui plafonnait tout le module analytique.
+
+Épic ouvert sur les écarts 1, 3 et 4 de
+[`docs/ECART-CONCURRENTS.md`](../../../docs/ECART-CONCURRENTS.md), dans l'ordre de
+passage que ce document impose : **une seule migration** pour tout le bloc, puis
+les tranches back, puis le front.
+
+| ID | Story | Points | Priorité | Critères d'Acceptation |
+|:---|:---|:---:|:---|:---|
+| US-086 | Traitement sanitaire comme entité de plein droit | 8 | Haute | Produit, substance active, cible, dose **et son unité**, période, délai de carence ; la fin de carence est une colonne **générée** et indexée, pas un calcul de service — « quelles ruches sont sous carence aujourd'hui ? » doit se répondre par un index |
+| US-087 | Nourrissements | 5 | Haute | Type, quantité et unité obligatoires, motif facultatif ; sirop 1:1 et 2:1 **distingués** — ils ne servent pas à la même chose et les confondre rend le motif illisible |
+| US-088 | Comptage de varroa et taux calculé selon la méthode | 8 | Haute | La base garde les comptages **bruts** et la méthode, jamais un taux : un lange donne des varroas/jour, un lavage des varroas pour cent abeilles. Chaque méthode exige **son** dénominateur, la contrainte le vérifie ; le taux et son verdict sont calculés au service, là où on peut les expliquer |
+| US-089 | Pathologies nommées par visite | 3 | Haute | Table fille — une visite peut en constater plusieurs ; onze pathologies au référentiel ; gravité « suspectée » par **défaut**, parce qu'au rucher on constate un symptôme sans poser un diagnostic de laboratoire |
+| US-090 | Observations d'inspection structurées | 5 | Haute | Couvain, réserves, cellules royales et leur cause, tempérament sortent du texte libre ; toutes les cases restent **facultatives** — une visite éclair ne remplit rien, et exiger la grille ferait sauter la saisie plutôt que la compléter |
+| US-091 | Météo figée sur la visite | 3 | Moyenne | Relevé recopié au moment de la visite et **jamais rappelé ensuite** : une prévision se révise, un relevé non, et c'est lui qui permet de corréler conditions et production |
+| US-092 | Référentiel de la ruche : type, couleur, origine, cause de clôture | 3 | Moyenne | `modele` reste le texte libre, `type_ruche` est le référentiel au-dessus qui rend possible une statistique ; une cause de clôture est refusée sur une ruche encore active |

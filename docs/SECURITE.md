@@ -193,7 +193,7 @@ l'EPIC-012. À trancher par ADR avant la mise en production.
 ## 5. Application
 
 **Validation d'entrée.** Bean Validation sur les DTO, `@Valid` sur les endpoints de
-mutation de **12 des 22 contrôleurs** — les dix autres n'exposent que des lectures
+mutation de **17 des 27 contrôleurs** — les dix autres n'exposent que des lectures
 ou des actions sans corps.
 
 **Gestion d'erreurs centralisée** —
@@ -211,12 +211,13 @@ rejeu ; clé connue et empreinte différente → **409**, parce que c'est un bug
 paramètres liés ; aucune concaténation de chaîne dans une requête. CodeQL couvre
 cette classe de défaut en continu (§ 6).
 
-**Écart résiduel.** `PlanningController#refuser` reçoit `DecisionCorps` **sans
-`@Valid`**. La règle métier tient — `PlanningService#refuser` refuse un motif vide
-— mais la **longueur** du motif n'est bornée nulle part : un superviseur
-authentifié peut écrire un motif arbitrairement long en base. Impact faible
-(acteur déjà authentifié et autorisé), correctif simple (`@Size`), non traité ici
-pour ne pas mêler un changement de contrat à cet audit.
+**Écart résiduel — fermé le 26/08/2026.** `PlanningController#refuser` recevait
+`DecisionCorps` **sans `@Valid`** : la règle métier tenait — `PlanningService#refuser`
+refuse un motif vide — mais la **longueur** n'était bornée nulle part, et
+`motif_refus` est une colonne `TEXT`. Un superviseur authentifié pouvait donc y
+écrire un mégaoctet, relu à chaque lecture du planning. `@Size(max = 1000)` sur le
+champ et `@Valid` sur la méthode : le dépassement est refusé en 400, pas tronqué
+en silence.
 
 ## 6. Chaîne d'approvisionnement
 
@@ -350,10 +351,10 @@ presque rien.
 
 | Point | Nature | Proposition |
 |:---|:---|:---|
-| Chiffrement au repos des positions GPS | **arbitrage** — incompatible avec les requêtes PostGIS de l'EPIC-012 | ADR avant mise en production |
+| Chiffrement au repos des positions GPS | **arbitrage** — incompatible avec les requêtes PostGIS de l'EPIC-012 | [ADR-011](../roadmap/operationnel/06_decisions/ADR-011-positions-au-repos.md) rédigé le 26/08/2026, **statut proposé** : chiffrement du volume et des sauvegardes plutôt qu'applicatif, plus la purge EXIF. À arbitrer avant production |
 | DAST en continu | **arbitrage** — suppose un environnement permanent | à rejuger quand la pré-production existera |
 | Flux OIDC joué en CI | dette, ouverte depuis le SPRINT-11 | conteneur Keycloak dans la campagne d'intégration |
 | Alerte sur anomalie d'accès | manque | règle Prometheus sur le taux d'écriture du journal d'audit |
 | `HSTS preload` | manque | au déploiement du domaine définitif, pas avant |
-| `@Size` sur le motif de refus | manque, impact faible | à joindre au prochain passage sur `PlanningController` |
+| ~~`@Size` sur le motif de refus~~ | **fait le 26/08/2026** | `DecisionCorps.motif` est borné à 1 000 caractères et `PlanningController.refuser` porte `@Valid` : la colonne `motif_refus` est un `TEXT`, un refus pouvait y écrire un mégaoctet |
 | `style-src 'unsafe-inline'` | contrainte MapLibre | à rejuger si MapLibre expose une option de style externe |

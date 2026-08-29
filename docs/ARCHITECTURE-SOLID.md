@@ -186,12 +186,22 @@ Ces trois points sont couverts par 11 tests Vitest dédiés
 (`ui/modale.test.tsx`, `ui/toasts.test.tsx`, `theme/theme.test.tsx`), sur le même
 principe que le reste du dépôt : chacun échoue si l'on retire le correctif.
 
-**Dette d'interface restant ouverte.** La confirmation modale de suppression
-**et** l'annulation coexistent, alors qu'elles répondent au même risque. La
-confirmation coûte un geste aux 99 % de suppressions volontaires et ne protège
-plus rien une fois devenue un réflexe ; l'annulation ne coûte rien au cas courant.
-Retirer la confirmation demande de toucher les seize vues : à faire d'un seul
-tenant, pas au fil de l'eau.
+**Dette d'interface soldée.** La confirmation modale de suppression et
+l'annulation ont coexisté un temps, alors qu'elles répondent au même risque : la
+confirmation coûtait un geste aux 99 % de suppressions volontaires et ne
+protégeait plus rien une fois devenue un réflexe, là où l'annulation ne coûte rien
+au cas courant. Le commit *« Livrer les champs que l'interface n'exposait pas, et
+retirer la confirmation »* l'a retirée d'un seul tenant, comme il le fallait :
+`hooks.ts` ne connaît plus que `supprimerAvecAnnulation`, qui retire la ligne
+immédiatement et n'envoie le `DELETE` qu'à l'expiration du délai — ce qui
+distingue *annuler* de *recréer*, un objet recréé changeant d'identifiant.
+
+Un seul appel à `dialogues.confirmer` subsiste, et il est délibéré :
+`InvitationsVue` fait confirmer la **révocation d'un code d'invitation**. Rien ne
+s'y affiche qu'on puisse remettre en liste, et un code révoqué par erreur ne se
+« dé-révoque » pas — l'annulation différée n'a donc pas de prise, et la
+confirmation reste le bon outil. La règle qui en sort : **confirmer ce qui n'est
+pas annulable, annuler tout le reste.**
 
 ---
 

@@ -34,11 +34,13 @@ continue, Docker est présent : ils s'exécutent réellement et font autorité.
 
 ### Docker Engine 29 et Testcontainers
 
-Docker Engine 29 impose une version d'API minimale de `1.40`. La version de
-Testcontainers gérée par défaut par Spring Boot 3.4.1 (**1.20.4**) embarque un
-`docker-java` antérieur : la découverte du démon échoue avec un `HTTP 400` et
-tous les tests d'intégration sont **silencieusement ignorés**, build vert à
-l'appui. Le `pom.xml` force donc `testcontainers.version` à **1.21.4**.
+Docker Engine 29 impose une version d'API minimale de `1.40`. Toute version de
+Testcontainers antérieure à **1.21** embarque un `docker-java` plus ancien : la
+découverte du démon échoue avec un `HTTP 400` et tous les tests d'intégration
+sont **silencieusement ignorés**, build vert à l'appui. Le `pom.xml` épingle donc
+`testcontainers.version` à **1.21.4** — valeur que le BOM de Spring Boot 3.5.16
+aligne désormais lui aussi ; l'épinglage reste là pour interdire toute
+rétrogradation lors d'un changement de version du parent.
 
 Ni `DOCKER_HOST` ni `DOCKER_API_VERSION` ne corrigent ce cas : seule la montée
 de version fonctionne.
@@ -158,7 +160,7 @@ une sauvegarde jamais restaurée n'est pas une sauvegarde.
 Le schéma appartient à **Flyway** (`backend/src/main/resources/db/migration`) ;
 Hibernate ne le modifie jamais (`ddl-auto: none`).
 
-Dix-sept migrations, de `V1` à `V17`. La `V1` crée les extensions PostGIS et
+Dix-huit migrations, de `V1` à `V18`. La `V1` crée les extensions PostGIS et
 TimescaleDB et la table `ping`, sonde du walking skeleton — **conservée
 volontairement** : `WalkingSkeletonIT` s'en sert pour prouver la chaîne complète
 sur une base réelle (voir la javadoc de `domain/Ping.java`).

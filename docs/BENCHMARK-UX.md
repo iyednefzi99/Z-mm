@@ -61,7 +61,7 @@ C'était le défaut structurant. Passé la septième entrée, une barre horizont
 cesse d'être balayée et devient une liste où l'on cherche ; aucun concurrent ne
 dépasse sept destinations de premier niveau.
 
-**Fait** : les seize écrans sont répartis en **cinq familles** suivant le déroulé
+**Fait** : les dix-neuf écrans sont répartis en **cinq familles** suivant le déroulé
 du métier — Pilotage, Cheptel, Terrain, Production, Administration
 (`routage/routes.ts`, `GROUPES`). Un test tient l'invariant : chaque écran
 appartient à exactement une famille, sinon un écran ajouté resterait joignable
@@ -71,7 +71,7 @@ par son URL tout en étant absent de la navigation.
 
 **Fait** : un **seul** élément de navigation dans le DOM, deux présentations —
 rail latéral persistant au-dessus de 900 px, barre du bas en dessous, icône
-au-dessus du libellé, 56 px de côté. Dupliquer le balisage aurait dupliqué seize
+au-dessus du libellé, 56 px de côté. Dupliquer le balisage aurait dupliqué dix-neuf
 noms accessibles ; tout se joue en CSS.
 
 Un menu replié aurait coûté moins de code, mais cacher la navigation principale
@@ -102,7 +102,7 @@ l'information ne disparaît pas en vision monochrome.
 
 ### 3.6 En plus : palette de commandes (Ctrl/⌘ + K)
 
-Grouper règle la lisibilité, pas la distance. La palette filtre les seize écrans
+Grouper règle la lisibilité, pas la distance. La palette filtre les dix-neuf écrans
 par **sous-séquence** — « lts » trouve « Lots & origines », « tbx » trouve
 « Tableaux de bord » — et cherche aussi les noms de familles, si bien que taper
 « terrain » sort les quatre écrans de terrain. Elle s'ouvre pleine, jamais sur le

@@ -2,36 +2,32 @@
   <img src="../assets/logo/zumm-logo.png" alt="Logo Zümm" width="240">
 </p>
 
-<h1 align="center">🐝 Zümm : Système de gestion et de suivi apicole</h1>
+<h1 align="center">🐝 Zümm : cahier des charges trilingue</h1>
 
-🍯 Application **multi-niveaux** de gestion et de suivi de ruches
-(🐝 gestion manuelle des opérations, 📅 planification des visites, 📊 tableaux de bord,
-🔔 alertes) avec préparation d'un volet capteurs / supervision automatisée. 📡
+🍯 Ce dossier porte le **cahier des charges** de Zümm et son **dossier de
+conception** (documentation LaTeX + diagrammes UML), déclinés en **trois langues**
+(🇫🇷 français · 🇬🇧 anglais · 🇸🇦 arabe). 📡
 
-📦 Ce dépôt contient, à ce stade, le **cahier des charges** — décliné en
-**trois langues** (🇫🇷 français · 🇬🇧 anglais · 🇸🇦 arabe) — et le **dossier de
-conception** (documentation LaTeX + diagrammes UML). 🚧 Le code applicatif reste à
-développer.
+> 📦 **L'application, elle, est développée** : `backend/`, `frontend/`, `ia-service/`
+> et `infra/` contiennent le socle applicatif réel. Pour l'installer et le lancer,
+> voir le [README racine](../README.md) ; ce fichier ne traite que du livrable
+> documentaire.
 
-## 📁 Structure du dépôt
+## 📁 Structure du dossier
 
 ```
-🐝 Zümm/
-├── 🎨 assets/logo/                      # Logos Zümm (principal, icône, monochrome, brandsheet)
-├── 📂 cahier de charge/                 # Cahier des charges trilingue (🇫🇷 🇬🇧 🇸🇦)
-│   ├── 📖 README.md                     # Ce fichier
-│   ├── 🇫🇷 fr/                          # Version française — SOURCE (texte + figures partagées)
-│   │   ├── 📘 cahier_des_charges_fr.tex # pdflatex → cahier_des_charges_fr.pdf
-│   │   ├── 📂 chapitres/                # 01-contexte … 14-references (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
-│   │   └── 📂 annexes/                  # A-structure-ruche … G-securite
-│   ├── 🇬🇧 en/                          # English — pdflatex → cahier_des_charges_en.pdf
-│   │   ├── 📘 cahier_des_charges_en.tex
-│   │   └── 📂 chapitres/ + annexes/     # Traductions (figures réutilisées depuis fr/)
-│   └── 🇸🇦 ar/                          # العربية — xelatex, RTL → cahier_des_charges_ar.pdf
-│       ├── 📘 cahier_des_charges_ar.tex
-│       └── 📂 chapitres/ + annexes/     # ترجمة (نفس الرسوم من fr/)
-├── 🎨 design/                           # Charte de design (DESIGN.md FR/EN/AR + README)
-└── 🙈 .gitignore
+📂 cahier de charge/
+├── 📖 README.md                     # Ce fichier
+├── 🇫🇷 fr/                          # Version française — SOURCE (texte + figures partagées)
+│   ├── 📘 cahier_des_charges_fr.tex # pdflatex → cahier_des_charges_fr.pdf
+│   ├── 📂 chapitres/                # 01-contexte … 14-references (📄 .tex · 🖼️ images/ · 🖇️ diagrammes/)
+│   └── 📂 annexes/                  # A-structure-ruche … G-securite
+├── 🇬🇧 en/                          # English — pdflatex → cahier_des_charges_en.pdf
+│   ├── 📘 cahier_des_charges_en.tex
+│   └── 📂 chapitres/ + annexes/     # Traductions (figures réutilisées depuis fr/)
+└── 🇸🇦 ar/                          # العربية — xelatex, RTL → cahier_des_charges_ar.pdf
+    ├── 📘 cahier_des_charges_ar.tex
+    └── 📂 chapitres/ + annexes/     # ترجمة (نفس الرسوم من fr/)
 ```
 
 > 💡 Les **figures** (diagrammes UML en PNG et images) vivent dans `fr/` et sont
@@ -67,7 +63,7 @@ la source de vérité visuelle (couleurs, typographie, espacements, composants, 
 du logo). Elle suit le format [`DESIGN.md`](https://getdesign.md) et la méthode
 [Adobe Spectrum](https://spectrum.adobe.com), et existe en trois langues :
 🇫🇷 [`DESIGN.md`](../design/DESIGN.md) · 🇬🇧 [`DESIGN.en.md`](../design/DESIGN.en.md) ·
-🇸🇦 [`DESIGN.ar.md`](../design/DESIGN.ar.md). 🚦 C'est une **référence** pour le futur
+🇸🇦 [`DESIGN.ar.md`](../design/DESIGN.ar.md). 🚦 C'est la **référence** que suit le
 front-end, pas du code.
 
 ## 🛠️ Prérequis (outillage documentaire)
@@ -112,9 +108,15 @@ done
   configuration `ConfigZumm.ini` portent le nom du produit **Zümm** (forme ASCII
   « Zumm » pour les identifiants de code et noms de fichiers).
 - 🏗️ Architecture cible (annexe B « technologies ») : back-end **Spring Boot 3**
-  (JDK 17, Docker) avec Spring MVC, Spring Data JPA + jOOQ ; **PostgreSQL + PostGIS
+  (JDK 17, Docker) avec Spring MVC et Spring Data JPA ; **PostgreSQL + PostGIS
   + TimescaleDB** ; front **React 19 + TypeScript** en PWA ; API REST + OpenAPI 3 ;
   **Keycloak** (OIDC + fédération Google), JWT et RBAC ; échanges TLS 1.3 / X.509.
+- ⚠️ **Écarts assumés du code au cahier**, chacun tranché par un ADR : jOOQ, que
+  l'annexe B prévoyait aux côtés de JPA, n'a jamais été nécessaire (les requêtes
+  analytiques passent par JPQL et du SQL natif) ; Chart.js est remplacé par des
+  graphiques SVG maison ([ADR-007](../roadmap/operationnel/06_decisions/ADR-007-graphiques-svg.md)) ;
+  la compression TimescaleDB est abandonnée, PostgreSQL l'interdisant sous RLS
+  ([ADR-008](../roadmap/operationnel/06_decisions/ADR-008-rls-contre-compression.md)).
 
 ## 🎓 Contrainte académique
 

@@ -9,18 +9,18 @@ charte que le cahier des charges (palette « miel & noir élégant »).
 ```
 roadmap/
 ├── roadmap_zumm.tex          # Document maître
-├── roadmap_zumm.pdf          # PDF compilé (50 pages)
+├── roadmap_zumm.pdf          # PDF compilé (55 pages)
 ├── operationnel/             # Sources opérationnelles (JSON/MD/CI) — voir GUIDE_MODIFICATION.md
 │   ├── 01_product_backlog/   # product_backlog.json | .md
-│   ├── 02_sprints/           # SPRINT-00…18.md + sprints.json + REVUE-CONSOLIDEE.md
+│   ├── 02_sprints/           # SPRINT-00…20.md + sprints.json + REVUE-CONSOLIDEE.md
 │   ├── 03_devops_pipeline/   # Dockerfile, docker-compose.yml, github-actions.yml
 │   ├── 04_releases/          # releases.json
 │   ├── 05_monitoring/        # monitoring.json
-│   ├── 06_decisions/         # ADR-001…008 + registre
+│   ├── 06_decisions/         # ADR-001…011 + registre
 │   └── 07_conformite/        # AIPD (RGPD)
 └── chapitres/
     ├── 01-methodologie.tex   # Scrum + DevOps, DoR, DoD
-    ├── 02-backlog.tex        # 19 epics, 80 US, 582 points
+    ├── 02-backlog.tex        # 21 epics, 92 US, 651 points
     ├── 03-sprints.tex        # Gantt + recommandations + plan d'exécution détaillé par sprint
     ├── 04-risques.tex        # Registre des risques coté (13 risques), charge j-h, vélocité
     ├── 05-devops.tex         # Environnements, pipeline CI/CD, IaC, mise en place progressive
@@ -45,10 +45,15 @@ depuis `../assets/logo/zumm-logo.png`.
 Le plan initial couvrait 8 sprints pour **304 points**, après un
 rééquilibrage de la charge dans une fourchette de 36 à 39 points sous une
 capacité de référence portée à 40 (détail au chapitre 3). Le périmètre s'est
-ensuite étendu jusqu'au SPRINT-18, pour un total de **19 epics, 80 user
-stories et 582 points**.
+ensuite étendu jusqu'au SPRINT-20, pour un total de **21 epics, 92 user
+stories et 651 points**.
 
-⚠️ Sur ces 582 points, **21 ne sont pas livrés** : US-039 (diagrammes UML) et
-US-040 (rapport, poster, présentation) sont des livrables documentaires que la
-charte académique de l'épreuve interdit de générer, et qui restent à produire.
-La vélocité applicative réelle est donc de **561 points**.
+⚠️ Sur ces 651 points, **21 ne sont pas livrés, et ne peuvent pas l'être ici** —
+US-039 (diagrammes UML) et US-040 (rapport, poster, présentation) sont des
+livrables documentaires que la charte académique de l'épreuve interdit de
+générer, et qui restent à produire.
+
+Les 35 points du SPRINT-20 (registre sanitaire), en cours au relevé précédent,
+sont livrés depuis le 29/08/2026 — de la migration `V19` à l'écran.
+
+La vélocité applicative **réellement livrée** est donc de **630 points**.

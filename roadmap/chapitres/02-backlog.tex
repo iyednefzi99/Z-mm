@@ -4,9 +4,9 @@
 \chapter{Product Backlog}
 \label{chap:backlog}
 
-Le backlog est structuré en \textbf{19 epics} couvrant l'intégralité du
-périmètre du cahier des charges, pour un total de \textbf{80 user stories}
-et \textbf{582 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13, 21).
+Le backlog est structuré en \textbf{21 epics} couvrant l'intégralité du
+périmètre du cahier des charges, pour un total de \textbf{92 user stories}
+et \textbf{651 story points} (suite de Fibonacci : 1, 2, 3, 5, 8, 13, 21).
 
 Les epics 011 et 012 ont été ouverts après la livraison des dix premiers : le
 produit avait dépassé le périmètre inscrit au backlog, que la roadmap publiée
@@ -14,16 +14,18 @@ sous-déclarait d'un sprint entier. L'epic 013 est né d'un audit du front mené
 après le SPRINT-10, qui a mis au jour une session expirant en cinq minutes sans
 rafraîchissement possible.
 
-\textbf{Les epics 014 à 019 ne viennent pas du cahier des charges}, et c'est ce
+\textbf{Les epics 014 à 021 ne viennent pas du cahier des charges}, et c'est ce
 qui les distingue des treize premiers. Ils viennent de ce que le produit livré a
 révélé une fois confronté à des conditions réelles : une revue d'architecture
 qui trouve six écarts entre la sécurité documentée et la sécurité effective
 (014) ; un front complet mais servi par personne (015) ; un scénario de terrain
 qui fait apparaître une perte de données silencieuse (016) ; une échéance
 réglementaire (017) ; une isolation qui séparait les exploitations mais pas les
-agents (018) ; et une liste de dettes qu'il fallait finir par vider (019).
+agents (018) ; une liste de dettes qu'il fallait finir par vider (019) ; un produit
+qui ne s'ouvrait qu'à ceux qui avaient déjà un compte (020) ; et un métier dont
+les actes sanitaires étaient nommés sans jamais être décrits (021).
 
-Cette proportion --- 184 points sur 582, soit \textbf{30 \%} du backlog --- n'est
+Cette proportion --- 253 points sur 651, soit \textbf{39 \%} du backlog --- n'est
 pas un dérapage : elle mesure ce qu'un cahier des charges ne peut pas prévoir, et
 que seule la mise en service révèle.
 
@@ -53,8 +55,10 @@ EPIC-016 & Fiabilité et tenue à l'échelle           & Critique& \S7.3, Annexe
 EPIC-017 & Conformité réglementaire du miel         & Critique& \S3.4, Annexe~F       & 13 \\
 EPIC-018 & Modèle d'autorisation complet            & Critique& Annexe~G              & 42 \\
 EPIC-019 & Dette technique et contrat vérifié       & Haute   & Annexe~B              & 42 \\
+EPIC-020 & Site public, états et rôles visibles     & Haute   & \S8.2, \S8.3, Ann.~I  & 34 \\
+EPIC-021 & Registre sanitaire et observations      & Haute   & \S4.2.1, Annexe~F     & 35 \\
 \midrule
-\multicolumn{4}{r}{\textbf{Total}} & \textbf{582} \\
+\multicolumn{4}{r}{\textbf{Total}} & \textbf{651} \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -394,6 +398,48 @@ US-077 & Couche anticorruption vers l'analyse & 5 & Moyenne & Type d'entrée neu
 US-078 & Sessions serveur persistées          & 5 & Haute   & Schéma créé par les migrations ; la session survit au redéploiement \\
 US-079 & Synthèse de pilotage agrégée en base & 5 & Haute   & Poids, motifs et alertes agrégés en SQL ; l'agrégat du tableau de bord est réutilisé \\
 US-080 & Courbes journalières côté serveur    & 8 & Haute   & Regroupement par intervalle \emph{à la demande} : l'agrégat continu est refusé sous RLS ; volume divisé par $\approx$ 95 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-020 --- Site public, états et rôles visibles}
+
+Ouvrir le produit avant le compte : le logiciel n'avait qu'une porte, et un
+refus de rôle s'y présentait comme une panne.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-081 & Accueil public et coquille hors console & 8 & Haute   & Servi sans session, consultable en session ; aucun appel d'API sur ce qui est servi sans jeton \\
+US-082 & Navigation filtrée par rôle, refus expliqué & 5 & Haute & La table des rôles du client recopie la matrice du serveur ; un refus ne propose pas de réessayer et ne redirige pas \\
+US-083 & Pages d'information et pages légales & 8 & Haute & Contenu relevé dans le code ; ce qui relève de l'exploitant est listé en tête de page, jamais comblé par du plausible \\
+US-084 & Pages d'acquisition & 5 & Moyenne & Aucun montant ni palier inventé ; pas de formulaire tant qu'aucun destinataire n'existe \\
+US-085 & Compte, récupération et matrice des permissions & 8 & Haute & Aucun changement de mot de passe simulé ; la matrice dérive de la table des rôles et un test échoue si elles divergent \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{EPIC-021 --- Registre sanitaire et observations analysables}
+
+Les trois actes sanitaires du métier --- traiter, nourrir, compter le varroa ---
+n'étaient qu'une valeur du motif de visite : on savait \emph{qu'on} avait traité,
+jamais avec quoi, à quelle dose, ni sous quel délai de carence. Les constatations
+d'inspection, elles, vivaient en texte libre, où rien ne se compte.
+
+\begin{center}
+\begin{tabular}{lp{6.6cm}cl p{4.6cm}}
+\toprule
+\textbf{ID} & \textbf{Story} & \textbf{Pts} & \textbf{Priorité} & \textbf{Critères d'acceptation} \\
+\midrule
+US-086 & Traitement sanitaire comme entité de plein droit & 8 & Haute & Produit, cible, dose et son unité, période, délai de carence ; la fin de carence est une colonne \emph{générée} et indexée \\
+US-087 & Nourrissements & 5 & Haute & Type, quantité et unité obligatoires ; les deux sirops sont distingués, ils ne servent pas à la même chose \\
+US-088 & Comptage de varroa et taux selon la méthode & 8 & Haute & Comptages \emph{bruts} et méthode en base, jamais un taux : les unités diffèrent selon la méthode. Chaque méthode exige son dénominateur \\
+US-089 & Pathologies nommées par visite & 3 & Haute & Table fille : une visite peut en constater plusieurs ; gravité « suspectée » par défaut \\
+US-090 & Observations d'inspection structurées & 5 & Haute & Couvain, réserves, cellules royales, tempérament sortent du texte libre ; toutes les cases restent facultatives \\
+US-091 & Météo figée sur la visite & 3 & Moyenne & Relevé recopié au moment de la visite, jamais rappelé ensuite \\
+US-092 & Référentiel de la ruche & 3 & Moyenne & Type, couleur, origine, cause de clôture ; le modèle reste le texte libre \\
 \bottomrule
 \end{tabular}
 \end{center}

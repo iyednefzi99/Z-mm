@@ -744,9 +744,111 @@
           "critere_acceptation": "Agregation time_bucket A LA DEMANDE — l'agregat continu est refuse sous RLS (ADR-008 generalise) ; volume transporte divise par ~95 ; serie brute conservee pour la detection d'anomalie"
         }
       ]
+    },
+    {
+      "id": "EPIC-020",
+      "titre": "Site public, etats et roles visibles",
+      "description": "Ouvrir le produit avant le compte : vitrine publique, pages legales et d'information, refus de role et panne expliques, matrice des permissions consultable",
+      "priorite": "Haute",
+      "source_cdc": "8.2, 8.3, Annexe I",
+      "stories": [
+        {
+          "id": "US-081",
+          "titre": "Accueil public et coquille des pages hors console",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Accueil servi sans session et consultable en session (l'appel devient Ouvrir la console) ; aucun appel d'API sur ce qui est servi sans jeton ; barre et pied communs, langue et theme conserves d'une page a l'autre"
+        },
+        {
+          "id": "US-082",
+          "titre": "Navigation filtree par role, refus et panne expliques",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "La table des roles du front recopie SecurityConfig.matriceRbac ; un refus de role rend un ecran dedie, sans Reessayer ni redirection en boucle ; un 5xx rend un ecran qui ne depend d'aucune donnee ; le hors-ligne n'y est jamais assimile"
+        },
+        {
+          "id": "US-083",
+          "titre": "Pages d'information et pages legales (CGU, RGPD)",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Contenu releve dans le code, jamais invente ; bandeau listant en tete de page ce qui releve de l'exploitant (raison sociale, hebergeur, durees de conservation) ; position des ruchers et appel du fond de carte traites explicitement"
+        },
+        {
+          "id": "US-084",
+          "titre": "Pages d'acquisition : fonctionnalites, editions, ressources, contact",
+          "points": 5,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Aucun montant ni palier invente ; centre d'aide servi en public ; pas de formulaire de contact tant qu'aucun endpoint ni serveur d'envoi n'existe ; les limites du produit sont ecrites"
+        },
+        {
+          "id": "US-085",
+          "titre": "Compte, recuperation de mot de passe et matrice des permissions",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Mon compte ne lit que la session serveur ; aucun changement de mot de passe simule, il appartient a Keycloak ; la matrice derive de ROLES_ONGLET pour les ecrans masques, et un test echoue si les deux divergent"
+        }
+      ]
+    },
+    {
+      "id": "EPIC-021",
+      "titre": "Registre sanitaire et observations analysables",
+      "description": "Les trois actes sanitaires — traiter, nourrir, compter le varroa — n'etaient qu'une valeur de RaisonVisite ; les constatations d'inspection vivaient en texte libre. Ecarts 1, 3 et 4 de docs/ECART-CONCURRENTS.md",
+      "priorite": "Haute",
+      "source_cdc": "4.2.1, Annexe F",
+      "stories": [
+        {
+          "id": "US-086",
+          "titre": "Traitement sanitaire comme entite de plein droit",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "Produit, substance active, cible, dose ET son unite, periode, delai de carence ; la fin de carence est une colonne GENEREE et indexee, pas un calcul de service"
+        },
+        {
+          "id": "US-087",
+          "titre": "Nourrissements",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Type, quantite et unite obligatoires, motif facultatif ; sirop 1:1 et 2:1 distingues — ils ne servent pas a la meme chose"
+        },
+        {
+          "id": "US-088",
+          "titre": "Comptage de varroa et taux calcule selon la methode",
+          "points": 8,
+          "priorite": "Haute",
+          "critere_acceptation": "La base garde les comptages BRUTS et la methode, jamais un taux : lange = varroas/jour, lavage = varroas pour cent abeilles. Chaque methode exige SON denominateur ; le taux est calcule au service"
+        },
+        {
+          "id": "US-089",
+          "titre": "Pathologies nommees par visite",
+          "points": 3,
+          "priorite": "Haute",
+          "critere_acceptation": "Table fille — une visite peut en constater plusieurs ; onze pathologies au referentiel ; gravite « suspectee » par defaut"
+        },
+        {
+          "id": "US-090",
+          "titre": "Observations d'inspection structurees",
+          "points": 5,
+          "priorite": "Haute",
+          "critere_acceptation": "Couvain, reserves, cellules royales et leur cause, temperament sortent du texte libre ; toutes les cases restent FACULTATIVES"
+        },
+        {
+          "id": "US-091",
+          "titre": "Meteo figee sur la visite",
+          "points": 3,
+          "priorite": "Moyenne",
+          "critere_acceptation": "Releve recopie au moment de la visite et jamais rappele ensuite : une prevision se revise, un releve non"
+        },
+        {
+          "id": "US-092",
+          "titre": "Referentiel de la ruche : type, couleur, origine, cause de cloture",
+          "points": 3,
+          "priorite": "Moyenne",
+          "critere_acceptation": "modele reste le texte libre, type_ruche est le referentiel au-dessus ; une cause de cloture est refusee sur une ruche encore active"
+        }
+      ]
     }
   ],
-  "total_story_points": 582,
+  "total_story_points": 651,
   "definition_of_ready": [
     "La story a un titre clair et une description",
     "Les critères d'acceptation sont définis",

@@ -867,8 +867,120 @@
           "Jour 14"
         ]
       }
+    },
+    {
+      "id": "SPRINT-19",
+      "nom": "Le produit avant le compte",
+      "theme": "Ouvrir le site a qui n'a pas encore de session, et dire a qui en a une pourquoi une porte est fermee",
+      "objectif": "Qu'un visiteur puisse savoir ce que fait Zumm sans compte, qu'un refus de role cesse de se presenter comme une panne, et qu'aucune page legale ne passe pour finie alors qu'elle est vide",
+      "numero": 19,
+      "date_debut": "2027-04-27",
+      "date_fin": "2027-05-10",
+      "duree_jours": 14,
+      "story_points": 34,
+      "velocity": 34,
+      "capacity": 40,
+      "commentaire": "Sprint entierement front-end : aucune migration, aucun controleur, aucun endpoint nouveau, contrat OpenAPI inchange. Estimation d'autant plus fiable — ne pas en tirer une velocite de reference.",
+      "stories": [
+        "US-081",
+        "US-082",
+        "US-083",
+        "US-084",
+        "US-085"
+      ],
+      "review_demo": "Parcours du visiteur en navigation privee : l'accueil est servi sans session, sept pages d'information sont atteignables sans compte, et elles se rendent encore serveur eteint. Meme parcours en arabe, RTL et langue conservee d'une page a l'autre. Refus de role joue avec apiculteur-test : l'onglet Audit disparait du rail, l'URL tapee a la main rend un ecran de refus nommant les roles requis, sans bouton Reessayer ni redirection. Matrice des permissions ouverte depuis le menu de profil. Bandeau des manques montre sur les CGU et la confidentialite : raison sociale, hebergeur, durees de conservation — la seance valide de NE PAS les combler par du plausible.",
+      "risques": "Une page publique qui dependrait d'un endpoint protege ; un texte legal complete par du plausible ; une matrice de permissions recopiee du serveur qui diverge en silence ; confondre le masquage d'onglet avec une autorisation ; un ecran de panne servi sur une coupure reseau, qui retirerait a la PWA sa raison d'etre ; trois locales a faire grandir de 300 chaines",
+      "ceremonies": {
+        "sprint_planning": "2027-04-27 09:00-11:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-05-10 14:00-15:30",
+        "sprint_retrospective": "2027-05-10 15:30-16:30"
+      },
+      "burndown": {
+        "ideal": [
+          34.0,
+          29.0,
+          24.0,
+          17.0,
+          10.0,
+          0.0
+        ],
+        "actual": [
+          34.0,
+          26.0,
+          21.0,
+          13.0,
+          8.0,
+          0.0
+        ],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 5",
+          "Jour 8",
+          "Jour 11",
+          "Jour 14"
+        ]
+      }
+    },
+    {
+      "id": "SPRINT-20",
+      "nom": "Le registre sanitaire",
+      "theme": "Faire dire aux actes sanitaires ce qu'ils contiennent, et non seulement qu'ils ont eu lieu",
+      "objectif": "Qu'un traitement porte son produit, sa dose et son delai de carence ; que le varroa existe ailleurs que dans une phrase ; et que ce qu'on observe au rucher se compte",
+      "numero": 20,
+      "date_debut": "2027-05-11",
+      "date_fin": "2027-05-24",
+      "duree_jours": 14,
+      "story_points": 35,
+      "velocity": 35,
+      "capacity": 40,
+      "commentaire": "CLOS le 29/08/2026. Livre de la migration a l'ecran : V19 (quatre tables sous RLS, colonnes d'observation et de meteo figee sur visite, referentiel sur ruche), quatre entites, quatre repositories, trois services, huit DTO, trois controleurs (/api/traitements, /api/nourrissements, /api/varroa), l'ecran SanitaireVue et la grille d'inspection dans le formulaire de visite. Le taux de varroa est calcule au service, jamais stocke : il n'a pas la meme unite selon la methode. Referme aussi l'extension d'US-029 (meteo reelle et previsions), laissee ouverte au SPRINT-19 : une meteo figee n'a de sens que s'il existe une source reelle a recopier. Non fait, et dit comme tel : le delai de carence n'INTERDIT pas la recolte.",
+      "stories": [
+        "US-086",
+        "US-087",
+        "US-088",
+        "US-089",
+        "US-090",
+        "US-091",
+        "US-092"
+      ],
+      "review_demo": "Un traitement saisi de bout en bout, dose et unite comprises, puis la liste des ruches sous carence a la date du jour avec leur date de fin. Le meme comptage de varroa par lange (21 sur 3 jours : 7,00 varroas/jour, verdict traiter) et au sucre glace (6 sur 300 abeilles : 2,00 % des abeilles, verdict a surveiller) : deux unites, deux seuils, l'unite voyage avec la valeur. Une ligne dont le denominateur ne correspond pas a la methode est refusee par le service avant la base. Deux visites, l'une remplie a la grille, l'autre eclair qui ne remplit rien : les deux acceptees, et la seconde ne stocke aucun non. La meteo relevee depuis la visite, figee avec sa source. Isolation des quatre tables entre deux exploitations, jouee sous le role applicatif zumm_app et non sous le proprietaire.",
+      "risques": "Quatre tables ajoutees d'un coup — un tenant_id, une politique RLS ou une cle composite oublies passeraient inapercus ; un taux d'infestation stocke en colonne melangerait deux unites et fausserait les seuils ; une grille d'inspection obligatoire ferait abandonner la saisie au rucher ; sept jeux de valeurs en @Pattern peuvent diverger du CHECK en base ; le delai de carence existe mais n'interdit encore aucune recolte ; une requete native oubliee ne garderait qu'une barriere sur deux",
+      "ceremonies": {
+        "sprint_planning": "2027-05-11 09:00-11:00",
+        "daily_scrum": "Tous les jours 09:15 (15 min)",
+        "sprint_review": "2027-05-24 14:00-15:30",
+        "sprint_retrospective": "2027-05-24 15:30-16:30"
+      },
+      "burndown": {
+        "ideal": [
+          35.0,
+          30.0,
+          24.0,
+          17.0,
+          8.0,
+          0.0
+        ],
+        "actual": [
+          35.0,
+          31.0,
+          22.0,
+          14.0,
+          7.0,
+          0.0
+        ],
+        "labels": [
+          "Jour 1",
+          "Jour 3",
+          "Jour 6",
+          "Jour 9",
+          "Jour 12",
+          "Jour 14"
+        ]
+      }
     }
   ],
-  "total_sprints": 19,
-  "total_points": 582
+  "total_sprints": 21,
+  "total_points": 651
 }
