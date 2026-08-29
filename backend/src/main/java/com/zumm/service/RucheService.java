@@ -58,6 +58,7 @@ public class RucheService {
                 fermeRequise(corps.fermeId()),
                 corps.etat() == null ? EtatRuche.CREEE : corps.etat());
         ruche.setAgentResponsable(agentEventuel(corps.agentResponsableId()));
+        appliquerReferentiel(ruche, corps);
         appliquerComposition(ruche, corps.compartiments());
         return RucheReponse.de(ruches.save(ruche));
     }
@@ -88,6 +89,7 @@ public class RucheService {
         if (corps.etat() != null) {
             ruche.setEtat(corps.etat());
         }
+        appliquerReferentiel(ruche, corps);
         // Supprimer l'ancienne composition AVANT d'inserer la nouvelle, pour ne pas
         // heurter l'index unique partiel sur le corps pendant le meme flush.
         ruche.viderCompartiments();
@@ -98,6 +100,24 @@ public class RucheService {
 
     public void supprimer(Long id) {
         ruches.delete(entite(id));
+    }
+
+    /**
+     * Reporte le referentiel du SPRINT-20 : type, couleur, origine, cause de
+     * cloture.
+     *
+     * <p>Les quatre s'ecrivent tels quels, {@code null} compris — le corps decrit
+     * l'etat complet de la ruche apres la requete. La coherence
+     * « cause de cloture seulement si l'etat est cloturee » n'est pas verifiee
+     * ici : elle porte sur l'accord de deux colonnes et la base la tient
+     * ({@code ck_ruche_cause_cloture}), ce qui vaut mieux qu'une regle
+     * applicative qu'une mise a jour partielle pourrait contourner.
+     */
+    private void appliquerReferentiel(Ruche ruche, RucheCorps corps) {
+        ruche.setTypeRuche(corps.typeRuche());
+        ruche.setCouleur(corps.couleur());
+        ruche.setOrigine(corps.origine());
+        ruche.setCauseCloture(corps.causeCloture());
     }
 
     Ruche entite(Long id) {

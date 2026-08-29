@@ -22,6 +22,10 @@ public record RucheReponse(
         EtatRuche etat,
         int nbHausses,
         List<CompartimentReponse> compartiments,
+        String typeRuche,
+        String couleur,
+        String origine,
+        String causeCloture,
         Instant creeLe,
         Instant majLe) {
 
@@ -52,6 +56,10 @@ public record RucheReponse(
                 ruche.getEtat(),
                 (int) hausses,
                 composition,
+                ruche.getTypeRuche(),
+                ruche.getCouleur(),
+                ruche.getOrigine(),
+                ruche.getCauseCloture(),
                 ruche.getCreeLe(),
                 ruche.getMajLe());
     }

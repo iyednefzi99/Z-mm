@@ -1,18 +1,23 @@
 package com.zumm.service;
 
 import com.zumm.domain.Agent;
+import com.zumm.domain.ObservationPathologie;
 import com.zumm.domain.Photo;
 import com.zumm.domain.Planning;
 import com.zumm.domain.RaisonVisite;
 import com.zumm.domain.Ruche;
 import com.zumm.domain.Visite;
 import com.zumm.repository.AgentRepository;
+import com.zumm.repository.ObservationPathologieRepository;
 import com.zumm.repository.PhotoRepository;
 import com.zumm.repository.PlanningRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
+import com.zumm.web.dto.MeteoVisite;
+import com.zumm.web.dto.ObservationVisite;
+import com.zumm.web.dto.PathologieCorps;
 import com.zumm.web.dto.PhotoCorps;
 import com.zumm.web.dto.PhotoReponse;
 import com.zumm.web.dto.VisiteCorps;
@@ -23,6 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Realisation des visites, rapports (US-009) et photos d'inspection (US-010/028).
+ *
+ * <p>Depuis le SPRINT-20, la visite porte aussi la grille d'inspection
+ * structuree, la meteo figee et les pathologies constatees. Les trois sont
+ * facultatives : une visite eclair n'en remplit aucune, et exiger la grille
+ * ferait sauter la saisie plutot que la completer.
  */
 @Service
 @Transactional
@@ -33,14 +43,17 @@ public class VisiteService {
     private final RucheRepository ruches;
     private final AgentRepository agents;
     private final PlanningRepository plannings;
+    private final ObservationPathologieRepository pathologies;
 
     public VisiteService(VisiteRepository visites, PhotoRepository photos, RucheRepository ruches,
-            AgentRepository agents, PlanningRepository plannings) {
+            AgentRepository agents, PlanningRepository plannings,
+            ObservationPathologieRepository pathologies) {
         this.visites = visites;
         this.photos = photos;
         this.ruches = ruches;
         this.agents = agents;
         this.plannings = plannings;
+        this.pathologies = pathologies;
     }
 
     public VisiteReponse creer(VisiteCorps corps) {
@@ -50,20 +63,24 @@ public class VisiteService {
                 corps.dateVisite(),
                 corps.raison() == null ? RaisonVisite.CONTROLE : corps.raison());
         appliquer(visite, corps);
-        return VisiteReponse.de(visites.save(visite), List.of());
+        Visite enregistree = visites.save(visite);
+        return VisiteReponse.de(enregistree, List.of(),
+                remplacerPathologies(enregistree, corps.pathologiesOuVide()));
     }
 
     @Transactional(readOnly = true)
     public List<VisiteReponse> lister() {
         return visites.findAll().stream()
-                .map(v -> VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId())))
+                .map(v -> VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId()),
+                        pathologies.findByVisite_IdOrderByPathologieAsc(v.getId())))
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public VisiteReponse obtenir(Long id) {
         Visite v = entite(id);
-        return VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId()));
+        return VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId()),
+                pathologies.findByVisite_IdOrderByPathologieAsc(v.getId()));
     }
 
     public VisiteReponse mettreAJour(Long id, VisiteCorps corps) {
@@ -71,7 +88,8 @@ public class VisiteService {
         visite.setRuche(rucheRequise(corps.rucheId()));
         visite.setAgent(agentRequis(corps.agentId()));
         appliquer(visite, corps);
-        return VisiteReponse.de(visite, photos.findByVisiteIdOrderByIdAsc(id));
+        return VisiteReponse.de(visite, photos.findByVisiteIdOrderByIdAsc(id),
+                remplacerPathologies(visite, corps.pathologiesOuVide()));
     }
 
     public void supprimer(Long id) {
@@ -115,6 +133,49 @@ public class VisiteService {
         visite.setEffectifQualitatif(corps.effectifQualitatif());
         visite.setEtatSante(corps.etatSante());
         visite.setProductivite(corps.productivite());
+
+        // Les deux blocs du SPRINT-20. `null` EFFACE, et c'est voulu : le corps
+        // decrit l'etat complet de la visite apres la requete, comme le font
+        // deja `constatations` et les autres champs de rapport. Une mise a jour
+        // qui omettrait la grille ne doit pas conserver l'ancienne — elle serait
+        // alors attribuee a une inspection qui ne l'a pas faite.
+        if (corps.observation() == null) {
+            new ObservationVisite(null, null, null, null, null, null, null, null, null, null, null)
+                    .appliquerA(visite);
+        } else {
+            corps.observation().appliquerA(visite);
+        }
+        if (corps.meteo() == null) {
+            new MeteoVisite(null, null, null, null).appliquerA(visite);
+        } else {
+            corps.meteo().appliquerA(visite);
+        }
+    }
+
+    /**
+     * Reecrit la liste des pathologies d'une visite.
+     *
+     * <p>Remplacement complet plutot que fusion : la contrainte
+     * {@code uq_pathologie_visite} interdit deja le doublon, et une fusion
+     * rendrait impossible de RETIRER une pathologie saisie par erreur — or une
+     * suspicion infirmee doit pouvoir disparaitre, sinon la statistique
+     * sanitaire ne redescend jamais.
+     */
+    private List<ObservationPathologie> remplacerPathologies(
+            Visite visite, List<PathologieCorps> demandees) {
+        pathologies.deleteAll(pathologies.findByVisite_IdOrderByPathologieAsc(visite.getId()));
+        if (demandees.isEmpty()) {
+            return List.of();
+        }
+        List<ObservationPathologie> nouvelles = demandees.stream()
+                .map(p -> {
+                    ObservationPathologie o = new ObservationPathologie(
+                            visite, p.pathologie(), p.graviteOuDefaut());
+                    o.setNote(p.note());
+                    return o;
+                })
+                .toList();
+        return pathologies.saveAll(nouvelles);
     }
 
     Visite entite(Long id) {

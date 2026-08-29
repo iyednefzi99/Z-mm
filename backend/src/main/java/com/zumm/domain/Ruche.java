@@ -10,6 +10,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +53,42 @@ public class Ruche extends EntiteTenant {
 
     @OneToMany(mappedBy = "ruche", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Compartiment> compartiments = new ArrayList<>();
+
+    // ─── Referentiel et reperage (SPRINT-20) ────────────────────────────────
+
+    /**
+     * Type au referentiel : Langstroth, Dadant, Warre, Voirnot, Top-Bar, Kenyane.
+     *
+     * <p>{@link #modele} reste le texte libre — « Dadant 10 cadres, fond
+     * grillage Nicot ». Le type est le referentiel AU-DESSUS, et c'est lui qui
+     * rend possible une statistique par type : un texte libre l'interdisait,
+     * puisque « Dadant 10 » et « dadant 10c » n'y sont pas la meme chose.
+     */
+    @Pattern(regexp = "langstroth|dadant|warre|voirnot|top_bar|kenyane|autre")
+    @Column(name = "type_ruche", length = 15)
+    private String typeRuche;
+
+    /** Couleur de la ruche : le reperage visuel au rucher, avant tout scan. */
+    @Pattern(regexp = "blanc|jaune|orange|rouge|vert|bleu|violet|gris|bois")
+    @Column(name = "couleur", length = 15)
+    private String couleur;
+
+    /** D'ou vient la colonie : essaim capture, division, nucleus, achat. */
+    @Pattern(regexp = "essaim_capture|essaim_achete|division|nucleus|paquet|achat|autre")
+    @Column(name = "origine", length = 20)
+    private String origine;
+
+    /**
+     * Pourquoi la ruche est cloturee.
+     *
+     * <p>Distingue ce que {@link EtatRuche#CLOTUREE} confondait : une ruche
+     * morte, une ruche vendue et une ruche fusionnee etaient indiscernables en
+     * statistique, alors que la premiere est une perte et la deuxieme une
+     * recette. La base refuse cette valeur sur une ruche encore active.
+     */
+    @Pattern(regexp = "morte|fusionnee|vendue|volee|reformee|essaimee|autre")
+    @Column(name = "cause_cloture", length = 15)
+    private String causeCloture;
 
     protected Ruche() {
         // Requis par JPA.
@@ -117,5 +154,37 @@ public class Ruche extends EntiteTenant {
 
     public List<Compartiment> getCompartiments() {
         return compartiments;
+    }
+
+    public String getTypeRuche() {
+        return typeRuche;
+    }
+
+    public void setTypeRuche(String typeRuche) {
+        this.typeRuche = typeRuche;
+    }
+
+    public String getCouleur() {
+        return couleur;
+    }
+
+    public void setCouleur(String couleur) {
+        this.couleur = couleur;
+    }
+
+    public String getOrigine() {
+        return origine;
+    }
+
+    public void setOrigine(String origine) {
+        this.origine = origine;
+    }
+
+    public String getCauseCloture() {
+        return causeCloture;
+    }
+
+    public void setCauseCloture(String causeCloture) {
+        this.causeCloture = causeCloture;
     }
 }

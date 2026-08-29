@@ -6,12 +6,24 @@ import com.zumm.domain.RaisonVisite;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * Corps de requete pour realiser une visite et remplir son rapport (US-009).
+ *
+ * <p>Les trois derniers champs datent du SPRINT-20 et sont tous facultatifs :
+ * un client ecrit avant eux continue de fonctionner sans changement. Ils sont
+ * <strong>imbriques</strong> plutot qu'aplatis — voir {@link ObservationVisite}
+ * pour le raisonnement.
+ *
+ * @param observation grille d'inspection structuree, ou {@code null}
+ * @param meteo       releve fige au moment de la visite, ou {@code null}
+ * @param pathologies maladies et ravageurs nommes ; liste vide ou {@code null}
+ *                    si rien n'a ete constate
  */
 public record VisiteCorps(
         @NotNull Long rucheId,
@@ -27,5 +39,13 @@ public record VisiteCorps(
         String recommandations,
         EffectifQualitatif effectifQualitatif,
         EtatSante etatSante,
-        @Min(1) @Max(3) Integer productivite) {
+        @Min(1) @Max(3) Integer productivite,
+        @Valid ObservationVisite observation,
+        @Valid MeteoVisite meteo,
+        @Valid List<PathologieCorps> pathologies) {
+
+    /** Les pathologies, jamais {@code null} : evite une garde a chaque appelant. */
+    public List<PathologieCorps> pathologiesOuVide() {
+        return pathologies == null ? List.of() : pathologies;
+    }
 }

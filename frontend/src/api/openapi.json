@@ -911,6 +911,118 @@
         }
       }
     },
+    "/api/varroa" : {
+      "get" : {
+        "tags" : [ "comptage-varroa-controller" ],
+        "operationId" : "serie",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ComptageVarroaReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "comptage-varroa-controller" ],
+        "operationId" : "enregistrer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComptageVarroaCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ComptageVarroaReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/traitements" : {
+      "get" : {
+        "tags" : [ "traitement-controller" ],
+        "operationId" : "registre",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TraitementReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "traitement-controller" ],
+        "operationId" : "enregistrer_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TraitementCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TraitementReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/taches" : {
       "get" : {
         "tags" : [ "tache-controller" ],
@@ -1155,7 +1267,7 @@
       },
       "post" : {
         "tags" : [ "reine-controller" ],
-        "operationId" : "enregistrer",
+        "operationId" : "enregistrer_2",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1362,10 +1474,66 @@
         }
       }
     },
+    "/api/nourrissements" : {
+      "get" : {
+        "tags" : [ "nourrissement-controller" ],
+        "operationId" : "registre_1",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/NourrissementReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "nourrissement-controller" ],
+        "operationId" : "enregistrer_3",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NourrissementCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NourrissementReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/mesures" : {
       "get" : {
         "tags" : [ "mesure-controller" ],
-        "operationId" : "serie",
+        "operationId" : "serie_1",
         "parameters" : [ {
           "name" : "rucheId",
           "in" : "query",
@@ -1772,6 +1940,27 @@
                 "schema" : {
                   "type" : "string",
                   "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/traitements/carence" : {
+      "get" : {
+        "tags" : [ "traitement-controller" ],
+        "operationId" : "sousCarence",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TraitementReponse"
+                  }
                 }
               }
             }
@@ -2210,6 +2399,15 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "name" : "jours",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 7
+          }
         } ],
         "responses" : {
           "200" : {
@@ -2526,10 +2724,70 @@
         }
       }
     },
+    "/api/varroa/{id}" : {
+      "delete" : {
+        "tags" : [ "comptage-varroa-controller" ],
+        "operationId" : "supprimer_10",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/traitements/{id}" : {
+      "delete" : {
+        "tags" : [ "traitement-controller" ],
+        "operationId" : "supprimer_11",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/reines/{id}" : {
       "delete" : {
         "tags" : [ "reine-controller" ],
-        "operationId" : "supprimer_10",
+        "operationId" : "supprimer_12",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/nourrissements/{id}" : {
+      "delete" : {
+        "tags" : [ "nourrissement-controller" ],
+        "operationId" : "supprimer_13",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2569,6 +2827,96 @@
   },
   "components" : {
     "schemas" : {
+      "MeteoVisite" : {
+        "type" : "object",
+        "properties" : {
+          "temperatureCelsius" : {
+            "type" : "number"
+          },
+          "humiditePourcent" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 100,
+            "minimum" : 0
+          },
+          "ventKmh" : {
+            "type" : "number"
+          },
+          "source" : {
+            "type" : "string",
+            "pattern" : "open-meteo|simulation|saisie"
+          }
+        }
+      },
+      "ObservationVisite" : {
+        "type" : "object",
+        "properties" : {
+          "couvainOeufs" : {
+            "type" : "boolean"
+          },
+          "couvainLarves" : {
+            "type" : "boolean"
+          },
+          "couvainOpercule" : {
+            "type" : "boolean"
+          },
+          "motifPonte" : {
+            "type" : "string",
+            "pattern" : "compact|lacunaire|irregulier|absent"
+          },
+          "reineVue" : {
+            "type" : "boolean"
+          },
+          "cellulesRoyales" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0
+          },
+          "cellulesRoyalesCause" : {
+            "type" : "string",
+            "pattern" : "essaimage|supersedure|urgence"
+          },
+          "cadresCouvain" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 40,
+            "minimum" : 0
+          },
+          "cadresMiel" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 40,
+            "minimum" : 0
+          },
+          "cadresPollen" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 40,
+            "minimum" : 0
+          },
+          "temperament" : {
+            "type" : "string",
+            "pattern" : "doux|normal|agressif"
+          }
+        }
+      },
+      "PathologieCorps" : {
+        "type" : "object",
+        "properties" : {
+          "pathologie" : {
+            "type" : "string",
+            "pattern" : "varroose|loque_americaine|loque_europeenne|nosemose|petit_coleoptere|fausse_teigne|frelon_asiatique|couvain_sacciforme|mycose|pesticide|autre"
+          },
+          "gravite" : {
+            "type" : "string",
+            "pattern" : "suspectee|legere|moderee|severe"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "pathologie" ]
+      },
       "VisiteCorps" : {
         "type" : "object",
         "properties" : {
@@ -2626,9 +2974,39 @@
             "format" : "int32",
             "maximum" : 3,
             "minimum" : 1
+          },
+          "observation" : {
+            "$ref" : "#/components/schemas/ObservationVisite"
+          },
+          "meteo" : {
+            "$ref" : "#/components/schemas/MeteoVisite"
+          },
+          "pathologies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PathologieCorps"
+            }
           }
         },
         "required" : [ "agentId", "dateVisite", "rucheId" ]
+      },
+      "PathologieReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "pathologie" : {
+            "type" : "string"
+          },
+          "gravite" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        }
       },
       "PhotoReponse" : {
         "type" : "object",
@@ -2714,6 +3092,18 @@
           "productivite" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "observation" : {
+            "$ref" : "#/components/schemas/ObservationVisite"
+          },
+          "meteo" : {
+            "$ref" : "#/components/schemas/MeteoVisite"
+          },
+          "pathologies" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PathologieReponse"
+            }
           },
           "photos" : {
             "type" : "array",
@@ -2933,6 +3323,22 @@
             "items" : {
               "$ref" : "#/components/schemas/CompartimentCorps"
             }
+          },
+          "typeRuche" : {
+            "type" : "string",
+            "pattern" : "langstroth|dadant|warre|voirnot|top_bar|kenyane|autre"
+          },
+          "couleur" : {
+            "type" : "string",
+            "pattern" : "blanc|jaune|orange|rouge|vert|bleu|violet|gris|bois"
+          },
+          "origine" : {
+            "type" : "string",
+            "pattern" : "essaim_capture|essaim_achete|division|nucleus|paquet|achat|autre"
+          },
+          "causeCloture" : {
+            "type" : "string",
+            "pattern" : "morte|fusionnee|vendue|volee|reformee|essaimee|autre"
           }
         },
         "required" : [ "compartiments", "fermeId", "modele", "siteId" ]
@@ -2998,6 +3404,18 @@
             "items" : {
               "$ref" : "#/components/schemas/CompartimentReponse"
             }
+          },
+          "typeRuche" : {
+            "type" : "string"
+          },
+          "couleur" : {
+            "type" : "string"
+          },
+          "origine" : {
+            "type" : "string"
+          },
+          "causeCloture" : {
+            "type" : "string"
           },
           "creeLe" : {
             "type" : "string",
@@ -3414,6 +3832,249 @@
         },
         "required" : [ "url" ]
       },
+      "ComptageVarroaCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateComptage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "methode" : {
+            "type" : "string",
+            "pattern" : "lange|sucre_glace|alcool|co2|desoperculation"
+          },
+          "varroasComptes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "abeillesEchantillon" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "joursExposition" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "agentId", "dateComptage", "methode", "rucheId", "varroasComptes" ]
+      },
+      "ComptageVarroaReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateComptage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "methode" : {
+            "type" : "string"
+          },
+          "varroasComptes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "abeillesEchantillon" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "joursExposition" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taux" : {
+            "type" : "number"
+          },
+          "tauxUnite" : {
+            "type" : "string"
+          },
+          "verdict" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "TraitementCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "produit" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "substanceActive" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "cible" : {
+            "type" : "string",
+            "pattern" : "varroa|loque_americaine|loque_europeenne|nosema|petit_coleoptere|fausse_teigne|frelon|autre"
+          },
+          "dose" : {
+            "type" : "number"
+          },
+          "doseUnite" : {
+            "type" : "string",
+            "pattern" : "mg|g|ml|l|laniere|plaquette"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "delaiCarenceJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 365,
+            "minimum" : 0
+          },
+          "ordonnance" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "agentId", "cible", "dateDebut", "produit", "rucheId" ]
+      },
+      "TraitementReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "produit" : {
+            "type" : "string"
+          },
+          "substanceActive" : {
+            "type" : "string"
+          },
+          "cible" : {
+            "type" : "string"
+          },
+          "dose" : {
+            "type" : "number"
+          },
+          "doseUnite" : {
+            "type" : "string"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "delaiCarenceJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dateRetrait" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "sousCarence" : {
+            "type" : "boolean"
+          },
+          "ordonnance" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "ReineCorps" : {
         "type" : "object",
         "properties" : {
@@ -3564,7 +4225,103 @@
         "type" : "object",
         "properties" : {
           "motif" : {
+            "type" : "string",
+            "maxLength" : 1000,
+            "minLength" : 0
+          }
+        }
+      },
+      "NourrissementCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateApport" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "typeAliment" : {
+            "type" : "string",
+            "pattern" : "sirop_1_1|sirop_2_1|candi|pollen|substitut_pollen|miel|eau"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "quantiteUnite" : {
+            "type" : "string",
+            "pattern" : "kg|g|l|ml"
+          },
+          "motif" : {
+            "type" : "string",
+            "pattern" : "stimulation|hivernage|disette|secours|transhumance|autre"
+          },
+          "note" : {
             "type" : "string"
+          }
+        },
+        "required" : [ "agentId", "dateApport", "quantite", "quantiteUnite", "rucheId", "typeAliment" ]
+      },
+      "NourrissementReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateApport" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "typeAliment" : {
+            "type" : "string"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "quantiteUnite" : {
+            "type" : "string"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         }
       },
@@ -4101,6 +4858,37 @@
           "instant" : {
             "type" : "string",
             "format" : "date-time"
+          },
+          "previsions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PrevisionJour"
+            }
+          }
+        }
+      },
+      "PrevisionJour" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "temperatureMinCelsius" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "temperatureMaxCelsius" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "precipitationsMm" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "ventMaxKmh" : {
+            "type" : "number",
+            "format" : "double"
           }
         }
       },
