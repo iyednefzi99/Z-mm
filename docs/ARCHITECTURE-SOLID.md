@@ -182,7 +182,7 @@ même nature — une capacité déclarée mais jamais branchée :
    `EtatVide` porte une action : pour un nouvel utilisateur, une liste vide est le
    **premier** écran, pas une erreur.
 
-Ces trois points sont couverts par 11 tests Vitest dédiés
+Ces trois points sont couverts par 18 tests Vitest dédiés
 (`ui/modale.test.tsx`, `ui/toasts.test.tsx`, `theme/theme.test.tsx`), sur le même
 principe que le reste du dépôt : chacun échoue si l'on retire le correctif.
 

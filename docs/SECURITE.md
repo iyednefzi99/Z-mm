@@ -159,8 +159,9 @@ coordonnées doit y passer.**
 ## 4. Données et isolation
 
 **RLS multi-tenant** ([ADR-001](../roadmap/operationnel/06_decisions/ADR-001-multi-tenant.md)) :
-**18 tables sous `ENABLE ROW LEVEL SECURITY`, 24 politiques** réparties sur les
-17 migrations Flyway. Le rôle applicatif `zumm_app` **n'est pas superutilisateur**
+**23 tables sous `ENABLE ROW LEVEL SECURITY`, 23 politiques** réparties sur les
+19 migrations Flyway (29 `CREATE POLICY` moins les 6 que `V16` remplace pour la
+portée par affectation). Le rôle applicatif `zumm_app` **n'est pas superutilisateur**
 et ne possède pas les tables — sans quoi il contournerait la RLS (`V3`).
 
 **Clés étrangères composites `(id, tenant_id)`** : c'est ce qui empêche un
