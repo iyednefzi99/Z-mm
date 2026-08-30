@@ -1,7 +1,17 @@
 # Zümm — positionnement marché et recommandations
 
-> État au 26/07/2026. Ce document sert deux usages : justifier les choix produit en
-> soutenance, et servir de backlog priorisé pour les sprints suivants.
+> État au 29/08/2026, périmètre **SPRINT-20** inclus. Ce document sert deux
+> usages : justifier les choix produit en soutenance, et servir de backlog
+> priorisé pour les sprints suivants.
+>
+> **Révision du 29/08/2026.** Le **registre sanitaire** est livré — traitements,
+> nourrissements, comptages de varroa, observations d'inspection structurées et
+> météo figée sur la visite (migration `V19`). Il ne crée pas un différenciateur :
+> Beekube en a un depuis longtemps, et c'est même l'un des rares terrains où Zümm
+> était *derrière* le marché. Ce qu'il fait est autre chose — il **lève la
+> dépendance** de trois chantiers vendables : registre d'élevage réglementaire,
+> corrélation météo × production, index génétique. La ventilation ligne à ligne
+> est dans [`ECART-CONCURRENTS.md`](ECART-CONCURRENTS.md) §15.
 
 ---
 
@@ -86,8 +96,21 @@ or c'est le mélange qui est étiqueté.
 → Livré : `lot_conditionnement` + `lot_composition`, consolidation par pays, tri
 décroissant, mention traduite (`GET /api/lots/{id}/mention`), 7 tests d'intégration.
 
-**Reste à faire** : registre d'élevage réglementaire, numéro NAPI/SIRET, déclaration
-annuelle de ruches, étiquette PDF prête à imprimer avec DLUO et numéro de lot.
+**Reste à faire** : le **registre d'élevage réglementaire** — dont la dépendance
+est levée depuis le SPRINT-20. Produit, substance active, dose et son unité,
+cible, délai de carence et fin de carence sont en base (`traitement`), les
+nourrissements et les comptages de varroa aussi. Il ne manque plus que le service
+d'édition (PDF/Excel), c'est-à-dire le patron de `RapportVisitePdfService`
+appliqué à ces trois tables. Restent également le numéro NAPI/SIRET, la
+déclaration annuelle de ruches, et l'étiquette PDF prête à imprimer avec DLUO et
+numéro de lot.
+
+**Et un manque que la livraison rend visible.** Le délai de carence est consigné,
+calculé et affiché, mais **aucune règle n'interdit d'enregistrer une récolte** sur
+une ruche encore sous carence. Un registre opposable en *lecture* et pas en
+*écriture* n'est pas encore un argument de conformité : c'est la première
+vérification à écrire, et elle ne coûte qu'une règle de service sur une donnée
+déjà indexée.
 
 ### Priorité 2 — Intégration matérielle réelle
 
@@ -104,18 +127,26 @@ Le socle est prêt : le client machine `zumm-capteur` (client_credentials, rôle
 
 ### Priorité 3 — Ce que Zümm a et n'exploite pas
 
-Trois atouts déjà en base, sans usage produit :
+Quatre atouts déjà en base, sans usage produit :
 
 1. **Le clustering PostGIS** sert la carte. Il pourrait servir la **transhumance** :
    proposer un emplacement en croisant grappes, rayons de butinage et météo.
 2. **La détection d'anomalie EWMA** signale. Elle pourrait **prévenir** : une chute
    de poids nocturne, c'est un vol ; une chute diurne brutale, un essaimage. Deux
    alertes métier distinctes, à partir des données déjà collectées.
-3. **La météo** est affichée. Croisée aux mesures, elle expliquerait les anomalies
-   (« poids en baisse — 4 jours de pluie ») au lieu de les signaler à sec.
+3. **La météo** est affichée, et depuis le SPRINT-20 elle est **figée sur la
+   visite** avec sa source (`open-meteo`, `simulation` ou `saisie` — une
+   estimation ne se lit pas comme une mesure). La série historique existe donc ;
+   croisée aux mesures, elle expliquerait les anomalies (« poids en baisse —
+   4 jours de pluie ») au lieu de les signaler à sec. Rien ne la croise encore.
+4. **Les observations d'inspection**, structurées depuis le SPRINT-20 — couvain,
+   motif de ponte, cadres, cellules royales et leur cause, tempérament,
+   pathologies nommées, comptages de varroa. C'est exactement la matière d'un
+   **score de santé par colonie** et d'un **risque d'essaimage**, que quatre
+   concurrents calculent et que Zümm n'agrège pas encore.
 
-Aucun de ces trois points ne demande de nouvelle donnée. C'est le meilleur rapport
-valeur/effort du backlog.
+Aucun de ces quatre points ne demande de nouvelle donnée. C'est le meilleur
+rapport valeur/effort du backlog.
 
 ### Priorité 4 — L'expérience de terrain
 
@@ -124,6 +155,9 @@ Ce que HiveSense fait mieux que tout le monde, et que Zümm devrait prendre :
 - **saisie vocale** de la visite (Web Speech API) — les mains sont dans la ruche ;
 - ~~**mode gant** : cibles ≥ 56 px~~ *(fait : 44 px de plancher partout, 56 px
   dans la barre de navigation du bas)* ;
+- ~~**formulaire d'inspection à cases** plutôt que du texte libre~~ *(fait au
+  SPRINT-20 : quinze champs sur la visite et les pathologies nommées ; les
+  **gabarits réutilisables**, eux, restent à faire)* ;
 - **photo avec position et horodatage** rattachée à la ruche ;
 - **QR sur la ruche** pour ouvrir directement sa fiche.
 
@@ -179,7 +213,7 @@ perdraient autrement.
 
 | Sujet | Ce qui existe aujourd'hui |
 |---|---|
-| **Upload binaire des photos** | `PhotoCorps` ne porte qu'une **URL** : l'image vit ailleurs, le système ne la stocke pas. Un stockage objet (S3/MinIO) et l'upload multipart restent à faire — avec la purge des métadonnées EXIF, exigée par l'AIPD (une photo de rucher géolocalise le rucher). |
+| **Upload binaire des photos** | `PhotoCorps` ne porte qu'une **URL** : l'image vit ailleurs, le système ne la stocke pas. Un stockage objet (S3/MinIO) et l'upload multipart restent à faire — avec la purge des métadonnées EXIF, exigée par l'AIPD (une photo de rucher géolocalise le rucher). Depuis le SPRINT-20 la même limite touche les **ordonnances vétérinaires** : `traitement.ordonnance` n'en porte que la référence, jamais le document. |
 | **Messages d'erreur d'API non traduits** | `GestionnaireExceptions` renvoie un `ProblemDetail` dont le `detail` est le message de l'exception, écrit en français dans le code. `messages_{fr,en,ar}.properties` existent et ne sont utilisés que par `/api/info`. Un client anglophone reçoit une erreur en français. |
 | **Fédération Google** | Prévue au cahier, elle relève de la **configuration Keycloak** (IdP à créer avec un client id/secret), pas du code : aucun IdP externe n'est déclaré dans `realm-zumm.json`. |
 | **Notifications e-mail** | `NotificationAlerteService` est écrit et testé, mais désactivé par défaut et sans `spring.mail.*` fourni ; son corps de message est codé en dur en français. |
@@ -210,18 +244,27 @@ public ne répond pas au besoin.
 | ~~16~~ | ~~BFF cookie `HttpOnly`, autorisation horizontale~~ | ✅ livré — c'était proposé ici au sprint 18, la sécurité est passée devant |
 | ~~17~~ | ~~Dettes techniques, client d'API vérifié~~ | ✅ livré |
 | ~~18~~ | ~~Les deux dernières dettes (synthèse, courbes)~~ | ✅ livré |
+| ~~19~~ | ~~Site public, pages légales, lisibilité des droits, compte en libre-service~~ | ✅ livré — **pas ce qui était proposé ici** (registre, étiquette, portail QR) : un produit qu'on ne peut pas regarder sans compte ne se vend pas davantage qu'un produit non conforme |
+| ~~20~~ | ~~Registre sanitaire : traitements, nourrissements, varroa, observations structurées, météo figée~~ | ✅ livré — le prérequis qui manquait aux deux chantiers proposés ici pour 19 et 20 |
 
-**Ce que cette feuille de route proposait et qui n'a pas été fait.** Les sprints
-15 à 18 ont été employés à durcir et à solder, pas à étendre le produit. Les
-chantiers ci-dessous restent donc entiers, dans cet ordre de valeur :
+**Ce que cette feuille de route a mal prévu.** Les sprints 15 à 18 ont durci et
+soldé plutôt qu'étendu ; les sprints 19 et 20 ont bien étendu, mais **pas dans
+l'ordre proposé ici**. Le décalage vaut d'être gardé plutôt que réécrit après
+coup : les deux chantiers inscrits en 19 et 20 — registre réglementaire, alertes
+métier — supposaient l'un comme l'autre des données que le modèle ne portait pas,
+actes sanitaires structurés, observations analysables, météo historisée. Le
+SPRINT-20 les a posées. C'est pourquoi les mêmes chantiers reviennent ci-dessous,
+cette fois **sans prérequis manquant** — et pourquoi l'ordre a changé :
 
 | Sprint | Contenu | Pourquoi maintenant |
 |---|---|---|
-| **19** | Registre d'élevage réglementaire, étiquette PDF, portail QR public | Achève la conformité et ouvre la vente directe |
-| **20** | Alertes métier (vol, essaimage), corrélation météo | Meilleur rapport valeur/effort : aucune donnée nouvelle à collecter |
-| **21** | Pont MQTT, connecteur BroodMinder, Web Bluetooth | Passe de « on peut ingérer » à « ça marche avec le matériel du marché » |
-| **22** | Mode terrain (voix, gabarits de visite, QR ruche) | Adoption quotidienne — détail dans [`BENCHMARK-UX.md`](BENCHMARK-UX.md) |
-| **23** | Comparaison anonymisée entre pairs | Le différenciateur que seul un multi-tenant peut offrir |
+| **21** | Interdiction de récolte sous carence, tâches engendrées par la fin de carence | Deux règles de service sur des colonnes déjà en base et indexées. C'est ce qui fait passer le registre de *consultable* à *opposable* — et c'est le moins cher du backlog |
+| **22** | Registre d'élevage réglementaire (PDF/Excel), étiquette PDF, portail QR public | Achève la conformité et ouvre la vente directe. Dépendance levée au SPRINT-20 : il ne reste qu'un service d'édition |
+| **23** | Interventions groupées (traiter ou nourrir un rucher en une saisie) | Le registre est juste, il n'est pas utilisable à l'échelle qu'il vise : sur quarante ruches, un traitement se saisit quarante fois |
+| **24** | Alertes métier (vol, essaimage), corrélation météo × production, score de santé | Aucune donnée nouvelle à collecter : les observations structurées et la météo figée sont là depuis le SPRINT-20 |
+| **25** | Pont MQTT, connecteur BroodMinder, Web Bluetooth | Passe de « on peut ingérer » à « ça marche avec le matériel du marché » |
+| **26** | Mode terrain (voix, gabarits de visite réutilisables, QR ruche) | Adoption quotidienne — détail dans [`BENCHMARK-UX.md`](BENCHMARK-UX.md) |
+| **27** | Comparaison anonymisée entre pairs | Le différenciateur que seul un multi-tenant peut offrir |
 
 Deux prérequis d'exploitation restent par ailleurs à traiter avant toute mise en
 production, quel que soit l'ordre retenu : le **fournisseur de tuiles** et le

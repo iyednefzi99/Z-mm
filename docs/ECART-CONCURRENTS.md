@@ -1,7 +1,11 @@
 # Écart fonctionnel — Zümm face à douze outils apicoles du marché
 
-> Analyse du 18/08/2026, **revérifiée contre le code le 25/08/2026** (périmètre
-> SPRINT-19 inclus — voir la note de révision en fin de document).
+> Analyse du 18/08/2026, **revérifiée contre le code le 29/08/2026** (périmètre
+> SPRINT-20 inclus — voir les deux notes de révision en fin de document, §14 et
+> §15). Les verdicts des §§1 à 13 intègrent le **registre sanitaire** livré par la
+> migration `V19` ; le §15 dit ce que cette livraison a changé, et surtout ce
+> qu'elle n'a **pas** réglé.
+>
 > Douze catalogues concurrents ont été dépouillés
 > fonctionnalité par fonctionnalité, puis confrontés au **code réel du dépôt**
 > (`backend/src/main/java/com/zumm`, `frontend/src`, `ia-service/`, `infra/`) —
@@ -49,11 +53,11 @@ n'apparaissent que là où ils apportent un axe absent des douze autres.
 | Type de rucher, exposition, miellées, sources de nectar | ❌ | Aucun de ces champs sur `Site` ; ApiManager les demande dès la création |
 | Historique d'emplacement / transhumance | 🟡 | `Site.dateMiseEnOeuvre`, `dateDemenagement`, `dateCloture` existent ; aucune vue d'historique ni planification de transport |
 | Fiche ruche (type, cadres, hausses) | ✅ | `Ruche.modele` + `Compartiment` (`CORPS`/`HAUSSE`, `nbCadres`) |
-| Référentiel de types de ruche (Langstroth, Warré, Dadant, Top-Bar) | ❌ | `Ruche.modele` est un **texte libre** : ni liste, ni statistique par type. Quatre concurrents le posent en référentiel |
+| Référentiel de types de ruche (Langstroth, Warré, Dadant, Top-Bar) | ✅ | `Ruche.typeRuche` + `ck_ruche_type` (V19) : `langstroth`, `dadant`, `warre`, `voirnot`, `top_bar`, `kenyane`, `autre`. `Ruche.modele` reste le **texte libre au-dessous** du référentiel — il dit ce qu'une énumération ne dira jamais ; le type, lui, se compte |
 | Cycle de vie de la ruche | ✅ | `EtatRuche` : créée → peuplée → active → en division → en collecte → clôturée |
-| Archivage plutôt que suppression (morte, fusionnée, vendue) | 🟡 | `CLOTUREE` couvre l'archivage, mais **la cause n'est pas distinguée** — indiscernables en statistiques |
-| Couleur de ruche (repérage visuel terrain) | ❌ | Aucun champ ; coût quasi nul, gain terrain réel |
-| Origine de la colonie (essaim, division, nucléus) | ❌ | Pas de champ ; `RaisonVisite.DIVISION` trace l'acte, pas la filiation |
+| Archivage plutôt que suppression (morte, fusionnée, vendue) | ✅ | `Ruche.causeCloture` (V19) : `morte`, `fusionnee`, `vendue`, `volee`, `reformee`, `essaimee`, `autre`. `ck_ruche_cause_cloture` **refuse** une cause sur une ruche encore active — une ruche morte ne se confond plus avec une ruche vendue en statistiques |
+| Couleur de ruche (repérage visuel terrain) | ✅ | `Ruche.couleur` (V19), neuf valeurs contrôlées de `blanc` à `bois` |
+| Origine de la colonie (essaim, division, nucléus) | ✅ | `Ruche.origine` (V19) : `essaim_capture`, `essaim_achete`, `division`, `nucleus`, `paquet`, `achat`, `autre`. Le **type** d'origine est acquis ; la **filiation** (de quelle ruche mère) reste à la ligne suivante |
 | **Enregistrement d'une division comme événement de plein droit** | 🟡 | `RaisonVisite.DIVISION` et `EtatRuche.EN_DIVISION` disent qu'une division a eu lieu ; ni la ruche fille, ni le nombre de cadres transférés ne sont saisis. HiveBook en fait une entité |
 | **Capture d'essaim** | ❌ | Aucune notion. HiveBook l'enregistre au même rang qu'une division |
 | Photos rattachées | 🟡 | `Photo` est liée à **une visite uniquement** (`Photo.visite`, `optional = false`). Ni ruche, ni reine, ni récolte, ni matériel |
@@ -93,37 +97,45 @@ La brique spatiale de Zümm est en place ; la donnée d'entrée manque.
 
 ## 3. Visites, sanitaire et suivi de colonie
 
-C'est le domaine où l'écart de **granularité** est le plus net. Zümm modélise
-**la visite** ; les onze carnets concurrents modélisent **l'observation**.
-HiveTracks pousse le raisonnement à son terme : une inspection y est une
-cinquantaine de points cochables, donc analysables.
+C'était le domaine où l'écart de **granularité** était le plus net : Zümm
+modélisait **la visite** là où les onze carnets concurrents modélisent
+**l'observation**. Le **SPRINT-20** l'a comblé pour l'essentiel — quinze colonnes
+d'observation sur `visite`, une table fille de pathologies **nommées**, et trois
+tables d'actes sanitaires de plein droit (`traitement`, `nourrissement`,
+`comptage_varroa`, migration `V19`).
+
+Ce qui reste a changé de nature, et c'est le point à retenir : **ce n'est plus la
+donnée qui manque, c'est ce qu'on en fait**. Aucune règle n'interdit une récolte
+sous carence, aucun événement n'engendre de tâche, aucun indice n'agrège la santé
+d'une colonie — alors que les trois s'appuieraient désormais sur des colonnes
+existantes et indexées.
 
 | Fonctionnalité concurrente | Zümm | Preuve / manque |
 |---|---|---|
 | Inspection datée, horodatée, par ruche | ✅ | `Visite` (date, heure, durée, agent, raison) |
 | Planification et **approbation** des visites | ✅ | `Planning` + `StatutPlanning` (proposé/approuvé/refusé) — **aucun des douze ne l'a** |
 | Rapport de visite PDF | ✅ | `RapportVisitePdfService`, `GET /api/visites/{id}/rapport.pdf` |
-| Saisie par cases à cocher (~50 points analysables) | ❌ | Formulaire figé dans `VisitesVue.tsx`, dominé par du texte libre |
-| Force de la colonie | 🟡 | `EffectifQualitatif` (faible/moyen/fort) — les concurrents utilisent une échelle exploitable en courbe |
-| Tempérament / agressivité | ❌ | Aucun champ. Six catalogues le demandent |
-| État du couvain (œufs, operculé, motif de ponte) | ❌ | Noyé dans `Visite.constatations` (texte libre) — **non analysable** |
-| Réserves miel / pollen, contenu des cadres | ❌ | Idem, texte libre |
-| Cellules royales et cause (essaimage / supersédure / urgence) | ❌ | Absent — c'est pourtant le signal d'essaimage le plus actionnable |
-| Reine vue / statut à chaque visite | 🟡 | `SuiviReine` est un événement **séparé** de la visite, pas une case du formulaire |
-| État sanitaire | 🟡 | `EtatSante` (bon/moyen/mauvais) — un seul curseur, sans maladie ni ravageur nommé |
-| Maladies et ravageurs nommés (loque, petit coléoptère…) | ❌ | HiveTracks les référence ; Zümm n'a qu'un curseur à trois positions |
-| **Suivi du varroa** (méthode, comptage, taux d'infestation calculé) | ❌ | `grep -ri varroa` ne renvoie que **deux lignes de prose**, toutes deux dans `infra/seed-demo.sql` : une `constatation` de visite en texte libre et un libellé de tâche. Aucune table, aucune colonne, aucune énumération — le jeu de démonstration montre le besoin que le modèle ne porte pas. **Huit des douze catalogues le nomment**, plusieurs en font un module entier avec calculateur |
-| **Traitements sanitaires** (produit, dose, cible, durée, délai de carence) | ❌ | Seulement `RaisonVisite.TRAITEMENT` — on sait *qu'on* a traité, jamais *avec quoi* ni *combien*. **Bloquant pour un registre sanitaire réglementaire** |
-| Référentiel de traitements pré-renseigné | ❌ | HiveTracks en embarque plus de vingt ; c'est ce qui rend la saisie tenable au rucher |
-| Délai de carence / date de retrait avant récolte | ❌ | Absent, et c'est un point **réglementaire**, pas un confort |
-| **Nourrissements** (type, quantité, motif) | ❌ | Idem : `RaisonVisite.NOURRISSAGE` seulement |
-| Ordonnances vétérinaires | ❌ | Absent |
+| Saisie par cases à cocher (~50 points analysables) | 🟡 | Quinze colonnes structurées sur `visite` (V19) plus la table fille `observation_pathologie`, saisies par `VisitesVue.tsx`. Ce ne sont pas les cinquante points de HiveTracks, et les gabarits paramétrables restent absents (voir plus bas) ; mais le texte libre n'est plus la **seule** trace |
+| Force de la colonie | 🟡 | `EffectifQualitatif` (faible/moyen/fort) reste l'échelle ; `cadresCouvain`, `cadresMiel` et `cadresPollen` (V19) donnent désormais un **compte** exploitable en courbe — rien ne les agrège encore en indice |
+| Tempérament / agressivité | ✅ | `visite.temperament` (V19) : `doux`, `normal`, `agressif`. Six catalogues le demandaient |
+| État du couvain (œufs, operculé, motif de ponte) | ✅ | `couvainOeufs`, `couvainLarves`, `couvainOpercule` — trois booléens **facultatifs** (`null` = non observé, ce qui n'est pas `false`) — et `motifPonte` (`compact`, `lacunaire`, `irregulier`, `absent`), V19 |
+| Réserves miel / pollen, contenu des cadres | ✅ | `cadresCouvain`, `cadresMiel`, `cadresPollen` (V19), bornés de 0 à 40 par `ck_visite_cadres` |
+| Cellules royales et cause (essaimage / supersédure / urgence) | ✅ | `cellulesRoyales` (le compte) et `cellulesRoyalesCause` (V19) : la cause n'est acceptée que si le compte est > 0 — une cause sans cellule serait une saisie incohérente |
+| Reine vue / statut à chaque visite | ✅ | `visite.reineVue` (V19) est une case de la visite. `SuiviReine` reste l'événement séparé qui porte le **cycle de vie** (marquage, remplacement, essaimage) : les deux ne disent pas la même chose et n'avaient pas à fusionner |
+| État sanitaire | 🟡 | `EtatSante` (bon/moyen/mauvais) reste un curseur à trois positions, mais il n'est plus seul : les pathologies sont nommées à la ligne suivante |
+| Maladies et ravageurs nommés (loque, petit coléoptère…) | ✅ | `observation_pathologie` (V19) : onze valeurs — `varroose`, `loque_americaine`, `loque_europeenne`, `nosemose`, `petit_coleoptere`, `fausse_teigne`, `frelon_asiatique`, `couvain_sacciforme`, `mycose`, `pesticide`, `autre` — et quatre gravités dont `suspectee` **par défaut** : au rucher on constate un symptôme, on ne pose pas un diagnostic de laboratoire |
+| **Suivi du varroa** (méthode, comptage, taux d'infestation calculé) | ✅ | Table `comptage_varroa` (V19), cinq méthodes (`lange`, `sucre_glace`, `alcool`, `co2`, `desoperculation`), **comptages bruts** stockés. Le taux et le verdict sont **calculés au service** (`ComptageVarroaService.taux()` / `verdict()`) et jamais stockés : ils n'ont pas la même unité selon la méthode. Route `/api/varroa`, écran `SanitaireVue.tsx` |
+| **Traitements sanitaires** (produit, dose, cible, durée, délai de carence) | ✅ | Table `traitement` (V19) : produit commercial, **substance active** (pour raisonner l'alternance), cible parmi huit, dose **et son unité** (`ck_traitement_dose_unite` refuse une dose sans unité), période, délai de carence. `/api/traitements`, `TraitementService` |
+| Référentiel de traitements pré-renseigné | ❌ | `traitement.produit` est une saisie libre : rien ne propose les produits courants, rien ne relie deux noms commerciaux par leur substance active. HiveTracks en embarque plus de vingt ; c'est ce qui rend la saisie tenable au rucher |
+| Délai de carence / date de retrait avant récolte | 🟡 | `traitement.dateRetrait` est une colonne **générée** (`date_fin + delai_carence_jours`) et **indexée** ; `GET /api/traitements/carence` liste les ruches sous carence et `SanitaireVue` les affiche en tête. Mais **aucune règle n'interdit d'enregistrer une récolte** sur l'une d'elles : le registre est opposable en *lecture*, pas contraignant en *écriture* (§15) |
+| **Nourrissements** (type, quantité, motif) | ✅ | Table `nourrissement` (V19) : sept types d'aliment (`sirop_1_1` … `eau`), quantité avec unité, six motifs (`stimulation`, `hivernage`, `disette`, `secours`, `transhumance`, `autre`). `/api/nourrissements` |
+| Ordonnances vétérinaires | 🟡 | `traitement.ordonnance` porte la **référence** de l'ordonnance ; aucun document n'est stocké — le dépôt n'héberge encore aucun binaire (voir la dette d'upload dans `STRATEGIE-PRODUIT.md`) |
 | **Score de santé calculé par colonie** | ❌ | APIGO, BuzzWise, HiveTracks et HiveBook le calculent. Zümm n'agrège aucun indice par ruche |
 | **Score de risque d'essaimage** | ❌ | `SuiviReine` accepte le statut `essaimee` — **constat a posteriori**, pas prédiction |
-| **Recommandations automatiques / tâches générées** | ❌ | `TacheService` est un CRUD pur (`creer`, `lister`, `mettreAJour`, `supprimer`). Aucun événement métier ne crée de tâche. **Six catalogues sur douze** génèrent des conseils ou un plan de tâches |
+| **Recommandations automatiques / tâches générées** | ❌ | `TacheService` est un CRUD pur (`creer`, `lister`, `mettreAJour`, `supprimer`). Aucun événement métier ne crée de tâche — mais la donnée qui le permettrait existe désormais : `date_retrait` est en base et indexée. **Six catalogues sur douze** génèrent des conseils ou un plan de tâches |
 | Rappels programmés (retrait de traitement, contrôle de ponte à J+7) | ❌ | `GET /api/taches/rappels` liste les échéances **saisies à la main** ; rien n'en pose |
 | Modèles / gabarits d'inspection réutilisables, champs activables | ❌ | Aucun paramétrage |
-| Météo attachée à l'observation | 🟡 | `MeteoController` + `OpenMeteoFournisseur` existent, mais la météo n'est **pas figée sur la visite** — donc pas de corrélation historique |
+| Météo attachée à l'observation | ✅ | Quatre colonnes **figées** sur `visite` (V19) : `meteoTemperatureC`, `meteoHumiditePct`, `meteoVentKmh` et leur **source** (`open-meteo`, `simulation`, `saisie`) — une estimation ne se lit pas comme une mesure. La corrélation météo × production est débloquée ; elle n'est pas encore calculée |
 
 ---
 
@@ -194,7 +206,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Comptabilité : dépenses, recettes, rentabilité par ruche | 🟡 | `SyntheseService` calcule un **ROI global** depuis `ConfigZumm.ini` (`[economie]`) ; pas de coûts réels, pas de ventilation par ruche ou par rucher |
 | Scan de reçus, rapports fiscaux | ⛔ | HiveBook le fait par IA embarquée ; hors périmètre (voir §9) |
 | Gestion clients, fournisseurs, ventes | ⛔ | BeeKeepPal, APIGO, ApiManager ; hors périmètre |
-| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | 🟡 | `ConversionController` couvre les **unités de masse**. APIGO et BuzzWise en font une batterie entière — c'est peu coûteux et très visible |
+| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | 🟡 | `ConversionController` couvre les **unités de masse**, et `ComptageVarroaService.taux()` calcule désormais le taux d'infestation selon la méthode (SPRINT-20). Restent le sirop, le prix du miel et le réfractomètre : APIGO et BuzzWise en font une batterie entière — peu coûteux et très visible |
 
 ---
 
@@ -207,9 +219,9 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Ailes clippées, fournisseur, ruche-mère | ❌ | Champs absents |
 | **Généalogie / arbre de lignées** | ❌ | Pas de lien reine → reine mère. BeeKube, APiLOG et HiveBook en font un argument fort |
 | Dates de greffage, suivi d'élevage | ❌ | Absent |
-| **Index génétique multicritère** (hygiène, résistance varroa, douceur) | ❌ | Dépend d'abord des critères d'inspection manquants (§3) |
+| **Index génétique multicritère** (hygiène, résistance varroa, douceur) | ❌ | **La dépendance est levée** : les critères d'inspection dont il découle existent depuis le SPRINT-20 (couvain, tempérament, pathologies, comptages de varroa — §3). L'index lui-même n'est calculé nulle part |
 | Photos de reine et de motif de ponte | ❌ | `Photo` ne se rattache qu'à une visite |
-| **Registre d'élevage réglementaire** (PDF / Excel) | ❌ | Seul le rapport de visite est en PDF. Dépend des traitements et nourrissements structurés (§3). **Cinq concurrents le génèrent automatiquement** |
+| **Registre d'élevage réglementaire** (PDF / Excel) | ❌ | Seul le rapport de visite est en PDF — mais **sa dépendance est levée** : traitements et nourrissements sont structurés depuis le SPRINT-20 (§3). Il ne reste qu'un service d'édition. **Cinq concurrents le génèrent automatiquement** |
 | Rapports de conformité / certification bio | ❌ | HiveBook et APIGO les produisent |
 | Déclaration NAPI, déclaration annuelle des ruches | ⛔ | Dispositifs nationaux français |
 | Multi-utilisateurs et rôles | ✅ | `Agent` + `RoleAgent` (apiculteur/superviseur/responsable/admin), `InvitationController`, RBAC Keycloak (`SecurityConfig.matriceRbac`). **Plus fin** que les rôles d'ApiManager et sans plafond d'accès, là où BeeKeepPal limite à trois |
@@ -330,26 +342,37 @@ catalogues, et cela vaut d'être dit en soutenance :
 - détection d'anomalie déléguée à un microservice, derrière un port ;
 - auto-hébergement complet, et replis quand un service tiers tombe.
 
-**Les écarts qui comptent, par coût d'opportunité décroissant :**
+**Les écarts qui comptent, par coût d'opportunité décroissant** — l'ordre est
+celui du 18/08/2026 et il est **conservé** malgré la livraison du SPRINT-20, pour
+que les renvois « écart n° x » du reste du document restent lisibles. Les écarts
+1 et 3 sont barrés : ils sont faits.
 
-1. **Traitements, nourrissements et varroa comme entités de plein droit.** Ces
-   trois actes ne sont qu'une valeur de `RaisonVisite` : ni produit, ni dose, ni
-   délai de carence. Socle de tout le reste — registre d'élevage, corrélations,
-   index génétique, score de santé. **Huit des douze catalogues nomment le
-   varroa ; le dépôt ne le nomme que dans la prose du jeu de démonstration
-   (`infra/seed-demo.sql`) — jamais dans une table, une colonne ou une
-   énumération.**
-2. **Interventions groupées et scan en masse.** Toutes les mutations sont
+1. ~~**Traitements, nourrissements et varroa comme entités de plein droit.**~~
+   ✅ **Livré au SPRINT-20** : migration `V19`, trois tables, trois services,
+   trois routes (`/api/traitements`, `/api/nourrissements`, `/api/varroa`) et
+   l'écran `SanitaireVue`. La ligne est conservée à son rang plutôt que
+   supprimée : elle était le socle des écarts 2, 4 et 7, et c'est ce qui explique
+   qu'ils soient devenus attaquables. **Ce qu'il en reste** : le délai de carence
+   est consigné, calculé et affiché mais **n'interdit rien** (aucune règle ne
+   refuse une récolte sur une ruche sous carence), et le référentiel de produits
+   pré-renseigné reste absent.
+2. **Interventions groupées et scan en masse** — *devenu le premier écart en
+   coût d'opportunité depuis la livraison du registre.* Toutes les mutations sont
    unitaires. Sur un rucher de quarante ruches, un traitement se saisit quarante
    fois — le produit devient inutilisable à l'échelle qu'il prétend viser.
-3. **Observations d'inspection structurées** (couvain, réserves, cellules
-   royales, tempérament, maladies nommées). Aujourd'hui en texte libre dans
-   `Visite.constatations` : rien n'en est analysable, ce qui plafonne tout le
-   module analytique. HiveTracks montre la cible : des cases, pas de la prose.
+3. ~~**Observations d'inspection structurées**~~ ✅ **Livré au SPRINT-20** :
+   quinze colonnes sur `visite` (couvain, motif de ponte, cadres, cellules
+   royales et leur cause, tempérament, reine vue) et la table fille
+   `observation_pathologie` pour les maladies **nommées**. Le texte libre
+   subsiste, il n'est plus la seule trace. **Ce qu'il en reste**, et qui change de
+   nature : le **score de santé** et le **risque d'essaimage** que ces colonnes
+   rendent enfin calculables, et les gabarits d'inspection paramétrables.
 4. **Tâches et rappels engendrés par les événements.** Six catalogues
    recommandent ou programment ; `TacheService` ne fait qu'enregistrer. Le
    retrait d'un traitement après son délai de carence est le cas d'école : la
-   règle est mécanique, la valeur immédiate.
+   règle est mécanique, la valeur immédiate — et depuis le SPRINT-20 la donnée
+   est là, `traitement.date_retrait` étant en base et indexée. Il ne manque plus
+   que la règle.
 5. **Couche d'occupation du sol et calendrier de floraison.** Le seul axe où un
    concurrent (BeeGIS) joue sur le terrain revendiqué par Zümm — le SIG. PostGIS
    est déjà là ; il manque la donnée d'entrée et le choix d'un référentiel
@@ -364,15 +387,15 @@ catalogues, et cela vaut d'être dit en soutenance :
 | Écart | Coût |
 |---|---|
 | Fiches d'inspection vierges imprimables | Le moteur PDF existe (`RapportVisitePdfService`) |
-| Calculateurs (sirop 1:1 et 2:1, infestation varroa, prix du miel) | Fonctions pures, testables sans base ; `ConversionController` donne le patron |
+| Calculateurs (sirop 1:1 et 2:1, prix du miel) | Fonctions pures, testables sans base ; `ConversionController` donne le patron. Celui du **taux de varroa** est livré (`ComptageVarroaService`) |
 | Agrégats au niveau **rucher** | Le maillon manquant de la vision à trois niveaux ; les requêtes par site existent déjà |
 | Rayons de butinage réglables | `rayonsKm` est déjà une propriété de `CarteFond` ; il manque le contrôle d'interface |
 | Photos rattachées à une ruche, une reine, une récolte | `Photo.visite` en `optional = false` à relâcher |
 | QR code par ruche et planche d'étiquettes imprimable | La bibliothèque QR est déjà là (`RecoltesVue.tsx`) |
-| Référentiel de types de ruche, couleur, cause de clôture | Trois colonnes et une énumération |
+| ~~Référentiel de types de ruche, couleur, cause de clôture~~ | ✅ **Livré au SPRINT-20** : quatre colonnes sur `ruche` (V19), avec un `CHECK` qui refuse une cause de clôture sur une ruche encore active |
 | Priorité et catégorie sur les tâches | Deux colonnes |
-| Export CSV étendu aux autres entités, puis XLSX | `ExportService` existe et n'expose que deux entités sur dix-neuf |
-| Météo figée sur la visite | La prévision est livrée ; débloque la corrélation météo ↔ production |
+| Export CSV étendu aux autres entités, puis XLSX | `ExportService` existe et n'expose que **deux entités sur vingt-trois** — l'écart s'est creusé mécaniquement avec les quatre entités du SPRINT-20 |
+| ~~Météo figée sur la visite~~ | ✅ **Livré au SPRINT-20** : quatre colonnes figées sur `visite` **avec leur source** (`open-meteo`, `simulation`, `saisie`). La corrélation météo ↔ production est débloquée, pas encore calculée |
 | Indicateur d'alimentation des capteurs | Un `TypeIndicateur` de plus ; évite la panne silencieuse reprochée à BeeLog et Onibi |
 
 **Un écart à trancher explicitement : la consultation hors ligne.** Le
@@ -428,8 +451,8 @@ mécanique, mais jamais gratuite (Docker requis).
 
 | Écart | DB / Flyway | Back | Contrat | Front | i18n | Infra / CI |
 |---|:--:|:--:|:--:|:--:|:--:|:--:|
-| Traitements, nourrissements, varroa | ● 3 tables | ● 3 tranches | ● | ● 3 vues | ● | — |
-| Observations d'inspection structurées | ● colonnes ou table fille | ● `Visite` + DTO | ● | ● formulaire à cases | ● nombreux libellés | — |
+| ~~Traitements, nourrissements, varroa~~ ✅ S20 | ● 3 tables | ● 3 tranches | ● | ● 1 écran à 3 volets | ● | — |
+| ~~Observations d'inspection structurées~~ ✅ S20 | ● colonnes **et** table fille | ● `Visite` + DTO | ● | ● formulaire à cases | ● nombreux libellés | — |
 | Interventions groupées / scan en masse | — | ● routes de lot, transaction, idempotence | ● | ● sélection multiple | ◐ | — |
 | Tâches et rappels engendrés par événement | ◐ colonnes `priorite`, `type`, `origine` | ● règles + événements applicatifs | ● | ◐ affichage existant | ◐ | — |
 | Score de santé / risque d'essaimage | — dérivé | ● service d'agrégation (ou `ia-service`) | ● | ● | ◐ | ◐ si l'IA s'en mêle |
@@ -446,20 +469,30 @@ mécanique, mais jamais gratuite (Docker requis).
 | Calculateurs apicoles | — | ● fonctions pures + contrôleur | ● | ● | ● | — |
 | Export étendu, puis XLSX | — | ● `ExportService` (+ dépendance `pom.xml`) | ◐ | ◐ boutons | ◐ | — |
 | Photos hors visite | ● colonnes + FK composites | ● | ● | ● | — | — |
-| Type de ruche, couleur, cause de clôture | ● colonnes + énumération | ● | ● | ● | ● | — |
+| ~~Type de ruche, couleur, cause de clôture~~ ✅ S20 | ● colonnes + énumération | ● | ● | ● | ● | — |
 | Rayons de butinage réglables | — | — | — | ● un contrôle d'interface | ◐ | — |
 | QR par ruche, planche d'étiquettes | — | ◐ endpoint PDF | ◐ | ● | ◐ | — |
-| Météo figée sur la visite | ● colonnes sur `visite` | ● | ● | — | — | — |
+| ~~Météo figée sur la visite~~ ✅ S20 | ● colonnes sur `visite` | ● | ● | — | — | — |
 | Actionneurs, anti-vol, vidéo à l'entrée | ⛔ | ⛔ | ⛔ | ⛔ | ⛔ | ⛔ matériel |
+
+> **Les quatre lignes barrées ont été livrées au SPRINT-20.** Leurs `●` ne sont
+> donc plus une estimation mais un **coût constaté** — utile pour calibrer les
+> lignes qui restent : le bloc sanitaire complet (migration, trois tranches back,
+> régénération de contrat, un écran, trois locales) a tenu en un sprint de 35
+> points.
 
 ### Lecture par couche
 
-**Base de données (`db/migration`, prochaine version `V19`).** Neuf écarts
-exigent une migration, et **c'est la couche qui commande le calendrier** : rien
-ne se code au-dessus d'une table qui n'existe pas. Les trois tables sanitaires
-(traitement, nourrissement, comptage varroa) sont à poser d'un bloc — même forme
-(ruche, date, agent, produit, quantité), même politique RLS ; les séparer
-multiplierait les revues de sécurité pour rien. Un piège propre au dépôt : la
+**Base de données (`db/migration`, prochaine version `V20`).** Neuf écarts
+exigeaient une migration, et **c'était la couche qui commandait le calendrier** :
+rien ne se code au-dessus d'une table qui n'existe pas. Les trois tables
+sanitaires (traitement, nourrissement, comptage varroa) devaient être posées d'un
+bloc — même forme (ruche, date, agent, produit, quantité), même politique RLS ;
+les séparer aurait multiplié les revues de sécurité pour rien. **C'est ce qui a
+été fait** : `V19__sanitaire_observations_sprint20.sql` porte les trois tables,
+la table fille de pathologies, les colonnes d'observation et de météo sur
+`visite` et les quatre colonnes de référentiel sur `ruche` — une migration, une
+revue RLS. Le verrou est donc levé, et **ce qui reste est parallélisable**. Un piège propre au dépôt : la
 couche d'occupation du sol n'est pas une table de plus mais un **volume de
 données géographiques**, avec index GiST et stratégie de mise à jour. C'est la
 seule ligne de la matrice où l'infra travaille vraiment. Et
@@ -499,16 +532,22 @@ géographique et, marginalement, l'IA vocale la feraient bouger.
 
 ### Ordre de passage qu'impose cette lecture
 
-1. **Une seule migration `V19`** : les trois tables sanitaires, les colonnes
-   d'observation, la météo figée sur la visite et les colonnes bon marché
-   (couleur, cause de clôture, type de ruche). Une migration, une revue RLS.
-2. **Les tranches back correspondantes**, puis **une seule régénération de
-   contrat** pour l'ensemble.
-3. **Le front en second temps** : formulaire d'inspection à cases, vues
-   sanitaires, interventions groupées.
-4. **En parallèle et sans dépendance** — donc parallélisables dès maintenant :
-   les rayons réglables, la fiche imprimable, les calculateurs, la consultation
-   hors ligne. Aucun des quatre n'attend une migration.
+1. ~~**Une seule migration `V19`**~~ ✅ **faite au SPRINT-20**, dans la forme
+   prescrite ici : les trois tables sanitaires, les colonnes d'observation, la
+   météo figée sur la visite et les colonnes bon marché (couleur, cause de
+   clôture, type de ruche) en une migration et une revue RLS.
+2. ~~**Les tranches back correspondantes**~~ ✅ **faites** — trois services,
+   trois contrôleurs, une seule régénération de contrat pour l'ensemble.
+3. **Le front** : ✅ l'écran sanitaire et le formulaire d'inspection à cases sont
+   livrés ; ❌ les **interventions groupées** ne le sont pas, et c'est désormais
+   la première tranche à prendre.
+4. **En parallèle et sans dépendance** — les rayons réglables, la fiche
+   imprimable, les calculateurs, la consultation hors ligne. Aucun des quatre
+   n'attend une migration ; aucun n'a bougé au SPRINT-20.
+5. **Nouvelles têtes de file, désormais sans verrou en amont** (§15) :
+   l'interdiction de récolte sous carence (back pur, la donnée existe), les
+   tâches engendrées par la fin de carence (back puis front), et le score de
+   santé que les colonnes d'observation rendent calculable.
 ---
 
 ## 13. Les contournements conseillés, convertis en exigences
@@ -637,7 +676,9 @@ Deux formulations étaient devenues fausses et ont été corrigées :
   aujourd'hui deux lignes, toutes deux en **texte libre** dans
   `infra/seed-demo.sql`. Le verdict ❌ ne bouge pas — il se renforce même : le jeu
   de démonstration doit écrire « présence de varroa » dans une `constatation`
-  faute de champ pour le dire ;
+  faute de champ pour le dire. **Caduc depuis le SPRINT-20 — voir §15** : le
+  champ existe, et le jeu de démonstration peuple désormais les trois tables
+  sanitaires ;
 - le §1 opposait les filtres par vue à l'absence de recherche transverse sans
   mentionner la **palette `Ctrl/⌘ + K`**. Elle existe, mais cherche des *écrans*,
   pas des *ruches* : le verdict ❌ tient, la preuve était incomplète.
@@ -679,13 +720,15 @@ Aucun des sept écarts principaux du §11 n'a été entamé, et l'ordre de passa
 ## 15. Note de révision — 29/08/2026, après le SPRINT-20
 
 Le SPRINT-20 a livré la migration `V19` et tout ce qui va avec, du domaine à
-l'écran. Cette note dit **ce que ce document doit cesser d'affirmer**, et ce
-qu'il continue d'affirmer malgré la livraison — la seconde liste est la plus
-utile des deux.
+l'écran. **Les corrections ont été reportées dans les §§1 à 13 le même jour** :
+les verdicts qu'on y lit sont ceux du 29/08/2026. Cette note reste comme
+**trace** — elle dit ce que le document affirmait encore la veille, et surtout ce
+qu'il continue d'affirmer malgré la livraison. La seconde liste est la plus utile
+des deux, et c'est celle qu'on lit mal après un sprint réussi.
 
 ### Ce qui n'est plus vrai
 
-| Affirmation des §1 à §13 | État au 29/08/2026 |
+| Ce que les §§1 à 13 affirmaient jusqu'au 29/08/2026 | Ce qu'ils disent depuis |
 |---|---|
 | « Traitements, nourrissements et varroa ne sont qu'une valeur de `RaisonVisite` » (§3, §11 écart 1) | **Faux.** Trois tables de plein droit : `traitement` (produit, substance active, dose **et son unité**, cible, période, délai de carence, fin de carence générée et indexée), `nourrissement` (type, quantité, unité, motif), `comptage_varroa` (méthode et comptages **bruts**) |
 | « Le dépôt ne nomme le varroa que dans la prose de `seed-demo.sql` » (§3) | **Faux.** Il le nomme dans une table, une route (`/api/varroa`), un service qui calcule son taux et son verdict, et un écran |
