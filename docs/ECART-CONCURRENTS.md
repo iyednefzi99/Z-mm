@@ -99,8 +99,9 @@ La brique spatiale de Zümm est en place ; la donnée d'entrée manque.
 
 C'était le domaine où l'écart de **granularité** était le plus net : Zümm
 modélisait **la visite** là où les onze carnets concurrents modélisent
-**l'observation**. Le **SPRINT-20** l'a comblé pour l'essentiel — quinze colonnes
-d'observation sur `visite`, une table fille de pathologies **nommées**, et trois
+**l'observation**. Le **SPRINT-20** l'a comblé pour l'essentiel — onze colonnes
+d'observation sur `visite` (plus quatre de météo figée, quinze au total), une
+table fille de pathologies **nommées**, et trois
 tables d'actes sanitaires de plein droit (`traitement`, `nourrissement`,
 `comptage_varroa`, migration `V19`).
 
@@ -115,7 +116,7 @@ existantes et indexées.
 | Inspection datée, horodatée, par ruche | ✅ | `Visite` (date, heure, durée, agent, raison) |
 | Planification et **approbation** des visites | ✅ | `Planning` + `StatutPlanning` (proposé/approuvé/refusé) — **aucun des douze ne l'a** |
 | Rapport de visite PDF | ✅ | `RapportVisitePdfService`, `GET /api/visites/{id}/rapport.pdf` |
-| Saisie par cases à cocher (~50 points analysables) | 🟡 | Quinze colonnes structurées sur `visite` (V19) plus la table fille `observation_pathologie`, saisies par `VisitesVue.tsx`. Ce ne sont pas les cinquante points de HiveTracks, et les gabarits paramétrables restent absents (voir plus bas) ; mais le texte libre n'est plus la **seule** trace |
+| Saisie par cases à cocher (~50 points analysables) | 🟡 | Onze colonnes d'observation structurées sur `visite` (V19) — les quatre autres colonnes de cette migration portent la météo, comptée à sa propre ligne — plus la table fille `observation_pathologie`, saisies par `VisitesVue.tsx`. Ce ne sont pas les cinquante points de HiveTracks, et les gabarits paramétrables restent absents (voir plus bas) ; mais le texte libre n'est plus la **seule** trace |
 | Force de la colonie | 🟡 | `EffectifQualitatif` (faible/moyen/fort) reste l'échelle ; `cadresCouvain`, `cadresMiel` et `cadresPollen` (V19) donnent désormais un **compte** exploitable en courbe — rien ne les agrège encore en indice |
 | Tempérament / agressivité | ✅ | `visite.temperament` (V19) : `doux`, `normal`, `agressif`. Six catalogues le demandaient |
 | État du couvain (œufs, operculé, motif de ponte) | ✅ | `couvainOeufs`, `couvainLarves`, `couvainOpercule` — trois booléens **facultatifs** (`null` = non observé, ce qui n'est pas `false`) — et `motifPonte` (`compact`, `lacunaire`, `irregulier`, `absent`), V19 |
@@ -240,7 +241,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | **Météo prévisionnelle** | ✅ | `OpenMeteoFournisseur` : `current=` + `daily=` dans **un seul appel**, `timezone=auto`, horizon borné à 16 j, `GET /api/meteo?siteId=&jours=`. Repli simulation déterministe hors ligne |
 | Tâches programmées selon la météo | ❌ | La prévision est là, le déclenchement non (HiveBook le fait) |
 | Graphiques | ✅ | `ui/graphiques.tsx` (SVG maison, ADR-007) |
-| Corrélation météo ↔ production | ❌ | Les deux sources existent, le croisement non (§3, météo non figée sur la visite) |
+| Corrélation météo ↔ production | ❌ | Les deux sources existent **et la météo est désormais figée sur la visite** (§3, quatre colonnes V19) ; c'est le croisement qui n'est calculé nulle part |
 | Export CSV | ✅ | `ExportService` (CSV RFC 4180 + TXT), `GET /api/export/{visites,ruches}` |
 | Export XLSX | ❌ | Formats CSV/TXT uniquement |
 | Export du reste (récoltes, mesures, lots, tâches…) | ❌ | Deux entités exportables sur dix-neuf. **Les douze catalogues promettent tous l'export intégral** |
@@ -361,8 +362,8 @@ que les renvois « écart n° x » du reste du document restent lisibles. Les é
    unitaires. Sur un rucher de quarante ruches, un traitement se saisit quarante
    fois — le produit devient inutilisable à l'échelle qu'il prétend viser.
 3. ~~**Observations d'inspection structurées**~~ ✅ **Livré au SPRINT-20** :
-   quinze colonnes sur `visite` (couvain, motif de ponte, cadres, cellules
-   royales et leur cause, tempérament, reine vue) et la table fille
+   onze colonnes d'observation sur `visite` (couvain, motif de ponte, cadres,
+   cellules royales et leur cause, tempérament, reine vue) et la table fille
    `observation_pathologie` pour les maladies **nommées**. Le texte libre
    subsiste, il n'est plus la seule trace. **Ce qu'il en reste**, et qui change de
    nature : le **score de santé** et le **risque d'essaimage** que ces colonnes
@@ -588,9 +589,11 @@ manœuvre, c'est une fonctionnalité manquante, pas une bonne pratique.**
   dix-neuf écrans en cinq familles métier et **retire de la navigation** ceux que
   le rôle n'ouvre pas (`ROLES_ONGLET`). L'interface s'adapte donc déjà — mais au
   **rôle**, pas au besoin : l'apiculteur de trois ruches et celui de trois cents
-  voient exactement le même produit. Et le gardiennage s'arrête à l'onglet ;
-  `routes.ts` note lui-même que le masquage des actions (« le bouton *Nouveau*
-  qui doit disparaître, pas l'onglet ») **reste à faire**.
+  voient exactement le même produit. Le gardiennage, lui, ne s'arrête plus à
+  l'onglet : `ROLES_ECRITURE` et `peutEcrire()` retirent les commandes d'écriture
+  des cinq écrans de référentiel (`fermiers`, `fermes`, `sites`, `ruches`,
+  `agents`) — « le bouton *Nouveau* qui doit disparaître, pas l'onglet » est
+  fait, et `routage.test.ts` le vérifie.
 
 ### Contournements propres à un outil, mais transposables
 
@@ -732,7 +735,7 @@ des deux, et c'est celle qu'on lit mal après un sprint réussi.
 |---|---|
 | « Traitements, nourrissements et varroa ne sont qu'une valeur de `RaisonVisite` » (§3, §11 écart 1) | **Faux.** Trois tables de plein droit : `traitement` (produit, substance active, dose **et son unité**, cible, période, délai de carence, fin de carence générée et indexée), `nourrissement` (type, quantité, unité, motif), `comptage_varroa` (méthode et comptages **bruts**) |
 | « Le dépôt ne nomme le varroa que dans la prose de `seed-demo.sql` » (§3) | **Faux.** Il le nomme dans une table, une route (`/api/varroa`), un service qui calcule son taux et son verdict, et un écran |
-| « Les observations d'inspection vivent en texte libre » (§3, §11 écart 3) | **Faux.** Quinze colonnes sur `visite` — couvain, motif de ponte, cellules royales et leur cause, cadres, tempérament — plus une table fille `observation_pathologie` pour les maladies **nommées**. Le texte libre subsiste, il n'est plus la seule trace |
+| « Les observations d'inspection vivent en texte libre » (§3, §11 écart 3) | **Faux.** Onze colonnes d'observation sur `visite` — couvain, motif de ponte, cellules royales et leur cause, cadres, tempérament — plus une table fille `observation_pathologie` pour les maladies **nommées**. Le texte libre subsiste, il n'est plus la seule trace |
 | « Météo figée sur la visite : la prévision est livrée, le figeage non » (§11, écarts à faible coût) | **Faux.** Quatre colonnes figées sur `visite`, avec leur **source** — `open-meteo`, `simulation` ou `saisie` : une estimation ne se lit pas comme une mesure |
 | « Référentiel de types de ruche, couleur, cause de clôture : trois colonnes et une énumération » (§11, écarts à faible coût) | **Faux.** Quatre colonnes sur `ruche`, avec un `CHECK` qui refuse une cause de clôture sur une ruche encore active |
 | « Aucun des sept écarts principaux du §11 n'a été entamé » (§14) | **Faux.** Les écarts **1** et **3** sont livrés ; ils étaient le socle des autres |
