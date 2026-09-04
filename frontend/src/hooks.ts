@@ -23,7 +23,7 @@ export interface ApiRessource<E, C> {
   lister: () => Promise<E[]>;
   listerPage?: (page: number, taille: number) => Promise<PageResultat<E>>;
   creer: (corps: C) => Promise<E>;
-  mettreAJour: (id: number, corps: C) => Promise<E>;
+  mettreAJour: (id: number, corps: C, entetes?: Record<string, string>) => Promise<E>;
   supprimer: (id: number) => Promise<void>;
 }
 
@@ -42,7 +42,7 @@ export interface EtatRessource<E, C> {
   statut: number | null;
   recharger: () => void;
   creer: (corps: C) => Promise<void>;
-  mettreAJour: (id: number, corps: C) => Promise<void>;
+  mettreAJour: (id: number, corps: C, entetes?: Record<string, string>) => Promise<void>;
   supprimer: (id: number) => Promise<void>;
   /** Pagination (US-052) : absente si la ressource ne la propose pas. */
   page: number;
@@ -159,8 +159,14 @@ export function useRessource<E extends { id: number }, C>(
     statut,
     recharger,
     creer: (corps: C) => muter(api.creer(corps), t.retours.cree, t.retours.echecCreation),
-    mettreAJour: (id: number, corps: C) =>
-      muter(api.mettreAJour(id, corps), t.retours.modifie, t.retours.echecModification),
+    // L'en-tete n'est transmis QUE s'il y en a un : la majorite des ecrans
+    // modifient ce qu'ils viennent de lire et n'ont aucune precondition a poser.
+    mettreAJour: (id: number, corps: C, entetes?: Record<string, string>) =>
+      muter(
+        entetes ? api.mettreAJour(id, corps, entetes) : api.mettreAJour(id, corps),
+        t.retours.modifie,
+        t.retours.echecModification,
+      ),
     supprimer: supprimerAvecAnnulation,
     page,
     taille: TAILLE_PAGE,

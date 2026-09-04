@@ -23,6 +23,7 @@ import {
   type RoutePublique,
 } from './routage/routes';
 import { appliquerMiseAJour, useMiseAJourPwa } from './pwa';
+import { ongletMontre, useEtendue } from './terrain/interface';
 import { SelecteurTheme } from './theme/theme';
 import { Bouton, Squelette } from './ui/composants';
 import { PaletteCommandes } from './ui/palette';
@@ -52,17 +53,29 @@ const VUES: Record<Onglet, React.LazyExoticComponent<() => ReactElement>> = {
   fermes: lazy(() => import('./vues/FermesVue').then((m) => ({ default: m.FermesVue }))),
   sites: lazy(() => import('./vues/SitesVue').then((m) => ({ default: m.SitesVue }))),
   ruches: lazy(() => import('./vues/RuchesVue').then((m) => ({ default: m.RuchesVue }))),
+  essaims: lazy(() =>
+    import('./vues/EssaimsVue').then((m) => ({ default: m.EssaimsVue })),
+  ),
   sanitaire: lazy(() =>
     import('./vues/SanitaireVue').then((m) => ({ default: m.SanitaireVue })),
   ),
   plannings: lazy(() => import('./vues/PlanningsVue').then((m) => ({ default: m.PlanningsVue }))),
   visites: lazy(() => import('./vues/VisitesVue').then((m) => ({ default: m.VisitesVue }))),
   taches: lazy(() => import('./vues/TachesVue').then((m) => ({ default: m.TachesVue }))),
+  horsligne: lazy(() =>
+    import('./vues/HorsLigneVue').then((m) => ({ default: m.HorsLigneVue })),
+  ),
   tableaux: lazy(() => import('./vues/TableauxVue').then((m) => ({ default: m.TableauxVue }))),
   capteurs: lazy(() => import('./vues/CapteursVue').then((m) => ({ default: m.CapteursVue }))),
   reines: lazy(() => import('./vues/ReinesVue').then((m) => ({ default: m.ReinesVue }))),
   recoltes: lazy(() => import('./vues/RecoltesVue').then((m) => ({ default: m.RecoltesVue }))),
   lots: lazy(() => import('./vues/LotsVue').then((m) => ({ default: m.LotsVue }))),
+  materiel: lazy(() =>
+    import('./vues/MaterielVue').then((m) => ({ default: m.MaterielVue })),
+  ),
+  comptabilite: lazy(() =>
+    import('./vues/ComptabiliteVue').then((m) => ({ default: m.ComptabiliteVue })),
+  ),
   carte: lazy(() => import('./vues/CarteVue').then((m) => ({ default: m.CarteVue }))),
   agents: lazy(() => import('./vues/AgentsVue').then((m) => ({ default: m.AgentsVue }))),
   invitations: lazy(() =>
@@ -121,6 +134,9 @@ export default function App(): ReactElement {
   const [enAttente, setEnAttente] = useState(0);
   const [horsLigne, setHorsLigne] = useState(!navigator.onLine);
   const [palette, setPalette] = useState(false);
+  // Étendue de l'interface (SPRINT-25) : ce qui est MONTRÉ, jamais ce qui
+  // est permis — les rôles s'en chargent, et eux seuls.
+  const [etendue] = useEtendue();
 
   const onglet = ongletDepuisChemin(chemin);
   const routePublique = routePubliqueDepuisChemin(chemin);
@@ -300,7 +316,13 @@ export default function App(): ReactElement {
             // refus n'est pas une navigation, c'est une impasse annoncée. Une
             // famille vidée de tous ses écrans disparaît avec eux : un
             // intertitre sans rien dessous est un trou, pas une information.
-            const ecrans = ongletsVisibles(groupe, session.roles);
+            // Deux filtres, et ils ne disent pas la même chose : les rôles
+            // décident de ce qui est PERMIS, l'étendue de ce qui est MONTRÉ. Un
+            // écran masqué reste atteignable par son lien direct — masquer
+            // n'est pas interdire (SPRINT-25, lot J).
+            const ecrans = ongletsVisibles(groupe, session.roles).filter((cle) =>
+              ongletMontre(cle, etendue),
+            );
             if (ecrans.length === 0) {
               return null;
             }
@@ -368,9 +390,16 @@ export default function App(): ReactElement {
         <PaletteCommandes
           roles={session.roles}
           onFermer={() => setPalette(false)}
-          onChoisir={(cle) => {
+          onChoisir={(cle, cibleId) => {
             setPalette(false);
-            naviguer(cheminDepuisOnglet(cle));
+            // L'identifiant, s'il vient de la recherche, voyage dans la requête :
+            // c'est ce qui fait qu'on arrive SUR la ligne, et pas seulement sur
+            // l'écran qui la contient.
+            naviguer(
+              cibleId === undefined
+                ? cheminDepuisOnglet(cle)
+                : `${cheminDepuisOnglet(cle)}?id=${cibleId}`,
+            );
           }}
         />
       )}

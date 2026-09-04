@@ -69,6 +69,27 @@ public class PolitiquePositionsSelonRole implements PolitiquePositions {
                 site.dateMiseEnOeuvre(),
                 site.dateDemenagement(),
                 site.dateCloture(),
+                // L'adresse postale (SPRINT-21) est masquee PLUS FORT que les
+                // coordonnees, et non moins : deux decimales situent un rucher au
+                // kilometre, une rue et un code postal le situent au portail.
+                // Arrondir la position en laissant passer « 12 chemin des Vignes »
+                // aurait annule la mesure au lieu de la completer.
+                null,
+                null,
+                // La commune et le pays restent : c'est la maille a laquelle un
+                // agent situe un rucher pour s'y rendre, et elle est deja plus
+                // grossiere que l'arrondi applique aux coordonnees.
+                site.ville(),
+                site.pays(),
+                site.typeSite(),
+                site.exposition(),
+                site.ressources(),
+                // La priorite d'un rucher n'est pas une position : elle dit
+                // l'importance qu'on lui accorde, pas ou il se trouve.
+                site.priorite(),
+                // Meme raison : la couverture reseau dit ce qu'on capte sur
+                // place, pas ou se trouve la place.
+                site.couvertureReseau(),
                 site.creeLe(),
                 site.majLe());
     }

@@ -4,6 +4,7 @@ import com.zumm.domain.Site;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -150,4 +151,22 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     @Override
     @EntityGraph(attributePaths = "ferme")
     List<Site> findAll();
+
+    /**
+     * Sites dont le nom ou la commune contient {@code motif} (recherche globale,
+     * SPRINT-21).
+     *
+     * <p>La recherche ne porte JAMAIS sur l'adresse ni sur les coordonnees : une
+     * API qui repond « quel rucher est rue des Tilleuls ? » rend interrogeable
+     * exactement ce que {@code PolitiquePositions} masque a l'affichage. La
+     * commune reste, elle : c'est la maille a laquelle on cherche un rucher, et
+     * elle est deja moins precise que l'arrondi des coordonnees.
+     */
+    @Query("""
+            select s from Site s
+            where lower(s.nom) like lower(concat('%', :motif, '%'))
+               or lower(s.ville) like lower(concat('%', :motif, '%'))
+            order by s.nom asc
+            """)
+    List<Site> rechercher(@Param("motif") String motif, Pageable pagination);
 }

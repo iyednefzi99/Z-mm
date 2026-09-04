@@ -91,6 +91,15 @@ describe('client d’API', () => {
         dateMiseEnOeuvre: '2026-04-01',
         dateDemenagement: null,
         dateCloture: null,
+        adresseRue: null,
+        codePostal: null,
+        ville: null,
+        pays: null,
+        typeSite: null,
+        exposition: null,
+        priorite: 'normale',
+        couvertureReseau: null,
+        ressources: [],
       }),
     ).rejects.toBeInstanceOf(ErreurHorsLigne);
 

@@ -1,10 +1,14 @@
 # Écart fonctionnel — Zümm face à douze outils apicoles du marché
 
-> Analyse du 18/08/2026, **revérifiée contre le code le 29/08/2026** (périmètre
-> SPRINT-20 inclus — voir les deux notes de révision en fin de document, §14 et
-> §15). Les verdicts des §§1 à 13 intègrent le **registre sanitaire** livré par la
-> migration `V19` ; le §15 dit ce que cette livraison a changé, et surtout ce
-> qu'elle n'a **pas** réglé.
+> Analyse du 18/08/2026, **revérifiée contre le code le 04/09/2026** (périmètre
+> SPRINT-27 inclus — voir les dix notes de révision en fin de document, §14 à
+> §23). Le §1 est intégralement couvert depuis la migration `V21` (§17) ; les
+> six lots livrés du plan de couverture ont fermé quarante-six lignes —
+> **A** onze (§18), **B** cinq (§19), **C** huit (§20), **J** six (§21),
+> **F₁** quatre (§22) et **E** douze (§23). Le compte passe les **deux tiers**
+> du document. Les verdicts des §§1 à 13 intègrent le **registre sanitaire**
+> (migration `V19`) et le **terrain** (migration `V20`) ; les §15 et §16 disent
+> ce que ces livraisons ont changé, et surtout ce qu'elles n'ont **pas** réglé.
 >
 > Douze catalogues concurrents ont été dépouillés
 > fonctionnalité par fonctionnalité, puis confrontés au **code réel du dépôt**
@@ -49,20 +53,21 @@ n'apparaissent que là où ils apportent un axe absent des douze autres.
 | Fonctionnalité concurrente | Zümm | Preuve / manque |
 |---|---|---|
 | Ruchers avec GPS, carte interactive | ✅ | `Site` (lat/long/altitude), PostGIS, `SiteController` (`/proches`, `/grappes`, `/{id}/voisins`), `CarteVue.tsx` + `CarteFond.tsx` (MapLibre sur tuiles OpenStreetMap, comme BeeLog Digital) |
-| Adresse postale du rucher | ❌ | `Site` ne porte que des coordonnées — pas de rue/CP/ville/pays |
-| Type de rucher, exposition, miellées, sources de nectar | ❌ | Aucun de ces champs sur `Site` ; ApiManager les demande dès la création |
-| Historique d'emplacement / transhumance | 🟡 | `Site.dateMiseEnOeuvre`, `dateDemenagement`, `dateCloture` existent ; aucune vue d'historique ni planification de transport |
+| Adresse postale du rucher | ✅ | `Site.adresseRue`, `codePostal`, `ville`, `pays` (ISO 3166-1 alpha-2, V20). Elle sort **masquée plus fort que les coordonnées** : `PolitiquePositions` retire rue et code postal aux profils non propriétaires — deux décimales situent un rucher au kilomètre, une rue le situe au portail — et laisse la commune, qui est la maille à laquelle on s'y rend |
+| Type de rucher, exposition, miellées, sources de nectar | ✅ | `Site.typeSite` (sédentaire, transhumance, fécondation, élevage, conservatoire), `Site.exposition` (huit orientations) et la table fille `ressource_florale` (V20) — vingt sources nommées, du colza au **jujubier** et au palmier dattier, pour ne pas reproduire hors de France le défaut de portabilité reproché à BeeGIS au §2. Les **miellées** sont portées depuis la `V21` par `mois_debut`/`mois_fin` sur chaque ressource : des MOIS et non des dates, parce qu'une floraison revient chaque année et qu'une date obligerait à tout ressaisir tous les ans. La fenêtre peut **enjamber l'année** — l'eucalyptus du Sud fleurit de novembre à février —, ce qu'un `entre début et fin` lirait exactement à l'envers. Ce qui reste hors de cette ligne et appartient à l'écart 5 : la couche d'occupation du sol, c'est-à-dire la floraison **observée par télédétection** plutôt que déclarée par l'apiculteur |
+| Historique d'emplacement / transhumance | ✅ | Table `emplacement_site` (V20) : une ligne par emplacement occupé, la courante étant la seule dont `date_fin` est nulle — un **index unique partiel** l'impose en base, pas seulement au service. `GET /api/sites/{id}/emplacements` et `POST /api/sites/{id}/demenagement`, distinct du `PUT` qui **corrige** une position mal saisie sans rien inscrire : confondre les deux remplirait l'historique de fausses transhumances à chaque faute de frappe |
+| **Planification du transport** de transhumance | ✅ | Table `transport` (V21) : véhicule, créneau, destination, capacité et nombre de ruches — l'écart entre les deux donnant le **nombre de voyages**, calculé au service et jamais stocké (41 ruches dans un camion de 20 font trois voyages, pas deux). `POST /api/transports/{id}/realiser` fait déménager le rucher en appelant `SiteService.demenager` : deux chemins, une seule règle, un seul historique. Sans coordonnées de destination, le plan reste un plan et le service le dit en clair — ouvrir un emplacement sans position ferait un trou dans l'historique, et un trou dans un historique ne se voit pas |
 | Fiche ruche (type, cadres, hausses) | ✅ | `Ruche.modele` + `Compartiment` (`CORPS`/`HAUSSE`, `nbCadres`) |
 | Référentiel de types de ruche (Langstroth, Warré, Dadant, Top-Bar) | ✅ | `Ruche.typeRuche` + `ck_ruche_type` (V19) : `langstroth`, `dadant`, `warre`, `voirnot`, `top_bar`, `kenyane`, `autre`. `Ruche.modele` reste le **texte libre au-dessous** du référentiel — il dit ce qu'une énumération ne dira jamais ; le type, lui, se compte |
 | Cycle de vie de la ruche | ✅ | `EtatRuche` : créée → peuplée → active → en division → en collecte → clôturée |
 | Archivage plutôt que suppression (morte, fusionnée, vendue) | ✅ | `Ruche.causeCloture` (V19) : `morte`, `fusionnee`, `vendue`, `volee`, `reformee`, `essaimee`, `autre`. `ck_ruche_cause_cloture` **refuse** une cause sur une ruche encore active — une ruche morte ne se confond plus avec une ruche vendue en statistiques |
 | Couleur de ruche (repérage visuel terrain) | ✅ | `Ruche.couleur` (V19), neuf valeurs contrôlées de `blanc` à `bois` |
-| Origine de la colonie (essaim, division, nucléus) | ✅ | `Ruche.origine` (V19) : `essaim_capture`, `essaim_achete`, `division`, `nucleus`, `paquet`, `achat`, `autre`. Le **type** d'origine est acquis ; la **filiation** (de quelle ruche mère) reste à la ligne suivante |
-| **Enregistrement d'une division comme événement de plein droit** | 🟡 | `RaisonVisite.DIVISION` et `EtatRuche.EN_DIVISION` disent qu'une division a eu lieu ; ni la ruche fille, ni le nombre de cadres transférés ne sont saisis. HiveBook en fait une entité |
-| **Capture d'essaim** | ❌ | Aucune notion. HiveBook l'enregistre au même rang qu'une division |
-| Photos rattachées | 🟡 | `Photo` est liée à **une visite uniquement** (`Photo.visite`, `optional = false`). Ni ruche, ni reine, ni récolte, ni matériel |
-| Recherche globale (ruche, site, agent…) | ❌ | La palette `Ctrl/⌘ + K` (`ui/palette.tsx`, filtrage par sous-séquence) cherche parmi les **dix-neuf écrans**, jamais parmi les objets métier. Chaque vue garde ses filtres ; aucune recherche transverse sur les données |
-| Sync calendrier iCal (Google/Outlook/Apple) | ❌ | `CalendrierService` produit une matrice agents × ruches pour l'écran, pas un flux `.ics` |
+| Origine de la colonie (essaim, division, nucléus) | ✅ | `Ruche.origine` (V19) : `essaim_capture`, `essaim_achete`, `division`, `nucleus`, `paquet`, `achat`, `autre`. Le **type** d'origine est acquis ; la **filiation** l'est depuis le SPRINT-21, à la ligne suivante |
+| **Enregistrement d'une division comme événement de plein droit** | ✅ | Table `division` (V20) : mère, fille, méthode, cadres de couvain et de provisions transférés, origine de la reine. La **filiation** est portée par un index unique partiel sur la fille — une ruche n'a qu'une mère. La fille reste facultative, et c'est délibéré : on divise souvent vers un nucléus qui ne sera enregistré comme ruche que s'il prend, et l'exiger ferait renoncer à saisir la division. `/api/divisions`, écran `EssaimsVue` |
+| **Capture d'essaim** | ✅ | Table `capture_essaim` (V20) : origine (essaim naturel, piège, récupération, signalement), lieu, poids, hauteur. Le **logement est différé** (`POST /api/captures/{id}/loger`) — on capture un jour, on loge quand la colonie a pris ; l'exiger à la saisie reviendrait à n'enregistrer que les captures réussies, donc à perdre la statistique qui a de la valeur. **Sans coordonnées, délibérément** : le lieu d'une capture se raconte, il ne se cartographie pas, et une colonne de position de plus serait une surface à masquer de plus |
+| Photos rattachées | ✅ | `photo` porte cinq cibles possibles — visite, ruche, site, reine, récolte (V20) — et un `CHECK num_nonnulls(...) = 1` qui en impose **exactement une** : une photo attachée à tout n'est attachée à rien, et une photo attachée à rien est une fuite de stockage. `/api/photos?cible=RUCHE&cibleId=12` ; la route historique `/api/visites/{id}/photos` est inchangée |
+| Recherche globale (ruche, site, agent…) | ✅ | `GET /api/recherche?q=` (`RechercheService`) cherche dans **sept familles** — ruches, sites, fermes, fermiers, agents, récoltes, lots — et la palette `Ctrl/⌘ + K` affiche les résultats sous les écrans. Elle est volontairement pauvre : ni position, ni adresse, ni courriel, deux caractères minimum et un plafond par famille, parce que c'est le seul appel qui rend d'un coup un échantillon de toutes les tables. Le cloisonnement n'y est pas écrit — la RLS et la portée d'agent (V16) s'appliquent d'elles-mêmes. Choisir un résultat **ouvre la fiche** : `/ruches?id=42` surligne la ligne et l'amène à l'écran. Les routes restent plates — l'ADR du SPRINT-11 écarte un routeur — mais une route plate accepte un paramètre, sans segment dynamique ni bibliothèque. Le surlignage est posé dans `Table`, donc acquis pour les **vingt écrans** d'un coup |
+| Sync calendrier iCal (Google/Outlook/Apple) | ✅ | `GET /api/plannings/agenda.ics` (`AgendaIcsService`) produit un vrai `VCALENDAR` : `UID` stable — réimporter met à jour l'événement au lieu de le dupliquer, ce que trois des douze ratent —, visite datée distinguée de la visite horodatée, échappement RFC 5545, repliement à 75 octets. Deux usages : le **téléchargement** authentifié, et depuis la `V21` l'**abonnement** — l'URL qu'un client de calendrier relit seul, sans session. L'objection qui l'avait fait écarter (« un jeton permanent est un secret non révocable ») a été levée plutôt que contournée : 256 bits tirés d'un `SecureRandom`, **jamais stockés** — la base n'en garde que l'empreinte SHA-256 —, expiration **obligatoire** bornée à un an, révocation d'un clic, et dernière utilisation affichée pour qu'un jeton oublié se remarque. Le flux ne rend que l'agenda **d'un agent**, et **aucune position** : un `.ics` est recopié chez un tiers à chaque rafraîchissement |
 
 ---
 
@@ -78,7 +83,7 @@ La brique spatiale de Zümm est en place ; la donnée d'entrée manque.
 | Couches d'occupation du sol (cultures, forêt, hydrographie, urbanisation) | ❌ | Le fond est **une seule tuile raster** (`VITE_TUILES_URL`). Aucune couche vectorielle thématique, aucun WMS |
 | Calcul des surfaces par type de couvert dans le rayon | ❌ | **L'outil existe, la donnée non** : PostGIS sert déjà à `ST_ClusterDBSCAN` et au voisinage. Une intersection avec une couche de couvert en serait la suite |
 | Historique et rotation des cultures sur plusieurs années | ❌ | Aucune donnée agricole n'entre dans le système |
-| Comparaison de plusieurs emplacements candidats (transhumance) | 🟡 | `SiteController` compare les sites **entre eux dans l'espace** ; jamais sur leur environnement ou leur potentiel |
+| Comparaison de plusieurs emplacements candidats (transhumance) | ✅ | `GET /api/sites/comparaison?ids=` (`ComparaisonSitesService`, SPRINT-23) aligne rendement **par ruche** sur deux saisons, flore déclarée et en fleur, altitude, exposition et densité de voisinage à 3 km. **Aucune note globale** : mélanger des kilos, des espèces et une altitude donnerait un chiffre qui a l'autorité d'une mesure sans en avoir la matière. Et **aucune coordonnée** en sortie |
 | **Calendrier de floraison / suivi des miellées** (*bloom calendar*, *nectar flow*) | ❌ | HiveBook et HiveTracks en font un module. Zümm n'a aucune notion de saison mellifère |
 | **Comptage / prévision de pollen** | ❌ | HiveSense et APiLOG le géolocalisent par rucher |
 | Croisement santé du rucher × flore environnante (biodiversité) | ❌ | HiveTracks en fait un produit à part entière (*DaaS*, module RSE) |
@@ -117,24 +122,24 @@ existantes et indexées.
 | Planification et **approbation** des visites | ✅ | `Planning` + `StatutPlanning` (proposé/approuvé/refusé) — **aucun des douze ne l'a** |
 | Rapport de visite PDF | ✅ | `RapportVisitePdfService`, `GET /api/visites/{id}/rapport.pdf` |
 | Saisie par cases à cocher (~50 points analysables) | 🟡 | Onze colonnes d'observation structurées sur `visite` (V19) — les quatre autres colonnes de cette migration portent la météo, comptée à sa propre ligne — plus la table fille `observation_pathologie`, saisies par `VisitesVue.tsx`. Ce ne sont pas les cinquante points de HiveTracks, et les gabarits paramétrables restent absents (voir plus bas) ; mais le texte libre n'est plus la **seule** trace |
-| Force de la colonie | 🟡 | `EffectifQualitatif` (faible/moyen/fort) reste l'échelle ; `cadresCouvain`, `cadresMiel` et `cadresPollen` (V19) donnent désormais un **compte** exploitable en courbe — rien ne les agrège encore en indice |
+| Force de la colonie | ✅ | `EffectifQualitatif` reste l'echelle et `cadresCouvain`/`cadresMiel`/`cadresPollen` le compte ; l'**indice de sante** (`IndiceColonieService`, SPRINT-22) les agrege enfin, avec les reserves et le motif de ponte. Rien n'est stocke : l'indice se calcule a chaque lecture, comme le taux de varroa, pour qu'une formule qui change n'entre jamais en contradiction avec une valeur figee |
 | Tempérament / agressivité | ✅ | `visite.temperament` (V19) : `doux`, `normal`, `agressif`. Six catalogues le demandaient |
 | État du couvain (œufs, operculé, motif de ponte) | ✅ | `couvainOeufs`, `couvainLarves`, `couvainOpercule` — trois booléens **facultatifs** (`null` = non observé, ce qui n'est pas `false`) — et `motifPonte` (`compact`, `lacunaire`, `irregulier`, `absent`), V19 |
 | Réserves miel / pollen, contenu des cadres | ✅ | `cadresCouvain`, `cadresMiel`, `cadresPollen` (V19), bornés de 0 à 40 par `ck_visite_cadres` |
 | Cellules royales et cause (essaimage / supersédure / urgence) | ✅ | `cellulesRoyales` (le compte) et `cellulesRoyalesCause` (V19) : la cause n'est acceptée que si le compte est > 0 — une cause sans cellule serait une saisie incohérente |
 | Reine vue / statut à chaque visite | ✅ | `visite.reineVue` (V19) est une case de la visite. `SuiviReine` reste l'événement séparé qui porte le **cycle de vie** (marquage, remplacement, essaimage) : les deux ne disent pas la même chose et n'avaient pas à fusionner |
-| État sanitaire | 🟡 | `EtatSante` (bon/moyen/mauvais) reste un curseur à trois positions, mais il n'est plus seul : les pathologies sont nommées à la ligne suivante |
+| État sanitaire | ✅ | `EtatSante` reste le curseur a trois positions saisi au rucher, mais il n'est plus seul a repondre : l'indice croise etat declare, pathologies **confirmees** — `suspectee` etant la gravite par defaut, la compter comme une maladie ferait chuter toute colonie sur laquelle on a eu un doute —, reserves et verdict varroa. Chaque penalite sort avec son motif, pour que la note s'explique au lieu de s'asséner |
 | Maladies et ravageurs nommés (loque, petit coléoptère…) | ✅ | `observation_pathologie` (V19) : onze valeurs — `varroose`, `loque_americaine`, `loque_europeenne`, `nosemose`, `petit_coleoptere`, `fausse_teigne`, `frelon_asiatique`, `couvain_sacciforme`, `mycose`, `pesticide`, `autre` — et quatre gravités dont `suspectee` **par défaut** : au rucher on constate un symptôme, on ne pose pas un diagnostic de laboratoire |
 | **Suivi du varroa** (méthode, comptage, taux d'infestation calculé) | ✅ | Table `comptage_varroa` (V19), cinq méthodes (`lange`, `sucre_glace`, `alcool`, `co2`, `desoperculation`), **comptages bruts** stockés. Le taux et le verdict sont **calculés au service** (`ComptageVarroaService.taux()` / `verdict()`) et jamais stockés : ils n'ont pas la même unité selon la méthode. Route `/api/varroa`, écran `SanitaireVue.tsx` |
 | **Traitements sanitaires** (produit, dose, cible, durée, délai de carence) | ✅ | Table `traitement` (V19) : produit commercial, **substance active** (pour raisonner l'alternance), cible parmi huit, dose **et son unité** (`ck_traitement_dose_unite` refuse une dose sans unité), période, délai de carence. `/api/traitements`, `TraitementService` |
 | Référentiel de traitements pré-renseigné | ❌ | `traitement.produit` est une saisie libre : rien ne propose les produits courants, rien ne relie deux noms commerciaux par leur substance active. HiveTracks en embarque plus de vingt ; c'est ce qui rend la saisie tenable au rucher |
-| Délai de carence / date de retrait avant récolte | 🟡 | `traitement.dateRetrait` est une colonne **générée** (`date_fin + delai_carence_jours`) et **indexée** ; `GET /api/traitements/carence` liste les ruches sous carence et `SanitaireVue` les affiche en tête. Mais **aucune règle n'interdit d'enregistrer une récolte** sur l'une d'elles : le registre est opposable en *lecture*, pas contraignant en *écriture* (§15) |
+| Délai de carence / date de retrait avant récolte | ✅ | `traitement.date_retrait` est desormais **opposable** : `RecolteService` refuse la recolte d'une ruche sous carence en **409** — la requete est valide, c'est l'etat qui s'y oppose — et le message dit le produit et la date de fin. La porte de sortie est tracee : forcer exige un motif (`recolte.carence_forcee`, `motif_forcage`) et depose une entree d'audit sous l'action **`forcage`**, distincte des creations ordinaires. Sans cette porte, l'apiculteur cesserait d'enregistrer le TRAITEMENT, et le registre deviendrait faux la ou il n'etait qu'incomplet |
 | **Nourrissements** (type, quantité, motif) | ✅ | Table `nourrissement` (V19) : sept types d'aliment (`sirop_1_1` … `eau`), quantité avec unité, six motifs (`stimulation`, `hivernage`, `disette`, `secours`, `transhumance`, `autre`). `/api/nourrissements` |
 | Ordonnances vétérinaires | 🟡 | `traitement.ordonnance` porte la **référence** de l'ordonnance ; aucun document n'est stocké — le dépôt n'héberge encore aucun binaire (voir la dette d'upload dans `STRATEGIE-PRODUIT.md`) |
-| **Score de santé calculé par colonie** | ❌ | APIGO, BuzzWise, HiveTracks et HiveBook le calculent. Zümm n'agrège aucun indice par ruche |
-| **Score de risque d'essaimage** | ❌ | `SuiviReine` accepte le statut `essaimee` — **constat a posteriori**, pas prédiction |
-| **Recommandations automatiques / tâches générées** | ❌ | `TacheService` est un CRUD pur (`creer`, `lister`, `mettreAJour`, `supprimer`). Aucun événement métier ne crée de tâche — mais la donnée qui le permettrait existe désormais : `date_retrait` est en base et indexée. **Six catalogues sur douze** génèrent des conseils ou un plan de tâches |
-| Rappels programmés (retrait de traitement, contrôle de ponte à J+7) | ❌ | `GET /api/taches/rappels` liste les échéances **saisies à la main** ; rien n'en pose |
+| **Score de santé calculé par colonie** | ✅ | `GET /api/indices` : 100 moins les penalites observees, avec leurs motifs. **`composantes = 0` quand rien n'a pu etre evalue** — une colonie non visitee n'est pas saine, elle est inconnue, et l'ecran affiche « non evalue » plutot qu'une jauge sur du vide |
+| **Score de risque d'essaimage** | ✅ | Meme route. Cellules royales et leur **cause** (60 points pour `essaimage`, 30 sinon), leur nombre, la densite de couvain et un corps plein. Il est distinct de la sante, et c'est le point : une colonie qui va essaimer se porte tres bien — les confondre ferait rater l'essaim |
+| **Recommandations automatiques / tâches générées** | ✅ | `MoteurRegles` (SPRINT-22) et cinq regles : fin de carence a trois jours, controle de ponte a J+7, varroa au-dessus du seuil, reserves au plus bas, visite compromise par la meteo. Chaque tache porte la **cle** de ce qui l'a declenchee (`carence-retrait:42`) et un index unique partiel empeche la regle de la recreer a chaque passage — sans quoi la liste se remplirait de doublons jusqu'a n'etre plus lue |
+| Rappels programmés (retrait de traitement, contrôle de ponte à J+7) | ✅ | Les deux exemples cites par le document sont exactement les deux premieres regles ecrites. Le retrait est propose **trois jours avant** la fin de carence : une tache qui arrive le matin ou elle est due n'est pas un rappel, c'est un constat de retard |
 | Modèles / gabarits d'inspection réutilisables, champs activables | ❌ | Aucun paramétrage |
 | Météo attachée à l'observation | ✅ | Quatre colonnes **figées** sur `visite` (V19) : `meteoTemperatureC`, `meteoHumiditePct`, `meteoVentKmh` et leur **source** (`open-meteo`, `simulation`, `saisie`) — une estimation ne se lit pas comme une mesure. La corrélation météo × production est débloquée ; elle n'est pas encore calculée |
 
@@ -151,14 +156,14 @@ produit entier ; HiveTracks y répond par du papier.
 |---|---|---|
 | **Saisie vocale** des observations | ❌ | Aucune API vocale dans le front : ni `SpeechRecognition`, ni `MediaRecorder`, ni `getUserMedia`. Le seul geste qui fonctionne avec des gants |
 | **Transcription IA embarquée, hors ligne** (Whisper sur l'appareil) | ❌ | HiveSense, HiveBook et HivePal transcrivent sans réseau ni serveur. Le microservice IA de Zümm (`ia-service/scoring.py`) fait de la **détection d'anomalie EWMA sur séries de capteurs** — rien à voir avec du langage |
-| Notes vocales simplement enregistrées, sans transcription | ❌ | ApiManager et BeeKeepPal se contentent de stocker l'audio ; même ce repli minimal n'existe pas |
-| **Fiches d'inspection imprimables** (saisie au stylo, saisie différée) | ❌ | `RapportVisitePdfService` produit un compte rendu **après** la visite. La fiche vierge à emporter est l'inverse — et c'est la réponse la plus économique au problème des gants |
-| Identification par **QR code** sur la ruche | 🟡 | `RecoltesVue.tsx` génère un QR de **lot de récolte** ; pas de QR par ruche, pas de planche d'étiquettes |
-| Identification par **NFC** | ❌ | Aucun appel Web NFC (indisponible sur iOS Safari : le QR reste le socle, le NFC un confort) |
-| **Interventions groupées / scan en masse** sur tout un rucher | ❌ | Toutes les mutations sont unitaires (`POST /api/visites`, `/api/recoltes`…). Traiter 40 ruches = 40 saisies. **Écart terrain le plus coûteux** |
+| Notes vocales simplement enregistrées, sans transcription | 🟡 | `VisitesVue` enregistre (`MediaRecorder`) et rejoue une note pendant la saisie (SPRINT-24) — mais **elle ne quitte pas l'appareil**. Le dépôt n'a aucun stockage binaire : `photo.url` ne porte qu'une adresse, `traitement.ordonnance` qu'une référence. Encoder de l'audio en base64 dans un champ texte aurait fabriqué un stockage de fichiers clandestin, invisible en revue et impossible à purger |
+| **Fiches d'inspection imprimables** (saisie au stylo, saisie différée) | ✅ | `GET /api/ruchers/{id}/fiche-inspection.pdf` (`FicheInspectionPdfService`, SPRINT-24) : une ligne par ruche, les colonnes de la grille structurée du SPRINT-20, et **une ligne vide de plus** — au rucher, on trouve toujours une colonie qui n'est pas encore au fichier |
+| Identification par **QR code** sur la ruche | ✅ | `ui/etiquettes.tsx` (SPRINT-25) : QR par ruche (`zumm:ruche:42`), **code court** `R-42` lisible à l'œil nu quand le QR est sale ou propolisé, et planche imprimable par rucher. Le code court n'est pas un second identifiant — c'est celui de la ruche, préfixé : en inventer un opaque aurait créé deux façons de nommer la même colonie |
+| Identification par **NFC** | ✅ | `terrain/nfc.ts` (SPRINT-25) écrit sur la puce **la charge du QR**, à l'identique — deux charges pour le même objet donneraient un jour deux réponses. Le bouton n'apparaît que là où `NDEFReader` existe : absent d'iOS et de Firefox, il reste un **complément** du QR, jamais un remplacement, et l'écran le dit ailleurs |
+| **Interventions groupées / scan en masse** sur tout un rucher | ✅ | `POST /api/{traitements,nourrissements,recoltes}/lot` (`OperationsLotService`, SPRINT-23) : une cible cumulative (ruches nommées **et/ou** rucher entier, dédoublonnée au serveur), **une transaction par ruche**, et un rapport qui **nomme** les refus avec leur motif métier — sans quoi le rejeu porterait sur les quarante ruches au lieu des trois. Le scan par code-barres reste dû |
 | Saisie hors ligne au rucher | ✅ | `frontend/src/offline/file.ts` — file de mutations persistée, rejeu à l'événement `online`, **clé d'idempotence stable** (`FiltreIdempotence`) |
-| **Consultation** hors ligne des données | ❌ | Choix explicite : `vite.config.ts` met `/api` en `navigateFallbackDenylist`. La coquille et les tuiles sont hors ligne, **les données non**. Six catalogues en font un argument de vente ; c'est le reproche n°1 fait à HiveTracks, BeeKube et BuzzWise |
-| Résolution de conflits multi-agents hors ligne | ❌ | Limite documentée dans `offline/file.ts` |
+| **Consultation** hors ligne des données | ✅ | `GET /api/ruchers/{id}/emport` + `offline/emport.ts` (SPRINT-24), sous [ADR-012](../roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif.md). Le `navigateFallbackDenylist` **reste inchangé** : rien ne passe par le service worker. L'emport est déclenché, borné à un rucher, **daté par le serveur** et périssable à quatorze jours. Ni mesures de capteurs, ni météo, ni position exacte — l'objection de 2026 tenait pour elles, et elle est conservée |
+| Résolution de conflits multi-agents hors ligne | ✅ | En-tête `X-Zumm-Version` sur `PUT /api/visites/{id}` → **409 avec la version du serveur** (SPRINT-24). La saisie refusée passe en **quarantaine** au lieu d'être jetée : avant, tout 4xx au rejeu était traité comme « traité » et l'observation faite au rucher disparaissait sans un mot. Le serveur ne fusionne pas — décider laquelle de deux observations dit vrai sur un couvain est un arbitrage d'apiculteur |
 | PWA installable, sans passage par un store | ✅ | SPRINT-13. Couvre iOS **et** Android, là où HiveBook est réservé à l'écosystème Apple |
 | Mode clair / sombre explicite, testé | ✅ | `theme/theme.test.tsx` — 7 tests, bascule clair/sombre/système persistée, `data-theme` sur `:root`. **BeeKeepPal se fait reprocher un texte noir sur fond sombre, illisible au rucher** |
 | Fonctionnement dégradé quand un service tiers est bloqué | ✅ | `MeteoService` retombe sur une estimation déterministe si Open-Meteo est injoignable ; `CarteVue` retombe sur un rendu SVG sans WebGL ni tuiles. **BeeGIS se fait précisément reprocher d'être bloqué par les pare-feux** |
@@ -178,16 +183,16 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | **API ouverte d'ingestion** (balances et stations DIY) | ✅ | `POST /api/mesures` (`MesureController.ingerer`), contrat publié en OpenAPI 3. C'est ce que BeeKube revendique comme différenciateur |
 | **Connexion Bluetooth directe** aux capteurs du commerce (BroodMinder, BEEP, SensorPush, Inkbird…) | ❌ | Aucun appel Web Bluetooth. Zümm suppose une passerelle qui pousse vers l'API ; HiveSense supprime la passerelle |
 | Intégrations nommées de capteurs du commerce | ❌ | Le point d'entrée est générique, l'adaptation reste à la charge du fabricant |
-| Poids **par hausse** | ❌ | `MesureId` = (`rucheId`, `typeIndicateur`, `instant`) : la granularité s'arrête à la ruche, alors que `Compartiment` distingue déjà corps et hausses |
+| Poids **par hausse** | ✅ | Table `mesure_compartiment` (`V26`), hypertable distincte, FK composite vers `compartiment`. **Distincte de `mesure`, et c'est le choix** : celle-là porte ce qu'une balance pèse sous la ruche entière, celle-ci ce qu'on attribue à un étage. Les fondre aurait demandé de rendre nullable une colonne de la clé primaire de l'hypertable la plus critique du système — ou un sentinel, qui aurait fait perdre la clé étrangère. Une hausse jamais pesée rend `null`, jamais 0 |
 | Alertes à seuils sur capteurs | ✅ | `SeuilAlerteService` (hystérésis anti-rebond), `Alerte`, `NotificationAlerteService` |
 | Notification e-mail à l'ouverture d'une alerte | ✅ | `NotificationAlerteService` — **un seul destinataire par message** (`setTo`), jamais de liste. Voir la leçon n°1 du §10 |
 | Prévision de récolte | ✅ | `PrevisionRecolteService` — régression linéaire sur la série de poids, projection 7 j |
 | Détection d'anomalie par IA | ✅ | `MoteurAnomalie` (port) + `ClientAnomalieIA` → microservice Python. HiveBook fait la même chose sur l'appareil |
-| Partage d'un flux de télémétrie entre utilisateurs | 🟡 | Le partage passe par l'appartenance au même tenant (`Agent`, RBAC) ; aucun partage inter-exploitations comme chez BeeLog Digital |
+| Partage d'un flux de télémétrie entre utilisateurs | ✅ | `partage_telemetrie` (`V26`) + `GET /api/flux/{jeton}`, **sans session** : la courbe d'UNE ruche, montrée à un mentor, un technicien sanitaire ou un groupement. Même forme que l'abonnement iCalendar du SPRINT-21 — jeton de 256 bits jamais stocké en clair, expiration obligatoire, révocation, usage horodaté — et le destinataire ne reçoit ni identifiant, ni rucher, ni position |
 | **Analyse vidéo / acoustique à l'entrée** (comptage de trafic, perte de reine) | ❌ | Onibi seul. Le port `MoteurAnomalie` est prêt à recevoir un second moteur — l'architecture ne s'y oppose pas, la donnée manque |
 | **Actionneurs à distance** (portes robotisées, protection anti-frelon) | ⛔ | Zümm observe, il ne commande pas. Piloter un actionneur engage la sécurité de la colonie et suppose du matériel propriétaire |
 | **Alarme anti-vol / détection de basculement** | ❌ | Le vol de ruches est pourtant la menace qui justifie `PolitiquePositions` (voir sa javadoc). Zümm **cache** la position pour protéger du vol ; Onibi **alerte** quand il survient. Les deux réponses sont complémentaires, Zümm n'a que la première |
-| Supervision de l'état des batteries des capteurs | ❌ | Aucun indicateur d'alimentation. BeeLog et Onibi se font tous deux reprocher les pannes de batterie silencieuses |
+| Supervision de l'état des batteries des capteurs | ✅ | `TypeIndicateur.ALIMENTATION` (`V26`), en pourcent, avec son seuil dans `ConfigZumm.ini` (`batterie_min_pourcent`, 20 % par défaut). Le reproche fait à BeeLog et Onibi ne porte pas sur l'absence de mesure mais sur la panne **silencieuse** : l'indicateur passe donc par `SeuilAlerteService` comme les autres — même hystérésis, même table d'alertes, même notification |
 
 ---
 
@@ -198,16 +203,16 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Récolte par ruche, quantité, type de miel, lot | ✅ | `Recolte` + `RecolteController` |
 | Traçabilité du lot | ✅ | `GET /api/recoltes/tracabilite/{lot}` |
 | Conditionnement et mention d'origine réglementaire | ✅ | `LotConditionnement` + `LotConditionnementService` — directive (UE) 2024/1438, consolidation par pays, somme à 100 %. **Aucun des douze ne l'implémente à ce niveau** |
-| Chaîne récolte → maturation → mise en pot, DLUO/DDM | 🟡 | Récolte et conditionnement existent ; l'étape de maturation et les dates de péremption non |
-| **Produits autres que le miel** (cire, pollen, propolis, gelée royale, essaims, reines) | ❌ | `Recolte.quantiteKg` + `typeMiel` : le modèle **présuppose du miel**. Quatre concurrents ventilent par produit |
-| Comparaison des récoltes année par année | ❌ | Les agrégats sont sur période glissante, jamais saison contre saison |
-| Récolte sur tout un rucher en une saisie | ❌ | Unitaire par ruche |
-| **Inventaire du matériel** (hausses, cadres, extracteurs) et état d'entretien | ❌ | `LotConditionnement` conditionne, il ne tient pas d'inventaire. BeeKeepPal, HiveBook et APIGO l'ont |
-| Stock de consommables avec seuils de réapprovisionnement | ❌ | Absent |
-| Comptabilité : dépenses, recettes, rentabilité par ruche | 🟡 | `SyntheseService` calcule un **ROI global** depuis `ConfigZumm.ini` (`[economie]`) ; pas de coûts réels, pas de ventilation par ruche ou par rucher |
+| Chaîne récolte → maturation → mise en pot, DLUO/DDM | ✅ | `lot_conditionnement.date_maturation` et `date_durabilite` (`V27`). **Deux dates, pas un workflow** : la tentation était un enchaînement avec ses états et ses transitions ; deux dates disent la même chose et ne bloquent aucune saisie. La colonne porte le nom légal actuel — la DDM a remplacé la DLUO en 2015 |
+| **Produits autres que le miel** (cire, pollen, propolis, gelée royale, essaims, reines) | ✅ | `recolte.type_produit` et `recolte.unite` (`V27`) : sept produits, deux unités. Une colonne et non une table — une récolte de cire est une récolte, faite le même jour sur la même ruche ; lui donner sa propre table aurait dupliqué la traçabilité, le lot, le forçage de carence et l'export. **L'unité est indispensable** : cinq essaims ne pèsent pas cinq kilogrammes, et la base refuse la combinaison incohérente |
+| Comparaison des récoltes année par année | ✅ | `GET /api/saisons` (`ComparaisonSaisonsService`, SPRINT-27), en **années civiles** : une saison à cheval sur deux années rendrait toute comparaison ambiguë. Le rendement compte les ruches **qui ont produit**, pas celles qui existaient — doubler son cheptel double la production sans rien améliorer |
+| Récolte sur tout un rucher en une saisie | ✅ | `POST /api/recoltes/lot` : la quantité saisie vaut pour **chaque** ruche, jamais comme un total à répartir — répartir quarante kilos en quarante lignes d'un kilo écrirait une masse fausse par colonie, et la traçabilité repose sur ces masses. Le forçage de carence n'y est pas proposé : passer outre est une décision **par colonie** |
+| **Inventaire du matériel** (hausses, cadres, extracteurs) et état d'entretien | ✅ | Table `materiel` (`V27`), dix catégories, quatre états, et l'écran « Matériel ». La **prochaine échéance n'est pas stockée** : elle se calcule, la ranger en base créerait une valeur à maintenir en cohérence avec la dernière maintenance |
+| Stock de consommables avec seuils de réapprovisionnement | ✅ | Table `consommable` (`V27`) et `RegleStockBas`. Le seuil est **obligatoire**, avec un défaut à zéro : un stock sans seuil est un inventaire — il dit ce qu'on a, jamais ce qui manque. Les mouvements sont relatifs (`+`/`−`) et non absolus, sans quoi deux personnes qui prélèvent le même jour s'écraseraient |
+| Comptabilité : dépenses, recettes, rentabilité par ruche | ✅ | Table `depense` (`V27`) et `GET /api/depenses/bilan`. **Trois refus tiennent le module** : aucune dépense non affectée n'est répartie (une assurance ne se divise pas par le nombre de ruches) ; les recettes sont une *valorisation* au prix paramétré, pas un chiffre d'affaires ; et seul le miel est valorisé. La frontière du §9 est intacte : ni facturation, ni TVA, ni clients |
 | Scan de reçus, rapports fiscaux | ⛔ | HiveBook le fait par IA embarquée ; hors périmètre (voir §9) |
 | Gestion clients, fournisseurs, ventes | ⛔ | BeeKeepPal, APIGO, ApiManager ; hors périmètre |
-| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | 🟡 | `ConversionController` couvre les **unités de masse**, et `ComptageVarroaService.taux()` calcule désormais le taux d'infestation selon la méthode (SPRINT-20). Restent le sirop, le prix du miel et le réfractomètre : APIGO et BuzzWise en font une batterie entière — peu coûteux et très visible |
+| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | 🟡 | `CalculateurApicole` (SPRINT-27) ajoute le **sirop** — en proportions de masse, comme le veut l'usage — et la **valorisation** d'une production, en euros et en pots de 500 g. Le **réfractomètre** reste dehors, et délibérément : la table de Chataway est propre à chaque appareil et à sa température de calibration, et un chiffre faux sur une mesure qui décide de la conservation du miel serait pire que rien |
 
 ---
 
@@ -228,24 +233,24 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Multi-utilisateurs et rôles | ✅ | `Agent` + `RoleAgent` (apiculteur/superviseur/responsable/admin), `InvitationController`, RBAC Keycloak (`SecurityConfig.matriceRbac`). **Plus fin** que les rôles d'ApiManager et sans plafond d'accès, là où BeeKeepPal limite à trois |
 | Lisibilité des droits pour l'utilisateur | ✅ | SPRINT-19 : la navigation masque les écrans fermés au rôle (`routage/routes.ts`, `ROLES_ONGLET`), `InterditVue` explique le refus au lieu d'un 403 nu, et `PermissionsVue` publie la matrice complète — *voici les serrures, voici qui a les clés*. **Aucun des douze ne montre ses règles d'accès à ses utilisateurs** |
 | Compte en libre-service (création, consultation) | ✅ | `ConnexionVue` (connexion **et** inscription depuis l'application), `CompteVue` : utilisateur, exploitation et rôles lus dans la session serveur, aucun jeton en mémoire du navigateur (ADR-006) |
-| **Réinitialisation de mot de passe en libre-service** | ❌ | `RecuperationVue` **aiguille vers le responsable d'exploitation** : aucun serveur d'envoi n'est configuré dans `infra/keycloak/realm-zumm{,.dev}.json`, donc aucun courriel ne partirait. Onze des douze étant des services en ligne (§8), ils portent tous ce chemin ; c'est le maillon manquant du parcours de compte |
+| **Réinitialisation de mot de passe en libre-service** | 🟡 | Le chemin est **ouvert côté produit** (SPRINT-25) : `/api/info` publie l'URL du parcours du fournisseur d'identité, et `RecuperationVue` affiche le lien dès qu'elle est renseignée — sinon elle continue d'aiguiller vers le responsable. Ce qui manque n'est plus du code : c'est un **serveur d'envoi**, que l'exploitant configure (`infra/keycloak/README.md`). Le lien reste caché tant qu'il n'y en a pas, parce qu'un formulaire dont le courriel ne part jamais est pire que pas de lien |
 | Cloisonnement des données entre exploitations | ✅ | Multi-tenant + RLS PostgreSQL, `TenantFilter`, `tenant_id` obligatoire dans le JWT. **Aucun des douze ne le documente** |
 | Piste d'audit | ✅ | `AuditEntree`, `AuditAspect`, `AuditController`, `AuditVue.tsx` |
 | Tâches avec échéance | ✅ | `Tache` + `GET /api/taches/rappels` |
-| Priorité, type et notification de tâche | 🟡 | `Tache` n'a que `libelle`, `ruche`, `agent`, `echeance`, `faite` |
+| Priorité, type et notification de tâche | ✅ | `tache.priorite` (quatre niveaux), `categorie` (huit valeurs) et `origine` — `manuelle` ou `regle`, avec le code de la regle, pour qu'une tache proposee puisse se justifier a l'ecran. Notification par courriel des seules taches **critiques** : notifier chaque creation reviendrait a n'en notifier aucune, les messages etant filtres des la troisieme semaine. Un message par destinataire, `setTo` d'une seule adresse — la faute de BeeKeepPal (§10) reste structurellement impossible |
 | Tableau de bord de synthèse | ✅ | `TableauDeBordController` : calendrier, production, alertes sanitaires, synthèse, prévisions |
-| **Vision à trois niveaux** (ruche → rucher → exploitation) | 🟡 | Le niveau ruche et le niveau exploitation existent ; **le niveau rucher est le maillon faible** — pas d'agrégat par site. C'est l'ossature revendiquée par BeeKeepPal |
+| **Vision à trois niveaux** (ruche → rucher → exploitation) | ✅ | `GET /api/ruchers/synthese` (`SyntheseRucherService`, SPRINT-23) + volet « Par rucher » : santé moyenne, risque d'essaimage **maximal** (et non moyen — une colonie prête à essaimer ne se dilue pas), colonies sous carence, alertes, tâches et production, triés du plus préoccupant au plus calme. La moyenne ne porte que sur les colonies **réellement évaluées**, et un rucher jamais visité rend `null` : « inconnu » n'est pas « en mauvaise santé » |
 | Tournée optimisée du jour | ✅ | `OptimiseurTournee` (plus proche voisin + 2-opt), `GET /api/plannings/tournee` — **APIGO l'annonce, Zümm l'a** |
-| Coordination d'équipes terrain, logistique multi-sites | 🟡 | `Planning` + `OptimiseurTournee` + portée par affectation couvrent la coordination ; ni logistique, ni chaîne d'approvisionnement (le terrain de HiveOS) |
+| Coordination d'équipes terrain, logistique multi-sites | 🟡 | `GET /api/equipe/charge` (SPRINT-23) ajoute la charge par agent — ruches, **ruchers concernés** (trois ruches sur trois ruchers font trois déplacements), tâches ouvertes, en retard, critiques, visites à sept jours — assortie de la phrase qui dit qu'elle ne sert **pas** à comparer des personnes. Restent la logistique et la chaîne d'approvisionnement, le terrain de HiveOS |
 | Assistant / mentor IA, briefing quotidien | ❌ | L'IA de Zümm surveille des séries de capteurs ; elle ne lit pas l'historique d'une colonie et ne propose rien |
 | **Météo prévisionnelle** | ✅ | `OpenMeteoFournisseur` : `current=` + `daily=` dans **un seul appel**, `timezone=auto`, horizon borné à 16 j, `GET /api/meteo?siteId=&jours=`. Repli simulation déterministe hors ligne |
-| Tâches programmées selon la météo | ❌ | La prévision est là, le déclenchement non (HiveBook le fait) |
+| Tâches programmées selon la météo | ✅ | `RegleMeteoDefavorable` croise les plannings des cinq prochains jours avec la prevision du site — une seule interrogation par RUCHER, pas par ruche — et propose de replanifier sous 5 mm de pluie, 40 km/h de vent ou 12 °C. Elle ne **deplace rien** : decider a la place d'un agent peut-etre deja en route, sur la foi d'une prevision a cinq jours, serait pire que le probleme. Fournisseur indisponible = pas d'avis, jamais « beau temps » |
 | Graphiques | ✅ | `ui/graphiques.tsx` (SVG maison, ADR-007) |
-| Corrélation météo ↔ production | ❌ | Les deux sources existent **et la météo est désormais figée sur la visite** (§3, quatre colonnes V19) ; c'est le croisement qui n'est calculé nulle part |
+| Corrélation météo ↔ production | ✅ | `GET /api/correlations/meteo` : coefficient de Pearson entre chaque indicateur **fige sur la visite** (V19) et ce que la ruche a produit dans les trente jours suivants. Le service **refuse de conclure** en dessous de douze paires, et rend `null` — jamais 0 — quand le coefficient n'existe pas : zero dirait « aucun lien mesure », ce qui est une affirmation. Une visite sans recolte compte pour zero kilo et non pour rien, sans quoi la question deviendrait « quand on recolte, recolte-t-on ? » |
 | Export CSV | ✅ | `ExportService` (CSV RFC 4180 + TXT), `GET /api/export/{visites,ruches}` |
-| Export XLSX | ❌ | Formats CSV/TXT uniquement |
-| Export du reste (récoltes, mesures, lots, tâches…) | ❌ | Deux entités exportables sur dix-neuf. **Les douze catalogues promettent tous l'export intégral** |
-| Bilan annuel PDF | ❌ | Absent |
+| Export XLSX | ✅ | `ClasseurXlsx` (SPRINT-27), **sans dépendance** : cinq parties XML dans un ZIP, cellules en chaînes en ligne. Apache POI pèse une douzaine de mégaoctets pour produire ici une grille sans style ni formule — le même arbitrage que [ADR-007](../roadmap/operationnel/06_decisions/ADR-007-graphiques-svg.md) sur Chart.js. Le jour où un format de nombre manque vraiment, POI redevient le bon choix, et le commentaire de la classe le dit |
+| Export du reste (récoltes, mesures, lots, tâches…) | ✅ | **Quatorze ressources** (SPRINT-27), la ressource devenant un paramètre de chemin. Le refactor était le point : chaque ressource produit une *grille*, le rendu est fait une fois par format — sans quoi la neutralisation des formules (`CWE-1236`) serait à refaire dans quatorze branches, et disparaîtrait de l'une d'elles. Les mesures sont bornées à quatre-vingt-dix jours, et l'export des ruchers ne porte **aucune coordonnée** : un fichier circule, il n'a pas de rôle porteur |
+| Bilan annuel PDF | ✅ | `GET /api/saisons/{annee}/bilan.pdf` (`BilanAnnuelPdfService`, SPRINT-27) : production, dépenses par poste, rentabilité ruche par ruche. Un document qu'on **archive**, pas un tableau de bord — et un pied de page rappelle que les recettes sont une valorisation, parce qu'un PDF survit à la conversation qui l'a produit |
 | Trilingue FR / EN / AR avec RTL | ✅ | `i18n/locales/{fr,en,ar}.json`, parité vérifiée par test. **Aucun des douze ne propose l'arabe** — différenciateur le plus net vers le Maghreb et le Moyen-Orient |
 
 ---
@@ -357,10 +362,12 @@ que les renvois « écart n° x » du reste du document restent lisibles. Les é
    est consigné, calculé et affiché mais **n'interdit rien** (aucune règle ne
    refuse une récolte sur une ruche sous carence), et le référentiel de produits
    pré-renseigné reste absent.
-2. **Interventions groupées et scan en masse** — *devenu le premier écart en
-   coût d'opportunité depuis la livraison du registre.* Toutes les mutations sont
-   unitaires. Sur un rucher de quarante ruches, un traitement se saisit quarante
-   fois — le produit devient inutilisable à l'échelle qu'il prétend viser.
+2. ~~**Interventions groupées et scan en masse**~~ ✅ **Livré au SPRINT-23**
+   (lot B) : `POST /api/{traitements,nourrissements,recoltes}/lot`, une
+   transaction par ruche et un rapport qui nomme les refus. Le cas d'école — un
+   traitement saisi quarante fois sur un rucher de quarante ruches — est réglé.
+   **Ce qu'il en reste** : le **scan** proprement dit, c'est-à-dire le QR par
+   ruche et la planche d'étiquettes, qui relève du §12.
 3. ~~**Observations d'inspection structurées**~~ ✅ **Livré au SPRINT-20** :
    onze colonnes d'observation sur `visite` (couvain, motif de ponte, cadres,
    cellules royales et leur cause, tempérament, reine vue) et la table fille
@@ -378,8 +385,14 @@ que les renvois « écart n° x » du reste du document restent lisibles. Les é
    concurrent (BeeGIS) joue sur le terrain revendiqué par Zümm — le SIG. PostGIS
    est déjà là ; il manque la donnée d'entrée et le choix d'un référentiel
    portable (§2).
-6. **Saisie vocale**, précédée de la **fiche imprimable** — même problème, deux
-   ordres de grandeur d'écart en coût.
+6. **Saisie vocale.** La **fiche imprimable** qui la précédait dans cette ligne
+   est ✅ **livrée au SPRINT-24** (`FicheInspectionPdfService`) — deux ordres de
+   grandeur moins chère, pour le même problème des gants. **Ce qu'il en reste** :
+   la note vocale est enregistrée et rejouable, mais **locale à l'appareil**, le
+   dépôt n'ayant aucun stockage binaire ; et la transcription reste suspendue à
+   la décision D4 du plan de couverture — on ne peut pas promettre « traitement
+   local, aucun trafic sortant » et « assistant IA » tant qu'on n'a pas dit **où**
+   le modèle s'exécute.
 7. **Généalogie des reines.** Trois concurrents en font leur argument central ;
    c'est une clé étrangère réflexive sur `SuiviReine` et une vue d'arbre.
 
@@ -387,30 +400,31 @@ que les renvois « écart n° x » du reste du document restent lisibles. Les é
 
 | Écart | Coût |
 |---|---|
-| Fiches d'inspection vierges imprimables | Le moteur PDF existe (`RapportVisitePdfService`) |
-| Calculateurs (sirop 1:1 et 2:1, prix du miel) | Fonctions pures, testables sans base ; `ConversionController` donne le patron. Celui du **taux de varroa** est livré (`ComptageVarroaService`) |
-| Agrégats au niveau **rucher** | Le maillon manquant de la vision à trois niveaux ; les requêtes par site existent déjà |
+| ~~Fiches d'inspection vierges imprimables~~ | ✅ **Livré au SPRINT-24** : `FicheInspectionPdfService`, une ligne par ruche et les colonnes de la grille du SPRINT-20 |
+| ~~Calculateurs (sirop 1:1 et 2:1, prix du miel)~~ | ✅ **Livrés au SPRINT-27** : `CalculateurApicole`, fonctions pures. Le réfractomètre reste dehors — voir §23 |
+| ~~Agrégats au niveau **rucher**~~ | ✅ **Livré au SPRINT-23** : `SyntheseRucherService` et le volet « Par rucher », six requêtes en bloc quel que soit le nombre de ruchers |
 | Rayons de butinage réglables | `rayonsKm` est déjà une propriété de `CarteFond` ; il manque le contrôle d'interface |
-| Photos rattachées à une ruche, une reine, une récolte | `Photo.visite` en `optional = false` à relâcher |
-| QR code par ruche et planche d'étiquettes imprimable | La bibliothèque QR est déjà là (`RecoltesVue.tsx`) |
+| ~~Photos rattachées à une ruche, une reine, une récolte~~ | ✅ **Livré au SPRINT-21** : cinq cibles sur `photo` (V20) et un `CHECK` qui en impose exactement une |
+| ~~QR code par ruche et planche d'étiquettes imprimable~~ | ✅ **Livré au SPRINT-25** : `ui/etiquettes.tsx`, code court `R-42` et planche imprimable par rucher |
 | ~~Référentiel de types de ruche, couleur, cause de clôture~~ | ✅ **Livré au SPRINT-20** : quatre colonnes sur `ruche` (V19), avec un `CHECK` qui refuse une cause de clôture sur une ruche encore active |
-| Priorité et catégorie sur les tâches | Deux colonnes |
-| Export CSV étendu aux autres entités, puis XLSX | `ExportService` existe et n'expose que **deux entités sur vingt-trois** — l'écart s'est creusé mécaniquement avec les quatre entités du SPRINT-20 |
-| ~~Météo figée sur la visite~~ | ✅ **Livré au SPRINT-20** : quatre colonnes figées sur `visite` **avec leur source** (`open-meteo`, `simulation`, `saisie`). La corrélation météo ↔ production est débloquée, pas encore calculée |
-| Indicateur d'alimentation des capteurs | Un `TypeIndicateur` de plus ; évite la panne silencieuse reprochée à BeeLog et Onibi |
+| ~~Priorité et catégorie sur les tâches~~ | ✅ **Livré au SPRINT-22** (lot A) : quatre colonnes sur `tache`, dont l'origine et la clé de déclenchement |
+| ~~Export CSV étendu aux autres entités, puis XLSX~~ | ✅ **Livré au SPRINT-27** : quatorze ressources, trois formats, et un écrivain XLSX sans dépendance |
+| ~~Météo figée sur la visite~~ | ✅ **Livré au SPRINT-20** : quatre colonnes figées sur `visite` **avec leur source** (`open-meteo`, `simulation`, `saisie`). La corrélation météo ↔ production est calculée depuis le lot A (`CorrelationMeteoService`), qui refuse d'interpréter sous douze paires |
+| ~~Indicateur d'alimentation des capteurs~~ | ✅ **Livré au SPRINT-26** : `TypeIndicateur.ALIMENTATION` (`V26`) et son seuil dans `ConfigZumm.ini` |
 
-**Un écart à trancher explicitement : la consultation hors ligne.** Le
-commentaire de `vite.config.ts` refuse de mettre `/api` en cache — une mesure de
-capteur périmée induirait l'apiculteur en erreur. L'argument est juste pour les
-mesures ; il l'est beaucoup moins pour la liste des ruches d'un rucher, qui ne
-change pas dans la journée. **Six des douze concurrents mettent la consultation
-hors ligne en tête de leur argumentaire**, et c'est le reproche n°1 fait à
-HiveTracks, BeeKube et BuzzWise. Un cache sélectif par entité, avec date de
-fraîcheur affichée, réconcilierait les deux exigences — et rejoint la leçon n°3
-du §10. **Le §13 tranche ce point** : trois concurrents font aujourd'hui exécuter
-ce préchargement à la main par leurs utilisateurs, ce qui désigne la forme juste
-— un « emporter ce rucher hors ligne » déclenché par l'apiculteur, borné et daté,
-plutôt qu'un cache automatique.
+**~~Un écart à trancher explicitement : la consultation hors ligne.~~ Tranché,
+et livré au SPRINT-24.** Le commentaire de `vite.config.ts` refusait de mettre
+`/api` en cache — une mesure de capteur périmée induirait l'apiculteur en erreur.
+L'argument était juste pour les mesures, beaucoup moins pour la liste des ruches
+d'un rucher, qui ne change pas dans la journée. **Six des douze concurrents
+mettent la consultation hors ligne en tête de leur argumentaire**, et c'est le
+reproche n°1 fait à HiveTracks, BeeKube et BuzzWise. La forme retenue est celle
+que le §13 avait déduite des concurrents, et que fixe désormais
+[ADR-012](../roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif.md) :
+un « emporter ce rucher hors ligne » **déclenché** par l'apiculteur, **borné** à
+un rucher, **daté** par le serveur et **périssable** — et non un cache
+automatique. Le `navigateFallbackDenylist` n'a pas bougé d'une ligne ; les
+mesures de capteurs restent dehors, ce qui était l'objection réelle.
 
 > Rappel du cadre : toute nouvelle table métier issue de ces écarts porte
 > `tenant_id`, sa politique RLS et une clé étrangère composite `(id, tenant_id)`
@@ -462,8 +476,8 @@ mécanique, mais jamais gratuite (Docker requis).
 | Calendrier de floraison / miellées | ● | ● | ● | ● | ● | — |
 | Généalogie des reines | ● FK réflexive sur `suivi_reine` | ● | ● | ● vue d'arbre SVG | ◐ | — |
 | Saisie vocale | — | — si transcription locale, ● si serveur | ◐ | ● Web Speech / `MediaRecorder`, permissions PWA | ● 3 langues de reconnaissance | ◐ |
-| Fiches d'inspection imprimables | — | ● un service PDF de plus | ◐ | ◐ un bouton | ◐ | — |
-| Consultation hors ligne | — | ◐ en-têtes de fraîcheur | — | ● service worker, `vite.config.ts`, cache par entité | ◐ | — |
+| ~~Fiches d'inspection imprimables~~ ✅ | — | ● `FicheInspectionPdfService` | ◐ | ◐ un bouton | ◐ | — |
+| ~~Consultation hors ligne~~ ✅ | — | ● route d'emport horodatée | ● | ● `offline/emport.ts`, écran dédié | ◐ | — |
 | Bluetooth direct vers les capteurs | — | — l'API d'ingestion existe | — | ● Web Bluetooth (absent d'iOS Safari) | ◐ | — |
 | Indicateur d'alimentation des capteurs | ◐ valeur d'énumération | ◐ seuils | ◐ | ◐ | ◐ | — |
 | Agrégats au niveau **rucher** | — | ● requêtes + DTO | ● | ● | ◐ | — |
@@ -569,12 +583,12 @@ manœuvre, c'est une fonctionnalité manquante, pas une bonne pratique.**
 
 | Contournement conseillé à l'utilisateur | Qui le conseille | Exigence pour Zümm | Verdict | Couche |
 |---|---|---|:--:|---|
-| « Ouvrez les fiches de vos ruchers **avant** d'entrer en zone blanche » | BeeKube, BuzzWise, HiveTracks | **Emporter un rucher hors ligne** : préchargement explicite, déclenché par l'utilisateur, avec date de fraîcheur affichée et purge à la synchronisation | ❌ | front |
-| « Notez au stylo ou en mémo vocal, saisissez au retour sur ordinateur » | ApiManager, BuzzWise, HiveTracks | **Brouillon de visite reprenable** sur un autre appareil : la saisie commencée au rucher se termine à la maison | ❌ | back + front |
-| « Exportez en CSV/PDF chaque mois, ou en fin de saison » | ApiManager, HiveSense, BuzzWise, HiveTracks, HiveBook | **Export intégral** de toutes les entités + **rappel d'archivage saisonnier** engendré automatiquement | ❌ | back + front |
-| « Emportez une batterie externe, fermez les applications gourmandes » | BeeKube, HiveSense, HiveBook | **Mode économie** assumé : rendu léger, pas de WebGL, pas de rafraîchissement de fond | 🟡 | front |
-| « Collez des QR codes / posez des puces NFC plutôt que des autocollants » | APiLOG, ApiManager, APIGO | **Étiquetage durable** : QR par ruche, planche imprimable, identifiant court lisible à l'œil nu quand le scan échoue | 🟡 | back + front |
-| « Équipez d'abord vos ruches souches ou vos ruchers stratégiques » | BeeLog Digital, Onibi | **Marquage de priorité** sur la ruche et le rucher, repris dans le tableau de bord et la tournée | ❌ | DB + back + front |
+| « Ouvrez les fiches de vos ruchers **avant** d'entrer en zone blanche » | BeeKube, BuzzWise, HiveTracks | **Emporter un rucher hors ligne** : préchargement explicite, déclenché par l'utilisateur, avec date de fraîcheur affichée | ✅ | `GET /api/ruchers/{id}/emport` en **un seul appel**, écran « Hors ligne » (SPRINT-24). La date du prélèvement est répétée à chaque lecture, et un emport de plus de quatorze jours n'est plus servi |
+| « Notez au stylo ou en mémo vocal, saisissez au retour sur ordinateur » | ApiManager, BuzzWise, HiveTracks | **Brouillon de visite reprenable** sur un autre appareil | ✅ | table `brouillon_visite` (`V24`), `PUT /api/brouillons` idempotent sur (agent, ruche). Contenu **opaque** au serveur : valider une saisie en cours ferait perdre ce qu'on cherche à sauver. Seule table du schéma dont la RLS **n'ouvre pas** sur une portée globale |
+| « Exportez en CSV/PDF chaque mois, ou en fin de saison » | ApiManager, HiveSense, BuzzWise, HiveTracks, HiveBook | **Export intégral** + **rappel d'archivage saisonnier** | ✅ | Quatorze ressources en trois formats, et `RegleArchivageSaisonnier` — une tâche par an, en **novembre** : la saison est close au nord, et il reste l'hiver pour ressaisir ce qui manque. Janvier arriverait après les déclarations, août tomberait en pleine miellée |
+| « Emportez une batterie externe, fermez les applications gourmandes » | BeeKube, HiveSense, HiveBook | **Mode économie** assumé : rendu léger, pas de WebGL, pas de rafraîchissement de fond | ✅ | `terrain/economie.ts` (SPRINT-24) : interrupteur explicite, jamais déclenché par le niveau de batterie — une application qui change de comportement sans le dire passe pour cassée. L'écran **dit ce qu'il coupe** |
+| « Collez des QR codes / posez des puces NFC plutôt que des autocollants » | APiLOG, ApiManager, APIGO | **Étiquetage durable** : QR par ruche, planche imprimable, identifiant court lisible à l'œil nu quand le scan échoue | ✅ | `ui/etiquettes.tsx` + `terrain/nfc.ts` (SPRINT-25). La planche est rendue par le **navigateur** et non par le serveur : la bibliothèque QR y vit déjà depuis l'US-033, et l'ajouter au back-end aurait introduit une dépendance Java pour ce que le navigateur sait faire. L'impression ne sort que les étiquettes (`@media print`) |
+| « Équipez d'abord vos ruches souches ou vos ruchers stratégiques » | BeeLog Digital, Onibi | **Marquage de priorité** sur la ruche et le rucher, repris dans le tableau de bord et la tournée | ✅ | migration `V23`, trois niveaux (`basse`/`normale`/`haute`), index partiels sur ce qui n'est pas `normale` ; repris dans la synthèse par rucher |
 
 **Verdicts détaillés.**
 
@@ -600,15 +614,15 @@ manœuvre, c'est une fonctionnalité manquante, pas une bonne pratique.**
 | Contournement conseillé | Qui | Exigence pour Zümm | Verdict | Couche |
 |---|---|---|:--:|---|
 | « Vérifiez sur le terrain au printemps la culture réellement semée » (*ground truthing*) | BeeGIS | Toute donnée environnementale porte son **millésime** et peut être marquée « à confirmer », ce qui engendre une tâche de vérification | ❌ | DB + back + front |
-| « Servez-vous de l'historique de rotation sur 3 à 5 ans » | BeeGIS | **Comparaison saison contre saison**, et non agrégats sur période glissante | ❌ | back + front |
-| « Vérifiez la couverture réseau du site **avant** d'installer » | Onibi | Champ **couverture réseau** sur le `Site`, au même titre que l'exposition — il conditionne ce qu'on peut y déployer | ❌ | DB + back + front |
-| « Vérifiez le niveau de charge des capteurs via le tableau de bord » | BeeLog Digital, Onibi | `TypeIndicateur.ALIMENTATION` + seuil d'alerte : `SeuilAlerteService` sait déjà faire le reste | ❌ | DB + back + front |
-| « Nettoyez les optiques, grattez la propolis sur les glissières » | Onibi | **Plan de maintenance du matériel** : tâches récurrentes attachées à un équipement, pas à une ruche | ❌ | DB + back + front |
-| « Configurez une seule ruche *test* avant de basculer l'exploitation » | BeeLog Digital | **Jeu de démonstration réversible** — `infra/seed-demo.sh` existe côté exploitant, rien côté utilisateur | 🟡 | infra + front |
-| « N'activez les modules avancés qu'au moment où vous en avez besoin » | APIGO, HiveTracks | **Interface progressive** : les modules avancés ne s'imposent pas à l'apiculteur de trois ruches | 🟡 | front |
-| « Ajoutez l'application à l'écran d'accueil avant de partir au rucher » | APIGO | **Invite d'installation contextuelle** : `pwa.ts` gère la mise à jour (stratégie *prompt*), jamais l'installation (`beforeinstallprompt` absent) | ❌ | front |
-| « Utilisez le champ Notes libre pour préciser l'action à mener » | HiveTracks | **Action attachée à l'observation** : une case cochée engendre la tâche correspondante. Le champ libre ne doit pas être la soupape du modèle | ❌ | DB + back + front |
-| « Désactivez les notifications e-mail pour éviter la fuite d'adresses » | BeeKeepPal | **Réglage par utilisateur** : `zumm.notifications.email.enabled` est une propriété **globale**, pas une préférence d'agent | ❌ | DB + back + front |
+| « Servez-vous de l'historique de rotation sur 3 à 5 ans » | BeeGIS | **Comparaison saison contre saison** | ✅ | `GET /api/saisons` (SPRINT-27) : années civiles, rendement par ruche productive, ventilation par produit. Tous les autres agrégats du produit glissent — douze mois qui reculent chaque jour ne permettent pas de dire « 2026 a mieux donné que 2025 » |
+| « Vérifiez la couverture réseau du site **avant** d'installer » | Onibi | Champ **couverture réseau** sur le `Site`, au même titre que l'exposition | ✅ | `site.couverture_reseau` (`V24`), quatre niveaux, index partiel sur ce qui manque. NULLE = inconnue : un défaut à « correcte » ferait partir un apiculteur sans emport sur un rucher en zone blanche |
+| « Vérifiez le niveau de charge des capteurs via le tableau de bord » | BeeLog Digital, Onibi | `TypeIndicateur.ALIMENTATION` + seuil d'alerte | ✅ | `V26`, une valeur d'énumération et un seuil. Inventer une table « état des capteurs » aurait créé un second mécanisme d'alerte à maintenir en parallèle du premier, pour dire la même chose. Un test d'intégration a d'ailleurs montré que `alerte` portait **sa propre** liste d'indicateurs : les deux contraintes disaient la même chose à deux endroits |
+| « Nettoyez les optiques, grattez la propolis sur les glissières » | Onibi | **Plan de maintenance du matériel** : tâches récurrentes attachées à un équipement, pas à une ruche | ✅ | `tache.materiel_id` (`V27`) et `RegleMaintenanceMateriel`, dans le moteur du SPRINT-22 — même clé d'idempotence, même anti-doublon. La clé **porte l'échéance** : une fois l'entretien fait, la date recule et la règle repropose au terme suivant, sans jamais dupliquer celle du terme courant |
+| « Configurez une seule ruche *test* avant de basculer l'exploitation » | BeeLog Digital | **Jeu de démonstration réversible** | ✅ | `POST`/`DELETE /api/demonstration` (`JeuDemonstrationService`, `V25`). Le mot qui compte est **réversible** : la table `jeu_demonstration` note ce que le chargement a créé, et la purge ne supprime que cela — jamais une donnée saisie par l'utilisateur, même si elle porte le même nom. Éteint par défaut, réservé au rôle `admin` |
+| « N'activez les modules avancés qu'au moment où vous en avez besoin » | APIGO, HiveTracks | **Interface progressive** : les modules avancés ne s'imposent pas à l'apiculteur de trois ruches | ✅ | `terrain/interface.ts` (SPRINT-25) : l'étendue « essentielle » retire cinq écrans de la navigation — capteurs, lots, essaims, reines, audit. **Masquer n'est pas interdire** : les rôles décident de ce qui est permis, ce réglage de ce qui est montré ; un lien direct continue de fonctionner, et `interface.test.ts` vérifie que les deux ne se rejoignent pas |
+| « Ajoutez l'application à l'écran d'accueil avant de partir au rucher » | APIGO | **Invite d'installation contextuelle** | ✅ | `pwa.ts` capte `beforeinstallprompt` et la rejoue depuis l'écran « Hors ligne », c'est-à-dire au moment où elle a un sens (SPRINT-24). Safari ne l'émet jamais : l'écran explique alors l'ajout par le menu de partage, faute de quoi la moitié du parc verrait un écran qui ne propose rien |
+| « Utilisez le champ Notes libre pour préciser l'action à mener » | HiveTracks | **Action attachée à l'observation** : une case cochée engendre la tâche correspondante. Le champ libre ne doit pas être la soupape du modèle | ✅ | DB + back + front |
+| « Désactivez les notifications e-mail pour éviter la fuite d'adresses » | BeeKeepPal | **Réglage par utilisateur** | ✅ | `agent.notifications_email` (`V25`), lu par `NotificationAlerteService`. Le réglage global demeure et **s'ajoute** : les deux doivent être vrais. Vrai par défaut — une alerte s'ouvre parce que quelque chose ne va pas, et un défaut à faux ferait taire au premier déploiement ce que le produit promet de signaler. Un corps qui omet le champ ne le réécrit pas |
 | « Créez votre compte depuis la version Web, l'application mobile est instable » | BeeKeepPal | **Parité stricte web / mobile** — un seul code, une seule PWA | ✅ | — |
 | « Activez impérativement la sauvegarde iCloud, sinon les données sont perdues » | HiveBook | **Sauvegarde restaurée pour de vrai** : `infra/sauvegarde.sh`, `restauration.sh` et `tester-restauration.sh`, dont le scénario détruit la donnée avant de la restaurer | ✅ | — |
 | « Désactivez le mode sombre du téléphone » | BeeKeepPal | Thème clair / sombre / système, persisté et **testé** (`theme/theme.test.tsx`, 7 tests) | ✅ | — |
@@ -786,3 +800,678 @@ hors ligne (§11, §13).
 > Ce verrou est levé, et les trois manques ci-dessus sont désormais
 > **parallélisables** — l'interdiction de récolte est back pur, les interventions
 > groupées touchent les deux couches, les tâches engendrées sont back puis front.
+
+---
+
+## 16. Note de révision — 31/08/2026, après le SPRINT-21
+
+Le SPRINT-21 a livré la migration `V20` et le §1 avec elle : c'était la dernière
+section où Zümm restait en retard sur ce que **douze catalogues sur douze**
+demandent dès la création d'un rucher. Les corrections sont reportées dans les
+§§1 à 13 le même jour ; cette note dit ce que la livraison a réglé, ce qu'elle a
+**délibérément laissé de côté**, et ce qui reste dû.
+
+### Ce qui n'est plus vrai
+
+| Ce que le §1 affirmait jusqu'au 31/08/2026 | Ce qu'il dit depuis |
+|---|---|
+| « `Site` ne porte que des coordonnées — pas de rue/CP/ville/pays » | **Faux.** Quatre colonnes d'adresse (V20), et un masque qui les retire **plus fort** que les coordonnées : une rue situe un rucher au portail |
+| « Aucune vue d'historique » d'emplacement | **Faux.** `emplacement_site`, une ligne par période, index unique partiel sur l'emplacement courant, et un `POST /demenagement` distinct du `PUT` qui corrige |
+| « Ni la ruche fille, ni le nombre de cadres transférés ne sont saisis » | **Faux.** `division` porte la filiation, la méthode et ce que la mère a cédé |
+| « Capture d'essaim : aucune notion » | **Faux.** `capture_essaim`, avec logement différé — la capture existe avant d'avoir une ruche |
+| « `Photo` est liée à une visite uniquement » | **Faux.** Cinq cibles, et un `CHECK` qui en impose exactement une |
+| « La palette cherche parmi les écrans, jamais parmi les objets métier » | **Faux, à moitié.** `/api/recherche` couvre sept familles ; mais les routes restent plates, donc on ouvre l'écran porteur, pas la fiche |
+| « `CalendrierService` ne produit pas de flux `.ics` » | **Faux.** `AgendaIcsService` produit un `VCALENDAR` conforme — en téléchargement, jamais en abonnement |
+
+### Ce qui a été écarté, et pourquoi ce n'est pas un oubli
+
+1. **`capture_essaim` ne porte aucune coordonnée.** La tentation était forte —
+   on capture un essaim quelque part. Mais une colonne de position est une
+   surface de fuite de plus à filtrer (invariant `PolitiquePositions`) pour une
+   donnée dont personne ne fait rien : le lieu d'une capture ne se cartographie
+   pas, il se raconte. Un champ `lieu` libre le dit mieux et ne se trilatère pas.
+2. **`ressource_florale` dit QUOI, jamais QUAND.** Les dates de floraison sont le
+   calendrier de miellées de l'écart 5 du §11, et celui-là suppose d'abord de
+   trancher un référentiel d'occupation du sol portable hors de France. Une
+   migration n'avait pas à préempter cette décision produit.
+3. **Le `.ics` est un téléchargement, pas un abonnement.** Un abonnement iCal
+   suppose une URL appelée **sans session** par le client de calendrier, donc un
+   jeton permanent : un secret de plus, non révocable en pratique, recopié dans
+   les réglages de trois appareils et transmis en clair à chaque intermédiaire.
+   Le téléchargement authentifié donne l'usage réel — « mes visites de la semaine
+   dans mon agenda » — sans créer ce secret.
+4. **La planification du transport de transhumance n'est pas là.** L'historique
+   dit où le rucher a été, pas comment il y va. Véhicule, créneau, ordre de
+   chargement : c'est un métier à part, et il a sa propre ligne ❌ au §1.
+
+### Ce qui reste dû sur le §1 lui-même
+
+- **La recherche n'ouvre pas la fiche.** Choisir « Ruche 42 » dans la palette
+  ouvre l'écran des ruches, pas la ruche 42. Y remédier demande des routes
+  paramétrées, c'est-à-dire le routeur que l'ADR du SPRINT-11 a écarté : c'est
+  une décision à rouvrir, pas un correctif.
+- **Les miellées** (dates, pas ressources) et la **planification de transport**
+  restent ❌, l'une renvoyée à l'écart 5, l'autre nouvellement nommée.
+
+### Ce qui a été relevé, et comment
+
+| Fait | Valeur | Commande |
+|---|---|---|
+| Entités JPA | **27** (23 + `RessourceFlorale`, `EmplacementSite`, `Division`, `CaptureEssaim`) | `grep -rl "^@Entity" backend/src/main/java/com/zumm \| wc -l` |
+| Contrôleurs REST | **31** (32 `@RestController` **moins** `GestionnaireExceptions`) | `grep -rl "@RestController" …` |
+| Migrations Flyway | **20**, dernière `V20__terrain_ruchers_sprint21.sql` | `ls backend/src/main/resources/db/migration/` |
+| Écrans de la console | **20** — `essaims` rejoint la famille `cheptel` | `routage/routes.ts`, vérifié par `routage.test.ts` |
+| Tests unitaires back | **122** (dont 14 pour le moteur de règles, la carence et la corrélation) | `./mvnw -B test` |
+| Tests d'intégration | **158** (dont 6 pour `ReglesEtCarenceIT`), `Skipped: 0` | `./mvnw -B verify` |
+| Couverture JaCoCo | **81,3 %** instructions · **62,3 %** branches · 82,2 % lignes | `target/site/jacoco/` |
+| Tests front | **293** | `npm test` |
+| Contrat OpenAPI | **85 chemins**, 87 schémas, dont les 9 types des deux sprints | `api/parite.ts` |
+
+> **Vérifié le 31/08/2026, Docker démarré** : la migration `V20` s'applique, les
+> 146 tests d'intégration passent sans un seul ignoré, les deux planchers de
+> couverture tiennent, et `openapi.json` / `contrat.ts` sont régénérés — les cinq
+> types du sprint sont désormais sous la garde d'`api/parite.ts`, qui casse `tsc`
+> à la moindre dérive de nom ou de type.
+>
+> Un défaut avait été corrigé juste avant, à la relecture : Hibernate ordonne ses
+> écritures par type — tous les `INSERT` avant les `UPDATE` —, si bien que le
+> nouvel emplacement serait parti en base **avant** la clôture de l'ancien, et
+> l'index unique partiel aurait refusé les deux ; tout déménagement aurait échoué
+> en 500. Un `flush()` explicite dans `SiteService.demenager` remet les deux
+> écritures dans l'ordre du métier, et le test d'intégration `demenagement` le
+> vérifie désormais — c'est lui qui aurait attrapé la faute si la relecture
+> l'avait manquée.
+
+---
+
+## 17. Note de révision — 31/08/2026, second lot du SPRINT-21
+
+La `V20` avait comblé cinq des huit manques du §1 et laissé quatre lignes en
+attente : trois 🟡 et un ❌. La `V21` les ferme, et **le §1 est désormais
+intégralement couvert — seize lignes sur seize**. C'est la première section du
+document dans ce cas.
+
+### Ce que la V21 ajoute
+
+| Ligne | Ce qui manquait | Ce qui la comble |
+|---|---|---|
+| Miellées | La table `ressource_florale` disait QUOI, jamais QUAND | `mois_debut` / `mois_fin`, en **mois** et non en dates — une floraison revient chaque année. La fenêtre peut enjamber l'année, et `RessourceFlorale.enFloraison` la lit modulo douze |
+| Planification du transport | L'historique constatait un déplacement sans jamais l'organiser | Table `transport` : véhicule, créneau, capacité, destination. `POST /realiser` **appelle** `SiteService.demenager` au lieu de le réimplémenter |
+| Ouvrir la fiche depuis la recherche | Les routes plates n'acceptaient pas d'objet | `/ruches?id=42`. Pas de routeur — une route plate accepte un paramètre — et le surlignage vit dans `Table`, donc dans les vingt écrans à la fois |
+| Abonnement iCal | Refusé au premier lot : « un jeton permanent est un secret non révocable » | Un jeton **révocable et expirant**, stocké en empreinte seule. L'objection est levée, pas contournée |
+
+### L'abonnement iCal, et ce qu'il coûte
+
+C'est la décision la plus lourde du lot, et elle mérite d'être lisible : **une
+route de l'API répond désormais sans authentification**. C'est la définition même
+d'un abonnement — Google Agenda appelle l'URL toutes les quelques heures, sans
+session ni en-tête —, mais cela ouvre une surface qui n'existait pas.
+
+Ce qui la borne, et qui doit rester vrai :
+
+1. **256 bits d'aléa**, tirés d'un `SecureRandom` : une URL ne se devine pas.
+2. **Rien en clair en base.** Seul le SHA-256 est stocké ; le jeton n'existe que
+   dans la réponse à la création, montrée une fois. Une fuite de la base ne rend
+   aucune URL utilisable.
+3. **Expiration obligatoire**, bornée à un an par le DTO. Il n'y a pas d'option
+   « sans expiration », et c'est le point.
+4. **Révocation** d'un clic, la ligne survivant à la coupure pour la documenter.
+5. **Usage visible** : `derniereUtilisation` s'affiche, si bien qu'un jeton
+   oublié qui sert encore se remarque.
+6. **Portée d'un agent**, jamais du parc : le service pose `Portee.agent(...)`
+   avant de lire, et la requête filtre en plus sur l'agent — la RLS seule ne
+   suffirait pas, puisqu'en test l'application se connecte avec le rôle
+   propriétaire de la base.
+7. **Aucune position dans le fichier**, comme pour le téléchargement.
+
+Ce qui n'y est **pas**, et qu'il faut savoir : aucune limitation de débit sur
+cette route. Le dépôt n'en a nulle part, et en ajouter une pour ce seul chemin
+aurait été un dispositif isolé, donc mal éprouvé. Le coût d'un balayage reste
+borné par l'entropie du jeton, mais c'est une brique à prévoir si l'application
+s'ouvre largement.
+
+### Une table hors du modèle multi-tenant, et pourquoi
+
+`abonnement_calendrier` est la **seule table métier sans `tenant_id` discriminant
+ni politique RLS**. Elle est lue *avant* que le tenant soit connu — c'est sa
+fonction : résoudre un jeton opaque en couple (exploitation, agent). Le précédent
+existe et le justifie : `SPRING_SESSION` (V17) est hors périmètre pour
+exactement la même raison, une session étant créée avant toute connaissance du
+tenant.
+
+La contrepartie est que le cloisonnement y devient **applicatif**.
+`AbonnementCalendrierService` est le seul code qui touche cette table, et chacune
+de ses requêtes cite le tenant explicitement — la signature du repository l'exige.
+Un oubli y serait une fuite entre exploitations : c'est le point à auditer en
+priorité si cette table venait à être lue ailleurs.
+
+---
+
+## 18. Note de révision — 01/09/2026, lot A du plan de couverture
+
+Premier lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md), et le seul qui
+n'ajoute presque **aucune donnée** : le SPRINT-20 avait livré les colonnes
+d'observation, personne n'en tirait de conclusion. Onze lignes passent à ✅ —
+le compteur va de **66 à 77 sur 153**.
+
+### Ce que la V22 ajoute, et ce qu'elle refuse d'ajouter
+
+| Ajouté | Refusé, et pourquoi |
+|---|---|
+| Quatre colonnes sur `tache` : priorité, catégorie, origine, **clé de déclenchement** | Aucune **table de scores**. L'indice de santé et le risque d'essaimage se calculent à chaque lecture — les stocker créerait la même dette que pour le taux de varroa : une valeur figée qui ne suit plus la formule quand celle-ci change |
+| Deux colonnes sur `recolte` : forçage de carence et son motif | Aucune **table de règles**. Les règles sont du code : elles lisent des colonnes, comparent des seuils et rendent une tâche. Une table paramétrable serait un moteur d'expression à écrire, tester et sécuriser, pour un besoin que personne n'a exprimé |
+| Une action d'audit de plus : `forcage` | — |
+
+### Les cinq règles, et ce qu'elles ont en commun
+
+`RegleRetraitTraitement`, `RegleControlePonte`, `RegleVarroaATraiter`,
+`RegleReservesBasses`, `RegleMeteoDefavorable`. Chacune **propose** ; c'est
+`MoteurRegles` qui enregistre, et lui seul touche le dépôt. Trois propriétés en
+découlent :
+
+1. **une règle se teste sans base** — elle rend une liste d'objets inertes ;
+2. **l'anti-doublon vit à un seul endroit** — la clé de déclenchement et son
+   index unique partiel. Une règle qui s'enregistrerait elle-même devrait
+   réimplémenter cette garde, et l'oublierait un jour ;
+3. **le moteur est idempotent** : le passer deux fois dans la journée ne produit
+   rien la seconde fois. C'est ce qui permettra de le brancher un jour sur un
+   planificateur — pour l'instant il est déclenché à la main, parce qu'une
+   exploitation qui découvre un matin quinze tâches non demandées cesse de lire
+   sa liste.
+
+### La carence opposable, et sa porte de sortie
+
+C'est le seul endroit du produit où une donnée consultative devient un **refus
+d'écriture**, et il a fallu le border :
+
+- **409, pas 400.** La requête est valide ; c'est l'état de la ruche qui s'y
+  oppose, et l'appelant n'a rien à corriger dans son corps de requête.
+- **Le message dit jusqu'à quand.** Un refus qui ne dit pas « et après ? » se
+  contourne.
+- **On peut passer outre, mais on s'explique**, et la décision part au journal
+  d'audit sous une action distincte. Sans cette porte, l'apiculteur cesserait
+  d'enregistrer le *traitement* — et le registre deviendrait faux là où il
+  n'était qu'incomplet. C'est le piège que le plan de couverture nommait avant
+  d'écrire la première ligne.
+
+### Ce que le lot A ne prétend pas faire
+
+L'indice de santé **n'est pas un diagnostic**. Il porte le nombre
+d'observations qui l'ont nourri, et vaut zéro composante quand rien n'a été vu :
+l'écran doit alors afficher « non évalué », jamais une jauge — une jauge sur du
+vide fait passer l'ignorance pour un avis.
+
+La corrélation météo **n'est pas une cause**, et le service refuse d'interpréter
+en dessous de douze paires. Deux mois chauds qui coïncident avec une miellée
+d'acacia ne prouvent pas que la chaleur produit le miel.
+
+---
+
+## 19. Note de révision — 02/09/2026, lot B du plan de couverture
+
+Deuxième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md). Là où le lot A
+tirait des conclusions de données déjà là, celui-ci change **l'échelle du
+geste** : jusqu'ici tout se saisissait ruche par ruche et se lisait ruche par
+ruche, alors que le travail réel se fait au rucher. Cinq lignes passent à ✅ —
+le compteur va de **77 à 82 sur 153**.
+
+### Ce que la V23 ajoute, et ce qu'elle refuse d'ajouter
+
+| Ajouté | Refusé, et pourquoi |
+|---|---|
+| `priorite` sur `ruche` et sur `site`, trois niveaux, avec un index partiel `WHERE priorite <> 'normale'` | Aucune **table d'agrégats par rucher**. La synthèse se recalcule à chaque lecture : la stocker créerait une valeur figée qui ment dès qu'une visite est saisie, et il faudrait l'invalider depuis six services |
+| — | Aucune **table de lots d'opération**. Un lot n'est pas une entité du métier : c'est une manière de saisir. Le tracer donnerait un identifiant de plus à afficher, et une jointure de plus sur chaque registre |
+
+### Le lot, et pourquoi une transaction par ruche
+
+`OperationsLotService` est le seul point d'entrée des trois opérations
+groupées, et il tient en une décision : **`REQUIRES_NEW` par ruche**. Trois
+propriétés en découlent, et ce sont elles qui rendent le lot utilisable au
+rucher :
+
+1. **un refus n'annule pas les autres.** Trente-sept traitements ont bien eu
+   lieu ; les défaire en base ne les défait pas dans le rucher, et obligerait à
+   tout ressaisir ;
+2. **le rapport nomme les refus**, avec le motif métier du service — « sous
+   carence jusqu'au 14 septembre », pas « échec ». Sans le motif, le rejeu
+   porte sur les quarante ruches au lieu des trois ;
+3. **la cible est cumulative et dédoublonnée** : scanner trente ruches puis
+   demander « tout le rucher » donne quarante lignes, jamais soixante-dix.
+
+Une ruche clôturée est écartée **en silence** quand elle vient d'un rucher
+entier — faire échouer des lignes pour des colonies mortes il y a six mois
+transformerait chaque rapport en liste de bruit — mais produit un **échec
+visible** si elle a été nommée : c'est alors une erreur de l'appelant, et la
+taire lui laisserait croire que l'acte a eu lieu.
+
+### Le niveau rucher, et ce qu'il refuse de moyenner
+
+`SyntheseRucherService` ferme le maillon faible de la vision à trois niveaux.
+Deux choix y sont plus importants que le reste :
+
+- **la santé moyenne ne porte que sur les colonies réellement évaluées**, et un
+  rucher jamais visité rend `null`. Compter une colonie non vue comme zéro
+  ferait chuter un rucher qu'on n'a pas encore visité ; la compter comme cent le
+  ferait mentir dans l'autre sens. Le nombre de colonies évaluées accompagne
+  donc la moyenne, et l'écran affiche « non évalué » plutôt qu'une jauge ;
+- **le risque d'essaimage est le maximum, pas la moyenne.** Une colonie prête à
+  essaimer au milieu de trente colonies calmes est exactement ce qu'il faut
+  voir ; la moyenne la dilue.
+
+L'ordre de la liste est celui du travail — carence, puis alertes, puis taille —
+et non l'ordre alphabétique, qui obligerait à chercher.
+
+### Ce que le lot B ne prétend pas faire
+
+La **comparaison d'emplacements ne classe pas**. Elle aligne des critères
+comparables et laisse l'apiculteur trancher : une note unique — « ce rucher vaut
+78 sur 100 » — mélangerait des kilos, des espèces florales, une altitude et une
+densité de voisinage, c'est-à-dire des grandeurs qui ne s'additionnent pas. Elle
+aurait l'autorité d'un chiffre sans en avoir la matière. Le rendement y est
+**par ruche** et non total, sans quoi un rucher de vingt colonies gagnerait
+toujours contre un rucher de cinq ; et un rucher sans colonie n'a pas un
+rendement de zéro, il n'en a pas.
+
+La comparaison ne rend **aucune coordonnée**. C'est précisément l'écran où l'on
+serait tenté d'en donner — on compare des emplacements — et elle n'en a pas
+besoin pour comparer.
+
+La **charge d'équipe ne note personne**. Les chiffres servent à répartir ; dix
+tâches en retard, c'est le plus souvent trois jours de pluie. La phrase est dans
+l'interface, pas seulement dans le code, parce qu'un tableau qui s'y prêterait
+finirait par servir à cela.
+
+### Ce qui reste dû sur les lignes touchées
+
+La **coordination d'équipes** reste 🟡 : la charge par agent est là, la
+logistique et la chaîne d'approvisionnement — le terrain de HiveOS — ne le sont
+pas. Et le **scan en masse** au sens propre (code-barres ou QR par ruche) reste
+❌ : le lot répond à « appliquer le même acte à quarante ruches », pas à
+« identifier une ruche en la scannant ».
+
+---
+
+## 20. Note de révision — 04/09/2026, lot C du plan de couverture
+
+Troisième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md), et le premier
+qui **rouvre une décision consignée** plutôt que d'ajouter des tables. Huit
+lignes passent à ✅ et une à 🟡 — le compteur va de **82 à 90 sur 153**.
+
+C'est aussi le lot le plus directement dicté par le §13 : sur ses neuf lignes,
+**six sont des contournements que des éditeurs concurrents enseignent à leurs
+propres utilisateurs** — ouvrir les fiches avant la zone blanche, noter au stylo
+pour saisir au retour, emporter une batterie, vérifier la couverture réseau,
+ajouter l'application à l'écran d'accueil. Un contournement enseigné par trois
+éditeurs n'est pas une bonne pratique : c'est une fonction manquante.
+
+### La décision rouverte, et ce qu'elle est devenue
+
+Depuis le SPRINT-13, `vite.config.ts` refusait tout cache de `/api` avec un
+argument juste : *« une mesure de capteur périmée ou une position de rucher
+servie depuis le disque induirait l'apiculteur en erreur »*. L'erreur n'était pas
+l'argument, c'était sa **portée** : il vaut pour les mesures, pas pour la liste
+des ruches d'un rucher, qui ne change pas dans la journée.
+
+[ADR-012](../roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif.md)
+précise donc la décision sans la contredire — le `navigateFallbackDenylist` n'a
+pas bougé d'une ligne, et **rien ne passe par le service worker**. L'emport est
+une ressource explicite :
+
+| Propriété | Ce qu'elle empêche |
+|---|---|
+| **Déclenché** — un bouton, jamais un cache | Consulter sans le savoir une donnée qu'on n'a pas demandé d'emporter |
+| **Borné** — un rucher, pas le parc | Un emport opaque, impossible à expliquer ou à purger |
+| **Daté par le serveur** — affiché à chaque lecture | Qu'une donnée du disque passe pour fraîche : c'était l'objection réelle |
+| **Périssable** — quatorze jours, puis plus servi | Qu'un instantané oublié traverse la saison |
+
+Trois choses restent **dehors**, et ce sont exactement celles que le commentaire
+de 2026 visait : les **mesures de capteurs** (une courbe de poids figée trompe là
+où une liste de ruches ne trompe pas), la **météo** (une prévision de trois jours
+est du bruit) et les **positions exactes** — l'instantané passe par
+`PolitiquePositions` comme toute autre sortie, parce qu'emporter un rucher serait
+le moyen idéal d'obtenir en clair, sur un appareil sans session, ce que l'API
+dégrade en ligne.
+
+### Le bogue silencieux que ce lot corrige
+
+Il n'était dans aucun backlog, et c'est le plus coûteux des trois : au rejeu de
+la file hors ligne, **tout 4xx était traité comme « traité »** et la mutation
+disparaissait sans un mot. Une observation faite au rucher trois heures plus tôt
+s'évaporait donc dès que le serveur la refusait — y compris, et surtout, sur le
+409 de conflit, c'est-à-dire précisément le cas que le §11 nommait comme la
+limite du hors ligne.
+
+Deux pièces le ferment :
+
+1. **`X-Zumm-Version`** sur `PUT /api/visites/{id}` — la version que l'appareil
+   avait sous les yeux. Absente, la garde ne joue pas : les écrans en ligne
+   modifient ce qu'ils viennent de lire, et leur imposer une précondition
+   n'aurait protégé personne. Le refus est un **409 qui porte la version du
+   serveur**, et non un 412 : l'appelant doit pouvoir proposer un choix, pas
+   seulement constater un échec.
+2. **La quarantaine** — une saisie refusée quitte la file (l'y garder la
+   bloquerait) mais reste consultable avec le motif du serveur. L'apiculteur
+   tranche : réappliquer, ou abandonner. Réappliquer **retire la garde de
+   version**, sans quoi le refus se reproduirait en boucle.
+
+Le serveur, lui, ne fusionne rien. Décider laquelle de deux observations dit vrai
+sur le couvain d'une colonie est un arbitrage d'apiculteur, pas une règle de
+précédence.
+
+### Le brouillon, et pourquoi ce n'est pas une visite
+
+La tentation était d'ajouter un état `brouillon` à `visite`. Elle est mauvaise
+pour une raison qui se voit en lecture : une visite est un **acte**, dont le
+registre, les agrégats, les exports et les règles se servent. Un brouillon est
+une **saisie en cours** — incomplète, parfois incohérente, et susceptible de ne
+jamais devenir une visite. Les mélanger aurait obligé chaque lecture du registre
+à se souvenir de l'exclure ; il aurait suffi d'un oubli pour qu'une saisie
+abandonnée entre dans un comptage réglementaire.
+
+Deux conséquences assumées :
+
+- le **contenu est opaque** au serveur, qui ne le valide pas. Exiger d'une saisie
+  en cours qu'elle soit déjà complète ferait perdre exactement ce qu'on cherche à
+  sauver ;
+- `brouillon_visite` est la **seule table du schéma dont la politique RLS n'ouvre
+  pas sur une portée globale**. Un responsable lit toutes les visites de
+  l'exploitation ; il n'a pas à lire les phrases inachevées de ses collègues.
+
+### Ce que le lot C ne fait pas
+
+La **note vocale reste locale** — c'est le 🟡 du lot. Elle s'enregistre et se
+rejoue pendant la saisie, sur l'appareil, et s'efface avec le formulaire. Elle ne
+part pas au serveur, et ce n'est pas un raccourci : le dépôt n'a **aucun stockage
+binaire** (`photo.url` ne porte qu'une adresse, `traitement.ordonnance` qu'une
+référence). Encoder de l'audio en base64 dans un champ texte aurait fabriqué un
+stockage de fichiers clandestin — invisible en revue, impossible à purger, et
+hors de toute politique de rétention. La contrainte `ck_brouillon_taille` de la
+`V24` est là pour ça, et son commentaire le dit.
+
+La **transcription** reste suspendue à la décision D4 : « traitement local, aucun
+trafic sortant » et « assistant IA » se contredisent tant qu'on n'a pas dit **où**
+le modèle s'exécute.
+
+---
+
+## 21. Note de révision — 04/09/2026, lot J du plan de couverture
+
+Quatrième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md), et le seul
+dont les lignes n'ont **aucun lien technique entre elles** : QR par ruche, NFC,
+planche d'étiquettes, mot de passe en libre-service, interface progressive,
+notifications par utilisateur, jeu de démonstration. Elles partagent une seule
+propriété — chacune tient en moins d'une journée, et aucune ne dépend d'un autre
+lot. Six passent à ✅ et une à 🟡 : le compteur va de **90 à 96 sur 153**.
+
+Cinq des sept viennent du §13, c'est-à-dire de contournements que des éditeurs
+concurrents enseignent à leurs propres utilisateurs.
+
+### Deux décisions qui tiennent le lot
+
+**1. Le code court n'est pas un second identifiant.** C'est celui de la ruche,
+préfixé : `R-42`. La tentation était d'encoder quelque chose d'opaque et de joli
+— base 32, damier, six caractères. Elle aurait créé **deux façons de nommer la
+même colonie**, et le jour où elles divergent, personne ne sait laquelle fait
+foi. Le code se lit à l'œil nu quand le QR est sale, mouillé ou propolisé, ce qui
+est tout ce qu'on lui demande ; la puce NFC porte exactement la même charge que
+le QR, pour la même raison.
+
+**2. Masquer n'est pas interdire.** L'interface « essentielle » retire cinq
+écrans de la navigation — capteurs, lots, essaims, reines, audit : ceux qui
+supposent un équipement (du matériel), une activité (vendre, élever) ou une
+échelle (une équipe). Aucun ne concerne la tenue d'un rucher. Mais les **rôles**
+décident de ce qui est permis, ce réglage de ce qui est **montré** : un écran
+masqué reste atteignable par son lien, la recherche continue d'y mener, et le
+réglage revient en un clic. Confondre les deux produirait une interface qui a
+l'air de retirer des droits — et un utilisateur qui appelle son responsable pour
+un réglage qu'il pouvait changer lui-même. `interface.test.ts` vérifie que les
+deux filtres ne se rejoignent pas.
+
+### Le jeu de démonstration, et le seul mot qui compte
+
+BeeLog Digital conseille de « configurer une seule ruche <em>test</em> avant de
+basculer l'exploitation ». Le dépôt avait bien `infra/seed-demo.sql`, mais côté
+exploitant, avec `psql`, sur le tenant de développement.
+
+Le mot qui compte dans la ligne du §13 est **réversible**. Une démonstration
+qu'on ne peut pas défaire n'est pas une démonstration, c'est une pollution :
+l'exploitation garderait des ruches fictives mêlées aux vraies, et plus personne
+n'oserait supprimer quoi que ce soit de peur de se tromper de cible.
+
+D'où la table `jeu_demonstration` : elle note **ce que le chargement a créé**,
+ligne par ligne, et la purge ne supprime que cela. Deviner par le nom — « tout ce
+qui commence par démo » — aurait détruit le rucher d'un apiculteur ayant eu le
+tort d'appeler le sien « Démonstration » ; c'est exactement ce que vérifie
+`ConfortIdentificationIT.purgeNeToucheQueLaDemonstration`.
+
+Trois verrous, et aucun n'est de trop : la fonction est **éteinte par défaut**
+(`zumm.demonstration.activee`) — une production ne doit pas seulement refuser
+d'écrire vingt lignes fictives, elle ne doit pas proposer le bouton ; elle est
+réservée au rôle **admin**, lecture comprise ; et un second chargement est refusé
+tant que le premier n'est pas purgé, parce qu'empiler deux jeux rendrait la trace
+ambiguë — et c'est la trace qui rend la purge sûre.
+
+### Ce qui reste dû : le serveur d'envoi
+
+La **réinitialisation de mot de passe** passe de ❌ à 🟡, et pas plus loin. Le
+chemin est ouvert côté produit : `/api/info` — route publique, car celui qui a
+oublié son mot de passe n'est par construction pas connecté — publie l'URL du
+parcours du fournisseur d'identité, et la page de récupération affiche le lien
+dès qu'elle est renseignée.
+
+Ce qui manque n'est plus du code : c'est un **serveur d'envoi**, que l'exploitant
+configure (`infra/keycloak/README.md` détaille les deux gestes). Et le lien reste
+caché tant qu'il n'y en a pas — un formulaire qui accepte une adresse et
+n'envoie rien fait attendre un courriel qui n'arrivera jamais, ce qui est pire
+que l'absence de lien. Le raisonnement est celui de `RecuperationVue` depuis le
+SPRINT-19 ; il n'a pas changé, c'est la condition qui s'est déplacée.
+
+### Ce que le NFC ne prétend pas être
+
+`NDEFReader` n'existe ni sur iOS, ni sur Firefox, ni sur Safari macOS. Le bouton
+n'apparaît donc **que là où l'API existe**, et l'écran explique l'absence
+ailleurs : un bouton visible partout qui échoue une fois sur deux apprend à
+l'utilisateur que la fonction ne marche pas, et il cesse de l'essayer là où elle
+marche. Le QR reste le socle ; la puce est un confort.
+
+---
+
+## 22. Note de révision — 04/09/2026, lot F₁ du plan de couverture
+
+Cinquième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) — la moitié bon
+marché du lot F, celle qui ne suppose pas d'acheter du matériel (l'autre moitié
+dépend de la décision **D3**). Quatre lignes passent à ✅ : le compteur va de
+**96 à 100 sur 153**.
+
+### Trois travaux, trois raisonnements différents
+
+**1. La batterie : une valeur d'énumération, et rien de plus.** BeeLog Digital et
+Onibi se font tous deux reprocher les pannes de batterie *silencieuses* — la
+balance cesse d'émettre, et personne ne s'en aperçoit avant la visite suivante.
+Le reproche ne porte pas sur l'absence de mesure : il porte sur l'absence
+d'**alerte**. `alimentation` rejoint donc la liste des indicateurs, et
+`SeuilAlerteService` s'en occupe comme des autres — même hystérésis, même table
+d'alertes, même notification. Inventer une table « état des capteurs » aurait
+créé un second mécanisme d'alerte à maintenir en parallèle du premier, pour dire
+la même chose.
+
+Un test d'intégration a montré ce qu'une relecture n'avait pas vu : `alerte`
+porte **sa propre** liste d'indicateurs (`ck_alerte_indicateur`). L'ingestion
+réussissait, l'ouverture de l'alerte échouait — un 409 sur une mesure par
+ailleurs valide. Les deux contraintes disent la même chose à deux endroits, et
+rien ne les tient ensemble sinon la vigilance.
+
+**2. Le poids par hausse : une table à part, et c'est le point.** La tentation
+était d'ajouter `compartiment_id` à `mesure`. Trois raisons s'y opposent, et
+elles se cumulent :
+
+- `mesure` est une **hypertable** dont la clé primaire est
+  `(ruche_id, type_indicateur, instant)`. Y glisser une colonne nullable
+  obligerait à remplacer la clé primaire par un index unique en `NULLS NOT
+  DISTINCT` — sur la table la plus critique du système, celle que lisent les
+  alertes, la prévision de récolte et la détection d'anomalie ;
+- la contourner par un sentinel (`compartiment_id = 0` pour « toute la ruche »)
+  ferait perdre la **clé étrangère**, dans un dépôt où toutes les autres tables
+  la portent, et composite ;
+- surtout, **ce ne sont pas les mêmes données**. `mesure` porte ce qu'une balance
+  pèse *sous* une ruche ; `mesure_compartiment` ce qu'on *attribue* à un étage.
+  Les mélanger obligerait chaque lecture existante — sans exception — à se
+  souvenir d'exclure les lignes de hausse, et il suffirait d'un oubli pour qu'une
+  prévision de récolte compte deux fois le même miel.
+
+Le commentaire de la `V5` dit « une mesure = une ruche, un indicateur, un
+instant ». La table séparée le laisse vrai au lieu de le casser en silence. Et
+l'écran affiche « jamais pesé » là où aucune pesée n'a eu lieu : une hausse
+jamais pesée n'est pas une hausse vide, et 0 kg ferait croire à des réserves
+perdues.
+
+**3. Le partage : le précédent était déjà écrit.** « Aucun partage
+inter-exploitations comme chez BeeLog Digital » (§5). Le partage *interne*
+existait — c'est le tenant. Ce qui manquait était de montrer une courbe à
+quelqu'un du **dehors**.
+
+`abonnement_calendrier` (SPRINT-21) avait déjà instruit la question, et sa
+réponse se reprend telle quelle : jeton de 256 bits tiré d'un `SecureRandom`,
+**jamais stocké** — la base n'en garde que l'empreinte SHA-256 —, expiration
+obligatoire bornée à un an, révocation qui laisse la ligne en place, dernier
+usage visible. Avec la même conséquence assumée : la table **porte** le tenant
+sans le discriminer, puisque c'est le jeton qui le résout ; son cloisonnement est
+donc applicatif et tient dans un seul service.
+
+Deux bornes propres à ce partage, et elles sont délibérées : il porte sur **une
+ruche** — un jeton qui ouvrirait l'exploitation ne serait plus un partage, ce
+serait un compte sans mot de passe — et il ne rend qu'une série journalière, sans
+identifiant, sans rucher et **sans position**. Le destinataire regarde une
+courbe ; il n'explore pas un cheptel.
+
+### Ce que ce lot ajoute au périmètre exposé sans authentification
+
+C'est la **seconde et dernière route publique** du produit, après le flux
+iCalendar. Elle vit sous un préfixe séparé (`/api/flux/`) de celui de la gestion
+(`/api/partages`), et ce n'est pas une préférence d'URL : `TenantFilter` exempte
+ses chemins publics par **préfixe**, si bien que servir le flux sous
+`/api/partages/{jeton}` aurait exempté du même coup `DELETE /api/partages/{id}` —
+et la révocation serait partie sans tenant.
+
+La faiblesse du flux iCalendar reste la sienne, et il faut la redire : **aucune
+limitation de débit** sur ce chemin. À prévoir si l'application s'ouvre
+largement.
+
+### Ce qui reste dans le lot F
+
+Les quatre autres lignes — alarme anti-vol, intégrations nommées de capteurs du
+commerce, Bluetooth direct, analyse acoustique — forment le **lot F₂**, suspendu
+à la décision **D3** : les éprouver suppose de posséder le matériel, et Web
+Bluetooth est absent d'iOS Safari, donc de la moitié du parc.
+
+---
+
+## 23. Note de révision — 04/09/2026, lot E du plan de couverture
+
+Sixième et plus large lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) :
+quatorze lignes visées, **douze fermées**. Le compteur va de **100 à 112 sur
+153** — les deux tiers du document sont franchis.
+
+Le lot est mécanique en contenu ; toute sa difficulté était de savoir **où
+s'arrêter**.
+
+### La frontière, posée une fois pour toutes
+
+La comptabilité s'arrête à la **rentabilité par ruche**. `depense` porte un
+montant, une date, une catégorie et une affectation facultative. Elle ne porte
+ni fournisseur, ni numéro de pièce, ni TVA, ni échéance de paiement — chacune de
+ces colonnes appellerait la suivante, et la troisième rendrait le module
+obligatoire pour boucler un exercice, alors que personne n'a demandé à Zümm de
+tenir des comptes. Facturation, TVA, devis et clients restent ⛔ (§9).
+
+Trois refus tiennent le module, et ils sont dans le code comme à l'écran :
+
+1. **aucune dépense non affectée n'est répartie.** Une assurance, une formation,
+   un véhicule ne se divisent pas par le nombre de ruches : la clé de
+   répartition serait inventée, et le résultat aurait l'autorité d'un chiffre
+   sans en avoir la matière. Elles figurent entières, à part, où elles se voient ;
+2. **les recettes sont une valorisation**, pas un chiffre d'affaires. Zümm ne
+   sait pas à quel prix le miel a été vendu, et ne cherche pas à le savoir ;
+3. **seul le miel est valorisé.** Appliquer un prix du miel à de la cire ou à un
+   essaim donnerait un total qui ne veut rien dire.
+
+### Trois décisions de modèle
+
+**Le produit est une colonne, pas une table.** « Le modèle présuppose du miel »
+(§6) : la correction tient dans `recolte.type_produit` et `recolte.unite`. Une
+récolte de cire est une récolte, faite le même jour sur la même ruche par le même
+agent ; lui donner sa propre table aurait dupliqué la traçabilité, le lot, le
+forçage de carence et l'export. La seconde colonne est indispensable — **cinq
+essaims ne pèsent pas cinq kilogrammes** —, et la base refuse la combinaison
+incohérente plutôt que de laisser produire des totaux faux.
+
+**La maturation est une date, pas une étape.** La tentation était un workflow
+récolte → maturation → mise en pot, avec ses états et ses transitions. Deux
+dates disent la même chose et ne bloquent aucune saisie. La colonne porte le nom
+légal actuel : la DDM a remplacé la DLUO en 2015.
+
+**Les échéances ne se stockent pas.** Ni la prochaine maintenance d'un
+équipement, ni l'état « à racheter » d'un consommable : les deux se calculent.
+Les ranger en base créerait des valeurs à maintenir en cohérence avec leur
+source — la dette que `ComptageVarroaService` évite depuis le SPRINT-20 pour le
+taux de varroa.
+
+### Ce que le refactor de l'export a protégé
+
+Passer de deux à quatorze ressources aurait pu se faire en copiant douze fois la
+méthode existante. Chaque ressource produit désormais une **grille**, et le rendu
+est fait une fois par format. Sans cela, la neutralisation des amorces de formule
+(`CWE-1236`, l'injection CSV) serait à refaire dans quatorze branches — et c'est
+exactement la manière dont ce genre de garde disparaît de l'une d'entre elles.
+
+Deux bornes accompagnent l'export : les **mesures** sont limitées à
+quatre-vingt-dix jours — une hypertable de capteurs compte des millions de
+lignes, et un fichier de cette taille ne sert personne —, et l'export des
+**ruchers ne porte aucune coordonnée**. Un CSV circule, et il n'a pas de rôle
+porteur : `PolitiquePositions` n'a aucune prise sur lui.
+
+### Le XLSX sans dépendance, et sa condition
+
+`ClasseurXlsx` écrit un classeur d'une feuille : cinq parties XML dans un ZIP,
+cellules en chaînes en ligne. Apache POI est la bibliothèque de référence et elle
+est excellente ; elle pèse une douzaine de mégaoctets de dépendances transitives
+pour produire ici une grille sans style, sans formule et sans image. C'est le
+même arbitrage que celui d'[ADR-007](../roadmap/operationnel/06_decisions/ADR-007-graphiques-svg.md)
+sur Chart.js.
+
+**Écrire un format de fichier à la main n'est défendable que si le test le
+tient** : `ClasseurXlsxTest` vérifie les cinq parties obligatoires, les
+références de cellules au-delà de la colonne Z, l'échappement XML, le retrait des
+caractères de contrôle et la troncature du nom d'onglet à trente et un
+caractères. Le jour où un format de nombre ou une seconde feuille manqueront
+vraiment, POI redeviendra le bon choix — et le commentaire de la classe le dit,
+pour que la question se repose plutôt que le fichier ne grossisse.
+
+### Trois règles de plus dans le moteur du SPRINT-22
+
+Aucune n'a demandé de mécanisme nouveau : le moteur, sa clé d'idempotence et son
+index unique partiel accueillent des tâches **sans ruche** depuis une colonne
+ajoutée à `TacheProposee`.
+
+- `RegleMaintenanceMateriel` — la clé **porte l'échéance**, et c'est ce qui rend
+  la récurrence possible : une fois l'entretien fait, la date recule, la clé
+  change, et la règle repropose au terme suivant sans dupliquer le terme courant ;
+- `RegleStockBas` — une proposition par **mois** et par consommable. Une clé fixe
+  ne reproposerait jamais rien, même un an plus tard ; une clé portant le jour
+  rendrait la liste illisible en une semaine ;
+- `RegleArchivageSaisonnier` — une tâche par an, en **novembre** : la saison est
+  close au nord et il reste l'hiver pour ressaisir. Janvier arriverait après les
+  déclarations, août tomberait en pleine miellée.
+
+### Les deux lignes qui restent 🟡
+
+Le **réfractomètre** n'est pas livré, et c'est délibéré : convertir un indice de
+réfraction en taux d'humidité demande la table de Chataway, propre à chaque
+appareil et à sa température de calibration. L'implémenter au jugé donnerait un
+chiffre faux sur la mesure qui décide de la conservation du miel — au-delà de
+18 %, il fermente. Mieux vaut ne rien rendre que rendre une valeur qu'on croira
+exacte.
+
+La **logistique multi-sites**, reliquat du lot B, n'a pas été reprise : la charge
+d'équipe existe, la chaîne d'approvisionnement — le terrain de HiveOS — reste
+hors du produit.

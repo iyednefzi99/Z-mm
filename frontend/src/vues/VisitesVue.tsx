@@ -3,6 +3,9 @@ import {
   agents,
   ajouterPhoto,
   chargerMeteo,
+  deposerBrouillon,
+  effacerBrouillon,
+  listerBrouillons,
   listerPhotos,
   plannings,
   ruches,
@@ -12,6 +15,7 @@ import {
 } from '../api/client';
 import type {
   Agent,
+  Brouillon,
   CauseCellules,
   EffectifQualitatif,
   EtatSante,
@@ -36,6 +40,7 @@ import {
   RAISONS_VISITE,
   TEMPERAMENTS,
 } from '../api/types';
+import { gabarit } from '../i18n/console';
 import { useFormats, useT } from '../i18n/langue';
 import { useRessource } from '../hooks';
 import {
@@ -122,6 +127,15 @@ export function VisitesVue(): ReactElement {
   const [urlPhoto, setUrlPhoto] = useState('');
   const [legende, setLegende] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
+  // Brouillon reprenable d'un appareil a l'autre (SPRINT-24, lot C). La file de
+  // mutations resout le trajet terrain -> serveur ; elle ne resout pas le trajet
+  // telephone -> ordinateur, qui est celui que trois editeurs conseillent a
+  // leurs utilisateurs de faire au stylo.
+  const [brouillonTrouve, setBrouillonTrouve] = useState<Brouillon | null>(null);
+  const [messageBrouillon, setMessageBrouillon] = useState<string | null>(null);
+  // Note vocale : elle ne quitte JAMAIS l'appareil (voir le bloc du formulaire).
+  const [noteVocale, setNoteVocale] = useState<string | null>(null);
+  const [enregistreur, setEnregistreur] = useState<MediaRecorder | null>(null);
 
   const optRaison: Option[] = RAISONS_VISITE.map((r) => ({ valeur: r, libelle: t.visite.raisons[r] }));
   const vide: Option = { valeur: '', libelle: t.champs.aucun };
@@ -201,6 +215,53 @@ export function VisitesVue(): ReactElement {
       .catch(() => setApprouves([]));
   }, [etat.elements]);
 
+  // Un brouillon existe-t-il pour cette ruche et cet agent ? La question ne se
+  // pose qu'a la creation : reprendre un brouillon par-dessus une visite deja
+  // enregistree ecraserait le registre avec une saisie abandonnee.
+  useEffect(() => {
+    if (!ouvert || edition || rucheId === '' || agentId === '') {
+      setBrouillonTrouve(null);
+      return;
+    }
+    void listerBrouillons(Number(agentId))
+      .then((liste) => setBrouillonTrouve(liste.find((b) => b.rucheId === Number(rucheId)) ?? null))
+      .catch(() => setBrouillonTrouve(null));
+  }, [ouvert, edition, rucheId, agentId]);
+
+  /**
+   * Note vocale, enregistree LOCALEMENT (SPRINT-24, lot C).
+   *
+   * <p>Elle ne part pas au serveur, et ce n'est pas un raccourci : le depot n'a
+   * aucun stockage binaire — `photo.url` ne porte qu'une adresse, et il en va de
+   * meme des ordonnances veterinaires. Encoder de l'audio en base64 dans un
+   * champ texte aurait fabrique un stockage de fichiers clandestin, invisible en
+   * revue et impossible a purger. La note sert donc a ce que trois editeurs
+   * conseillent — noter au rucher, ressaisir au retour — sur CET appareil.
+   */
+  const demarrerNote = async () => {
+    try {
+      const flux = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const media = new MediaRecorder(flux);
+      const morceaux: Blob[] = [];
+      media.ondataavailable = (evenement) => morceaux.push(evenement.data);
+      media.onstop = () => {
+        setNoteVocale(URL.createObjectURL(new Blob(morceaux, { type: media.mimeType })));
+        flux.getTracks().forEach((piste) => piste.stop());
+      };
+      media.start();
+      setEnregistreur(media);
+    } catch {
+      // Micro refuse, absent, ou page non securisee : le dire, sinon le bouton
+      // passe pour casse.
+      setErreur(t.horsLigne.noteVocaleImpossible);
+    }
+  };
+
+  const arreterNote = () => {
+    enregistreur?.stop();
+    setEnregistreur(null);
+  };
+
   const ouvrir = (v: Visite | null) => {
     setEdition(v);
     setRucheId(v ? String(v.rucheId) : '');
@@ -253,6 +314,8 @@ export function VisitesVue(): ReactElement {
     setPhotos(v?.photos ?? []);
     setUrlPhoto('');
     setLegende('');
+    setMessageBrouillon(null);
+    setNoteVocale(null);
     setErreur(null);
     setOuvert(true);
   };
@@ -262,6 +325,31 @@ export function VisitesVue(): ReactElement {
       setErreur(t.etats.champsRequis);
       return;
     }
+    const corps: VisiteCorps = construireCorps();
+    try {
+      await (edition
+        ? etat.mettreAJour(edition.id, corps, { 'X-Zumm-Version': edition.majLe })
+        : etat.creer(corps));
+      // La visite est versee au registre : le brouillon a fait son office. Le
+      // garder ferait reapparaitre demain une saisie deja enregistree.
+      if (brouillonTrouve) {
+        void effacerBrouillon(brouillonTrouve.id).catch(() => undefined);
+        setBrouillonTrouve(null);
+      }
+      setOuvert(false);
+    } catch (cause) {
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
+    }
+  };
+
+  /**
+   * Le formulaire, tel qu'il part au serveur — ou dans un brouillon.
+   *
+   * <p>Extrait de `enregistrer` au SPRINT-24 : le brouillon et l'enregistrement
+   * doivent produire EXACTEMENT la meme forme, sans quoi une saisie reprise
+   * demain ne serait plus celle qu'on avait laissee.
+   */
+  const construireCorps = (): VisiteCorps => {
     const texte = (valeur: string) => (valeur.trim() === '' ? null : valeur.trim());
     const nombre = (valeur: string) => (valeur === '' ? null : Number(valeur));
     const observation = {
@@ -293,7 +381,7 @@ export function VisitesVue(): ReactElement {
     // n'envoie l'objet que si quelque chose a ete renseigne.
     const renseigne = (valeurs: object) =>
       Object.values(valeurs).some((valeur) => valeur !== null);
-    const corps: VisiteCorps = {
+    return {
       rucheId: Number(rucheId),
       agentId: Number(agentId),
       planningId: planningId === '' ? null : Number(planningId),
@@ -312,12 +400,64 @@ export function VisitesVue(): ReactElement {
       meteo: renseigne(meteo) ? meteo : null,
       pathologies,
     };
+  };
+
+  /**
+   * Depose la saisie en cours comme brouillon (SPRINT-24, lot C).
+   *
+   * <p>Le contenu part tel quel, sans validation : une saisie en cours a le
+   * droit d'etre incomplete, et la refuser tant qu'elle ne l'est pas ferait
+   * perdre exactement ce qu'on cherche a sauver. C'est aussi pour cela que le
+   * brouillon n'est PAS une visite a l'etat brouillon — le registre n'a pas a
+   * connaitre les phrases inachevees.
+   */
+  const enregistrerBrouillon = async () => {
+    if (rucheId === '' || agentId === '') {
+      setErreur(t.etats.champsRequis);
+      return;
+    }
     try {
-      await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
-      setOuvert(false);
+      const depose = await deposerBrouillon({
+        agentId: Number(agentId),
+        rucheId: Number(rucheId),
+        contenu: JSON.stringify(construireCorps()),
+        // `navigator.userAgent` est illisible ; la plateforme suffit a se
+        // reconnaitre entre un telephone et le poste du local.
+        appareil: navigator.platform || null,
+      });
+      setBrouillonTrouve(depose);
+      setMessageBrouillon(
+        gabarit(t.horsLigne.brouillonEnregistre, { instant: f.dateHeure(depose.majLe) }),
+      );
     } catch (cause) {
       setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
     }
+  };
+
+  /** Repose le formulaire tel qu'il avait ete laisse sur l'autre appareil. */
+  const reprendreBrouillon = (brouillon: Brouillon) => {
+    let corps: VisiteCorps;
+    try {
+      corps = JSON.parse(brouillon.contenu) as VisiteCorps;
+    } catch {
+      // Contenu illisible : on ne le devine pas, et on le dit plutot que de
+      // vider silencieusement le formulaire.
+      setErreur(t.etats.erreur);
+      return;
+    }
+    setDateVisite(corps.dateVisite ?? '');
+    setHeureVisite(corps.heureVisite ?? '');
+    setDureeMin(corps.dureeMin != null ? String(corps.dureeMin) : '');
+    setRaison(corps.raison ?? 'controle');
+    setConstatations(corps.constatations ?? '');
+    setActionsPrevues(corps.actionsPrevues ?? '');
+    setActionsEffectuees(corps.actionsEffectuees ?? '');
+    setRecommandations(corps.recommandations ?? '');
+    setEffectif(corps.effectifQualitatif ?? '');
+    setSante(corps.etatSante ?? '');
+    setProductivite(corps.productivite != null ? String(corps.productivite) : '');
+    setPathologies(corps.pathologies ?? []);
+    setMessageBrouillon(null);
   };
 
   /**
@@ -613,10 +753,79 @@ export function VisitesVue(): ReactElement {
               </fieldset>
             )}
 
+            {brouillonTrouve && !edition && (
+              <div className="z-rappels" role="status">
+                <strong>{t.horsLigne.brouillons}</strong>{' '}
+                {gabarit(t.horsLigne.brouillonDe, {
+                  instant: f.dateHeure(brouillonTrouve.majLe),
+                  appareil: brouillonTrouve.appareil ?? t.horsLigne.appareilInconnu,
+                })}
+                <br />
+                <button
+                  type="button"
+                  className="z-lien"
+                  onClick={() => reprendreBrouillon(brouillonTrouve)}
+                >
+                  {t.horsLigne.reprendre}
+                </button>
+              </div>
+            )}
+
+            <fieldset className="z-composition">
+              <legend className="z-champ__libelle">{t.horsLigne.noteVocale}</legend>
+              {/* La note NE QUITTE PAS l'appareil : le serveur ne stocke aucun
+                  fichier binaire, et l'encoder en base64 dans un champ texte
+                  aurait fabrique un stockage clandestin. */}
+              <p className="z-info">{t.horsLigne.noteVocaleAide}</p>
+              {noteVocale && (
+                /* Pas de piste de sous-titres, et ce n'est pas un oubli : la
+                   note est enregistree PAR l'utilisateur POUR lui-meme, sur son
+                   appareil, et rien n'en produit de transcription — la question
+                   de l'ou tourne la reconnaissance vocale est ouverte, et
+                   tranchee nulle part (decision D4 du plan de couverture). Le
+                   jour ou un brouillon transporterait l'audio d'une personne a
+                   une autre, la piste deviendrait obligatoire. */
+                // eslint-disable-next-line jsx-a11y/media-has-caption
+                <audio controls src={noteVocale} />
+              )}
+              <div className="z-form__actions">
+                {enregistreur ? (
+                  <Bouton variante="secondaire" onClick={arreterNote}>
+                    {t.horsLigne.arreterNote}
+                  </Bouton>
+                ) : (
+                  <Bouton variante="secondaire" onClick={() => void demarrerNote()}>
+                    {t.horsLigne.enregistrerNote}
+                  </Bouton>
+                )}
+                {noteVocale && (
+                  <Bouton
+                    variante="fantome"
+                    onClick={() => {
+                      URL.revokeObjectURL(noteVocale);
+                      setNoteVocale(null);
+                    }}
+                  >
+                    {t.horsLigne.effacerNote}
+                  </Bouton>
+                )}
+              </div>
+            </fieldset>
+
+            {messageBrouillon && (
+              <p className="z-info" role="status">
+                {messageBrouillon}
+              </p>
+            )}
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>
                 {t.actions.annuler}
+              </Bouton>
+              {/* Le brouillon est un geste SECONDAIRE : il sauve une saisie en
+                  cours, il ne la verse pas au registre. */}
+              <Bouton variante="secondaire" onClick={() => void enregistrerBrouillon()}>
+                {t.horsLigne.enregistrerBrouillon}
               </Bouton>
               <Bouton variante="primaire" type="submit">
                 {t.actions.enregistrer}

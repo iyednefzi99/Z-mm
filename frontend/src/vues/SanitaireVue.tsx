@@ -12,6 +12,7 @@ import {
   supprimerComptageVarroa,
   supprimerNourrissement,
   supprimerTraitement,
+  traiterEnLot,
 } from '../api/client';
 import type {
   Agent,
@@ -20,6 +21,7 @@ import type {
   MethodeVarroa,
   MotifNourrissement,
   Nourrissement,
+  RapportLot,
   Ruche,
   Traitement,
   TypeAliment,
@@ -97,6 +99,7 @@ export function SanitaireVue(): ReactElement {
   const s = t.sanitaire;
 
   const [optRuches, setOptRuches] = useState<Option[]>([]);
+  const [ruchesConnues, setRuchesConnues] = useState<Ruche[]>([]);
   const [optAgents, setOptAgents] = useState<Option[]>([]);
   const [rucheId, setRucheId] = useState('');
   const [agentId, setAgentId] = useState('');
@@ -106,6 +109,13 @@ export function SanitaireVue(): ReactElement {
   const [nourrissements, setNourrissements] = useState<Nourrissement[]>([]);
   const [comptages, setComptages] = useState<ComptageVarroa[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Rapport de la derniere operation de lot, affiche tel quel : les refus
+  // motives sont ce qui permet de reprendre trois ruches au lieu de quarante.
+  const [rapport, setRapport] = useState<RapportLot | null>(null);
+
+  /** Ruche actuellement selectionnee, pour retrouver son rucher. */
+  const rucheChoisie = (): Ruche | undefined =>
+    ruchesConnues.find((r) => String(r.id) === rucheId);
 
   // Traitement
   const [produit, setProduit] = useState('');
@@ -221,9 +231,12 @@ export function SanitaireVue(): ReactElement {
   useEffect(() => {
     void ruches
       .lister()
-      .then((liste: Ruche[]) =>
-        setOptRuches([vide, ...liste.map((r) => ({ valeur: String(r.id), libelle: r.modele }))]),
-      )
+      .then((liste: Ruche[]) => {
+        setOptRuches([vide, ...liste.map((r) => ({ valeur: String(r.id), libelle: r.modele }))]);
+        // La liste BRUTE est conservee en plus des options : une operation de
+        // lot a besoin du rucher de la ruche choisie, qu'une Option ne porte pas.
+        setRuchesConnues(liste);
+      })
       .catch(() => setOptRuches([vide]));
     void agents
       .lister()
@@ -263,12 +276,54 @@ export function SanitaireVue(): ReactElement {
   const texte = (valeur: string) => (valeur.trim() === '' ? null : valeur.trim());
   const nombre = (valeur: string) => (valeur === '' ? null : Number(valeur));
 
+  /**
+   * Le meme traitement sur tout le rucher (SPRINT-23, lot B).
+   *
+   * <p>Le rapport est affiche tel quel : un lot reussit rarement en entier, et
+   * masquer les refus ferait croire a quarante traitements la ou il y en a
+   * trente-sept.
+   */
+  const traiterLeRucher = async () => {
+    const site = rucheChoisie()?.siteId;
+    if (site === undefined || agentId === '' || produit.trim() === '' || dateDebut === '') {
+      setErreur(t.etats.champsRequis);
+      return;
+    }
+    setErreur(null);
+    try {
+      setRapport(
+        await traiterEnLot({
+          cible: { rucheIds: null, siteId: site },
+          traitement: {
+            rucheId: Number(rucheId),
+            agentId: Number(agentId),
+            visiteId: null,
+            produit: produit.trim(),
+            substanceActive: texte(substance),
+            cible,
+            dose: nombre(dose),
+            doseUnite: doseUnite === '' ? null : (doseUnite as UniteDose),
+            dateDebut,
+            dateFin: dateFin === '' ? null : dateFin,
+            delaiCarenceJours: nombre(carenceJours),
+            ordonnance: texte(ordonnance),
+            note: texte(noteTraitement),
+          },
+        }),
+      );
+      apresMutation();
+    } catch (cause) {
+      signaler(cause);
+    }
+  };
+
   const ajouterTraitement = async () => {
     if (rucheId === '' || agentId === '' || produit.trim() === '' || dateDebut === '') {
       setErreur(t.etats.champsRequis);
       return;
     }
     setErreur(null);
+    setRapport(null);
     try {
       await enregistrerTraitement({
         rucheId: Number(rucheId),
@@ -435,6 +490,31 @@ export function SanitaireVue(): ReactElement {
 
           {volet === 'traitements' && (
             <>
+              {rapport && (
+                <div className="z-rappels" role="status">
+                  <strong>
+                    {gabarit(t.lot.rapport, {
+                      reussites: String(rapport.reussites.length),
+                      demandees: String(rapport.demandees),
+                    })}
+                  </strong>
+                  {rapport.echecs.length === 0 ? (
+                    <> {t.lot.aucunEchec}</>
+                  ) : (
+                    <>
+                      <br />
+                      {t.lot.echecs}
+                      <ul className="z-liste-simple">
+                        {rapport.echecs.map((e) => (
+                          <li key={e.rucheId}>
+                            {e.rucheId} — {e.motif}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </div>
+              )}
               <fieldset className="z-composition">
                 <legend className="z-champ__libelle">{s.ajouterTraitement}</legend>
                 <div className="z-form__grille">
@@ -486,6 +566,18 @@ export function SanitaireVue(): ReactElement {
                   <div className="z-champ z-champ--aligne-bas">
                     <Bouton variante="primaire" onClick={() => void ajouterTraitement()}>
                       {s.ajouterTraitement}
+                    </Bouton>
+                  </div>
+                  {/* Le lot est SECONDAIRE à côté de l'acte unitaire : traiter
+                      quarante colonies d'un coup est le geste utile, mais il ne
+                      doit pas être celui qu'on déclenche par réflexe. */}
+                  <div className="z-champ z-champ--aligne-bas">
+                    <Bouton
+                      variante="secondaire"
+                      onClick={() => void traiterLeRucher()}
+                      disabled={rucheChoisie() === undefined}
+                    >
+                      {t.actions.traiterLeRucher}
                     </Bouton>
                   </div>
                 </div>

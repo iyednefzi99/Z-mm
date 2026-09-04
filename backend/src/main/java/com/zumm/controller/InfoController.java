@@ -37,10 +37,20 @@ public class InfoController {
                 proprietes.nom(),
                 proprietes.version(),
                 messages.getMessage("app.accueil", null, locale),
-                proprietes.languesActives());
+                proprietes.languesActives(),
+                proprietes.auth().reinitialisationUrl());
     }
 
     /** Reponse de l'endpoint d'identite. */
-    public record Info(String nom, String version, String accueil, List<String> langues) {
+    public record Info(String nom, String version, String accueil, List<String> langues,
+            /**
+             * Parcours « mot de passe oublie » du fournisseur d'identite, ou
+             * chaine VIDE s'il n'est pas configure (SPRINT-25).
+             *
+             * <p>Rendue par une route PUBLIQUE, et il le faut : celui qui a
+             * oublie son mot de passe n'est, par construction, pas connecte.
+             * Ce n'est pas un secret — c'est l'adresse d'une page de connexion.
+             */
+            String reinitialisationUrl) {
     }
 }

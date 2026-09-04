@@ -118,6 +118,11 @@ public class RucheService {
         ruche.setCouleur(corps.couleur());
         ruche.setOrigine(corps.origine());
         ruche.setCauseCloture(corps.causeCloture());
+        // Priorite absente = `normale`. Une exploitation ou toutes les ruches
+        // sont « hautes » n'a rien priorise, elle a seulement rempli un champ.
+        if (corps.priorite() != null) {
+            ruche.setPriorite(corps.priorite());
+        }
     }
 
     Ruche entite(Long id) {

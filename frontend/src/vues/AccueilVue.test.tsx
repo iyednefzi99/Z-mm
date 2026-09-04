@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { AccueilVue } from './AccueilVue';
@@ -53,6 +53,38 @@ describe('page d’accueil publique', () => {
       expect(screen.getByRole('heading', { name: titre })).toBeInTheDocument();
     }
     expect(screen.getByRole('heading', { name: 'Agent de terrain' })).toBeInTheDocument();
+  });
+
+  it('porte les garanties de sécurité dans le héros, au-dessus de la ligne de flottaison', () => {
+    monter(null);
+
+    // Le héros = la section qui porte le titre de niveau 1.
+    const heros = screen.getByRole('heading', { level: 1 }).closest('section');
+    expect(heros).not.toBeNull();
+
+    for (const preuve of [
+      'Données cloisonnées',
+      'Ruchers localisés avec précaution',
+      'Session côté serveur',
+    ]) {
+      expect(within(heros as HTMLElement).getByText(preuve)).toBeInTheDocument();
+    }
+
+    // « Trois langues » est volontairement absent du bandeau : l'intro le dit
+    // déjà, deux lignes plus haut. Le répéter userait le bandeau sans rien
+    // apprendre — mais la garantie reste, en détail, dans la section dédiée.
+    expect(within(heros as HTMLElement).queryByText('Trois langues')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Trois langues' })).toBeInTheDocument();
+  });
+
+  it('n’en fait pas des commandes : une preuve n’ouvre rien', () => {
+    monter(null);
+
+    const heros = screen.getByRole('heading', { level: 1 }).closest('section') as HTMLElement;
+    // Deux boutons dans le héros — se connecter, découvrir — et pas cinq. Une
+    // puce qui a l'allure d'un contrôle promet une action qui n'existe pas.
+    expect(within(heros).getAllByRole('button')).toHaveLength(2);
+    expect(within(heros).queryAllByRole('link')).toHaveLength(0);
   });
 
   it('n’appelle aucune API : elle est servie sans jeton', () => {

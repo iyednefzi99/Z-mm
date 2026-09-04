@@ -54,6 +54,14 @@
             "type" : "integer",
             "format" : "int64"
           }
+        }, {
+          "name" : "X-Zumm-Version",
+          "in" : "header",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
         } ],
         "requestBody" : {
           "content" : {
@@ -417,10 +425,90 @@
         }
       }
     },
+    "/api/materiels/{id}" : {
+      "get" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "obtenir_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MaterielReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "mettreAJour_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MaterielCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MaterielReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "supprimer_5",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/lots/{id}" : {
       "get" : {
         "tags" : [ "lot-controller" ],
-        "operationId" : "obtenir_5",
+        "operationId" : "obtenir_6",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -445,7 +533,7 @@
       },
       "put" : {
         "tags" : [ "lot-controller" ],
-        "operationId" : "mettreAJour_5",
+        "operationId" : "mettreAJour_6",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -480,7 +568,7 @@
       },
       "delete" : {
         "tags" : [ "lot-controller" ],
-        "operationId" : "supprimer_5",
+        "operationId" : "supprimer_6",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -500,7 +588,7 @@
     "/api/fermiers/{id}" : {
       "get" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "obtenir_6",
+        "operationId" : "obtenir_7",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -525,7 +613,7 @@
       },
       "put" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "mettreAJour_6",
+        "operationId" : "mettreAJour_7",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -560,7 +648,7 @@
       },
       "delete" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "supprimer_6",
+        "operationId" : "supprimer_7",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -580,7 +668,7 @@
     "/api/fermes/{id}" : {
       "get" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "obtenir_7",
+        "operationId" : "obtenir_8",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -605,7 +693,7 @@
       },
       "put" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "mettreAJour_7",
+        "operationId" : "mettreAJour_8",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -640,7 +728,7 @@
       },
       "delete" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "supprimer_7",
+        "operationId" : "supprimer_8",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -657,10 +745,176 @@
         }
       }
     },
+    "/api/depenses/{id}" : {
+      "put" : {
+        "tags" : [ "comptabilite-controller" ],
+        "operationId" : "mettreAJour_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DepenseCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DepenseReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "comptabilite-controller" ],
+        "operationId" : "supprimer_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/consommables/{id}" : {
+      "put" : {
+        "tags" : [ "consommable-controller" ],
+        "operationId" : "mettreAJour_10",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConsommableCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConsommableReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "consommable-controller" ],
+        "operationId" : "supprimer_10",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/brouillons" : {
+      "get" : {
+        "tags" : [ "brouillon-controller" ],
+        "operationId" : "lister",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BrouillonReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "brouillon-controller" ],
+        "operationId" : "deposer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BrouillonCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrouillonReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/agents/{id}" : {
       "get" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "obtenir_8",
+        "operationId" : "obtenir_9",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -685,7 +939,7 @@
       },
       "put" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "mettreAJour_8",
+        "operationId" : "mettreAJour_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -720,7 +974,7 @@
       },
       "delete" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "supprimer_8",
+        "operationId" : "supprimer_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -802,7 +1056,7 @@
     "/api/visites" : {
       "get" : {
         "tags" : [ "visite-controller" ],
-        "operationId" : "lister",
+        "operationId" : "lister_1",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -967,6 +1221,132 @@
         }
       }
     },
+    "/api/transports" : {
+      "get" : {
+        "tags" : [ "transport-controller" ],
+        "operationId" : "lister_2",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "debut",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TransportReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "transport-controller" ],
+        "operationId" : "planifier",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TransportCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransportReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transports/{id}/realiser" : {
+      "post" : {
+        "tags" : [ "transport-controller" ],
+        "operationId" : "realiser",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransportReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/transports/{id}/annuler" : {
+      "post" : {
+        "tags" : [ "transport-controller" ],
+        "operationId" : "annuler",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransportReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/traitements" : {
       "get" : {
         "tags" : [ "traitement-controller" ],
@@ -1023,10 +1403,38 @@
         }
       }
     },
+    "/api/traitements/lot" : {
+      "post" : {
+        "tags" : [ "traitement-controller" ],
+        "operationId" : "enregistrerLot",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/TraitementLotCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RapportLot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/taches" : {
       "get" : {
         "tags" : [ "tache-controller" ],
-        "operationId" : "lister_1",
+        "operationId" : "lister_3",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1097,7 +1505,7 @@
     "/api/sites" : {
       "get" : {
         "tags" : [ "site-controller" ],
-        "operationId" : "lister_2",
+        "operationId" : "lister_4",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1165,10 +1573,47 @@
         }
       }
     },
+    "/api/sites/{id}/demenagement" : {
+      "post" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "demenager",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DemenagementCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SiteReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ruches" : {
       "get" : {
         "tags" : [ "ruche-controller" ],
-        "operationId" : "lister_3",
+        "operationId" : "lister_5",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1292,10 +1737,31 @@
         }
       }
     },
+    "/api/regles/executer" : {
+      "post" : {
+        "tags" : [ "regle-controller" ],
+        "operationId" : "executer",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/TacheReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/recoltes" : {
       "get" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "lister_4",
+        "operationId" : "lister_6",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1339,10 +1805,38 @@
         }
       }
     },
+    "/api/recoltes/lot" : {
+      "post" : {
+        "tags" : [ "recolte-controller" ],
+        "operationId" : "creerLot",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RecolteLotCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RapportLot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/plannings" : {
       "get" : {
         "tags" : [ "planning-controller" ],
-        "operationId" : "lister_5",
+        "operationId" : "lister_7",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1474,6 +1968,126 @@
         }
       }
     },
+    "/api/photos" : {
+      "get" : {
+        "tags" : [ "photo-controller" ],
+        "operationId" : "lister_8",
+        "parameters" : [ {
+          "name" : "cible",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+          }
+        }, {
+          "name" : "cibleId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PhotoReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "photo-controller" ],
+        "operationId" : "attacher",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PhotoCibleCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PhotoReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/partages" : {
+      "get" : {
+        "tags" : [ "partage-telemetrie-controller" ],
+        "operationId" : "lister_9",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PartageReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "partage-telemetrie-controller" ],
+        "operationId" : "creer_6",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PartageCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartageReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/nourrissements" : {
       "get" : {
         "tags" : [ "nourrissement-controller" ],
@@ -1530,6 +2144,34 @@
         }
       }
     },
+    "/api/nourrissements/lot" : {
+      "post" : {
+        "tags" : [ "nourrissement-controller" ],
+        "operationId" : "enregistrerLot_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NourrissementLotCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RapportLot"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/mesures" : {
       "get" : {
         "tags" : [ "mesure-controller" ],
@@ -1548,7 +2190,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           }
         } ],
         "responses" : {
@@ -1594,10 +2236,92 @@
         }
       }
     },
+    "/api/materiels" : {
+      "get" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "lister_10",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MaterielReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "creer_7",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MaterielCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MaterielReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/materiels/{id}/entretien" : {
+      "post" : {
+        "tags" : [ "materiel-controller" ],
+        "operationId" : "entretenir",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "jour",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MaterielReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/lots" : {
       "get" : {
         "tags" : [ "lot-controller" ],
-        "operationId" : "lister_6",
+        "operationId" : "lister_11",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1616,7 +2340,7 @@
       },
       "post" : {
         "tags" : [ "lot-controller" ],
-        "operationId" : "creer_6",
+        "operationId" : "creer_8",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1644,7 +2368,7 @@
     "/api/invitations" : {
       "get" : {
         "tags" : [ "invitation-controller" ],
-        "operationId" : "lister_7",
+        "operationId" : "lister_12",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -1691,7 +2415,7 @@
     "/api/fermiers" : {
       "get" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "lister_8",
+        "operationId" : "lister_13",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1734,7 +2458,7 @@
       },
       "post" : {
         "tags" : [ "fermier-controller" ],
-        "operationId" : "creer_7",
+        "operationId" : "creer_9",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1762,7 +2486,7 @@
     "/api/fermes" : {
       "get" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "lister_9",
+        "operationId" : "lister_14",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1805,7 +2529,7 @@
       },
       "post" : {
         "tags" : [ "ferme-controller" ],
-        "operationId" : "creer_8",
+        "operationId" : "creer_10",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1830,10 +2554,379 @@
         }
       }
     },
+    "/api/divisions" : {
+      "get" : {
+        "tags" : [ "division-controller" ],
+        "operationId" : "registre_2",
+        "parameters" : [ {
+          "name" : "rucheMereId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DivisionReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "division-controller" ],
+        "operationId" : "enregistrer_4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DivisionCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DivisionReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/depenses" : {
+      "get" : {
+        "tags" : [ "comptabilite-controller" ],
+        "operationId" : "lister_15",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DepenseReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "comptabilite-controller" ],
+        "operationId" : "creer_11",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/DepenseCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DepenseReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demonstration" : {
+      "get" : {
+        "tags" : [ "demonstration-controller" ],
+        "operationId" : "etat",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatDemonstration"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "demonstration-controller" ],
+        "operationId" : "charger",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatDemonstration"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "demonstration-controller" ],
+        "operationId" : "purger",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EtatDemonstration"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consommables" : {
+      "get" : {
+        "tags" : [ "consommable-controller" ],
+        "operationId" : "lister_16",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ConsommableReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "consommable-controller" ],
+        "operationId" : "creer_12",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConsommableCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConsommableReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/consommables/{id}/mouvement" : {
+      "post" : {
+        "tags" : [ "consommable-controller" ],
+        "operationId" : "mouvementer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "delta",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConsommableReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/compartiments/mesures" : {
+      "post" : {
+        "tags" : [ "mesure-compartiment-controller" ],
+        "operationId" : "peser",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/MesureCompartimentCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PoidsCompartiment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/captures" : {
+      "get" : {
+        "tags" : [ "capture-essaim-controller" ],
+        "operationId" : "lister_17",
+        "parameters" : [ {
+          "name" : "debut",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "enAttente",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : false
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CaptureEssaimReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "capture-essaim-controller" ],
+        "operationId" : "enregistrer_5",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CaptureEssaimCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CaptureEssaimReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/captures/{id}/loger" : {
+      "post" : {
+        "tags" : [ "capture-essaim-controller" ],
+        "operationId" : "loger",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CaptureEssaimReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/agents" : {
       "get" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "lister_10",
+        "operationId" : "lister_18",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -1876,7 +2969,7 @@
       },
       "post" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "creer_9",
+        "operationId" : "creer_13",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1894,6 +2987,62 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/AgentReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/abonnements-calendrier" : {
+      "get" : {
+        "tags" : [ "abonnement-calendrier-controller" ],
+        "operationId" : "lister_19",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AbonnementReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "abonnement-calendrier-controller" ],
+        "operationId" : "creer_14",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AbonnementCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AbonnementReponse"
                 }
               }
             }
@@ -2147,6 +3296,36 @@
         }
       }
     },
+    "/api/sites/{id}/emplacements" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "emplacements",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/EmplacementReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/sites/proches" : {
       "get" : {
         "tags" : [ "site-controller" ],
@@ -2234,6 +3413,39 @@
         }
       }
     },
+    "/api/sites/comparaison" : {
+      "get" : {
+        "tags" : [ "site-controller" ],
+        "operationId" : "comparaison",
+        "parameters" : [ {
+          "name" : "ids",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ComparaisonSite"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/services/getZummHoneyActualQuantity" : {
       "get" : {
         "tags" : [ "Service tierce" ],
@@ -2273,10 +3485,144 @@
         }
       }
     },
+    "/api/saisons" : {
+      "get" : {
+        "tags" : [ "saison-controller" ],
+        "operationId" : "saisons",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ComparaisonSaisons"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/saisons/{annee}/bilan.pdf" : {
+      "get" : {
+        "tags" : [ "saison-controller" ],
+        "operationId" : "bilanAnnuel",
+        "parameters" : [ {
+          "name" : "annee",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ruchers/{siteId}/fiche-inspection.pdf" : {
+      "get" : {
+        "tags" : [ "rucher-controller" ],
+        "operationId" : "ficheInspection",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ruchers/{siteId}/emport" : {
+      "get" : {
+        "tags" : [ "rucher-controller" ],
+        "operationId" : "emporter",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/EmportRucher"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ruchers/synthese" : {
+      "get" : {
+        "tags" : [ "rucher-controller" ],
+        "operationId" : "synthese_1",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SyntheseRucher"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/recoltes/{id}" : {
       "get" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "obtenir_9",
+        "operationId" : "obtenir_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2301,7 +3647,7 @@
       },
       "delete" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "supprimer_9",
+        "operationId" : "supprimer_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2337,6 +3683,43 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TraceReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/recherche" : {
+      "get" : {
+        "tags" : [ "recherche-controller" ],
+        "operationId" : "rechercher",
+        "parameters" : [ {
+          "name" : "q",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "limite",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ResultatRecherche"
+                  }
                 }
               }
             }
@@ -2380,6 +3763,41 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TourneeReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/plannings/agenda.ics" : {
+      "get" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "agenda",
+        "parameters" : [ {
+          "name" : "debut",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/calendar;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
@@ -2441,7 +3859,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           }
         } ],
         "responses" : {
@@ -2527,6 +3945,106 @@
         }
       }
     },
+    "/api/indices" : {
+      "get" : {
+        "tags" : [ "indice-controller" ],
+        "operationId" : "lister_20",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/IndiceColonie"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/flux/{jeton}" : {
+      "get" : {
+        "tags" : [ "flux-partage-controller" ],
+        "operationId" : "consulter",
+        "parameters" : [ {
+          "name" : "jeton",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "indicateur",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "POIDS",
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FluxPartage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/{ressource}" : {
+      "get" : {
+        "tags" : [ "export-controller" ],
+        "operationId" : "exporter",
+        "parameters" : [ {
+          "name" : "ressource",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "format",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "csv"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/export/visites" : {
       "get" : {
         "tags" : [ "export-controller" ],
@@ -2546,7 +4064,8 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             }
@@ -2573,7 +4092,153 @@
             "content" : {
               "*/*" : {
                 "schema" : {
-                  "type" : "string"
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/export/ressources" : {
+      "get" : {
+        "tags" : [ "export-controller" ],
+        "operationId" : "ressources",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/equipe/charge" : {
+      "get" : {
+        "tags" : [ "equipe-controller" ],
+        "operationId" : "charge",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ChargeAgent"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/divisions/filiation" : {
+      "get" : {
+        "tags" : [ "division-controller" ],
+        "operationId" : "filiation",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DivisionReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/depenses/bilan" : {
+      "get" : {
+        "tags" : [ "comptabilite-controller" ],
+        "operationId" : "bilan",
+        "parameters" : [ {
+          "name" : "debut",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BilanExploitation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/correlations/meteo" : {
+      "get" : {
+        "tags" : [ "correlation-controller" ],
+        "operationId" : "meteo",
+        "parameters" : [ {
+          "name" : "debut",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CorrelationMeteo"
+                  }
                 }
               }
             }
@@ -2640,10 +4305,179 @@
         }
       }
     },
+    "/api/compartiments/{id}/serie" : {
+      "get" : {
+        "tags" : [ "mesure-compartiment-controller" ],
+        "operationId" : "serie_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "debut",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "fin",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PoidsCompartiment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/compartiments/repartition" : {
+      "get" : {
+        "tags" : [ "mesure-compartiment-controller" ],
+        "operationId" : "repartition",
+        "parameters" : [ {
+          "name" : "rucheId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PoidsCompartiment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendrier/{jeton}.ics" : {
+      "get" : {
+        "tags" : [ "flux-calendrier-controller" ],
+        "operationId" : "flux",
+        "parameters" : [ {
+          "name" : "jeton",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/calendar;charset=UTF-8" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculateurs/valorisation" : {
+      "get" : {
+        "tags" : [ "calculateur-controller" ],
+        "operationId" : "valorisation",
+        "parameters" : [ {
+          "name" : "kilos",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        }, {
+          "name" : "prixKgEur",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Valorisation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculateurs/sirop" : {
+      "get" : {
+        "tags" : [ "calculateur-controller" ],
+        "operationId" : "sirop",
+        "parameters" : [ {
+          "name" : "proportion",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "1:1"
+          }
+        }, {
+          "name" : "litres",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Sirop"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/audit" : {
       "get" : {
         "tags" : [ "audit-controller" ],
-        "operationId" : "lister_11",
+        "operationId" : "lister_21",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2679,7 +4513,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           }
         } ],
         "responses" : {
@@ -2727,7 +4561,27 @@
     "/api/varroa/{id}" : {
       "delete" : {
         "tags" : [ "comptage-varroa-controller" ],
-        "operationId" : "supprimer_10",
+        "operationId" : "supprimer_13",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/transports/{id}" : {
+      "delete" : {
+        "tags" : [ "transport-controller" ],
+        "operationId" : "supprimer_14",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2747,7 +4601,7 @@
     "/api/traitements/{id}" : {
       "delete" : {
         "tags" : [ "traitement-controller" ],
-        "operationId" : "supprimer_11",
+        "operationId" : "supprimer_15",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2767,7 +4621,7 @@
     "/api/reines/{id}" : {
       "delete" : {
         "tags" : [ "reine-controller" ],
-        "operationId" : "supprimer_12",
+        "operationId" : "supprimer_16",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2784,10 +4638,57 @@
         }
       }
     },
+    "/api/photos/{id}" : {
+      "delete" : {
+        "tags" : [ "photo-controller" ],
+        "operationId" : "supprimer_17",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/partages/{id}" : {
+      "delete" : {
+        "tags" : [ "partage-telemetrie-controller" ],
+        "operationId" : "revoquer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PartageReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/nourrissements/{id}" : {
       "delete" : {
         "tags" : [ "nourrissement-controller" ],
-        "operationId" : "supprimer_13",
+        "operationId" : "supprimer_18",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2807,7 +4708,7 @@
     "/api/invitations/{id}" : {
       "delete" : {
         "tags" : [ "invitation-controller" ],
-        "operationId" : "revoquer",
+        "operationId" : "revoquer_1",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2820,6 +4721,93 @@
         "responses" : {
           "200" : {
             "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/divisions/{id}" : {
+      "delete" : {
+        "tags" : [ "division-controller" ],
+        "operationId" : "supprimer_19",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/captures/{id}" : {
+      "delete" : {
+        "tags" : [ "capture-essaim-controller" ],
+        "operationId" : "supprimer_20",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/brouillons/{id}" : {
+      "delete" : {
+        "tags" : [ "brouillon-controller" ],
+        "operationId" : "effacer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/abonnements-calendrier/{id}" : {
+      "delete" : {
+        "tags" : [ "abonnement-calendrier-controller" ],
+        "operationId" : "revoquer_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AbonnementReponse"
+                }
+              }
+            }
           }
         }
       }
@@ -3015,6 +5003,14 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "cible" : {
+            "type" : "string",
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+          },
+          "cibleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
           "url" : {
             "type" : "string"
           },
@@ -3143,6 +5139,14 @@
           },
           "faite" : {
             "type" : "boolean"
+          },
+          "priorite" : {
+            "type" : "string",
+            "pattern" : "basse|normale|haute|critique"
+          },
+          "categorie" : {
+            "type" : "string",
+            "pattern" : "controle|traitement|nourrissement|recolte|materiel|elevage|administratif|autre"
           }
         },
         "required" : [ "libelle" ]
@@ -3178,6 +5182,18 @@
           "faite" : {
             "type" : "boolean"
           },
+          "priorite" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "origine" : {
+            "type" : "string"
+          },
+          "regleCode" : {
+            "type" : "string"
+          },
           "creeLe" : {
             "type" : "string",
             "format" : "date-time"
@@ -3187,6 +5203,39 @@
             "format" : "date-time"
           }
         }
+      },
+      "RessourceFloraleCorps" : {
+        "type" : "object",
+        "properties" : {
+          "ressource" : {
+            "type" : "string",
+            "pattern" : "colza|tournesol|acacia|chataignier|tilleul|lavande|bruyere|luzerne|sarrasin|verger|agrumes|eucalyptus|thym|romarin|jujubier|palmier_dattier|prairie|foret|garrigue|autre"
+          },
+          "distanceM" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 20000,
+            "minimum" : 0
+          },
+          "moisDebut" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 12,
+            "minimum" : 1
+          },
+          "moisFin" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 12,
+            "minimum" : 1
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "ressource" ]
       },
       "SiteCorps" : {
         "type" : "object",
@@ -3226,9 +5275,77 @@
           "dateCloture" : {
             "type" : "string",
             "format" : "date"
+          },
+          "adresseRue" : {
+            "type" : "string",
+            "maxLength" : 160,
+            "minLength" : 0
+          },
+          "codePostal" : {
+            "type" : "string",
+            "maxLength" : 12,
+            "minLength" : 0
+          },
+          "ville" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "pays" : {
+            "type" : "string",
+            "pattern" : "[A-Z]{2}"
+          },
+          "typeSite" : {
+            "type" : "string",
+            "pattern" : "sedentaire|transhumance|fecondation|elevage|conservatoire|autre"
+          },
+          "exposition" : {
+            "type" : "string",
+            "pattern" : "nord|nord_est|est|sud_est|sud|sud_ouest|ouest|nord_ouest"
+          },
+          "ressources" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RessourceFloraleCorps"
+            }
+          },
+          "priorite" : {
+            "type" : "string",
+            "pattern" : "basse|normale|haute"
+          },
+          "couvertureReseau" : {
+            "type" : "string",
+            "pattern" : "aucune|faible|correcte|bonne"
           }
         },
         "required" : [ "dateMiseEnOeuvre", "fermeId", "latitude", "longitude", "nom" ]
+      },
+      "RessourceFloraleReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ressource" : {
+            "type" : "string"
+          },
+          "distanceM" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moisDebut" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moisFin" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        }
       },
       "SiteReponse" : {
         "type" : "object",
@@ -3267,6 +5384,36 @@
           "dateCloture" : {
             "type" : "string",
             "format" : "date"
+          },
+          "adresseRue" : {
+            "type" : "string"
+          },
+          "codePostal" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "pays" : {
+            "type" : "string"
+          },
+          "typeSite" : {
+            "type" : "string"
+          },
+          "exposition" : {
+            "type" : "string"
+          },
+          "ressources" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RessourceFloraleReponse"
+            }
+          },
+          "priorite" : {
+            "type" : "string"
+          },
+          "couvertureReseau" : {
+            "type" : "string"
           },
           "creeLe" : {
             "type" : "string",
@@ -3339,6 +5486,10 @@
           "causeCloture" : {
             "type" : "string",
             "pattern" : "morte|fusionnee|vendue|volee|reformee|essaimee|autre"
+          },
+          "priorite" : {
+            "type" : "string",
+            "pattern" : "basse|normale|haute"
           }
         },
         "required" : [ "compartiments", "fermeId", "modele", "siteId" ]
@@ -3415,6 +5566,9 @@
             "type" : "string"
           },
           "causeCloture" : {
+            "type" : "string"
+          },
+          "priorite" : {
             "type" : "string"
           },
           "creeLe" : {
@@ -3512,6 +5666,102 @@
             "enum" : [ "propose", "approuve", "refuse" ]
           },
           "motifRefus" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "MaterielCorps" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "categorie" : {
+            "type" : "string",
+            "pattern" : "ruche|hausse|cadre|extracteur|maturateur|enfumoir|protection|vehicule|balance|autre"
+          },
+          "quantite" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 1
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "etat" : {
+            "type" : "string",
+            "pattern" : "neuf|bon|a_reviser|hors_service"
+          },
+          "periodiciteJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 3650,
+            "minimum" : 1
+          },
+          "derniereMaintenance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "categorie", "libelle" ]
+      },
+      "MaterielReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "quantite" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "etat" : {
+            "type" : "string"
+          },
+          "periodiciteJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "derniereMaintenance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "prochaineMaintenance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "enRetard" : {
+            "type" : "boolean"
+          },
+          "note" : {
             "type" : "string"
           },
           "creeLe" : {
@@ -3715,6 +5965,216 @@
           }
         }
       },
+      "DepenseCorps" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 160,
+            "minLength" : 0
+          },
+          "categorie" : {
+            "type" : "string",
+            "pattern" : "materiel|consommable|traitement|nourrissement|cheptel|transport|analyse|assurance|formation|autre"
+          },
+          "montantEur" : {
+            "type" : "number"
+          },
+          "dateDepense" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "categorie", "dateDepense", "libelle", "montantEur" ]
+      },
+      "DepenseReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "montantEur" : {
+            "type" : "number"
+          },
+          "dateDepense" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ConsommableCorps" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "categorie" : {
+            "type" : "string",
+            "pattern" : "sirop|candi|traitement|cire_gaufree|pot|etiquette|cadre|protection|autre"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "unite" : {
+            "type" : "string",
+            "pattern" : "kg|l|unite"
+          },
+          "seuilAlerte" : {
+            "type" : "number"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "categorie", "libelle", "quantite", "seuilAlerte", "unite" ]
+      },
+      "ConsommableReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "quantite" : {
+            "type" : "number"
+          },
+          "unite" : {
+            "type" : "string"
+          },
+          "seuilAlerte" : {
+            "type" : "number"
+          },
+          "sousSeuil" : {
+            "type" : "boolean"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "BrouillonCorps" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "contenu" : {
+            "type" : "string",
+            "maxLength" : 262144,
+            "minLength" : 0
+          },
+          "appareil" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentId", "contenu", "rucheId" ]
+      },
+      "BrouillonReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "contenu" : {
+            "type" : "string"
+          },
+          "appareil" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "AgentCorps" : {
         "type" : "object",
         "properties" : {
@@ -3735,6 +6195,9 @@
             "type" : "string",
             "maxLength" : 180,
             "minLength" : 0
+          },
+          "notificationsEmail" : {
+            "type" : "boolean"
           }
         },
         "required" : [ "nom", "role" ]
@@ -3762,6 +6225,9 @@
           },
           "email" : {
             "type" : "string"
+          },
+          "notificationsEmail" : {
+            "type" : "boolean"
           },
           "creeLe" : {
             "type" : "string",
@@ -3939,6 +6405,130 @@
           }
         }
       },
+      "TransportCorps" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "datePrevue" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heurePrevue" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "vehicule" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "capaciteRuches" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 1
+          },
+          "nbRuches" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0
+          },
+          "destinationLibelle" : {
+            "type" : "string",
+            "maxLength" : 160,
+            "minLength" : 0
+          },
+          "destinationLatitude" : {
+            "type" : "number",
+            "maximum" : 90.0,
+            "minimum" : -90.0
+          },
+          "destinationLongitude" : {
+            "type" : "number",
+            "maximum" : 180.0,
+            "minimum" : -180.0
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentId", "datePrevue", "destinationLibelle", "siteId" ]
+      },
+      "TransportReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "datePrevue" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "heurePrevue" : {
+            "type" : "string",
+            "format" : "time",
+            "example" : "14:30:00"
+          },
+          "vehicule" : {
+            "type" : "string"
+          },
+          "capaciteRuches" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbRuches" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "voyages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "destinationLibelle" : {
+            "type" : "string"
+          },
+          "destinationLatitude" : {
+            "type" : "number"
+          },
+          "destinationLongitude" : {
+            "type" : "number"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "TraitementCorps" : {
         "type" : "object",
         "properties" : {
@@ -4075,6 +6665,104 @@
           }
         }
       },
+      "CibleLot" : {
+        "type" : "object",
+        "properties" : {
+          "rucheIds" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            },
+            "maxItems" : 500,
+            "minItems" : 0
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "TraitementLotCorps" : {
+        "type" : "object",
+        "properties" : {
+          "cible" : {
+            "$ref" : "#/components/schemas/CibleLot"
+          },
+          "traitement" : {
+            "$ref" : "#/components/schemas/TraitementCorps"
+          }
+        },
+        "required" : [ "cible", "traitement" ]
+      },
+      "EchecLot" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "motif" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RapportLot" : {
+        "type" : "object",
+        "properties" : {
+          "demandees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "reussites" : {
+            "type" : "array",
+            "items" : {
+              "type" : "integer",
+              "format" : "int64"
+            }
+          },
+          "echecs" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EchecLot"
+            }
+          }
+        }
+      },
+      "DemenagementCorps" : {
+        "type" : "object",
+        "properties" : {
+          "latitude" : {
+            "type" : "number",
+            "maximum" : 90.0,
+            "minimum" : -90.0
+          },
+          "longitude" : {
+            "type" : "number",
+            "maximum" : 180.0,
+            "minimum" : -180.0
+          },
+          "altitude" : {
+            "type" : "number",
+            "maximum" : 9000.0,
+            "minimum" : -500.0
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string",
+            "pattern" : "installation|transhumance|miellee|securite|reglementaire|autre"
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "dateDebut", "latitude", "longitude" ]
+      },
       "ReineCorps" : {
         "type" : "object",
         "properties" : {
@@ -4172,8 +6860,26 @@
             "maxLength" : 60,
             "minLength" : 0
           },
+          "typeProduit" : {
+            "type" : "string",
+            "pattern" : "miel|cire|pollen|propolis|gelee_royale|essaim|reine"
+          },
+          "unite" : {
+            "type" : "string",
+            "pattern" : "kg|unite"
+          },
           "note" : {
-            "type" : "string"
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          },
+          "forcerCarence" : {
+            "type" : "boolean"
+          },
+          "motifForcage" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
           }
         },
         "required" : [ "dateRecolte", "quantiteKg", "rucheId" ]
@@ -4202,6 +6908,12 @@
           "typeMiel" : {
             "type" : "string"
           },
+          "typeProduit" : {
+            "type" : "string"
+          },
+          "unite" : {
+            "type" : "string"
+          },
           "lot" : {
             "type" : "string"
           },
@@ -4209,6 +6921,12 @@
             "type" : "string"
           },
           "qrPayload" : {
+            "type" : "string"
+          },
+          "carenceForcee" : {
+            "type" : "boolean"
+          },
+          "motifForcage" : {
             "type" : "string"
           },
           "creeLe" : {
@@ -4221,6 +6939,38 @@
           }
         }
       },
+      "RecolteLotCorps" : {
+        "type" : "object",
+        "properties" : {
+          "cible" : {
+            "$ref" : "#/components/schemas/CibleLot"
+          },
+          "dateRecolte" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "quantiteKgParRuche" : {
+            "type" : "number"
+          },
+          "typeMiel" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "forcerCarence" : {
+            "type" : "boolean"
+          },
+          "motifForcage" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "cible", "dateRecolte", "quantiteKgParRuche" ]
+      },
       "DecisionCorps" : {
         "type" : "object",
         "properties" : {
@@ -4228,6 +6978,90 @@
             "type" : "string",
             "maxLength" : 1000,
             "minLength" : 0
+          }
+        }
+      },
+      "PhotoCibleCorps" : {
+        "type" : "object",
+        "properties" : {
+          "cible" : {
+            "type" : "string",
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+          },
+          "cibleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "url" : {
+            "type" : "string",
+            "maxLength" : 500,
+            "minLength" : 0,
+            "pattern" : "^(https?://[^\\s\"'<>\\\\]+|/[^\\s\"'<>\\\\]*)$"
+          },
+          "legende" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "cible", "cibleId", "url" ]
+      },
+      "PartageCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "dureeJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 365,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "dureeJours", "libelle", "rucheId" ]
+      },
+      "PartageReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "expireLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "revoqueLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "derniereUtilisation" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "url" : {
+            "type" : "string"
           }
         }
       },
@@ -4325,6 +7159,18 @@
           }
         }
       },
+      "NourrissementLotCorps" : {
+        "type" : "object",
+        "properties" : {
+          "cible" : {
+            "$ref" : "#/components/schemas/CibleLot"
+          },
+          "nourrissement" : {
+            "$ref" : "#/components/schemas/NourrissementCorps"
+          }
+        },
+        "required" : [ "cible", "nourrissement" ]
+      },
       "MesureCorps" : {
         "type" : "object",
         "properties" : {
@@ -4334,7 +7180,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           },
           "valeur" : {
             "type" : "number"
@@ -4362,7 +7208,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           },
           "niveau" : {
             "type" : "string"
@@ -4395,7 +7241,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           },
           "instant" : {
             "type" : "string",
@@ -4458,6 +7304,329 @@
           },
           "epuise" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "DivisionCorps" : {
+        "type" : "object",
+        "properties" : {
+          "rucheMereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheFilleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateDivision" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "methode" : {
+            "type" : "string",
+            "pattern" : "essaim_artificiel|nucleus|partage_egal|prelevement_cadres|autre"
+          },
+          "cadresCouvain" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 40,
+            "minimum" : 0
+          },
+          "cadresProvisions" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 40,
+            "minimum" : 0
+          },
+          "origineReine" : {
+            "type" : "string",
+            "pattern" : "cellule_royale|reine_introduite|orpheline|reine_mere|autre"
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentId", "dateDivision", "rucheMereId" ]
+      },
+      "DivisionReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheMereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheMereModele" : {
+            "type" : "string"
+          },
+          "rucheFilleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheFilleModele" : {
+            "type" : "string"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "visiteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateDivision" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "methode" : {
+            "type" : "string"
+          },
+          "cadresCouvain" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "cadresProvisions" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "origineReine" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "EtatDemonstration" : {
+        "type" : "object",
+        "properties" : {
+          "disponible" : {
+            "type" : "boolean"
+          },
+          "charge" : {
+            "type" : "boolean"
+          },
+          "objets" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "MesureCompartimentCorps" : {
+        "type" : "object",
+        "properties" : {
+          "compartimentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "compartimentId", "valeur" ]
+      },
+      "PoidsCompartiment" : {
+        "type" : "object",
+        "properties" : {
+          "compartimentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "type" : {
+            "type" : "string"
+          },
+          "nbCadres" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "instant" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "CaptureEssaimCorps" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateCapture" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "origine" : {
+            "type" : "string",
+            "pattern" : "essaim_naturel|piege|recuperation|signalement|autre"
+          },
+          "lieu" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "poidsKg" : {
+            "type" : "number",
+            "maximum" : 20.0,
+            "minimum" : 0.0
+          },
+          "hauteurM" : {
+            "type" : "number",
+            "maximum" : 60.0,
+            "minimum" : 0.0
+          },
+          "note" : {
+            "type" : "string",
+            "maxLength" : 2000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "agentId", "dateCapture", "origine" ]
+      },
+      "CaptureEssaimReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "dateCapture" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "origine" : {
+            "type" : "string"
+          },
+          "lieu" : {
+            "type" : "string"
+          },
+          "poidsKg" : {
+            "type" : "number"
+          },
+          "hauteurM" : {
+            "type" : "number"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "logee" : {
+            "type" : "boolean"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "AbonnementCorps" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "dureeJours" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 365,
+            "minimum" : 1
+          }
+        },
+        "required" : [ "agentId", "dureeJours", "libelle" ]
+      },
+      "AbonnementReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "expireLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "revoqueLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "derniereUtilisation" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "url" : {
+            "type" : "string"
           }
         }
       },
@@ -4678,6 +7847,45 @@
           }
         }
       },
+      "EmplacementReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "latitude" : {
+            "type" : "number"
+          },
+          "longitude" : {
+            "type" : "number"
+          },
+          "altitude" : {
+            "type" : "number"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motif" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "courant" : {
+            "type" : "boolean"
+          }
+        }
+      },
       "GrappeSites" : {
         "type" : "object",
         "properties" : {
@@ -4710,6 +7918,49 @@
           }
         }
       },
+      "ComparaisonSite" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "typeSite" : {
+            "type" : "string"
+          },
+          "exposition" : {
+            "type" : "string"
+          },
+          "altitude" : {
+            "type" : "number"
+          },
+          "nbRuches" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rendementKgParRuche" : {
+            "type" : "number"
+          },
+          "ressourcesDeclarees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ressourcesEnFleur" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ruchersA3km" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "QuantiteMiel" : {
         "type" : "object",
         "properties" : {
@@ -4722,6 +7973,138 @@
           },
           "unite" : {
             "type" : "string"
+          }
+        }
+      },
+      "ComparaisonSaisons" : {
+        "type" : "object",
+        "properties" : {
+          "annee" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "productionMielKg" : {
+            "type" : "number"
+          },
+          "ruchesProductives" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rendementKg" : {
+            "type" : "number"
+          },
+          "nombreRecoltes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "parProduit" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProduitSaison"
+            }
+          }
+        }
+      },
+      "ProduitSaison" : {
+        "type" : "object",
+        "properties" : {
+          "typeProduit" : {
+            "type" : "string"
+          },
+          "unite" : {
+            "type" : "string"
+          },
+          "quantite" : {
+            "type" : "number"
+          }
+        }
+      },
+      "EmportRucher" : {
+        "type" : "object",
+        "properties" : {
+          "preleveLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "site" : {
+            "$ref" : "#/components/schemas/SiteReponse"
+          },
+          "ruches" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RucheReponse"
+            }
+          },
+          "dernieresVisites" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VisiteReponse"
+            }
+          },
+          "tachesOuvertes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TacheReponse"
+            }
+          },
+          "sousCarence" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/TraitementReponse"
+            }
+          }
+        }
+      },
+      "SyntheseRucher" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "priorite" : {
+            "type" : "string"
+          },
+          "nbRuches" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbActives" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "santeMoyenne" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "coloniesEvaluees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "risqueEssaimageMax" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ruchesSousCarence" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "alertesOuvertes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tachesOuvertes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "productionKg" : {
+            "type" : "number"
           }
         }
       },
@@ -4752,6 +8135,27 @@
             "type" : "number"
           },
           "typeMiel" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ResultatRecherche" : {
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "precision" : {
+            "type" : "string"
+          },
+          "route" : {
             "type" : "string"
           }
         }
@@ -4962,6 +8366,181 @@
             "items" : {
               "type" : "string"
             }
+          },
+          "reinitialisationUrl" : {
+            "type" : "string"
+          }
+        }
+      },
+      "IndiceColonie" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "sante" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "risqueEssaimage" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "composantes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "derniereVisite" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "motifs" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "FluxPartage" : {
+        "type" : "object",
+        "properties" : {
+          "libelle" : {
+            "type" : "string"
+          },
+          "serie" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointJournalier"
+            }
+          }
+        }
+      },
+      "ChargeAgent" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "ruchesResponsable" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ruchersConcernes" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tachesOuvertes" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tachesEnRetard" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "tachesCritiques" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "visites7Jours" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "BilanExploitation" : {
+        "type" : "object",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "productionMielKg" : {
+            "type" : "number"
+          },
+          "recettesEur" : {
+            "type" : "number"
+          },
+          "depensesEur" : {
+            "type" : "number"
+          },
+          "resultatEur" : {
+            "type" : "number"
+          },
+          "depensesNonAffectees" : {
+            "type" : "number"
+          },
+          "parCategorie" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "number"
+            }
+          },
+          "parRuche" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/RentabiliteRuche"
+            }
+          }
+        }
+      },
+      "RentabiliteRuche" : {
+        "type" : "object",
+        "properties" : {
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "productionKg" : {
+            "type" : "number"
+          },
+          "recettesEur" : {
+            "type" : "number"
+          },
+          "depensesEur" : {
+            "type" : "number"
+          },
+          "resultatEur" : {
+            "type" : "number"
+          }
+        }
+      },
+      "CorrelationMeteo" : {
+        "type" : "object",
+        "properties" : {
+          "indicateur" : {
+            "type" : "string"
+          },
+          "coefficient" : {
+            "type" : "number"
+          },
+          "echantillon" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "interpretation" : {
+            "type" : "string"
           }
         }
       },
@@ -5012,6 +8591,10 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "batterieMinPourcent" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "delaiAlerteJours" : {
             "type" : "integer",
             "format" : "int32"
@@ -5029,6 +8612,44 @@
           },
           "coutVisiteEur" : {
             "type" : "number"
+          }
+        }
+      },
+      "Valorisation" : {
+        "type" : "object",
+        "properties" : {
+          "kilos" : {
+            "type" : "number"
+          },
+          "prixKgEur" : {
+            "type" : "number"
+          },
+          "totalEur" : {
+            "type" : "number"
+          },
+          "pots500g" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "Sirop" : {
+        "type" : "object",
+        "properties" : {
+          "proportion" : {
+            "type" : "string"
+          },
+          "litres" : {
+            "type" : "number"
+          },
+          "sucreKg" : {
+            "type" : "number"
+          },
+          "eauL" : {
+            "type" : "number"
+          },
+          "usage" : {
+            "type" : "string"
           }
         }
       },
@@ -5070,7 +8691,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
           },
           "alpha" : {
             "type" : "number",

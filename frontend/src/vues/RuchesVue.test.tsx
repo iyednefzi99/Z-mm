@@ -48,6 +48,7 @@ const RUCHE: Ruche = {
   couleur: 'jaune',
   origine: 'division',
   causeCloture: null,
+  priorite: 'normale',
   creeLe: '2026-03-01T09:00:00Z',
   majLe: '2026-03-01T09:00:00Z',
 };

@@ -84,7 +84,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/lots/{id}": {
+    "/api/materiels/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -100,7 +100,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/fermiers/{id}": {
+    "/api/lots/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -116,7 +116,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/fermes/{id}": {
+    "/api/fermiers/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,7 +132,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/agents/{id}": {
+    "/api/fermes/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -143,6 +143,70 @@ export interface paths {
         put: operations["mettreAJour_8"];
         post?: never;
         delete: operations["supprimer_8"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/depenses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["mettreAJour_9"];
+        post?: never;
+        delete: operations["supprimer_9"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/consommables/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["mettreAJour_10"];
+        post?: never;
+        delete: operations["supprimer_10"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/brouillons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister"];
+        put: operations["deposer"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenir_9"];
+        put: operations["mettreAJour_11"];
+        post?: never;
+        delete: operations["supprimer_11"];
         options?: never;
         head?: never;
         patch?: never;
@@ -187,7 +251,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister"];
+        get: operations["lister_1"];
         put?: never;
         post: operations["creer"];
         delete?: never;
@@ -228,6 +292,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/transports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_2"];
+        put?: never;
+        post: operations["planifier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transports/{id}/realiser": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["realiser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transports/{id}/annuler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["annuler"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/traitements": {
         parameters: {
             query?: never;
@@ -244,6 +356,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/traitements/lot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["enregistrerLot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/taches": {
         parameters: {
             query?: never;
@@ -251,7 +379,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_1"];
+        get: operations["lister_3"];
         put?: never;
         post: operations["creer_1"];
         delete?: never;
@@ -267,9 +395,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_2"];
+        get: operations["lister_4"];
         put?: never;
         post: operations["creer_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/sites/{id}/demenagement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["demenager"];
         delete?: never;
         options?: never;
         head?: never;
@@ -283,7 +427,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_3"];
+        get: operations["lister_5"];
         put?: never;
         post: operations["creer_3"];
         delete?: never;
@@ -308,6 +452,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/regles/executer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["executer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recoltes": {
         parameters: {
             query?: never;
@@ -315,9 +475,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_4"];
+        get: operations["lister_6"];
         put?: never;
         post: operations["creer_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/recoltes/lot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["creerLot"];
         delete?: never;
         options?: never;
         head?: never;
@@ -331,7 +507,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_5"];
+        get: operations["lister_7"];
         put?: never;
         post: operations["creer_5"];
         delete?: never;
@@ -372,6 +548,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_8"];
+        put?: never;
+        post: operations["attacher"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/partages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_9"];
+        put?: never;
+        post: operations["creer_6"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/nourrissements": {
         parameters: {
             query?: never;
@@ -382,6 +590,22 @@ export interface paths {
         get: operations["registre_1"];
         put?: never;
         post: operations["enregistrer_3"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/nourrissements/lot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["enregistrerLot_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -404,6 +628,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/materiels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_10"];
+        put?: never;
+        post: operations["creer_7"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/materiels/{id}/entretien": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["entretenir"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/lots": {
         parameters: {
             query?: never;
@@ -411,9 +667,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_6"];
+        get: operations["lister_11"];
         put?: never;
-        post: operations["creer_6"];
+        post: operations["creer_8"];
         delete?: never;
         options?: never;
         head?: never;
@@ -427,7 +683,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_7"];
+        get: operations["lister_12"];
         put?: never;
         post: operations["emettre"];
         delete?: never;
@@ -443,9 +699,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_8"];
+        get: operations["lister_13"];
         put?: never;
-        post: operations["creer_7"];
+        post: operations["creer_9"];
         delete?: never;
         options?: never;
         head?: never;
@@ -459,9 +715,137 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_9"];
+        get: operations["lister_14"];
         put?: never;
-        post: operations["creer_8"];
+        post: operations["creer_10"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/divisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registre_2"];
+        put?: never;
+        post: operations["enregistrer_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/depenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_15"];
+        put?: never;
+        post: operations["creer_11"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/demonstration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["etat"];
+        put?: never;
+        post: operations["charger"];
+        delete: operations["purger"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/consommables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_16"];
+        put?: never;
+        post: operations["creer_12"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/consommables/{id}/mouvement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["mouvementer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/compartiments/mesures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["peser"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/captures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_17"];
+        put?: never;
+        post: operations["enregistrer_5"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/captures/{id}/loger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["loger"];
         delete?: never;
         options?: never;
         head?: never;
@@ -475,9 +859,25 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_10"];
+        get: operations["lister_18"];
         put?: never;
-        post: operations["creer_9"];
+        post: operations["creer_13"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/abonnements-calendrier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_19"];
+        put?: never;
+        post: operations["creer_14"];
         delete?: never;
         options?: never;
         head?: never;
@@ -644,6 +1044,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sites/{id}/emplacements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["emplacements"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/sites/proches": {
         parameters: {
             query?: never;
@@ -676,6 +1092,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/sites/comparaison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["comparaison"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/services/getZummHoneyActualQuantity": {
         parameters: {
             query?: never;
@@ -696,6 +1128,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/saisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["saisons"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/saisons/{annee}/bilan.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["bilanAnnuel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ruchers/{siteId}/fiche-inspection.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ficheInspection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ruchers/{siteId}/emport": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["emporter"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ruchers/synthese": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["synthese_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recoltes/{id}": {
         parameters: {
             query?: never;
@@ -703,10 +1215,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["obtenir_9"];
+        get: operations["obtenir_10"];
         put?: never;
         post?: never;
-        delete: operations["supprimer_9"];
+        delete: operations["supprimer_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -728,6 +1240,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/recherche": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rechercher"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plannings/tournee": {
         parameters: {
             query?: never;
@@ -736,6 +1264,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["tournee"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plannings/agenda.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["agenda"];
         put?: never;
         post?: never;
         delete?: never;
@@ -824,6 +1368,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/indices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_20"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/flux/{jeton}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["consulter"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/export/{ressource}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["exporter"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/export/visites": {
         parameters: {
             query?: never;
@@ -848,6 +1440,86 @@ export interface paths {
             cookie?: never;
         };
         get: operations["ruches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/export/ressources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ressources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/equipe/charge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["charge"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/divisions/filiation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["filiation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/depenses/bilan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["bilan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/correlations/meteo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["meteo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -888,6 +1560,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/compartiments/{id}/serie": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["serie_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/compartiments/repartition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["repartition"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calendrier/{jeton}.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["flux"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculateurs/valorisation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["valorisation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculateurs/sirop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sirop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audit": {
         parameters: {
             query?: never;
@@ -895,7 +1647,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_11"];
+        get: operations["lister_21"];
         put?: never;
         post?: never;
         delete?: never;
@@ -946,7 +1698,23 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_10"];
+        delete: operations["supprimer_13"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/transports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -962,7 +1730,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_11"];
+        delete: operations["supprimer_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -978,7 +1746,39 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_12"];
+        delete: operations["supprimer_16"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/photos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_17"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/partages/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revoquer"];
         options?: never;
         head?: never;
         patch?: never;
@@ -994,7 +1794,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_13"];
+        delete: operations["supprimer_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1010,7 +1810,71 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["revoquer"];
+        delete: operations["revoquer_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/divisions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_19"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/captures/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_20"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/brouillons/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["effacer"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/abonnements-calendrier/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revoquer_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1091,6 +1955,10 @@ export interface components {
         PhotoReponse: {
             /** Format: int64 */
             id?: number;
+            /** @enum {string} */
+            cible?: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+            /** Format: int64 */
+            cibleId?: number;
             url?: string;
             legende?: string;
             /** Format: date-time */
@@ -1146,6 +2014,8 @@ export interface components {
             /** Format: date */
             echeance?: string;
             faite?: boolean;
+            priorite?: string;
+            categorie?: string;
         };
         TacheReponse: {
             /** Format: int64 */
@@ -1160,10 +2030,24 @@ export interface components {
             /** Format: date */
             echeance?: string;
             faite?: boolean;
+            priorite?: string;
+            categorie?: string;
+            origine?: string;
+            regleCode?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
             majLe?: string;
+        };
+        RessourceFloraleCorps: {
+            ressource: string;
+            /** Format: int32 */
+            distanceM?: number;
+            /** Format: int32 */
+            moisDebut?: number;
+            /** Format: int32 */
+            moisFin?: number;
+            note?: string;
         };
         SiteCorps: {
             nom: string;
@@ -1178,6 +2062,27 @@ export interface components {
             dateDemenagement?: string;
             /** Format: date */
             dateCloture?: string;
+            adresseRue?: string;
+            codePostal?: string;
+            ville?: string;
+            pays?: string;
+            typeSite?: string;
+            exposition?: string;
+            ressources?: components["schemas"]["RessourceFloraleCorps"][];
+            priorite?: string;
+            couvertureReseau?: string;
+        };
+        RessourceFloraleReponse: {
+            /** Format: int64 */
+            id?: number;
+            ressource?: string;
+            /** Format: int32 */
+            distanceM?: number;
+            /** Format: int32 */
+            moisDebut?: number;
+            /** Format: int32 */
+            moisFin?: number;
+            note?: string;
         };
         SiteReponse: {
             /** Format: int64 */
@@ -1195,6 +2100,15 @@ export interface components {
             dateDemenagement?: string;
             /** Format: date */
             dateCloture?: string;
+            adresseRue?: string;
+            codePostal?: string;
+            ville?: string;
+            pays?: string;
+            typeSite?: string;
+            exposition?: string;
+            ressources?: components["schemas"]["RessourceFloraleReponse"][];
+            priorite?: string;
+            couvertureReseau?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -1221,6 +2135,7 @@ export interface components {
             couleur?: string;
             origine?: string;
             causeCloture?: string;
+            priorite?: string;
         };
         CompartimentReponse: {
             /** Format: int64 */
@@ -1252,6 +2167,7 @@ export interface components {
             couleur?: string;
             origine?: string;
             causeCloture?: string;
+            priorite?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -1302,6 +2218,44 @@ export interface components {
             /** @enum {string} */
             statut?: "propose" | "approuve" | "refuse";
             motifRefus?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        MaterielCorps: {
+            libelle: string;
+            categorie: string;
+            /** Format: int32 */
+            quantite?: number;
+            /** Format: int64 */
+            siteId?: number;
+            etat?: string;
+            /** Format: int32 */
+            periodiciteJours?: number;
+            /** Format: date */
+            derniereMaintenance?: string;
+            note?: string;
+        };
+        MaterielReponse: {
+            /** Format: int64 */
+            id?: number;
+            libelle?: string;
+            categorie?: string;
+            /** Format: int32 */
+            quantite?: number;
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            etat?: string;
+            /** Format: int32 */
+            periodiciteJours?: number;
+            /** Format: date */
+            derniereMaintenance?: string;
+            /** Format: date */
+            prochaineMaintenance?: string;
+            enRetard?: boolean;
+            note?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -1377,6 +2331,86 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        DepenseCorps: {
+            libelle: string;
+            categorie: string;
+            montantEur: number;
+            /** Format: date */
+            dateDepense: string;
+            /** Format: int64 */
+            rucheId?: number;
+            /** Format: int64 */
+            siteId?: number;
+            note?: string;
+        };
+        DepenseReponse: {
+            /** Format: int64 */
+            id?: number;
+            libelle?: string;
+            categorie?: string;
+            montantEur?: number;
+            /** Format: date */
+            dateDepense?: string;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        ConsommableCorps: {
+            libelle: string;
+            categorie: string;
+            quantite: number;
+            unite: string;
+            seuilAlerte: number;
+            note?: string;
+        };
+        ConsommableReponse: {
+            /** Format: int64 */
+            id?: number;
+            libelle?: string;
+            categorie?: string;
+            quantite?: number;
+            unite?: string;
+            seuilAlerte?: number;
+            sousSeuil?: boolean;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        BrouillonCorps: {
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            rucheId: number;
+            contenu: string;
+            appareil?: string;
+        };
+        BrouillonReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            siteNom?: string;
+            contenu?: string;
+            appareil?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
         AgentCorps: {
             nom: string;
             /** @enum {string} */
@@ -1384,6 +2418,7 @@ export interface components {
             /** Format: int64 */
             fermeId?: number;
             email?: string;
+            notificationsEmail?: boolean;
         };
         AgentReponse: {
             /** Format: int64 */
@@ -1395,6 +2430,7 @@ export interface components {
             fermeId?: number;
             fermeNom?: string;
             email?: string;
+            notificationsEmail?: boolean;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -1461,6 +2497,59 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        TransportCorps: {
+            /** Format: int64 */
+            siteId: number;
+            /** Format: int64 */
+            agentId: number;
+            /** Format: date */
+            datePrevue: string;
+            /**
+             * Format: time
+             * @example 14:30:00
+             */
+            heurePrevue?: string;
+            vehicule?: string;
+            /** Format: int32 */
+            capaciteRuches?: number;
+            /** Format: int32 */
+            nbRuches?: number;
+            destinationLibelle: string;
+            destinationLatitude?: number;
+            destinationLongitude?: number;
+            note?: string;
+        };
+        TransportReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: date */
+            datePrevue?: string;
+            /**
+             * Format: time
+             * @example 14:30:00
+             */
+            heurePrevue?: string;
+            vehicule?: string;
+            /** Format: int32 */
+            capaciteRuches?: number;
+            /** Format: int32 */
+            nbRuches?: number;
+            /** Format: int32 */
+            voyages?: number;
+            destinationLibelle?: string;
+            destinationLatitude?: number;
+            destinationLongitude?: number;
+            statut?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+        };
         TraitementCorps: {
             /** Format: int64 */
             rucheId: number;
@@ -1514,6 +2603,35 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        CibleLot: {
+            rucheIds?: number[];
+            /** Format: int64 */
+            siteId?: number;
+        };
+        TraitementLotCorps: {
+            cible: components["schemas"]["CibleLot"];
+            traitement: components["schemas"]["TraitementCorps"];
+        };
+        EchecLot: {
+            /** Format: int64 */
+            rucheId?: number;
+            motif?: string;
+        };
+        RapportLot: {
+            /** Format: int32 */
+            demandees?: number;
+            reussites?: number[];
+            echecs?: components["schemas"]["EchecLot"][];
+        };
+        DemenagementCorps: {
+            latitude: number;
+            longitude: number;
+            altitude?: number;
+            /** Format: date */
+            dateDebut: string;
+            motif?: string;
+            note?: string;
+        };
         ReineCorps: {
             /** Format: int64 */
             rucheId: number;
@@ -1552,7 +2670,11 @@ export interface components {
             dateRecolte: string;
             quantiteKg: number;
             typeMiel?: string;
+            typeProduit?: string;
+            unite?: string;
             note?: string;
+            forcerCarence?: boolean;
+            motifForcage?: string;
         };
         RecolteReponse: {
             /** Format: int64 */
@@ -1564,16 +2686,62 @@ export interface components {
             dateRecolte?: string;
             quantiteKg?: number;
             typeMiel?: string;
+            typeProduit?: string;
+            unite?: string;
             lot?: string;
             note?: string;
             qrPayload?: string;
+            carenceForcee?: boolean;
+            motifForcage?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
             majLe?: string;
         };
+        RecolteLotCorps: {
+            cible: components["schemas"]["CibleLot"];
+            /** Format: date */
+            dateRecolte: string;
+            quantiteKgParRuche: number;
+            typeMiel?: string;
+            note?: string;
+            forcerCarence?: boolean;
+            motifForcage?: string;
+        };
         DecisionCorps: {
             motif?: string;
+        };
+        PhotoCibleCorps: {
+            /** @enum {string} */
+            cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+            /** Format: int64 */
+            cibleId: number;
+            url: string;
+            legende?: string;
+        };
+        PartageCorps: {
+            /** Format: int64 */
+            rucheId: number;
+            libelle: string;
+            /** Format: int32 */
+            dureeJours: number;
+        };
+        PartageReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            rucheId?: number;
+            libelle?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            expireLe?: string;
+            /** Format: date-time */
+            revoqueLe?: string;
+            /** Format: date-time */
+            derniereUtilisation?: string;
+            actif?: boolean;
+            url?: string;
         };
         NourrissementCorps: {
             /** Format: int64 */
@@ -1613,11 +2781,15 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        NourrissementLotCorps: {
+            cible: components["schemas"]["CibleLot"];
+            nourrissement: components["schemas"]["NourrissementCorps"];
+        };
         MesureCorps: {
             /** Format: int64 */
             rucheId: number;
             /** @enum {string} */
-            typeIndicateur: "poids" | "temperature" | "humidite" | "activite";
+            typeIndicateur: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             valeur: number;
             /** Format: date-time */
             instant?: string;
@@ -1629,7 +2801,7 @@ export interface components {
             rucheId?: number;
             rucheModele?: string;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             niveau?: string;
             message?: string;
             valeurDeclenchement?: number;
@@ -1643,7 +2815,7 @@ export interface components {
             /** Format: int64 */
             rucheId?: number;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             /** Format: date-time */
             instant?: string;
             valeur?: number;
@@ -1669,6 +2841,135 @@ export interface components {
             expireLe?: string;
             creePar?: string;
             epuise?: boolean;
+        };
+        DivisionCorps: {
+            /** Format: int64 */
+            rucheMereId: number;
+            /** Format: int64 */
+            rucheFilleId?: number;
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateDivision: string;
+            methode?: string;
+            /** Format: int32 */
+            cadresCouvain?: number;
+            /** Format: int32 */
+            cadresProvisions?: number;
+            origineReine?: string;
+            note?: string;
+        };
+        DivisionReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            rucheMereId?: number;
+            rucheMereModele?: string;
+            /** Format: int64 */
+            rucheFilleId?: number;
+            rucheFilleModele?: string;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            visiteId?: number;
+            /** Format: date */
+            dateDivision?: string;
+            methode?: string;
+            /** Format: int32 */
+            cadresCouvain?: number;
+            /** Format: int32 */
+            cadresProvisions?: number;
+            origineReine?: string;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+        };
+        EtatDemonstration: {
+            disponible?: boolean;
+            charge?: boolean;
+            /** Format: int32 */
+            objets?: number;
+        };
+        MesureCompartimentCorps: {
+            /** Format: int64 */
+            compartimentId: number;
+            valeur: number;
+            /** Format: date-time */
+            instant?: string;
+        };
+        PoidsCompartiment: {
+            /** Format: int64 */
+            compartimentId?: number;
+            type?: string;
+            /** Format: int32 */
+            nbCadres?: number;
+            valeur?: number;
+            /** Format: date-time */
+            instant?: string;
+        };
+        CaptureEssaimCorps: {
+            /** Format: int64 */
+            agentId: number;
+            /** Format: int64 */
+            rucheId?: number;
+            /** Format: int64 */
+            siteId?: number;
+            /** Format: date */
+            dateCapture: string;
+            origine: string;
+            lieu?: string;
+            poidsKg?: number;
+            hauteurM?: number;
+            note?: string;
+        };
+        CaptureEssaimReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: int64 */
+            rucheId?: number;
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            /** Format: date */
+            dateCapture?: string;
+            origine?: string;
+            lieu?: string;
+            poidsKg?: number;
+            hauteurM?: number;
+            note?: string;
+            logee?: boolean;
+            /** Format: date-time */
+            creeLe?: string;
+        };
+        AbonnementCorps: {
+            /** Format: int64 */
+            agentId: number;
+            libelle: string;
+            /** Format: int32 */
+            dureeJours: number;
+        };
+        AbonnementReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            agentId?: number;
+            libelle?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            expireLe?: string;
+            /** Format: date-time */
+            revoqueLe?: string;
+            /** Format: date-time */
+            derniereUtilisation?: string;
+            actif?: boolean;
+            url?: string;
         };
         SessionReponse: {
             utilisateur?: string;
@@ -1758,6 +3059,22 @@ export interface components {
             site?: components["schemas"]["SiteReponse"];
             distanceMetres?: number;
         };
+        EmplacementReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            siteId?: number;
+            latitude?: number;
+            longitude?: number;
+            altitude?: number;
+            /** Format: date */
+            dateDebut?: string;
+            /** Format: date */
+            dateFin?: string;
+            motif?: string;
+            note?: string;
+            courant?: boolean;
+        };
         GrappeSites: {
             /** Format: int32 */
             numero?: number;
@@ -1770,11 +3087,78 @@ export interface components {
             sites?: components["schemas"]["SiteReponse"][];
             isolee?: boolean;
         };
+        ComparaisonSite: {
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            ville?: string;
+            typeSite?: string;
+            exposition?: string;
+            altitude?: number;
+            /** Format: int32 */
+            nbRuches?: number;
+            rendementKgParRuche?: number;
+            /** Format: int32 */
+            ressourcesDeclarees?: number;
+            /** Format: int32 */
+            ressourcesEnFleur?: number;
+            /** Format: int32 */
+            ruchersA3km?: number;
+        };
         QuantiteMiel: {
             /** Format: int64 */
             rucheId?: number;
             quantite?: number;
             unite?: string;
+        };
+        ComparaisonSaisons: {
+            /** Format: int32 */
+            annee?: number;
+            productionMielKg?: number;
+            /** Format: int32 */
+            ruchesProductives?: number;
+            rendementKg?: number;
+            /** Format: int32 */
+            nombreRecoltes?: number;
+            parProduit?: components["schemas"]["ProduitSaison"][];
+        };
+        ProduitSaison: {
+            typeProduit?: string;
+            unite?: string;
+            quantite?: number;
+        };
+        EmportRucher: {
+            /** Format: date-time */
+            preleveLe?: string;
+            site?: components["schemas"]["SiteReponse"];
+            ruches?: components["schemas"]["RucheReponse"][];
+            dernieresVisites?: components["schemas"]["VisiteReponse"][];
+            tachesOuvertes?: components["schemas"]["TacheReponse"][];
+            sousCarence?: components["schemas"]["TraitementReponse"][];
+        };
+        SyntheseRucher: {
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            ville?: string;
+            priorite?: string;
+            /** Format: int32 */
+            nbRuches?: number;
+            /** Format: int32 */
+            nbActives?: number;
+            /** Format: int32 */
+            santeMoyenne?: number;
+            /** Format: int32 */
+            coloniesEvaluees?: number;
+            /** Format: int32 */
+            risqueEssaimageMax?: number;
+            /** Format: int32 */
+            ruchesSousCarence?: number;
+            /** Format: int64 */
+            alertesOuvertes?: number;
+            /** Format: int64 */
+            tachesOuvertes?: number;
+            productionKg?: number;
         };
         TraceReponse: {
             lot?: string;
@@ -1787,6 +3171,14 @@ export interface components {
             dateRecolte?: string;
             quantiteKg?: number;
             typeMiel?: string;
+        };
+        ResultatRecherche: {
+            type?: string;
+            /** Format: int64 */
+            id?: number;
+            libelle?: string;
+            precision?: string;
+            route?: string;
         };
         EtapeTournee: {
             /** Format: int32 */
@@ -1868,6 +3260,75 @@ export interface components {
             version?: string;
             accueil?: string;
             langues?: string[];
+            reinitialisationUrl?: string;
+        };
+        IndiceColonie: {
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            /** Format: int32 */
+            sante?: number;
+            /** Format: int32 */
+            risqueEssaimage?: number;
+            /** Format: int32 */
+            composantes?: number;
+            /** Format: date */
+            derniereVisite?: string;
+            motifs?: string[];
+        };
+        FluxPartage: {
+            libelle?: string;
+            serie?: components["schemas"]["PointJournalier"][];
+        };
+        ChargeAgent: {
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            role?: string;
+            /** Format: int32 */
+            ruchesResponsable?: number;
+            /** Format: int32 */
+            ruchersConcernes?: number;
+            /** Format: int64 */
+            tachesOuvertes?: number;
+            /** Format: int64 */
+            tachesEnRetard?: number;
+            /** Format: int64 */
+            tachesCritiques?: number;
+            /** Format: int64 */
+            visites7Jours?: number;
+        };
+        BilanExploitation: {
+            /** Format: date */
+            debut?: string;
+            /** Format: date */
+            fin?: string;
+            productionMielKg?: number;
+            recettesEur?: number;
+            depensesEur?: number;
+            resultatEur?: number;
+            depensesNonAffectees?: number;
+            parCategorie?: {
+                [key: string]: number;
+            };
+            parRuche?: components["schemas"]["RentabiliteRuche"][];
+        };
+        RentabiliteRuche: {
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            siteNom?: string;
+            productionKg?: number;
+            recettesEur?: number;
+            depensesEur?: number;
+            resultatEur?: number;
+        };
+        CorrelationMeteo: {
+            indicateur?: string;
+            coefficient?: number;
+            /** Format: int32 */
+            echantillon?: number;
+            interpretation?: string;
         };
         Resultat: {
             /** Format: double */
@@ -1889,6 +3350,8 @@ export interface components {
             /** Format: int32 */
             humiditeMaxPourcent?: number;
             /** Format: int32 */
+            batterieMinPourcent?: number;
+            /** Format: int32 */
             delaiAlerteJours?: number;
             /** Format: int32 */
             arrondiDegresPublic?: number;
@@ -1896,6 +3359,20 @@ export interface components {
             taillePageParDefaut?: number;
             prixMielKgEur?: number;
             coutVisiteEur?: number;
+        };
+        Valorisation: {
+            kilos?: number;
+            prixKgEur?: number;
+            totalEur?: number;
+            /** Format: int32 */
+            pots500g?: number;
+        };
+        Sirop: {
+            proportion?: string;
+            litres?: number;
+            sucreKg?: number;
+            eauL?: number;
+            usage?: string;
         };
         AuditEntreeReponse: {
             /** Format: int64 */
@@ -1913,7 +3390,7 @@ export interface components {
             /** Format: int64 */
             rucheId?: number;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             /** Format: double */
             alpha?: number;
             /** Format: double */
@@ -1967,7 +3444,9 @@ export interface operations {
     mettreAJour: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "X-Zumm-Version"?: string;
+            };
             path: {
                 id: number;
             };
@@ -2299,12 +3778,80 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["LotReponse"];
+                    "*/*": components["schemas"]["MaterielReponse"];
                 };
             };
         };
     };
     mettreAJour_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterielCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MaterielReponse"];
+                };
+            };
+        };
+    };
+    supprimer_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    obtenir_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LotReponse"];
+                };
+            };
+        };
+    };
+    mettreAJour_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -2330,7 +3877,7 @@ export interface operations {
             };
         };
     };
-    supprimer_5: {
+    supprimer_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -2343,74 +3890,6 @@ export interface operations {
         responses: {
             /** @description No Content */
             204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    obtenir_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["FermierReponse"];
-                };
-            };
-        };
-    };
-    mettreAJour_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["FermierCorps"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["FermierReponse"];
-                };
-            };
-        };
-    };
-    supprimer_6: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -2435,7 +3914,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["FermeReponse"];
+                    "*/*": components["schemas"]["FermierReponse"];
                 };
             };
         };
@@ -2451,7 +3930,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["FermeCorps"];
+                "application/json": components["schemas"]["FermierCorps"];
             };
         };
         responses: {
@@ -2461,7 +3940,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["FermeReponse"];
+                    "*/*": components["schemas"]["FermierReponse"];
                 };
             };
         };
@@ -2503,12 +3982,218 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["AgentReponse"];
+                    "*/*": components["schemas"]["FermeReponse"];
                 };
             };
         };
     };
     mettreAJour_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FermeCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FermeReponse"];
+                };
+            };
+        };
+    };
+    supprimer_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mettreAJour_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepenseCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DepenseReponse"];
+                };
+            };
+        };
+    };
+    supprimer_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mettreAJour_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsommableCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConsommableReponse"];
+                };
+            };
+        };
+    };
+    supprimer_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    lister: {
+        parameters: {
+            query: {
+                agentId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BrouillonReponse"][];
+                };
+            };
+        };
+    };
+    deposer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BrouillonCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BrouillonReponse"];
+                };
+            };
+        };
+    };
+    obtenir_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AgentReponse"];
+                };
+            };
+        };
+    };
+    mettreAJour_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -2534,7 +4219,7 @@ export interface operations {
             };
         };
     };
-    supprimer_8: {
+    supprimer_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -2606,7 +4291,7 @@ export interface operations {
             };
         };
     };
-    lister: {
+    lister_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -2744,6 +4429,98 @@ export interface operations {
             };
         };
     };
+    lister_2: {
+        parameters: {
+            query?: {
+                siteId?: number;
+                debut?: string;
+                fin?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TransportReponse"][];
+                };
+            };
+        };
+    };
+    planifier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransportCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TransportReponse"];
+                };
+            };
+        };
+    };
+    realiser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TransportReponse"];
+                };
+            };
+        };
+    };
+    annuler: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TransportReponse"];
+                };
+            };
+        };
+    };
     registre: {
         parameters: {
             query: {
@@ -2790,7 +4567,31 @@ export interface operations {
             };
         };
     };
-    lister_1: {
+    enregistrerLot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TraitementLotCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RapportLot"];
+                };
+            };
+        };
+    };
+    lister_3: {
         parameters: {
             query?: {
                 page?: number;
@@ -2838,7 +4639,7 @@ export interface operations {
             };
         };
     };
-    lister_2: {
+    lister_4: {
         parameters: {
             query?: {
                 page?: number;
@@ -2886,7 +4687,33 @@ export interface operations {
             };
         };
     };
-    lister_3: {
+    demenager: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DemenagementCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SiteReponse"];
+                };
+            };
+        };
+    };
+    lister_5: {
         parameters: {
             query?: {
                 page?: number;
@@ -2980,7 +4807,27 @@ export interface operations {
             };
         };
     };
-    lister_4: {
+    executer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TacheReponse"][];
+                };
+            };
+        };
+    };
+    lister_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -3024,7 +4871,31 @@ export interface operations {
             };
         };
     };
-    lister_5: {
+    creerLot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecolteLotCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RapportLot"];
+                };
+            };
+        };
+    };
+    lister_7: {
         parameters: {
             query?: {
                 page?: number;
@@ -3120,6 +4991,99 @@ export interface operations {
             };
         };
     };
+    lister_8: {
+        parameters: {
+            query: {
+                cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+                cibleId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PhotoReponse"][];
+                };
+            };
+        };
+    };
+    attacher: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhotoCibleCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PhotoReponse"];
+                };
+            };
+        };
+    };
+    lister_9: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PartageReponse"][];
+                };
+            };
+        };
+    };
+    creer_6: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PartageCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PartageReponse"];
+                };
+            };
+        };
+    };
     registre_1: {
         parameters: {
             query: {
@@ -3166,11 +5130,35 @@ export interface operations {
             };
         };
     };
+    enregistrerLot_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NourrissementLotCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RapportLot"];
+                };
+            };
+        };
+    };
     serie_1: {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             };
             header?: never;
             path?: never;
@@ -3213,7 +5201,75 @@ export interface operations {
             };
         };
     };
-    lister_6: {
+    lister_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MaterielReponse"][];
+                };
+            };
+        };
+    };
+    creer_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaterielCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MaterielReponse"];
+                };
+            };
+        };
+    };
+    entretenir: {
+        parameters: {
+            query?: {
+                jour?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MaterielReponse"];
+                };
+            };
+        };
+    };
+    lister_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -3233,7 +5289,7 @@ export interface operations {
             };
         };
     };
-    creer_6: {
+    creer_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -3257,7 +5313,7 @@ export interface operations {
             };
         };
     };
-    lister_7: {
+    lister_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -3301,7 +5357,7 @@ export interface operations {
             };
         };
     };
-    lister_8: {
+    lister_13: {
         parameters: {
             query?: {
                 page?: number;
@@ -3325,7 +5381,7 @@ export interface operations {
             };
         };
     };
-    creer_7: {
+    creer_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -3349,7 +5405,7 @@ export interface operations {
             };
         };
     };
-    lister_9: {
+    lister_14: {
         parameters: {
             query?: {
                 page?: number;
@@ -3373,7 +5429,7 @@ export interface operations {
             };
         };
     };
-    creer_8: {
+    creer_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -3397,7 +5453,321 @@ export interface operations {
             };
         };
     };
-    lister_10: {
+    registre_2: {
+        parameters: {
+            query: {
+                rucheMereId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DivisionReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DivisionCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DivisionReponse"];
+                };
+            };
+        };
+    };
+    lister_15: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DepenseReponse"][];
+                };
+            };
+        };
+    };
+    creer_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepenseCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DepenseReponse"];
+                };
+            };
+        };
+    };
+    etat: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EtatDemonstration"];
+                };
+            };
+        };
+    };
+    charger: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EtatDemonstration"];
+                };
+            };
+        };
+    };
+    purger: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EtatDemonstration"];
+                };
+            };
+        };
+    };
+    lister_16: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConsommableReponse"][];
+                };
+            };
+        };
+    };
+    creer_12: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsommableCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConsommableReponse"];
+                };
+            };
+        };
+    };
+    mouvementer: {
+        parameters: {
+            query: {
+                delta: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConsommableReponse"];
+                };
+            };
+        };
+    };
+    peser: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MesureCompartimentCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PoidsCompartiment"];
+                };
+            };
+        };
+    };
+    lister_17: {
+        parameters: {
+            query?: {
+                debut?: string;
+                fin?: string;
+                enAttente?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CaptureEssaimReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CaptureEssaimCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CaptureEssaimReponse"];
+                };
+            };
+        };
+    };
+    loger: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CaptureEssaimReponse"];
+                };
+            };
+        };
+    };
+    lister_18: {
         parameters: {
             query?: {
                 page?: number;
@@ -3421,7 +5791,7 @@ export interface operations {
             };
         };
     };
-    creer_9: {
+    creer_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -3441,6 +5811,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AgentReponse"];
+                };
+            };
+        };
+    };
+    lister_19: {
+        parameters: {
+            query: {
+                agentId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AbonnementReponse"][];
+                };
+            };
+        };
+    };
+    creer_14: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AbonnementCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AbonnementReponse"];
                 };
             };
         };
@@ -3654,6 +6070,28 @@ export interface operations {
             };
         };
     };
+    emplacements: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EmplacementReponse"][];
+                };
+            };
+        };
+    };
     proches: {
         parameters: {
             query: {
@@ -3701,6 +6139,28 @@ export interface operations {
             };
         };
     };
+    comparaison: {
+        parameters: {
+            query: {
+                ids: number[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ComparaisonSite"][];
+                };
+            };
+        };
+    };
     getZummHoneyActualQuantity: {
         parameters: {
             query?: {
@@ -3726,7 +6186,115 @@ export interface operations {
             };
         };
     };
-    obtenir_9: {
+    saisons: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ComparaisonSaisons"][];
+                };
+            };
+        };
+    };
+    bilanAnnuel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                annee: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    ficheInspection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    emporter: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EmportRucher"];
+                };
+            };
+        };
+    };
+    synthese_1: {
+        parameters: {
+            query?: {
+                siteId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SyntheseRucher"][];
+                };
+            };
+        };
+    };
+    obtenir_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -3748,7 +6316,7 @@ export interface operations {
             };
         };
     };
-    supprimer_9: {
+    supprimer_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -3790,6 +6358,29 @@ export interface operations {
             };
         };
     };
+    rechercher: {
+        parameters: {
+            query: {
+                q: string;
+                limite?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ResultatRecherche"][];
+                };
+            };
+        };
+    };
     tournee: {
         parameters: {
             query: {
@@ -3810,6 +6401,29 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["TourneeReponse"];
+                };
+            };
+        };
+    };
+    agenda: {
+        parameters: {
+            query?: {
+                debut?: string;
+                fin?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/calendar;charset=UTF-8": string;
                 };
             };
         };
@@ -3841,7 +6455,7 @@ export interface operations {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             };
             header?: never;
             path?: never;
@@ -3922,6 +6536,76 @@ export interface operations {
             };
         };
     };
+    lister_20: {
+        parameters: {
+            query?: {
+                rucheId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IndiceColonie"][];
+                };
+            };
+        };
+    };
+    consulter: {
+        parameters: {
+            query?: {
+                indicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+            };
+            header?: never;
+            path: {
+                jeton: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FluxPartage"];
+                };
+            };
+        };
+    };
+    exporter: {
+        parameters: {
+            query?: {
+                format?: string;
+            };
+            header?: never;
+            path: {
+                ressource: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
     visites: {
         parameters: {
             query?: {
@@ -3962,6 +6646,114 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    ressources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string[];
+                };
+            };
+        };
+    };
+    charge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ChargeAgent"][];
+                };
+            };
+        };
+    };
+    filiation: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DivisionReponse"][];
+                };
+            };
+        };
+    };
+    bilan: {
+        parameters: {
+            query: {
+                debut: string;
+                fin: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["BilanExploitation"];
+                };
+            };
+        };
+    };
+    meteo: {
+        parameters: {
+            query?: {
+                debut?: string;
+                fin?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CorrelationMeteo"][];
                 };
             };
         };
@@ -4010,7 +6802,122 @@ export interface operations {
             };
         };
     };
-    lister_11: {
+    serie_2: {
+        parameters: {
+            query: {
+                debut: string;
+                fin: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PoidsCompartiment"][];
+                };
+            };
+        };
+    };
+    repartition: {
+        parameters: {
+            query: {
+                rucheId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PoidsCompartiment"][];
+                };
+            };
+        };
+    };
+    flux: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                jeton: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/calendar;charset=UTF-8": string;
+                };
+            };
+        };
+    };
+    valorisation: {
+        parameters: {
+            query: {
+                kilos: number;
+                prixKgEur?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Valorisation"];
+                };
+            };
+        };
+    };
+    sirop: {
+        parameters: {
+            query: {
+                proportion?: string;
+                litres: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Sirop"];
+                };
+            };
+        };
+    };
+    lister_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -4034,7 +6941,7 @@ export interface operations {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
             };
             header?: never;
             path?: never;
@@ -4074,67 +6981,87 @@ export interface operations {
             };
         };
     };
-    supprimer_10: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    supprimer_11: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    supprimer_12: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     supprimer_13: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_14: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_15: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_16: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -4170,7 +7097,131 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+                content: {
+                    "*/*": components["schemas"]["PartageReponse"];
+                };
+            };
+        };
+    };
+    supprimer_18: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
                 content?: never;
+            };
+        };
+    };
+    revoquer_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_19: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_20: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    effacer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    revoquer_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AbonnementReponse"];
+                };
             };
         };
     };

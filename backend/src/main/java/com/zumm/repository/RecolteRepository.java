@@ -3,7 +3,10 @@ package com.zumm.repository;
 import com.zumm.domain.Recolte;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Recoltes et tracabilite par lot (US-033). Restreint au tenant courant
@@ -38,4 +41,17 @@ public interface RecolteRepository extends JpaRepository<Recolte, Long> {
     @org.springframework.data.jpa.repository.Query(
             "select coalesce(sum(r.quantiteKg), 0) from Recolte r where r.ruche.id = :rucheId")
     java.math.BigDecimal quantiteRecolteeParRuche(Long rucheId);
+
+    /**
+     * Recoltes dont le numero de lot ou le type de miel contient {@code motif}
+     * (recherche globale, SPRINT-21). C'est la recherche de tracabilite : on
+     * arrive avec un pot en main et son numero de lot.
+     */
+    @Query("""
+            select r from Recolte r
+            where lower(r.lot) like lower(concat('%', :motif, '%'))
+               or lower(r.typeMiel) like lower(concat('%', :motif, '%'))
+            order by r.dateRecolte desc, r.id desc
+            """)
+    List<Recolte> rechercher(@Param("motif") String motif, Pageable pagination);
 }

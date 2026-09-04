@@ -8,6 +8,7 @@ import com.zumm.web.dto.VisiteCorps;
 import com.zumm.web.dto.VisiteReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -65,9 +67,20 @@ public class VisiteController {
                 .body(contenu);
     }
 
+    /**
+     * Modifie une visite. L'en-tete {@code X-Zumm-Version} porte le {@code majLe}
+     * que l'appelant avait sous les yeux (SPRINT-24).
+     *
+     * <p>Un en-tete et non un champ du corps : c'est une PRECONDITION, pas une
+     * donnee de la visite. La mettre dans {@code VisiteCorps} l'aurait fait
+     * apparaitre dans le contrat comme un attribut metier, et tout appelant
+     * aurait du la renseigner — y compris les ecrans en ligne, qui n'en ont pas
+     * besoin. Absent, la garde ne joue pas.
+     */
     @PutMapping("/{id}")
-    public VisiteReponse mettreAJour(@PathVariable Long id, @Valid @RequestBody VisiteCorps corps) {
-        return service.mettreAJour(id, corps);
+    public VisiteReponse mettreAJour(@PathVariable Long id, @Valid @RequestBody VisiteCorps corps,
+            @RequestHeader(value = "X-Zumm-Version", required = false) Instant version) {
+        return service.mettreAJour(id, corps, version);
     }
 
     @DeleteMapping("/{id}")

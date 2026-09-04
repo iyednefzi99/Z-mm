@@ -199,3 +199,19 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Mode economie (SPRINT-24, lot C).
+   Meme effet que `prefers-reduced-motion`, mais declenche par l'UTILISATEUR :
+   trois editeurs concurrents conseillent d'emporter une batterie externe avant
+   d'aller au rucher, ce qui est l'aveu d'une application qui consomme sans le
+   dire. Le mode coupe ce qui tourne sans qu'on l'ait demande — le reste de la
+   depense (WebGL de la carte, rafraichissements de fond) est coupe en amont,
+   par `terrain/economie.ts`. */
+:root.z-economie *,
+:root.z-economie *::before,
+:root.z-economie *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

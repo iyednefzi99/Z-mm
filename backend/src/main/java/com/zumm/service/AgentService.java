@@ -33,6 +33,11 @@ public class AgentService {
     public AgentReponse creer(AgentCorps corps) {
         Agent agent = new Agent(corps.nom(), corps.role(), fermeEventuelle(corps.fermeId()));
         agent.setEmail(corps.email());
+        // Nul a la creation = le defaut de l'entite, c'est-a-dire VRAI : on
+        // n'ouvre pas un compte sur des alertes deja muettes.
+        if (corps.notificationsEmail() != null) {
+            agent.setNotificationsEmail(corps.notificationsEmail());
+        }
         return AgentReponse.de(agents.save(agent));
     }
 
@@ -58,6 +63,12 @@ public class AgentService {
         agent.setRole(corps.role());
         agent.setFerme(fermeEventuelle(corps.fermeId()));
         agent.setEmail(corps.email());
+        // Nul a la mise a jour = on NE TOUCHE PAS au reglage. Sans cette garde,
+        // renommer un agent depuis un appelant qui ignore le champ rallumerait
+        // des notifications coupees exprès.
+        if (corps.notificationsEmail() != null) {
+            agent.setNotificationsEmail(corps.notificationsEmail());
+        }
         return AgentReponse.de(agent);
     }
 

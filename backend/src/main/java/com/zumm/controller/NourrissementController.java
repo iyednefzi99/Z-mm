@@ -2,6 +2,8 @@ package com.zumm.controller;
 
 import com.zumm.service.NourrissementService;
 import com.zumm.web.dto.NourrissementCorps;
+import com.zumm.web.dto.NourrissementLotCorps;
+import com.zumm.web.dto.RapportLot;
 import com.zumm.web.dto.NourrissementReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -36,6 +38,12 @@ public class NourrissementController {
         NourrissementReponse reponse = service.enregistrer(corps);
         return ResponseEntity.created(URI.create("/api/nourrissements/" + reponse.id()))
                 .body(reponse);
+    }
+
+    /** Le meme nourrissement sur plusieurs ruches (SPRINT-23, lot B). */
+    @PostMapping("/lot")
+    public RapportLot enregistrerLot(@Valid @RequestBody NourrissementLotCorps corps) {
+        return service.enregistrerLot(corps);
     }
 
     @GetMapping

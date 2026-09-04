@@ -26,6 +26,29 @@
 
 import type { components } from './contrat';
 import type {
+  Materiel,
+  Consommable,
+  Depense,
+  BilanExploitation,
+  ComparaisonSaisons,
+  PoidsCompartiment,
+  Partage,
+  EtatDemonstration,
+  EmportRucher,
+  Brouillon,
+  RapportLot,
+  SyntheseRucher,
+  ComparaisonSite,
+  ChargeAgent,
+  IndiceColonie,
+  CorrelationMeteo,
+  Transport,
+  Abonnement,
+  CaptureEssaim,
+  Division,
+  Emplacement,
+  RessourceFlorale,
+  ResultatRecherche,
   Agent,
   AlerteMesure,
   AlerteSanitaire,
@@ -172,3 +195,127 @@ export type _PathologieObservee =
 export type _ObservationVisite =
   Conforme<ObservationVisite, TolerantAuNull<Schemas['ObservationVisite']>>;
 export type _MeteoVisite = Conforme<MeteoVisite, TolerantAuNull<Schemas['MeteoVisite']>>;
+
+/*
+ * Terrain, ruchers et ruches (SPRINT-21).
+ *
+ * <p>Cinq types de plus, et deux d'entre eux meritent d'etre cites : `Site`
+ * gagne six champs dont l'adresse — qui arrive NULLE pour un profil non
+ * proprietaire, ce que seule la lecture du contrat permet de distinguer d'un
+ * champ disparu — et `Photo` gagne `cible`/`cibleId`, sans quoi une galerie ne
+ * saurait plus d'ou vient une image des lors qu'elle n'est plus forcement une
+ * photo de visite.
+ */
+export type _RessourceFlorale =
+  Conforme<RessourceFlorale, TolerantAuNull<Schemas['RessourceFloraleReponse']>>;
+export type _Emplacement = Conforme<Emplacement, TolerantAuNull<Schemas['EmplacementReponse']>>;
+export type _Division = Conforme<Division, TolerantAuNull<Schemas['DivisionReponse']>>;
+export type _CaptureEssaim =
+  Conforme<CaptureEssaim, TolerantAuNull<Schemas['CaptureEssaimReponse']>>;
+export type _ResultatRecherche =
+  Conforme<ResultatRecherche, TolerantAuNull<Schemas['ResultatRecherche']>>;
+
+/*
+ * Terrain, second lot (SPRINT-21, migration V21).
+ *
+ * <p>Deux types dont la derive se verrait tard : `voyages` est CALCULE par le
+ * serveur — le renommer laisserait l'ecran afficher un blanc la ou se lit le
+ * nombre de trajets — et `url` n'est renseignee qu'a la creation d'un
+ * abonnement, si bien qu'un changement de nom la ferait disparaitre au moment
+ * precis ou elle est irrecuperable.
+ */
+export type _Transport = Conforme<Transport, TolerantAuNull<Schemas['TransportReponse']>>;
+export type _Abonnement = Conforme<Abonnement, TolerantAuNull<Schemas['AbonnementReponse']>>;
+
+/*
+ * Regles, indices et correlations (SPRINT-22, lot A).
+ *
+ * <p>Deux types dont la derive serait invisible a l'usage. `IndiceColonie`
+ * porte `composantes` : le renommer ferait afficher une jauge sur une colonie
+ * non evaluee, c'est-a-dire exactement ce que le service refuse de faire. Et
+ * `CorrelationMeteo.coefficient` est NULLABLE par construction — un contrat qui
+ * le rendrait obligatoire masquerait la distinction entre « aucun lien » et
+ * « pas de coefficient calculable ».
+ */
+export type _IndiceColonie = Conforme<IndiceColonie, TolerantAuNull<Schemas['IndiceColonie']>>;
+export type _CorrelationMeteo =
+  Conforme<CorrelationMeteo, TolerantAuNull<Schemas['CorrelationMeteo']>>;
+
+/*
+ * Actes de lot et agregats (SPRINT-23, lot B).
+ *
+ * <p>Quatre types dont la derive serait particulierement couteuse a
+ * l'affichage. `RapportLot.echecs` porte le motif ruche par ruche : le
+ * renommer ferait afficher un lot « reussi » la ou trois colonies ont ete
+ * refusees. `SyntheseRucher.santeMoyenne` et `ComparaisonSite.rendementKgParRuche`
+ * sont NULLABLES par construction — un contrat qui les rendrait obligatoires
+ * effacerait la difference entre « zero » et « pas encore evalue », qui est
+ * tout l'objet de ces deux ecrans. Et `ChargeAgent.ruchersConcernes` n'est pas
+ * `ruchesResponsable` : les confondre ferait compter trois deplacements la ou
+ * il y en a deux.
+ */
+export type _RapportLot = Conforme<RapportLot, TolerantAuNull<Schemas['RapportLot']>>;
+export type _SyntheseRucher =
+  Conforme<SyntheseRucher, TolerantAuNull<Schemas['SyntheseRucher']>>;
+export type _ComparaisonSite =
+  Conforme<ComparaisonSite, TolerantAuNull<Schemas['ComparaisonSite']>>;
+export type _ChargeAgent = Conforme<ChargeAgent, TolerantAuNull<Schemas['ChargeAgent']>>;
+
+/*
+ * Le terrain sans reseau (SPRINT-24, lot C).
+ *
+ * <p>Deux types dont la derive serait particulierement traitre. `preleveLe` est
+ * ce qui empeche une donnee du disque de passer pour fraiche : le renommer
+ * rendrait l'ecran muet sur l'age de l'instantane, c'est-a-dire exactement
+ * l'objection que l'ADR-012 s'engage a lever. Et `Brouillon.contenu` est du JSON
+ * OPAQUE : un changement de nom ferait rouvrir un formulaire vide, sans erreur,
+ * la ou l'apiculteur attend sa saisie de la veille.
+ */
+export type _EmportRucher = Conforme<EmportRucher, TolerantAuNull<Schemas['EmportRucher']>>;
+export type _Brouillon = Conforme<Brouillon, TolerantAuNull<Schemas['BrouillonReponse']>>;
+
+/*
+ * Identification et confort (SPRINT-25, lot J).
+ *
+ * <p>`EtatDemonstration.objets` est le chiffre qui rend le bouton « Retirer »
+ * decidable plutot qu'inquietant : le renommer laisserait l'ecran proposer une
+ * suppression sans dire combien de lignes partent. `Agent.notificationsEmail`
+ * est verifie par le meme mecanisme via `_Agent`.
+ */
+export type _EtatDemonstration =
+  Conforme<EtatDemonstration, TolerantAuNull<Schemas['EtatDemonstration']>>;
+
+/*
+ * Capteurs : hausse et partage (SPRINT-26, lot F1).
+ *
+ * <p>`PoidsCompartiment.valeur` est NULLABLE par construction — une hausse
+ * jamais pesee n'est pas une hausse vide. Un contrat qui la rendrait
+ * obligatoire ferait afficher 0 kg, c'est-a-dire une colonie qui aurait perdu
+ * ses reserves. Et `Partage.url` n'existe qu'a la creation : la renommer
+ * ferait disparaitre le lien au moment PRECIS ou il est irrecuperable, la base
+ * n'en gardant que l'empreinte.
+ */
+export type _PoidsCompartiment =
+  Conforme<PoidsCompartiment, TolerantAuNull<Schemas['PoidsCompartiment']>>;
+export type _Partage = Conforme<Partage, TolerantAuNull<Schemas['PartageReponse']>>;
+
+/*
+ * Production, stock, materiel (SPRINT-27, lot E).
+ *
+ * <p>Cinq types dont la derive serait couteuse a l'ecran. `Materiel.enRetard` et
+ * `prochaineMaintenance` sont CALCULES par le serveur : les renommer ferait
+ * disparaitre le seul signal de l'ecran des equipements. `Consommable.sousSeuil`
+ * de meme. `BilanExploitation.depensesNonAffectees` est ce que l'interface
+ * s'engage a montrer separement — le perdre reviendrait a repartir en silence ce
+ * que le service refuse de repartir. Et `ComparaisonSaisons.rendementKg` est
+ * NULLABLE par construction : un contrat qui le rendrait obligatoire ferait
+ * afficher zero la ou aucune ruche n'a produit.
+ */
+export type _Materiel = Conforme<Materiel, TolerantAuNull<Schemas['MaterielReponse']>>;
+export type _Consommable =
+  Conforme<Consommable, TolerantAuNull<Schemas['ConsommableReponse']>>;
+export type _Depense = Conforme<Depense, TolerantAuNull<Schemas['DepenseReponse']>>;
+export type _BilanExploitation =
+  Conforme<BilanExploitation, TolerantAuNull<Schemas['BilanExploitation']>>;
+export type _ComparaisonSaisons =
+  Conforme<ComparaisonSaisons, TolerantAuNull<Schemas['ComparaisonSaisons']>>;

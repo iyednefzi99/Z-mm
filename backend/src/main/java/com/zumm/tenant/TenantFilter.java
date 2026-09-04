@@ -47,7 +47,19 @@ public class TenantFilter extends OncePerRequestFilter {
      * croire l'application en panne.
      */
     private static final String[] CHEMINS_PUBLICS = {
-        "/actuator/", "/api/info", "/v3/api-docs", "/swagger-ui"
+        "/actuator/", "/api/info", "/v3/api-docs", "/swagger-ui",
+        // Flux iCalendar d'abonnement (SPRINT-21) : appele par un client de
+        // calendrier, sans session. C'est le JETON du chemin qui designe
+        // l'exploitation, et `FluxCalendrierService` pose lui-meme le contexte —
+        // puis l'efface dans son `finally`, puisque celui de ce filtre ne
+        // s'executera pas ici.
+        "/api/calendrier/",
+        // Flux de telemetrie partage (SPRINT-26), meme raisonnement : le JETON
+        // du chemin designe l'exploitation, et `FluxPartageService` pose puis
+        // efface lui-meme le contexte. Le prefixe est SEPARE de
+        // `/api/partages`, qui porte la gestion : l'exempter aussi aurait fait
+        // partir la revocation sans tenant.
+        "/api/flux/"
     };
 
     @Override

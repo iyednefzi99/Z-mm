@@ -8,6 +8,7 @@ import {
   ROLES_ECRITURE,
   ROLES_ONGLET,
   cheminDepuisOnglet,
+  cibleDemandee,
   ongletAutorise,
   ongletDepuisChemin,
   ongletsVisibles,
@@ -39,13 +40,13 @@ describe('table des routes', () => {
     expect(ongletDepuisChemin('/admin')).toBeNull();
   });
 
-  it('couvre les dix-neuf écrans de la console, sans doublon', () => {
+  it('couvre les vingt-trois écrans de la console, sans doublon', () => {
     // Le nombre est volontairement écrit en dur : ajouter un onglet doit obliger
     // à passer ici, donc à vérifier qu'il a bien été déclaré dans les trois
     // langues et branché dans App. Un `ONGLETS.length` se contenterait de se
     // recopier lui-même et ne prouverait rien.
-    expect(ONGLETS).toHaveLength(19);
-    expect(new Set(ONGLETS).size).toBe(19);
+    expect(ONGLETS).toHaveLength(23);
+    expect(new Set(ONGLETS).size).toBe(23);
   });
 });
 
@@ -79,10 +80,16 @@ describe('familles de la navigation', () => {
 describe('écrans réservés à certains rôles', () => {
   it('ne restreint que ce que le serveur restreint déjà en lecture', () => {
     // Cette table recopie `SecurityConfig.matriceRbac` — elle ne la complète
-    // pas. En ajouter un troisième écran ici sans que le serveur le refuse
-    // masquerait une consultation légitime ; le référentiel, par exemple, n'a
-    // que ses ÉCRITURES restreintes.
-    expect(Object.keys(ROLES_ONGLET).sort()).toEqual(['audit', 'invitations', 'permissions']);
+    // pas. En ajouter un écran ici sans que le serveur le refuse masquerait une
+    // consultation légitime ; le référentiel, par exemple, n'a que ses ÉCRITURES
+    // restreintes.
+    //
+    // `comptabilite` s'y est ajouté au SPRINT-27 parce que le serveur refuse
+    // bien `/api/depenses` à un rôle de terrain : la comptabilité est une vue
+    // d'exploitation, et l'onglet mènerait sinon à un écran vide.
+    expect(Object.keys(ROLES_ONGLET).sort()).toEqual(
+      ['audit', 'comptabilite', 'invitations', 'permissions'],
+    );
   });
 
   it('ouvre les écrans réservés au responsable et à l’administrateur', () => {
@@ -149,11 +156,16 @@ describe('reprise de route après connexion', () => {
 
 describe('écriture réservée sur le référentiel', () => {
   /**
-   * Les cinq ressources dont `SecurityConfig.matriceRbac` réserve les POST, PUT
-   * et DELETE à `responsable` et `admin`. Recopiées ici : si le serveur en ajoute
+   * Les ressources dont `SecurityConfig.matriceRbac` réserve les POST, PUT et
+   * DELETE à `responsable` et `admin`. Recopiées ici : si le serveur en ajoute
    * ou en retire une, ce test le rappelle.
+   *
+   * <p>`materiel` s'y est ajouté au SPRINT-27 : l'inventaire se CRÉE au
+   * pilotage, mais les mouvements de stock et les entretiens restent ouverts à
+   * tout rôle métier — un apiculteur qui prend du candi doit pouvoir le
+   * décompter, et l'écran garde donc ces boutons-là.
    */
-  const REFERENTIEL = ['fermiers', 'fermes', 'sites', 'ruches', 'agents'] as const;
+  const REFERENTIEL = ['fermiers', 'fermes', 'sites', 'ruches', 'agents', 'materiel'] as const;
 
   it('couvre exactement les écrans du référentiel', () => {
     expect(Object.keys(ROLES_ECRITURE).sort()).toEqual([...REFERENTIEL].sort());
@@ -186,5 +198,28 @@ describe('écriture réservée sur le référentiel', () => {
     for (const onglet of REFERENTIEL) {
       expect(peutEcrire(onglet, [])).toBe(false);
     }
+  });
+});
+
+describe('lien profond depuis la recherche (SPRINT-21)', () => {
+  it('retrouve l’onglet malgré la requête', () => {
+    // Sans ce découpage, `/ruches?id=42` tomberait sur « page introuvable » —
+    // c'est-à-dire que la recherche transverse ouvrirait une erreur.
+    expect(ongletDepuisChemin('/ruches?id=42')).toBe('ruches');
+    expect(ongletDepuisChemin('/sites?id=7#haut')).toBe('sites');
+  });
+
+  it('lit l’identifiant demandé, et rien d’autre', () => {
+    expect(cibleDemandee('/ruches?id=42')).toBe(42);
+    expect(cibleDemandee('/ruches')).toBeNull();
+    expect(cibleDemandee('/ruches?autre=42')).toBeNull();
+  });
+
+  it('ignore un identifiant bricolé plutôt que de casser l’écran', () => {
+    // Une URL fausse doit ouvrir la liste, pas une page d'erreur : le paramètre
+    // est un confort de navigation, jamais une condition d'affichage.
+    expect(cibleDemandee('/ruches?id=abc')).toBeNull();
+    expect(cibleDemandee('/ruches?id=-1')).toBeNull();
+    expect(cibleDemandee('/ruches?id=')).toBeNull();
   });
 });

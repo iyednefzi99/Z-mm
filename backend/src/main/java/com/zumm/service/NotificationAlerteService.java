@@ -3,6 +3,7 @@ package com.zumm.service;
 import com.zumm.domain.Agent;
 import com.zumm.domain.Alerte;
 import com.zumm.domain.Ruche;
+import com.zumm.domain.Tache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -42,6 +43,54 @@ public class NotificationAlerteService {
         this.expediteurs = expediteurs;
         this.active = active;
         this.expediteur = expediteur;
+    }
+
+    /**
+     * Notifie l'assignation d'une tache CRITIQUE (SPRINT-22, lot A).
+     *
+     * <p>Seules les taches critiques partent par courriel, et c'est le point :
+     * notifier chaque tache creee reviendrait a n'en notifier aucune — la
+     * troisieme semaine, les messages seraient filtres, y compris ceux qui
+     * comptent.
+     *
+     * <p>Un message par destinataire, avec {@code setTo} d'UNE adresse. C'est la
+     * lecon n° 1 du §10 du document d'ecart : BeeKeepPal a envoye des rappels
+     * automatiques avec les adresses de plusieurs utilisateurs en copie visible.
+     * La faute est structurellement impossible ici, et elle doit le rester.
+     */
+    public void notifierTacheCritique(Tache tache) {
+        if (!active || !destinataireJoignable(tache.getAgent())) {
+            return;
+        }
+        JavaMailSender expediteurMail = expediteurs.getIfAvailable();
+        if (expediteurMail == null) {
+            return;
+        }
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(expediteur);
+        message.setTo(tache.getAgent().getEmail());
+        message.setSubject("[Zumm] Tache critique : " + tache.getLibelle());
+        message.setText("""
+                %s
+
+                Echeance : %s
+                %s
+
+                Cette tache est marquee CRITIQUE.
+                """.formatted(
+                tache.getLibelle(),
+                tache.getEcheance() == null ? "non datee" : tache.getEcheance(),
+                tache.engendree()
+                        ? "Proposee automatiquement par la regle : " + tache.getRegleCode()
+                        : "Saisie manuellement."));
+        try {
+            expediteurMail.send(message);
+            log.info("Notification de tache critique envoyee (tache {}).", tache.getId());
+        } catch (MailException e) {
+            // Une notification perdue ne doit jamais faire echouer la creation de
+            // la tache : c'est la tache qui compte, le courriel n'est qu'un rappel.
+            log.warn("Notification de tache critique impossible : {}", e.getMessage());
+        }
     }
 
     /**
@@ -88,14 +137,36 @@ public class NotificationAlerteService {
         return message;
     }
 
-    /** Adresse de l'agent responsable de la ruche, ou {@code null} s'il n'en a pas. */
+    /**
+     * Adresse de l'agent responsable de la ruche, ou {@code null} s'il n'en a
+     * pas — ou s'il a demandé à ne pas être notifié (SPRINT-25).
+     */
     private String destinataire(Ruche ruche) {
         Agent responsable = ruche == null ? null : ruche.getAgentResponsable();
-        if (responsable == null) {
+        if (!destinataireJoignable(responsable)) {
             return null;
         }
-        String email = responsable.getEmail();
-        return (email == null || email.isBlank()) ? null : email;
+        return responsable.getEmail();
+    }
+
+    /**
+     * Cet agent peut-il ET veut-il recevoir un courriel (SPRINT-25) ?
+     *
+     * <p>Les deux conditions sont distinctes et le restent : « pas d'adresse »
+     * est un défaut de paramétrage, « ne veut pas » est une décision. Les
+     * confondre ferait passer pour un oubli un réglage que l'agent a posé.
+     *
+     * <p>BeeKeepPal conseille à ses utilisateurs de désactiver les
+     * notifications pour éviter la fuite d'adresses (§13 du document d'écart) —
+     * un conseil qui n'a de sens que s'il s'adresse à UNE personne. Le réglage
+     * global reste, et les deux doivent être vrais.
+     */
+    private boolean destinataireJoignable(Agent agent) {
+        if (agent == null || !agent.isNotificationsEmail()) {
+            return false;
+        }
+        String email = agent.getEmail();
+        return email != null && !email.isBlank();
     }
 
     private Long rucheId(Alerte alerte) {

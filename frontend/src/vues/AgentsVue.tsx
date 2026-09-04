@@ -19,6 +19,10 @@ export function AgentsVue(): ReactElement {
   const [role, setRole] = useState<RoleAgent>('apiculteur');
   const [fermeId, setFermeId] = useState('');
   const [email, setEmail] = useState('');
+  // SPRINT-25 : la préférence est PAR AGENT. Avant, couper les notifications se
+  // faisait pour l'exploitation entière — celui qui ne voulait pas être réveillé
+  // par une alerte de poids la coupait pour ses collègues aussi.
+  const [notifications, setNotifications] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const optionsRole: Option[] = ROLES_AGENT.map((r) => ({ valeur: r, libelle: t.roles[r] }));
@@ -50,6 +54,7 @@ export function AgentsVue(): ReactElement {
     setRole(a?.role ?? 'apiculteur');
     setFermeId(a?.fermeId != null ? String(a.fermeId) : '');
     setEmail(a?.email ?? '');
+    setNotifications(a?.notificationsEmail ?? true);
     setErreur(null);
     setOuvert(true);
   };
@@ -60,6 +65,7 @@ export function AgentsVue(): ReactElement {
       role,
       fermeId: fermeId === '' ? null : Number(fermeId),
       email: email.trim() === '' ? null : email.trim(),
+      notificationsEmail: notifications,
     };
     try {
       await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
@@ -101,6 +107,18 @@ export function AgentsVue(): ReactElement {
               onChange={setFermeId}
             />
             <ChampTexte libelle={t.champs.email} valeur={email} onChange={setEmail} />
+            {/* Coché ET une adresse renseignée : les deux conditions sont
+                distinctes et le restent. « Pas d'adresse » est un défaut de
+                paramétrage, « ne veut pas » est une décision — les confondre
+                ferait passer pour un oubli un réglage que l'agent a posé. */}
+            <label className="z-champ__case">
+              <input
+                type="checkbox"
+                checked={notifications}
+                onChange={(e) => setNotifications(e.target.checked)}
+              />
+              {t.champs.notificationsEmail}
+            </label>
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>

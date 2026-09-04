@@ -27,6 +27,13 @@ public record SeuilsMetier(
         int temperatureMinCelsius,
         int temperatureMaxCelsius,
         int humiditeMaxPourcent,
+        /**
+         * Niveau de batterie sous lequel un capteur est signale (SPRINT-26).
+         *
+         * <p>20 % par defaut : c'est ce qui laisse le temps d'une tournee, pas
+         * ce qui reste quand la balance s'est deja tue.
+         */
+        int batterieMinPourcent,
         int delaiAlerteJours,
         int arrondiDegresPublic,
         int taillePageParDefaut,
@@ -42,6 +49,7 @@ public record SeuilsMetier(
                 32,
                 36,
                 70,
+                20,
                 21,
                 2,
                 25,

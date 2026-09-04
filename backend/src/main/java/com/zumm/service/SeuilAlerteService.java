@@ -90,6 +90,13 @@ public class SeuilAlerteService {
             case HUMIDITE -> haut(v, s.humiditeMaxPourcent(), Alerte.ATTENTION,
                     "Humidité %.0f%% au-dessus du seuil de %d%%".formatted(v, s.humiditeMaxPourcent()));
             case TEMPERATURE -> temperature(v, s);
+            // La batterie d'un capteur (SPRINT-26) : meme mecanique que le
+            // poids — un seuil BAS, la meme hysteresis, la meme notification.
+            // Le niveau est en pourcent, donc borne : « 18 % » se lit sans
+            // connaitre le materiel, ce qu'une tension en volts ne permet pas.
+            case ALIMENTATION -> bas(v, s.batterieMinPourcent(), Alerte.ATTENTION,
+                    "Batterie du capteur a %.0f%%, sous le seuil de %d%%"
+                            .formatted(v, s.batterieMinPourcent()));
             // Aucun seuil parametre pour l'activite : jamais d'alerte.
             case ACTIVITE -> Depassement.neutre();
         };

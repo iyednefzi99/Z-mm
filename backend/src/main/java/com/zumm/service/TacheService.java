@@ -25,17 +25,27 @@ public class TacheService {
     private final TacheRepository taches;
     private final RucheRepository ruches;
     private final AgentRepository agents;
+    private final NotificationAlerteService notifications;
 
-    public TacheService(TacheRepository taches, RucheRepository ruches, AgentRepository agents) {
+    public TacheService(TacheRepository taches, RucheRepository ruches, AgentRepository agents,
+            NotificationAlerteService notifications) {
         this.taches = taches;
         this.ruches = ruches;
         this.agents = agents;
+        this.notifications = notifications;
     }
 
     public TacheReponse creer(TacheCorps corps) {
         Tache tache = new Tache(corps.libelle());
         appliquer(tache, corps);
-        return TacheReponse.de(taches.save(tache));
+        Tache enregistree = taches.save(tache);
+        // Seules les taches CRITIQUES partent par courriel : notifier chaque
+        // creation reviendrait a n'en notifier aucune, les messages etant filtres
+        // des la troisieme semaine.
+        if ("critique".equals(enregistree.getPriorite())) {
+            notifications.notifierTacheCritique(enregistree);
+        }
+        return TacheReponse.de(enregistree);
     }
 
     @Transactional(readOnly = true)
@@ -77,6 +87,12 @@ public class TacheService {
         tache.setAgent(agentEventuel(corps.agentId()));
         tache.setEcheance(corps.echeance());
         tache.setFaite(corps.faite());
+        // Priorite absente = `normale`, et non « la plus haute par prudence » :
+        // une liste ou tout est urgent ne priorise rien.
+        if (corps.priorite() != null) {
+            tache.setPriorite(corps.priorite());
+        }
+        tache.setCategorie(corps.categorie());
     }
 
     private Tache entite(Long id) {

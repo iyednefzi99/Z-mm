@@ -1,7 +1,11 @@
 package com.zumm.controller;
 
+import com.zumm.service.ComparaisonSitesService;
 import com.zumm.service.SiteService;
 import com.zumm.web.Pagination;
+import com.zumm.web.dto.ComparaisonSite;
+import com.zumm.web.dto.DemenagementCorps;
+import com.zumm.web.dto.EmplacementReponse;
 import com.zumm.web.dto.GrappeSites;
 import com.zumm.web.dto.SiteCorps;
 import com.zumm.web.dto.SiteReponse;
@@ -28,10 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class SiteController {
 
     private final SiteService service;
+    private final ComparaisonSitesService comparaisons;
     private final Pagination pagination;
 
-    public SiteController(SiteService service, Pagination pagination) {
+    public SiteController(SiteService service, ComparaisonSitesService comparaisons,
+            Pagination pagination) {
         this.service = service;
+        this.comparaisons = comparaisons;
         this.pagination = pagination;
     }
 
@@ -81,6 +88,18 @@ public class SiteController {
         return service.grappes(distanceMetres, minimumSites);
     }
 
+    /**
+     * Compare des emplacements candidats sur leur POTENTIEL (SPRINT-23, lot B).
+     *
+     * <p>Exemple : {@code GET /api/sites/comparaison?ids=3,7,12}. Distincte de
+     * {@code /grappes} et {@code /{id}/voisins}, qui comparent dans l'ESPACE :
+     * celles-la disent qui est proche de quoi, celle-ci ce qu'on y recolte.
+     */
+    @GetMapping("/comparaison")
+    public List<ComparaisonSite> comparaison(@RequestParam List<Long> ids) {
+        return comparaisons.comparer(ids);
+    }
+
     @GetMapping("/{id}")
     public SiteReponse obtenir(@PathVariable Long id) {
         return service.obtenir(id);
@@ -94,6 +113,33 @@ public class SiteController {
     public List<VoisinSite> voisins(@PathVariable Long id,
                                     @RequestParam(defaultValue = "3") int limite) {
         return service.voisins(id, limite);
+    }
+
+    /**
+     * Historique des emplacements occupes par un rucher (SPRINT-21, transhumance).
+     * Exemple : {@code GET /api/sites/12/emplacements}.
+     *
+     * <p>Les positions y sont masquees comme partout ailleurs : la suite des
+     * emplacements d'un rucher est une carte plus riche que sa position courante.
+     */
+    @GetMapping("/{id}/emplacements")
+    public List<EmplacementReponse> emplacements(@PathVariable Long id) {
+        return service.historique(id);
+    }
+
+    /**
+     * Deplace le rucher : clot l'emplacement courant et en ouvre un nouveau
+     * (SPRINT-21).
+     *
+     * <p>Distinct de {@code PUT /api/sites/{id}}, qui CORRIGE une position mal
+     * saisie sans rien inscrire dans l'historique. Un {@code POST} parce que
+     * l'operation cree une ressource — un emplacement — la ou le {@code PUT}
+     * remplace un etat.
+     */
+    @PostMapping("/{id}/demenagement")
+    public SiteReponse demenager(@PathVariable Long id,
+            @Valid @RequestBody DemenagementCorps corps) {
+        return service.demenager(id, corps);
     }
 
     @PutMapping("/{id}")

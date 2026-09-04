@@ -14,6 +14,12 @@ public record TacheReponse(
         String agentNom,
         LocalDate echeance,
         boolean faite,
+        String priorite,
+        String categorie,
+        /** {@code manuelle} ou {@code regle} : une tache engendree se justifie. */
+        String origine,
+        /** Code de la regle qui l'a proposee, pour l'expliquer a l'ecran. */
+        String regleCode,
         Instant creeLe,
         Instant majLe) {
 
@@ -27,6 +33,10 @@ public record TacheReponse(
                 t.getAgent() == null ? null : t.getAgent().getNom(),
                 t.getEcheance(),
                 t.isFaite(),
+                t.getPriorite(),
+                t.getCategorie(),
+                t.getOrigine(),
+                t.getRegleCode(),
                 t.getCreeLe(),
                 t.getMajLe());
     }

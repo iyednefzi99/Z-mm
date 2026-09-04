@@ -154,7 +154,11 @@
     "invitations": "Invitations",
     "config": "Configuration",
     "permissions": "Permissions",
-    "audit": "Audit"
+    "audit": "Audit",
+    "essaims": "Essaims & divisions",
+    "horsligne": "Hors ligne",
+    "materiel": "Matériel",
+    "comptabilite": "Comptabilité"
   },
   "soustitres": {
     "fermiers": "Propriétaires exploitants — racine de la hiérarchie fermier → ferme → site.",
@@ -173,7 +177,11 @@
     "lots": "Lots mis en pot et mention d’origine — exigée par la directive (UE) 2024/1438.",
     "carte": "Les ruchers sur le terrain. Les positions affichées dépendent de votre rôle.",
     "permissions": "Qui peut quoi. La matrice appliquée par le serveur, en lecture seule.",
-    "audit": "Qui a fait quoi, et quand. Consultation seule — le journal ne se modifie pas."
+    "audit": "Qui a fait quoi, et quand. Consultation seule — le journal ne se modifie pas.",
+    "essaims": "Les colonies qui entrent et celles qui se divisent.",
+    "horsligne": "Ce que vous emportez au rucher, et ce qui vous attend au retour.",
+    "materiel": "Ce que vous possédez, et ce qui vous manque.",
+    "comptabilite": "Ce que l’exploitation dépense, et ce que chaque ruche rapporte."
   },
   "groupes": {
     "navigation": "Navigation principale",
@@ -189,7 +197,21 @@
     "invite": "Rechercher un écran…",
     "aucun": "Aucun écran ne correspond.",
     "indice": "↑↓ parcourir · Entrée ouvrir · Échap fermer",
-    "raccourci": "Ctrl K"
+    "raccourci": "Ctrl K",
+    "ecrans": "Écrans",
+    "objets": "Dans vos données",
+    "inviteGlobale": "Rechercher un écran ou une donnée…",
+    "aucunObjet": "Aucune donnée ne correspond.",
+    "chercheEnCours": "Recherche…",
+    "typesObjet": {
+      "ruche": "Ruche",
+      "site": "Rucher",
+      "ferme": "Ferme",
+      "fermier": "Fermier",
+      "agent": "Agent",
+      "recolte": "Récolte",
+      "lot": "Lot"
+    }
   },
   "actions": {
     "nouveau": "Nouveau",
@@ -204,7 +226,21 @@
     "ajouterHausse": "Ajouter une hausse",
     "approuver": "Approuver",
     "refuser": "Refuser",
-    "ajouterPhoto": "Ajouter une photo"
+    "ajouterPhoto": "Ajouter une photo",
+    "demenager": "Déménager",
+    "historique": "Historique",
+    "ajouterRessource": "Ajouter une ressource",
+    "loger": "Loger dans une ruche",
+    "exporterIcs": "Exporter vers mon agenda",
+    "realiser": "Réaliser",
+    "revoquer": "Révoquer",
+    "creerAbonnement": "Créer un abonnement",
+    "copier": "Copier",
+    "proposerTaches": "Proposer des tâches",
+    "forcer": "Forcer et enregistrer",
+    "traiterLeRucher": "Traiter tout le rucher",
+    "comparer": "Comparer",
+    "recolterLeRucher": "Récolter tout le rucher"
   },
   "etats": {
     "chargement": "Chargement…",
@@ -240,7 +276,44 @@
     "typeRuche": "Type de ruche",
     "couleur": "Couleur",
     "origine": "Origine",
-    "causeCloture": "Cause de clôture"
+    "causeCloture": "Cause de clôture",
+    "adresseRue": "Adresse",
+    "codePostal": "Code postal",
+    "ville": "Commune",
+    "pays": "Pays",
+    "typeSite": "Type de rucher",
+    "exposition": "Exposition",
+    "ressourcesFlorales": "Sources de nectar",
+    "distanceRessource": "Distance (m)",
+    "lieu": "Lieu",
+    "poidsEssaim": "Poids (kg)",
+    "hauteur": "Hauteur (m)",
+    "methode": "Méthode",
+    "origineReine": "Reine de la fille",
+    "cadresCouvain": "Cadres de couvain",
+    "cadresProvisions": "Cadres de provisions",
+    "motif": "Motif",
+    "dateDivision": "Date de division",
+    "dateCapture": "Date de capture",
+    "rucheMere": "Ruche mère",
+    "rucheFille": "Ruche fille",
+    "note": "Note",
+    "moisDebut": "Début de floraison",
+    "moisFin": "Fin de floraison",
+    "vehicule": "Véhicule",
+    "capaciteRuches": "Capacité (ruches)",
+    "nbRuches": "Ruches à déplacer",
+    "destination": "Destination",
+    "datePrevue": "Date prévue",
+    "libelle": "Libellé",
+    "duree": "Durée (jours)",
+    "priorite": "Priorité",
+    "categorie": "Catégorie",
+    "origine2": "Origine",
+    "prioriteTerrain": "Priorité",
+    "couvertureReseau": "Couverture réseau",
+    "notificationsEmail": "Notifications par courriel",
+    "quantite": "Quantité"
   },
   "roles": {
     "apiculteur": "Apiculteur",
@@ -469,7 +542,27 @@
     "rappels": "Rappels en cours",
     "ruche": "Ruche",
     "agent": "Agent",
-    "sansEcheance": "Sans échéance"
+    "sansEcheance": "Sans échéance",
+    "priorites": {
+      "basse": "Basse",
+      "normale": "Normale",
+      "haute": "Haute",
+      "critique": "Critique"
+    },
+    "categories": {
+      "controle": "Contrôle",
+      "traitement": "Traitement",
+      "nourrissement": "Nourrissement",
+      "recolte": "Récolte",
+      "materiel": "Matériel",
+      "elevage": "Élevage",
+      "administratif": "Administratif",
+      "autre": "Autre"
+    },
+    "engendree": "Proposée automatiquement",
+    "parRegle": "Règle : {code}",
+    "aucuneProposition": "Aucune nouvelle tâche à proposer — tout ce que les règles savent voir est déjà dans la liste.",
+    "proposees": "{nombre} tâche(s) proposée(s)."
   },
   "tableau": {
     "calendrier": "Calendrier",
@@ -522,7 +615,9 @@
     "valeurProduction": "Valorisation production (€)",
     "coutInterventions": "Coût interventions (€)",
     "roiPourcent": "ROI",
-    "visitesParRaison": "Visites par motif"
+    "visitesParRaison": "Visites par motif",
+    "ruchers": "Par rucher",
+    "equipe": "Équipe"
   },
   "graphique": {
     "tableauEquivalent": "Voir les données sous forme de tableau",
@@ -551,7 +646,15 @@
     "mention": "Mention d’origine",
     "mielAchete": "Miel acquis (hors exploitation)",
     "estMelange": "Mélange : les pourcentages sont obligatoires sur l’étiquette.",
-    "monoOrigine": "Origine unique : le pourcentage n’est pas exigé."
+    "monoOrigine": "Origine unique : le pourcentage n’est pas exigé.",
+    "titre": "Opération sur plusieurs ruches",
+    "cible": "Ruches visées",
+    "toutLeRucher": "Tout le rucher",
+    "selection": "Sélection",
+    "rapport": "{reussites} sur {demandees} enregistrées.",
+    "echecs": "Non enregistrées :",
+    "aucunEchec": "Toutes les ruches visées ont été enregistrées.",
+    "aide": "Un lot réussit rarement en entier, et ce n’est pas une anomalie : une ruche clôturée ou sous carence ressort en refus motivé. Reprenez ces ruches-là, pas tout le rucher."
   },
   "capteur": {
     "ingestion": "Ingestion d’une mesure",
@@ -583,7 +686,8 @@
       "poids": "Poids",
       "temperature": "Température",
       "humidite": "Humidité",
-      "activite": "Activité"
+      "activite": "Activité",
+      "alimentation": "Batterie du capteur"
     },
     "niveaux": {
       "attention": "Attention",
@@ -1151,7 +1255,8 @@
         "titre": "En attendant, rien n’est bloqué",
         "texte": "Un compte inaccessible ne verrouille pas le cheptel : les données appartiennent à l’exploitation et non à votre compte, et les autres agents y accèdent selon leur rôle."
       }
-    ]
+    ],
+    "libreService": "Réinitialiser mon mot de passe"
   },
   "permissions": {
     "titre": "Rôles et permissions",
@@ -1166,7 +1271,8 @@
       "plannings": "Approuver ou refuser un planning",
       "referentiel": "Créer, modifier ou supprimer dans le référentiel : fermiers, fermes, ruchers, agents, ruches",
       "mesures": "Déposer une mesure de capteur",
-      "reste": "Tout le reste : consultation, et saisie du travail de terrain"
+      "reste": "Tout le reste : consultation, et saisie du travail de terrain",
+      "comptabilite": "Comptabilité : dépenses et bilan de l’exploitation"
     },
     "ecransTitre": "Écrans retirés de la navigation",
     "ecransTexte": "Pour les rôles qui ne les ouvrent pas, ces écrans n’apparaissent ni dans le rail ni dans la palette : {ecrans}.",
@@ -1202,7 +1308,13 @@
     "visites": "Visites",
     "depuisPrecedente": "Depuis l’étape précédente",
     "total": "Distance totale",
-    "avertissement": "Ordre indicatif : distances à vol d’oiseau, heuristique non optimale. Aucun itinéraire routier."
+    "avertissement": "Ordre indicatif : distances à vol d’oiseau, heuristique non optimale. Aucun itinéraire routier.",
+    "saisir": "Déplacer",
+    "monter": "Monter d’un rang",
+    "descendre": "Descendre d’un rang",
+    "deplace": "{site} passe en position {rang} sur {total}.",
+    "simulee": "Ordre modifié sur cet écran seulement : rien n’est enregistré, et les distances deviennent des estimations.",
+    "retablir": "Revenir à la proposition"
   },
   "anomalie": {
     "titre": "Détection d’anomalie (EWMA)",
@@ -1230,5 +1342,416 @@
     "echecCreation": "La création a échoué.",
     "echecModification": "L’enregistrement a échoué.",
     "echecSuppression": "La suppression a échoué."
+  },
+  "referentielSite": {
+    "types": {
+      "sedentaire": "Sédentaire",
+      "transhumance": "Transhumance",
+      "fecondation": "Fécondation",
+      "elevage": "Élevage",
+      "conservatoire": "Conservatoire",
+      "autre": "Autre"
+    },
+    "expositions": {
+      "nord": "Nord",
+      "nord_est": "Nord-est",
+      "est": "Est",
+      "sud_est": "Sud-est",
+      "sud": "Sud",
+      "sud_ouest": "Sud-ouest",
+      "ouest": "Ouest",
+      "nord_ouest": "Nord-ouest"
+    },
+    "ressources": {
+      "colza": "Colza",
+      "tournesol": "Tournesol",
+      "acacia": "Acacia",
+      "chataignier": "Châtaignier",
+      "tilleul": "Tilleul",
+      "lavande": "Lavande",
+      "bruyere": "Bruyère",
+      "luzerne": "Luzerne",
+      "sarrasin": "Sarrasin",
+      "verger": "Verger",
+      "agrumes": "Agrumes",
+      "eucalyptus": "Eucalyptus",
+      "thym": "Thym",
+      "romarin": "Romarin",
+      "jujubier": "Jujubier (sidr)",
+      "palmier_dattier": "Palmier dattier",
+      "prairie": "Prairie",
+      "foret": "Forêt",
+      "garrigue": "Garrigue",
+      "autre": "Autre"
+    },
+    "motifs": {
+      "installation": "Installation",
+      "transhumance": "Transhumance",
+      "miellee": "Miellée",
+      "securite": "Sécurité",
+      "reglementaire": "Réglementaire",
+      "autre": "Autre"
+    },
+    "mois": {
+      "1": "Janvier",
+      "2": "Février",
+      "3": "Mars",
+      "4": "Avril",
+      "5": "Mai",
+      "6": "Juin",
+      "7": "Juillet",
+      "8": "Août",
+      "9": "Septembre",
+      "10": "Octobre",
+      "11": "Novembre",
+      "12": "Décembre"
+    }
+  },
+  "terrain": {
+    "emplacements": {
+      "titre": "Emplacements successifs",
+      "aucun": "Aucun emplacement enregistré.",
+      "courant": "Emplacement actuel",
+      "depuis": "Depuis",
+      "jusqua": "Jusqu’au",
+      "nouvelle": "Nouvel emplacement",
+      "aide": "Déplacer le rucher clôt l’emplacement actuel et en ouvre un nouveau. Pour corriger une position mal saisie, modifiez la fiche."
+    },
+    "divisions": {
+      "titre": "Divisions",
+      "aucune": "Aucune division enregistrée.",
+      "nouvelle": "Enregistrer une division",
+      "filleAbsente": "Fille non enregistrée",
+      "issueDe": "Issue de la ruche",
+      "aDonne": "A donné la ruche",
+      "methodes": {
+        "essaim_artificiel": "Essaim artificiel",
+        "nucleus": "Nucléus",
+        "partage_egal": "Partage égal",
+        "prelevement_cadres": "Prélèvement de cadres",
+        "autre": "Autre"
+      },
+      "origines": {
+        "cellule_royale": "Cellule royale",
+        "reine_introduite": "Reine introduite",
+        "orpheline": "Orpheline",
+        "reine_mere": "Reine de la mère",
+        "autre": "Autre"
+      }
+    },
+    "captures": {
+      "titre": "Captures d’essaim",
+      "aucune": "Aucune capture enregistrée.",
+      "nouvelle": "Enregistrer une capture",
+      "enAttente": "En ruchette d’attente",
+      "logee": "Logée",
+      "toutes": "Toutes",
+      "origines": {
+        "essaim_naturel": "Essaim naturel",
+        "piege": "Piège",
+        "recuperation": "Récupération",
+        "signalement": "Signalement",
+        "autre": "Autre"
+      },
+      "filtre": "Afficher"
+    },
+    "transports": {
+      "titre": "Transports planifiés",
+      "aucun": "Aucun transport planifié.",
+      "nouveau": "Planifier un transport",
+      "aide": "Réaliser un transport fait déménager le rucher : l’emplacement courant se clôt et un nouveau s’ouvre, exactement comme un déménagement direct.",
+      "voyages": "{nombre} voyage(s)",
+      "statuts": {
+        "prevu": "Prévu",
+        "realise": "Réalisé",
+        "annule": "Annulé"
+      }
+    },
+    "abonnements": {
+      "titre": "Abonnements à mon agenda",
+      "aucun": "Aucun abonnement.",
+      "aide": "Une URL que votre agenda (Google, Outlook, Apple) relit tout seul. Elle vaut mot de passe : ne la partagez pas, et révoquez-la si vous changez d’appareil.",
+      "urlUnique": "Cette URL n’est affichée qu’une fois. Copiez-la maintenant : elle n’est pas récupérable ensuite.",
+      "expireLe": "Expire le",
+      "revoqueLe": "Révoqué le",
+      "jamaisUtilise": "Jamais utilisé",
+      "derniereUtilisation": "Dernier appel",
+      "actif": "Actif",
+      "inactif": "Inactif"
+    }
+  },
+  "indice": {
+    "titre": "Indices de colonie",
+    "sante": "Santé",
+    "essaimage": "Risque d’essaimage",
+    "nonEvalue": "Non évalué",
+    "aide": "Calculés à chaque lecture depuis les observations de visite, jamais stockés. Sans observation récente, aucun indice n’est affiché — une jauge sur du vide ferait passer l’ignorance pour un diagnostic.",
+    "composantes": "{nombre} observation(s) prise(s) en compte",
+    "motifs": {
+      "etat_sante_mauvais": "État sanitaire mauvais",
+      "etat_sante_moyen": "État sanitaire moyen",
+      "pas_de_couvain_opercule": "Pas de couvain operculé",
+      "reine_non_vue": "Reine non vue",
+      "ponte_lacunaire": "Ponte lacunaire",
+      "ponte_irregulier": "Ponte irrégulière",
+      "ponte_absente": "Ponte absente",
+      "reserves_basses": "Réserves basses",
+      "pathologie_confirmee": "Pathologie confirmée",
+      "varroa_a_traiter": "Varroa au-dessus du seuil de traitement",
+      "varroa_a_surveiller": "Varroa à surveiller"
+    }
+  },
+  "carence": {
+    "bloquee": "Cette ruche est sous carence : le miel ne peut pas partir en récolte.",
+    "motif": "Motif du forçage",
+    "aide": "Vous pouvez passer outre, mais la décision sera consignée au journal d’audit avec votre motif. Un forçage sans explication n’a aucune valeur devant un contrôle."
+  },
+  "correlation": {
+    "titre": "Météo et production",
+    "temperature": "Température",
+    "humidite": "Humidité",
+    "vent": "Vent",
+    "echantillon": "{nombre} paire(s)",
+    "lectures": {
+      "echantillon_insuffisant": "Échantillon insuffisant pour conclure",
+      "variance_nulle": "Valeur constante : aucun coefficient calculable",
+      "lien_faible": "Lien faible",
+      "lien_modere_positif": "Lien modéré, positif",
+      "lien_modere_negatif": "Lien modéré, négatif",
+      "lien_marque_positif": "Lien marqué, positif",
+      "lien_marque_negatif": "Lien marqué, négatif"
+    },
+    "avertissement": "Une corrélation n’est pas une cause : deux mois chauds qui coïncident avec une miellée d’acacia ne prouvent pas que la chaleur produit le miel."
+  },
+  "prioriteTerrain": {
+    "basse": "Basse",
+    "normale": "Normale",
+    "haute": "Haute"
+  },
+  "rucher": {
+    "titre": "Par rucher",
+    "sante": "Santé moyenne",
+    "nonEvalue": "Non évalué",
+    "evaluees": "{nombre} colonie(s) évaluée(s)",
+    "risqueMax": "Risque d’essaimage max",
+    "sousCarence": "Sous carence",
+    "production": "Production (12 mois)",
+    "aide": "La moyenne ne porte que sur les colonies réellement évaluées : compter une colonie non visitée comme zéro ferait chuter un rucher qu’on n’a pas encore vu."
+  },
+  "comparaison": {
+    "titre": "Comparer des emplacements",
+    "rendement": "Rendement (kg/ruche, 2 saisons)",
+    "ressources": "Sources de nectar",
+    "enFleur": "en fleur ce mois",
+    "voisinage": "Ruchers à moins de 3 km",
+    "aide": "Aucune note globale : mélanger des kilos, des espèces florales et une altitude donnerait un chiffre qui a l’autorité d’une mesure sans en avoir la matière. Les critères restent côte à côte.",
+    "choisir": "Choisissez au moins deux emplacements.",
+    "sansRuche": "Aucune colonie"
+  },
+  "equipe": {
+    "titre": "Charge de l’équipe",
+    "ruches": "Ruches",
+    "ruchers": "Ruchers",
+    "taches": "Tâches ouvertes",
+    "retard": "En retard",
+    "critiques": "Critiques",
+    "visites": "Visites à 7 jours",
+    "aide": "Ces chiffres servent à répartir une charge, jamais à comparer des personnes : dix tâches en retard, c’est le plus souvent trois jours de pluie."
+  },
+  "couvertureReseau": {
+    "aucune": "Aucune",
+    "faible": "Faible",
+    "correcte": "Correcte",
+    "bonne": "Bonne"
+  },
+  "horsLigne": {
+    "aide": "Un emport est daté : la console affiche l’instant du prélèvement à chaque lecture, pour qu’une donnée du disque ne passe jamais pour une donnée fraîche. Ni mesures de capteurs, ni météo — elles se périment trop vite.",
+    "emporter": "Emporter",
+    "emporte": "{rucher} emporté ({instant}).",
+    "emportImpossible": "Emporter demande du réseau : à faire avant de partir.",
+    "ruchersEmportes": "Ruchers emportés",
+    "aucunEmport": "Aucun rucher emporté.",
+    "preleveLe": "prélevé le {instant}",
+    "perime": "prélevé il y a {jours} jours — trop ancien pour être consulté",
+    "contenu": "{ruches} ruche(s) · {taches} tâche(s) · {carences} carence(s) en cours",
+    "actualiser": "Actualiser",
+    "ficheVierge": "Fiche d’inspection vierge",
+    "purger": "Purger",
+    "purgerTout": "Tout purger",
+    "couvertureInconnue": "Inconnue",
+    "refuses": "Saisies refusées au retour",
+    "refusAide": "Le serveur a refusé ces saisies au moment de la synchronisation — le plus souvent parce qu’un autre agent est passé avant. Elles ne sont pas perdues : c’est à vous de trancher.",
+    "aucunRefus": "Aucune saisie refusée.",
+    "reappliquer": "Réappliquer ma saisie",
+    "abandonner": "Abandonner",
+    "brouillons": "Brouillons de visite",
+    "brouillonsAide": "Une saisie commencée au rucher se termine à la maison. Un brouillon appartient à son agent : personne d’autre ne le lit, pas même un responsable.",
+    "aucunBrouillon": "Aucun brouillon.",
+    "brouillonDe": "modifié le {instant} depuis {appareil}",
+    "appareilInconnu": "un appareil inconnu",
+    "effacerBrouillon": "Effacer",
+    "reprendre": "Reprendre le brouillon",
+    "enregistrerBrouillon": "Enregistrer le brouillon",
+    "brouillonEnregistre": "Brouillon enregistré ({instant}).",
+    "reglages": "Réglages du terrain",
+    "economie": "Mode économie",
+    "economieAide": "Coupe le fond cartographique (WebGL), les rafraîchissements de fond et les animations. Rien ne s’active tout seul : une application qui change de comportement sans le dire passe pour cassée.",
+    "installer": "Ajouter à l’écran d’accueil",
+    "installerAide": "Installée, la console démarre sans réseau. À faire avant de partir au rucher.",
+    "installationManuelle": "Sur ce navigateur, l’ajout se fait par le menu de partage : « Sur l’écran d’accueil ».",
+    "installee": "Application installée.",
+    "installationRefusee": "Installation abandonnée.",
+    "dejaInstallee": "Application déjà installée sur cet appareil.",
+    "noteVocale": "Note vocale",
+    "enregistrerNote": "Enregistrer une note",
+    "arreterNote": "Arrêter",
+    "effacerNote": "Effacer la note",
+    "noteVocaleAide": "La note reste sur cet appareil : le serveur ne stocke aucun fichier audio. Elle sert à ressaisir au retour, puis s’efface.",
+    "noteVocaleImpossible": "Le micro n’est pas accessible sur cet appareil."
+  },
+  "etiquettes": {
+    "titre": "Étiquette de ruche",
+    "code": "Code",
+    "aide": "Le code court est l’identifiant de la ruche : il se lit à l’œil nu quand le QR est sale, mouillé ou propolisé. La puce NFC porte exactement la même chose.",
+    "planche": "Planche d’étiquettes",
+    "plancheAide": "Une étiquette par ruche du rucher choisi. L’impression ne sort que la planche, pas la console autour.",
+    "choisirRucher": "Imprimer un rucher…",
+    "imprimer": "Imprimer",
+    "ecrireNfc": "Écrire sur une puce NFC",
+    "nfcApprochez": "Approchez l’étiquette de l’appareil…",
+    "nfcEcrite": "Étiquette NFC écrite.",
+    "nfcEchec": "Écriture NFC impossible : étiquette éloignée, protégée, ou permission refusée.",
+    "nfcIndisponible": "Le NFC n’est pas disponible sur ce navigateur — il n’existe ni sur iOS ni sur Firefox. Le QR reste le socle ; la puce est un confort."
+  },
+  "interfaceProgressive": {
+    "titre": "Étendue de l’interface",
+    "complete": "Complète — les vingt et un écrans",
+    "essentielle": "Essentielle — le cheptel, le terrain, la récolte",
+    "aide": "L’interface essentielle masque les écrans dont un apiculteur de trois ruches n’a pas l’usage : capteurs, lots de conditionnement, essaims, reines, journal d’audit. Elle ne retire aucun droit — un lien direct continue de fonctionner, et le réglage se change ici en un clic."
+  },
+  "demonstration": {
+    "titre": "Jeu de démonstration",
+    "aide": "Charge une exploitation fictive — un fermier, une ferme, un agent, deux ruchers, cinq ruches et leurs visites — pour parcourir la console avec des données. Tout ce qui est chargé est tracé, et le retrait ne supprime que cela : jamais une donnée que vous auriez saisie, même si elle porte le même nom.",
+    "indisponible": "Le jeu de démonstration est désactivé sur ce déploiement.",
+    "absent": "Aucun jeu de démonstration chargé.",
+    "charge": "{objets} objets de démonstration en place.",
+    "charger": "Charger la démonstration",
+    "retirer": "Retirer la démonstration",
+    "confirmation": "Retirer le jeu de démonstration et les {objets} objets qu’il a créés ?"
+  },
+  "etage": {
+    "titre": "Poids par étage",
+    "aide": "Ce poids-là répond à une autre question que la balance : non pas combien pèse la ruche, mais où est le miel. Il n’entre ni dans les alertes de seuil, ni dans la prévision de récolte — additionner des pesées faites à des moments différents donnerait un poids qui n’a jamais existé.",
+    "compartiment": "Étage",
+    "corps": "Corps",
+    "hausse": "Hausse",
+    "poids": "Poids (kg)",
+    "peser": "Enregistrer la pesée",
+    "jamaisPese": "jamais pesé"
+  },
+  "partage": {
+    "titre": "Partager un flux",
+    "aide": "Montre la courbe d’UNE ruche à quelqu’un hors de l’exploitation — un mentor, un technicien sanitaire, un groupement. Le destinataire voit une courbe et un libellé : ni identifiant, ni rucher, ni position. Le lien expire, se révoque, et son dernier usage est visible.",
+    "libelle": "À qui, et pourquoi",
+    "duree": "Durée (jours)",
+    "ouvrir": "Ouvrir un partage",
+    "urlUnique": "Recopiez ce lien maintenant : il ne sera plus jamais affiché.",
+    "ligne": "expire le {expire} · dernier accès : {usage}",
+    "jamaisConsulte": "jamais consulté",
+    "revoquer": "Révoquer",
+    "revoque": "révoqué"
+  },
+  "materiel": {
+    "categories": {
+      "ruche": "Ruche",
+      "hausse": "Hausse",
+      "cadre": "Cadre",
+      "extracteur": "Extracteur",
+      "maturateur": "Maturateur",
+      "enfumoir": "Enfumoir",
+      "protection": "Protection",
+      "vehicule": "Véhicule",
+      "balance": "Balance",
+      "autre": "Autre"
+    },
+    "etats": {
+      "neuf": "Neuf",
+      "bon": "Bon",
+      "a_reviser": "À réviser",
+      "hors_service": "Hors service"
+    },
+    "prochaine": "Prochain entretien",
+    "entretien": "Entretien",
+    "marquerFait": "Fait aujourd’hui",
+    "sansEntretien": "sans entretien",
+    "periodicite": "Périodicité (jours)",
+    "derniere": "Dernier entretien",
+    "aidePeriodicite": "Une périodicité vide veut dire « ne s’entretient pas » — une hausse vide, par exemple — et non « à entretenir quand on y pense » : rien ne sera proposé pour ce matériel."
+  },
+  "stock": {
+    "titre": "Stock de consommables",
+    "categories": {
+      "sirop": "Sirop",
+      "candi": "Candi",
+      "traitement": "Traitement",
+      "cire_gaufree": "Cire gaufrée",
+      "pot": "Pot",
+      "etiquette": "Étiquette",
+      "cadre": "Cadre",
+      "protection": "Protection",
+      "autre": "Autre"
+    },
+    "aide": "Un stock sans seuil est un inventaire : il dit ce que vous avez, jamais ce qui manque. C’est le seuil qui fait apparaître « à racheter ».",
+    "aucun": "Aucun consommable enregistré.",
+    "nouveau": "Nouveau consommable",
+    "ligne": "{quantite} {unite} en stock · seuil {seuil}",
+    "aRacheter": "à racheter",
+    "seuil": "Seuil d’alerte",
+    "unite": "unité",
+    "aideSeuil": "Arriver pile au seuil, c’est déjà être à court : la comparaison est inclusive."
+  },
+  "depense": {
+    "categories": {
+      "materiel": "Matériel",
+      "consommable": "Consommable",
+      "traitement": "Traitement",
+      "nourrissement": "Nourrissement",
+      "cheptel": "Cheptel",
+      "transport": "Transport",
+      "analyse": "Analyse",
+      "assurance": "Assurance",
+      "formation": "Formation",
+      "autre": "Autre"
+    },
+    "montant": "Montant (€)",
+    "affectation": "Affectation",
+    "aucune": "exploitation",
+    "aideAffectation": "L’affectation est facultative : une reine achetée se rattache à une ruche, un transport à un rucher, une assurance à rien du tout. Exiger un rattachement ferait inventer des affectations, et la rentabilité par ruche en deviendrait fausse."
+  },
+  "bilan": {
+    "titre": "Bilan de la période",
+    "recettes": "Recettes",
+    "depenses": "Dépenses",
+    "resultat": "Résultat",
+    "production": "Production",
+    "aide": "Les recettes sont une VALORISATION de la production de miel au prix paramétré, pas un chiffre d’affaires : Zümm ne connaît pas vos prix de vente. La période est demandée, jamais devinée.",
+    "nonAffectees": "Dont {montant} € non affectés à une ruche — ils ne sont pas répartis : une assurance ne se divise pas par le nombre de colonies."
+  },
+  "saison": {
+    "titre": "Saison contre saison",
+    "annee": "Saison",
+    "productives": "Ruches productives",
+    "rendement": "Rendement par ruche",
+    "nonEvalue": "non évalué",
+    "bilanPdf": "Bilan annuel",
+    "telecharger": "PDF",
+    "aide": "Les tableaux de bord raisonnent en période glissante — douze mois qui reculent chaque jour. Ici, ce sont des années civiles, et le rendement compte les ruches qui ont produit, pas celles qui existaient."
+  },
+  "exportIntegral": {
+    "titre": "Export",
+    "ressource": "Ressource",
+    "format": "Format",
+    "telecharger": "Télécharger",
+    "aide": "Quatorze ressources, trois formats. Les mesures de capteurs sont bornées aux quatre-vingt-dix derniers jours, et l’export des ruchers ne porte aucune coordonnée — un fichier circule, et il n’a pas de rôle porteur."
   }
 }

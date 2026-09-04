@@ -43,7 +43,8 @@ class RapportVisitePdfServiceTest {
     @Test
     @DisplayName("inclut les photos sans échouer")
     void inclutLesPhotos() {
-        var photo = new PhotoReponse(9L, "https://demo.zumm.tn/p.jpg", "Cadre de couvain", Instant.now());
+        var photo = new PhotoReponse(9L, com.zumm.domain.Photo.Cible.VISITE, 4L,
+                "https://demo.zumm.tn/p.jpg", "Cadre de couvain", Instant.now());
 
         byte[] pdf = service.generer(visite(List.of(photo)));
 

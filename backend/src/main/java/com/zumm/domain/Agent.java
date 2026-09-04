@@ -52,6 +52,22 @@ public class Agent extends EntiteTenant {
     @Column(name = "sujet_oidc", length = 64)
     private String sujetOidc;
 
+    /**
+     * Cet agent accepte-t-il les courriels d'alerte (SPRINT-25) ?
+     *
+     * <p>S'AJOUTE au reglage global {@code zumm.notifications.email.enabled}, il
+     * ne le remplace pas : les deux doivent etre vrais pour qu'un message parte.
+     * Avant, couper les notifications se faisait pour l'exploitation entiere —
+     * l'apiculteur qui ne voulait pas etre reveille par une alerte de poids la
+     * coupait pour ses collegues aussi.
+     *
+     * <p>Vrai par defaut, et c'est deliberé : une alerte s'ouvre parce que
+     * quelque chose ne va pas dans une ruche. Un defaut a faux ferait taire, au
+     * premier deploiement, ce que le produit promet de signaler.
+     */
+    @Column(name = "notifications_email", nullable = false)
+    private boolean notificationsEmail = true;
+
     protected Agent() {
         // Requis par JPA.
     }
@@ -60,6 +76,14 @@ public class Agent extends EntiteTenant {
         this.nom = nom;
         this.role = role;
         this.ferme = ferme;
+    }
+
+    public boolean isNotificationsEmail() {
+        return notificationsEmail;
+    }
+
+    public void setNotificationsEmail(boolean notificationsEmail) {
+        this.notificationsEmail = notificationsEmail;
     }
 
     public String getNom() {

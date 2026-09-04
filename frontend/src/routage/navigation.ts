@@ -15,17 +15,22 @@ const CLE_RETOUR = 'zumm.route.retour';
 
 /** Chemin courant et fonction de navigation. */
 export function useNavigation(): { chemin: string; naviguer: (chemin: string) => void } {
-  const [chemin, setChemin] = useState(() => window.location.pathname);
+  // Chemin ET requête : depuis le SPRINT-21, `/ruches?id=42` ouvre la fiche 42.
+  // Ne suivre que `pathname` ferait perdre le paramètre au premier rendu.
+  const [chemin, setChemin] = useState(
+    () => window.location.pathname + window.location.search,
+  );
 
   useEffect(() => {
     // Bouton précédent / suivant du navigateur.
-    const surRetourArriere = () => setChemin(window.location.pathname);
+    const surRetourArriere = () =>
+      setChemin(window.location.pathname + window.location.search);
     window.addEventListener('popstate', surRetourArriere);
     return () => window.removeEventListener('popstate', surRetourArriere);
   }, []);
 
   const naviguer = useCallback((cible: string) => {
-    if (cible !== window.location.pathname) {
+    if (cible !== window.location.pathname + window.location.search) {
       window.history.pushState({}, '', cible);
     }
     setChemin(cible);

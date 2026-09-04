@@ -5,9 +5,19 @@ import { LangueProvider } from './i18n/langue';
 import { ThemeProvider } from './theme/theme';
 import { DialoguesProvider } from './ui/dialogues';
 import { ToastsProvider } from './ui/toasts';
-import { enregistrerServiceWorker } from './pwa';
+import { ecouterInstallation, enregistrerServiceWorker } from './pwa';
+import { initialiserEconomie } from './terrain/economie';
 import './theme/tokens.css';
 import './theme/base.css';
+
+// Mode economie (SPRINT-24) : applique AVANT le premier rendu, sans quoi la
+// premiere seconde de l'application animerait ce que l'utilisateur a demande de
+// couper.
+initialiserEconomie();
+
+// L'invite d'installation doit etre captee AVANT que le navigateur ne l'emette,
+// c'est-a-dire avant le premier rendu : manquee, elle ne revient pas.
+ecouterInstallation();
 
 const racine = document.getElementById('root');
 if (!racine) {

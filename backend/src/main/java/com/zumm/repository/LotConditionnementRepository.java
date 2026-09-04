@@ -3,6 +3,7 @@ package com.zumm.repository;
 import com.zumm.domain.LotConditionnement;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -25,4 +26,8 @@ public interface LotConditionnementRepository extends JpaRepository<LotCondition
     Optional<LotConditionnement> findByReference(String reference);
 
     boolean existsByReference(String reference);
+
+    /** Lots dont la reference contient {@code motif} (recherche globale, SPRINT-21). */
+    List<LotConditionnement> findByReferenceContainingIgnoreCaseOrderByReferenceAsc(
+            String motif, Pageable pagination);
 }

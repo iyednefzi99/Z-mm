@@ -11,10 +11,14 @@ import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.NourrissementCorps;
+import com.zumm.web.dto.NourrissementLotCorps;
+import com.zumm.web.dto.RapportLot;
 import com.zumm.web.dto.NourrissementReponse;
 import java.util.List;
 import java.util.Set;
+import com.zumm.domain.Ruche;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,13 +42,35 @@ public class NourrissementService {
     private final RucheRepository ruches;
     private final AgentRepository agents;
     private final VisiteRepository visites;
+    private final OperationsLotService lots;
 
     public NourrissementService(NourrissementRepository nourrissements, RucheRepository ruches,
-            AgentRepository agents, VisiteRepository visites) {
+            AgentRepository agents, VisiteRepository visites, OperationsLotService lots) {
         this.nourrissements = nourrissements;
         this.ruches = ruches;
         this.agents = agents;
         this.visites = visites;
+        this.lots = lots;
+    }
+
+    /**
+     * Nourrit plusieurs ruches d'un coup (SPRINT-23, lot B).
+     *
+     * <p>C'est l'operation qui, en pratique, se saisit le plus souvent en lot :
+     * le sirop se pose rucher par rucher, jamais colonie par colonie.
+     */
+    public RapportLot enregistrerLot(NourrissementLotCorps corps) {
+        return lots.executer(corps.cible(), ruche -> enregistrerPour(ruche, corps.nourrissement()));
+    }
+
+    /** Un nourrissement pour UNE ruche, dans sa propre transaction (echec partiel). */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Long enregistrerPour(Ruche ruche, NourrissementCorps modele) {
+        NourrissementCorps pourCetteRuche = new NourrissementCorps(
+                ruche.getId(), modele.agentId(), modele.visiteId(), modele.dateApport(),
+                modele.typeAliment(), modele.quantite(), modele.quantiteUnite(), modele.motif(),
+                modele.note());
+        return enregistrer(pourCetteRuche).id();
     }
 
     public NourrissementReponse enregistrer(NourrissementCorps corps) {

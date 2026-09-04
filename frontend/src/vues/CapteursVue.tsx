@@ -6,23 +6,31 @@ import {
   detecterAnomalie,
   getZummHoneyActualQuantity,
   ingererMesure,
+  listerPartages,
+  ouvrirPartage,
+  peserCompartiment,
+  repartitionCompartiments,
+  revoquerPartage,
   ruches,
   sites,
 } from '../api/client';
 import type {
   AlerteMesure,
   Anomalie,
-  PointJournalier,
   Meteo,
+  Partage,
+  PoidsCompartiment,
+  PointJournalier,
   QuantiteMiel,
   Ruche,
   Site,
   TypeIndicateur,
 } from '../api/types';
 import { TYPES_INDICATEUR } from '../api/types';
+import { gabarit } from '../i18n/console';
 import { useFormats, useLangue, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
-import { Bouton, ChampNombre, ChampSelect, Option } from '../ui/composants';
+import { Bouton, ChampNombre, ChampSelect, ChampTexte, Option } from '../ui/composants';
 import { Courbe, type Serie } from '../ui/graphiques';
 
 const UNITES = ['kg', 'g', 'lb', 't'];
@@ -51,6 +59,19 @@ export function CapteursVue(): ReactElement {
   const [anomalie, setAnomalie] = useState<Anomalie | null>(null);
   const [serie, setSerie] = useState<PointJournalier[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Poids par etage (SPRINT-26). Distinct de la serie de la ruche : celle-ci
+  // porte ce qu'une balance pese SOUS la ruche, celui-la ce qu'on attribue a
+  // chaque etage. Les additionner ferait compter deux fois le meme miel.
+  const [etageRuche, setEtageRuche] = useState('');
+  const [etages, setEtages] = useState<PoidsCompartiment[] | null>(null);
+  const [etageChoisi, setEtageChoisi] = useState('');
+  const [poidsEtage, setPoidsEtage] = useState('');
+  // Partage d'un flux hors de l'exploitation (SPRINT-26).
+  const [partageRuche, setPartageRuche] = useState('');
+  const [partages, setPartages] = useState<Partage[]>([]);
+  const [partageLibelle, setPartageLibelle] = useState('');
+  const [partageDuree, setPartageDuree] = useState('30');
+  const [urlPartage, setUrlPartage] = useState<string | null>(null);
 
   const optIndicateur: Option[] = TYPES_INDICATEUR.map((i) => ({
     valeur: i,
@@ -58,6 +79,89 @@ export function CapteursVue(): ReactElement {
   }));
   const optUnite: Option[] = UNITES.map((u) => ({ valeur: u, libelle: u }));
   const optRucheMiel: Option[] = [{ valeur: '', libelle: t.capteur.total }, ...optRuches];
+
+  const chargerEtages = (ruche: string) => {
+    setEtageRuche(ruche);
+    setEtageChoisi('');
+    setEtages(null);
+    if (ruche === '') {
+      return;
+    }
+    void repartitionCompartiments(Number(ruche))
+      .then(setEtages)
+      .catch(() => setEtages([]));
+  };
+
+  const peser = async () => {
+    if (etageChoisi === '' || poidsEtage === '') {
+      return;
+    }
+    setErreur(null);
+    try {
+      await peserCompartiment({
+        compartimentId: Number(etageChoisi),
+        valeur: Number(poidsEtage),
+      });
+      setPoidsEtage('');
+      chargerEtages(etageRuche);
+    } catch (cause) {
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
+    }
+  };
+
+  const chargerPartages = (ruche: string) => {
+    setPartageRuche(ruche);
+    setUrlPartage(null);
+    if (ruche === '') {
+      setPartages([]);
+      return;
+    }
+    void listerPartages(Number(ruche))
+      .then(setPartages)
+      .catch(() => setPartages([]));
+  };
+
+  /**
+   * Ouvre un partage et affiche l'URL — la SEULE fois ou elle existe.
+   *
+   * <p>La base ne garde que l'empreinte du jeton : impossible de la relire plus
+   * tard. C'est le prix, assume, de ne rien stocker de reutilisable, et l'ecran
+   * doit le dire au moment ou l'utilisateur peut encore recopier.
+   */
+  const partager = async () => {
+    if (partageRuche === '' || partageLibelle.trim() === '') {
+      return;
+    }
+    setErreur(null);
+    try {
+      const partage = await ouvrirPartage({
+        rucheId: Number(partageRuche),
+        libelle: partageLibelle.trim(),
+        dureeJours: Number(partageDuree),
+      });
+      setUrlPartage(partage.url);
+      setPartageLibelle('');
+      chargerPartagesSansEffacerUrl(partage);
+    } catch (cause) {
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
+    }
+  };
+
+  const chargerPartagesSansEffacerUrl = (nouveau: Partage) => {
+    void listerPartages(nouveau.rucheId)
+      .then(setPartages)
+      .catch(() => setPartages([nouveau]));
+  };
+
+  const revoquer = async (id: number) => {
+    try {
+      await revoquerPartage(id);
+      setUrlPartage(null);
+      chargerPartages(partageRuche);
+    } catch (cause) {
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
+    }
+  };
 
   const rafraichirAlertes = () => {
     void chargerAlertesOuvertes().then(setAlertes).catch(() => setAlertes([]));
@@ -287,6 +391,133 @@ export function CapteursVue(): ReactElement {
           )}
         </fieldset>
       </div>
+
+      <fieldset className="z-composition">
+        <legend className="z-champ__libelle">{t.etage.titre}</legend>
+        {/* Ce poids-la n'entre NI dans les alertes, NI dans la prevision de
+            recolte : il repond a une autre question — ou est le miel, et non
+            combien pese la ruche. */}
+        <p className="z-info">{t.etage.aide}</p>
+        <div className="z-form__grille">
+          <ChampSelect
+            libelle={t.capteur.ruche}
+            valeur={etageRuche}
+            options={[{ valeur: '', libelle: t.champs.aucun }, ...optRuches]}
+            onChange={chargerEtages}
+          />
+          <ChampSelect
+            libelle={t.etage.compartiment}
+            valeur={etageChoisi}
+            options={[
+              { valeur: '', libelle: t.champs.aucun },
+              ...(etages ?? []).map((e) => ({
+                valeur: String(e.compartimentId),
+                libelle: `${t.etage[e.type]} · ${e.nbCadres} ${t.champs.cadres}`,
+              })),
+            ]}
+            onChange={setEtageChoisi}
+          />
+          <ChampNombre libelle={t.etage.poids} valeur={poidsEtage} onChange={setPoidsEtage} />
+          <div className="z-champ z-champ--aligne-bas">
+            <Bouton
+              variante="primaire"
+              disabled={etageChoisi === '' || poidsEtage === ''}
+              onClick={() => void peser()}
+            >
+              {t.etage.peser}
+            </Bouton>
+          </div>
+        </div>
+        {etages !== null && etages.length > 0 && (
+          <ul className="z-liste-simple">
+            {etages.map((e) => (
+              <li key={e.compartimentId}>
+                <strong>{t.etage[e.type]}</strong> · {e.nbCadres} {t.champs.cadres} —{' '}
+                {/* Nul et non zero : une hausse jamais pesee n'est pas une
+                    hausse vide, et 0 kg ferait croire a des reserves perdues. */}
+                {e.valeur === null ? (
+                  <span className="z-info">{t.etage.jamaisPese}</span>
+                ) : (
+                  <>
+                    {f.nombre(e.valeur, 1)} kg
+                    <small className="z-info"> · {f.dateHeure(e.instant)}</small>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {etages !== null && etages.length === 0 && <p className="z-info">{t.etats.vide}</p>}
+      </fieldset>
+
+      <fieldset className="z-composition">
+        <legend className="z-champ__libelle">{t.partage.titre}</legend>
+        <p className="z-info">{t.partage.aide}</p>
+        <div className="z-form__grille">
+          <ChampSelect
+            libelle={t.capteur.ruche}
+            valeur={partageRuche}
+            options={[{ valeur: '', libelle: t.champs.aucun }, ...optRuches]}
+            onChange={chargerPartages}
+          />
+          <ChampTexte
+            libelle={t.partage.libelle}
+            valeur={partageLibelle}
+            onChange={setPartageLibelle}
+          />
+          <ChampNombre
+            libelle={t.partage.duree}
+            valeur={partageDuree}
+            onChange={setPartageDuree}
+            min={1}
+            max={365}
+          />
+          <div className="z-champ z-champ--aligne-bas">
+            <Bouton
+              variante="secondaire"
+              disabled={partageRuche === '' || partageLibelle.trim() === ''}
+              onClick={() => void partager()}
+            >
+              {t.partage.ouvrir}
+            </Bouton>
+          </div>
+        </div>
+        {urlPartage && (
+          <div className="z-rappels" role="status">
+            <strong>{t.partage.urlUnique}</strong>
+            <br />
+            <code>{urlPartage}</code>
+          </div>
+        )}
+        {partages.length > 0 && (
+          <ul className="z-liste-simple">
+            {partages.map((p) => (
+              <li key={p.id}>
+                <strong>{p.libelle}</strong>{' '}
+                <small className="z-info">
+                  {gabarit(t.partage.ligne, {
+                    expire: f.date(p.expireLe),
+                    usage:
+                      p.derniereUtilisation === null
+                        ? t.partage.jamaisConsulte
+                        : f.dateHeure(p.derniereUtilisation),
+                  })}
+                </small>
+                {p.actif ? (
+                  <>
+                    {' '}
+                    <button type="button" className="z-lien" onClick={() => void revoquer(p.id)}>
+                      {t.partage.revoquer}
+                    </button>
+                  </>
+                ) : (
+                  <span className="z-info"> · {t.partage.revoque}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </fieldset>
 
       <fieldset className="z-composition">
         <legend className="z-champ__libelle">{t.anomalie.titre}</legend>

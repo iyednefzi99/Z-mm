@@ -15,15 +15,19 @@ export const ONGLETS = [
   'fermes',
   'sites',
   'ruches',
+  'essaims',
   'sanitaire',
   'plannings',
   'visites',
   'taches',
+  'horsligne',
   'tableaux',
   'capteurs',
   'reines',
   'recoltes',
   'lots',
+  'materiel',
+  'comptabilite',
   'carte',
   'agents',
   'invitations',
@@ -60,15 +64,19 @@ export const ICONES: Record<Onglet, string> = {
   fermes: '🏡',
   sites: '📍',
   ruches: '🐝',
+  essaims: '🪺',
   sanitaire: '💊',
   plannings: '🗓️',
   visites: '🔎',
   taches: '✅',
+  horsligne: '📴',
   tableaux: '📊',
   capteurs: '📡',
   reines: '👑',
   recoltes: '🍯',
   lots: '🏷️',
+  materiel: '🧰',
+  comptabilite: '📒',
   carte: '🗺️',
   agents: '👥',
   invitations: '🎟️',
@@ -89,9 +97,9 @@ export const GROUPES_CLES = [
 export type Groupe = (typeof GROUPES_CLES)[number];
 
 /**
- * Répartition des dix-neuf écrans en cinq familles.
+ * Répartition des vingt-trois écrans en cinq familles.
  *
- * <p><strong>Pourquoi grouper.</strong> Dix-neuf onglets alignés dans une barre qui
+ * <p><strong>Pourquoi grouper.</strong> Vingt-trois onglets alignés dans une barre qui
  * défile horizontalement ne forment pas une navigation : au-delà du septième,
  * l'utilisateur ne balaye plus, il cherche. Les familles suivent le déroulé du
  * métier — on pilote, on gère un cheptel, on va au rucher, on récolte, on
@@ -106,9 +114,9 @@ export type Groupe = (typeof GROUPES_CLES)[number];
  */
 export const GROUPES: Record<Groupe, readonly Onglet[]> = {
   pilotage: ['tableaux', 'capteurs'],
-  cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'reines', 'sanitaire'],
-  terrain: ['plannings', 'visites', 'taches', 'carte'],
-  production: ['recoltes', 'lots'],
+  cheptel: ['fermiers', 'fermes', 'sites', 'ruches', 'essaims', 'reines', 'sanitaire'],
+  terrain: ['plannings', 'visites', 'taches', 'carte', 'horsligne'],
+  production: ['recoltes', 'lots', 'materiel', 'comptabilite'],
   administration: ['agents', 'invitations', 'config', 'permissions', 'audit'],
 };
 
@@ -139,6 +147,11 @@ export const GROUPES: Record<Groupe, readonly Onglet[]> = {
  */
 export const ROLES_ONGLET: Partial<Record<Onglet, readonly string[]>> = {
   audit: ['responsable', 'admin'],
+  // La comptabilité est une vue d'exploitation (SPRINT-27) : un apiculteur n'a
+  // pas à connaître le résultat de l'exploitation pour tenir ses ruches, et
+  // `SecurityConfig` refuse déjà `/api/depenses` à son rôle. L'onglet
+  // disparaît donc, plutôt que de mener à un écran vide.
+  comptabilite: ['responsable', 'admin'],
   invitations: ['responsable', 'admin'],
   // La matrice des permissions n'expose aucune donnée métier, mais elle décrit
   // qui peut quoi : c'est une carte des serrures. Elle suit donc le même
@@ -178,6 +191,10 @@ export const ROLES_ECRITURE: Partial<Record<Onglet, readonly string[]>> = {
   sites: ['responsable', 'admin'],
   ruches: ['responsable', 'admin'],
   agents: ['responsable', 'admin'],
+  // L'inventaire se CRÉE au pilotage ; les mouvements de stock et les entretiens
+  // se font avec tout rôle métier — un apiculteur qui prend du candi doit
+  // pouvoir le décompter, et l'écran garde donc ces boutons-là.
+  materiel: ['responsable', 'admin'],
 };
 
 /** L'écran est-il modifiable avec ces rôles ? */
@@ -212,11 +229,38 @@ export function cheminDepuisOnglet(onglet: Onglet): string {
  * partagé doit se voir.
  */
 export function ongletDepuisChemin(chemin: string): Onglet | null {
-  const segment = chemin.replace(/^\/+/, '').replace(/\/+$/, '');
+  // La requête est retirée AVANT de chercher l'onglet : depuis le SPRINT-21, un
+  // résultat de recherche navigue vers `/ruches?id=42`, et l'onglet reste
+  // `ruches`. Sans ce découpage, l'URL tomberait sur « page introuvable ».
+  const sansRequete = chemin.split('?')[0].split('#')[0];
+  const segment = sansRequete.replace(/^\/+/, '').replace(/\/+$/, '');
   if (segment === '') {
     return ONGLET_PAR_DEFAUT;
   }
   return (ONGLETS as readonly string[]).includes(segment) ? (segment as Onglet) : null;
+}
+
+/**
+ * Identifiant d'objet demandé par l'URL, ou {@code null} (SPRINT-21).
+ *
+ * <p>C'est tout ce qui restait entre la recherche transverse et l'ouverture de
+ * la fiche. Les routes demeurent plates — l'ADR du SPRINT-11 écarte un routeur —
+ * mais une route plate accepte un paramètre : `/ruches?id=42` désigne un objet
+ * sans introduire ni segment dynamique, ni imbrication, ni bibliothèque.
+ *
+ * <p>Un `id` non numérique est ignoré plutôt que refusé : une URL bricolée doit
+ * ouvrir l'écran, pas une page d'erreur.
+ */
+export function cibleDemandee(chemin: string): number | null {
+  const requete = chemin.split('?')[1];
+  if (requete === undefined) {
+    return null;
+  }
+  const valeur = new URLSearchParams(requete).get('id');
+  if (valeur === null || !/^\d+$/.test(valeur)) {
+    return null;
+  }
+  return Number(valeur);
 }
 
 /**

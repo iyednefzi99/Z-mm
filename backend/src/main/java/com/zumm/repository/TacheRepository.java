@@ -1,20 +1,16 @@
 package com.zumm.repository;
-
 import com.zumm.domain.Tache;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-
 /**
  * Acces aux taches et rappels (US-031). Restreint au tenant courant
  * (@TenantId + RLS) : aucun filtre {@code tenant_id} n'est a ecrire ici.
  */
 public interface TacheRepository extends JpaRepository<Tache, Long> {
-
     /** Taches non faites dont l'echeance tombe au plus tard le {@code jour} donne (rappels). */
     List<Tache> findByFaiteFalseAndEcheanceLessThanEqualOrderByEcheanceAsc(LocalDate jour);
-
     /**
      * Listage complet, associations chargees en une seule requete (SPRINT-14).
      *
@@ -27,4 +23,17 @@ public interface TacheRepository extends JpaRepository<Tache, Long> {
     @Override
     @EntityGraph(attributePaths = {"ruche", "agent"})
     List<Tache> findAll();
+
+
+    /**
+     * Cette tache a-t-elle deja ete engendree ? (SPRINT-22)
+     *
+     * <p>Garde applicative du moteur de regles : elle evite l'aller-retour en
+     * erreur pour le cas courant. L'index unique partiel reste le garde-fou —
+     * deux executions concurrentes passeraient toutes deux ce test.
+     */
+    boolean existsByCleDeclencheur(String cleDeclencheur);
+
+    /** Taches ouvertes, dans l'ordre ou l'on travaille : priorite puis echeance. */
+    List<Tache> findByFaiteFalseOrderByPrioriteAscEcheanceAsc();
 }

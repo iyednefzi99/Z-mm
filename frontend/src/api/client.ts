@@ -25,54 +25,91 @@
 import { definir } from '../auth/session';
 import { enfiler, rejouer, type MutationEnAttente } from '../offline/file';
 import type {
+  Abonnement,
+  AbonnementCorps,
   Agent,
   AgentCorps,
+  AlerteMesure,
   AlerteSanitaire,
+  Anomalie,
+  AuditEntree,
+  BilanExploitation,
+  Brouillon,
+  BrouillonCorps,
   CalendrierCellule,
+  CaptureEssaim,
+  CaptureEssaimCorps,
+  ChargeAgent,
+  CibleLot,
+  CiblePhoto,
+  ComparaisonSaisons,
+  ComparaisonSite,
   ComptageVarroa,
   ComptageVarroaCorps,
+  Consommable,
+  ConsommableCorps,
+  CorrelationMeteo,
+  DemenagementCorps,
+  Depense,
+  DepenseCorps,
+  Division,
+  DivisionCorps,
+  Emplacement,
+  EmportRucher,
+  EtatDemonstration,
   Ferme,
   FermeCorps,
   Fermier,
   FermierCorps,
   GrappeSites,
-  AlerteMesure,
-  Anomalie,
-  LigneProduction,
+  IndiceColonie,
   Invitation,
   InvitationCorps,
-  Meteo,
+  LigneProduction,
+  Lot,
+  LotCorps,
+  Materiel,
+  MaterielCorps,
+  MentionOrigine,
+  MesureCompartimentCorps,
   MesureCorps,
   MesureReponse,
+  Meteo,
   Nourrissement,
   NourrissementCorps,
-  AuditEntree,
+  Partage,
+  PartageCorps,
   Photo,
+  PhotoCibleCorps,
   PhotoCorps,
   Planning,
   PlanningCorps,
+  PoidsCompartiment,
   PointJournalier,
   PrevisionRecolte,
   QuantiteMiel,
+  RapportLot,
   Recolte,
   RecolteCorps,
+  RecolteLotCorps,
   Reine,
   ReineCorps,
+  ResultatRecherche,
   Ruche,
   RucheCorps,
   Seuils,
   Site,
   SiteCorps,
   Synthese,
+  SyntheseRucher,
   Tache,
   TacheCorps,
   Tournee,
+  Trace,
   Traitement,
   TraitementCorps,
-  Lot,
-  LotCorps,
-  MentionOrigine,
-  Trace,
+  Transport,
+  TransportCorps,
   TypeIndicateur,
   Visite,
   VisiteCorps,
@@ -163,6 +200,11 @@ async function requete<T>(url: string, options: RequestInit = {}, cle?: string):
         url,
         corps: typeof options.body === 'string' ? options.body : undefined,
         cle: cleIdempotence,
+        // La garde de version (SPRINT-24) part avec la mutation : c'est au rejeu,
+        // des heures plus tard, qu'elle sert — pas maintenant.
+        entetes: enTetes.has('X-Zumm-Version')
+          ? { 'X-Zumm-Version': enTetes.get('X-Zumm-Version') as string }
+          : undefined,
       });
       throw new ErreurHorsLigne();
     }
@@ -242,8 +284,17 @@ function ressource<E, C>(base: string) {
     listerPage: (page: number, taille: number) => requetePaginee<E>(base, page, taille),
     obtenir: (id: number) => requete<E>(`${base}/${id}`),
     creer: (corps: C) => requete<E>(base, { method: 'POST', ...corpsJson(corps) }),
-    mettreAJour: (id: number, corps: C) =>
-      requete<E>(`${base}/${id}`, { method: 'PUT', ...corpsJson(corps) }),
+    /**
+     * Modifie une ressource. `entetes` porte les PRECONDITIONS (SPRINT-24).
+     *
+     * <p>Le seul usage aujourd'hui est `X-Zumm-Version` sur la visite : la
+     * version que l'appelant avait sous les yeux. Elle voyage en en-tête et non
+     * dans le corps parce que ce n'est pas une donnée métier — la mettre dans le
+     * DTO l'aurait imposée à tous les appelants, y compris ceux qui modifient ce
+     * qu'ils viennent de lire.
+     */
+    mettreAJour: (id: number, corps: C, entetes?: Record<string, string>) =>
+      requete<E>(`${base}/${id}`, { method: 'PUT', headers: entetes, ...corpsJson(corps) }),
     supprimer: (id: number) => requete<void>(`${base}/${id}`, { method: 'DELETE' }),
   };
 }
@@ -333,6 +384,15 @@ export interface InfoApplication {
   version: string;
   accueil: string;
   langues: string[];
+  /**
+   * Parcours « mot de passe oublié » du fournisseur d'identité, ou chaîne VIDE
+   * s'il n'est pas configuré (SPRINT-25).
+   *
+   * <p>Vide, l'application continue d'aiguiller vers le responsable
+   * d'exploitation : afficher un lien qui mène à un formulaire dont le courriel
+   * ne partira jamais est pire que ne rien afficher.
+   */
+  reinitialisationUrl: string;
 }
 
 /**
@@ -533,6 +593,9 @@ export const synchroniser = (): Promise<void> =>
     if (csrf) {
       enTetes['X-XSRF-TOKEN'] = csrf;
     }
+    // En-têtes propres à la mutation, tels qu'ils étaient au moment de la
+    // saisie : aujourd'hui `X-Zumm-Version`, la garde de conflit.
+    Object.assign(enTetes, m.entetes ?? {});
     try {
       const r = await fetch(m.url, {
         method: m.methode,
@@ -546,8 +609,412 @@ export const synchroniser = (): Promise<void> =>
         // saisie en file plutôt que de la détruire.
         return { ok: false, reseau: false, session: true };
       }
-      return { ok: r.ok || (r.status >= 400 && r.status < 500), reseau: false };
+      // Refus du serveur (SPRINT-24). Avant, un 4xx était traité comme « traité »
+      // et la saisie disparaissait sans un mot — y compris le 409 de conflit,
+      // c'est-à-dire précisément le cas où deux agents avaient travaillé sur la
+      // même visite. Le motif est désormais conservé, et l'arbitrage revient à
+      // l'apiculteur.
+      if (r.status >= 400 && r.status < 500) {
+        const probleme = (await r.json().catch(() => ({}))) as {
+          detail?: string;
+          versionServeur?: string;
+        };
+        return {
+          ok: false,
+          reseau: false,
+          refus: {
+            statut: r.status,
+            detail: probleme.detail ?? `Erreur ${r.status}`,
+            versionServeur: probleme.versionServeur,
+          },
+        };
+      }
+      return { ok: r.ok, reseau: false };
     } catch {
       return { ok: false, reseau: true };
     }
   });
+
+/**
+ * Historique des emplacements d'un rucher (SPRINT-21, transhumance).
+ *
+ * <p>Les positions y arrivent masquees comme partout ailleurs : la suite des
+ * emplacements est une carte plus riche que la position courante.
+ */
+export const emplacementsSite = (siteId: number) =>
+  requete<Emplacement[]>(`/api/sites/${siteId}/emplacements`);
+
+/**
+ * Deplace un rucher : clot l'emplacement courant, en ouvre un nouveau.
+ *
+ * <p>A ne pas confondre avec `sites.mettreAJour`, qui CORRIGE une position mal
+ * saisie sans rien inscrire dans l'historique.
+ */
+export const demenagerSite = (siteId: number, corps: DemenagementCorps) =>
+  requete<Site>(`/api/sites/${siteId}/demenagement`, { method: 'POST', ...corpsJson(corps) });
+
+/** Divisions issues d'une ruche mere (SPRINT-21). */
+export const listerDivisions = (rucheMereId: number) =>
+  requete<Division[]>(`/api/divisions?rucheMereId=${rucheMereId}`);
+
+/** Filiation d'une ruche dans les deux sens : d'ou elle vient, ce qu'elle a donne. */
+export const filiationRuche = (rucheId: number) =>
+  requete<Division[]>(`/api/divisions/filiation?rucheId=${rucheId}`);
+
+export const creerDivision = (corps: DivisionCorps) =>
+  requete<Division>('/api/divisions', { method: 'POST', ...corpsJson(corps) });
+
+export const supprimerDivision = (id: number) =>
+  requete<void>(`/api/divisions/${id}`, { method: 'DELETE' });
+
+/** Captures d'essaim (SPRINT-21). Sans filtre, toutes ; sinon la saison. */
+export const listerCaptures = (debut?: string, fin?: string) => {
+  const periode = debut && fin ? `?debut=${debut}&fin=${fin}` : '';
+  return requete<CaptureEssaim[]>(`/api/captures${periode}`);
+};
+
+/** Captures encore en ruchette d'attente : ce qui reste a loger. */
+export const listerCapturesEnAttente = () =>
+  requete<CaptureEssaim[]>('/api/captures?enAttente=true');
+
+export const creerCapture = (corps: CaptureEssaimCorps) =>
+  requete<CaptureEssaim>('/api/captures', { method: 'POST', ...corpsJson(corps) });
+
+/** Loge une capture dans une ruche : l'essaim devient une colonie du parc. */
+export const logerCapture = (id: number, rucheId: number) =>
+  requete<CaptureEssaim>(`/api/captures/${id}/loger?rucheId=${rucheId}`, { method: 'POST' });
+
+export const supprimerCapture = (id: number) =>
+  requete<void>(`/api/captures/${id}`, { method: 'DELETE' });
+
+/** Photos d'un objet quelconque du parc (SPRINT-21). */
+export const listerPhotosDe = (cible: CiblePhoto, cibleId: number) =>
+  requete<Photo[]>(`/api/photos?cible=${cible}&cibleId=${cibleId}`);
+
+export const attacherPhoto = (corps: PhotoCibleCorps) =>
+  requete<Photo>('/api/photos', { method: 'POST', ...corpsJson(corps) });
+
+/**
+ * Detache une photo, quelle que soit sa cible.
+ *
+ * <p>Nom distinct de `supprimerPhoto`, qui reste la suppression d'une photo DE
+ * VISITE par la route historique : deux chemins, deux fonctions, aucune ambiguite
+ * a l'appel.
+ */
+export const detacherPhoto = (id: number) =>
+  requete<void>(`/api/photos/${id}`, { method: 'DELETE' });
+
+/**
+ * Recherche transverse (SPRINT-21).
+ *
+ * <p>Le serveur refuse en dessous de deux caracteres : l'appelant filtre donc en
+ * amont plutot que d'afficher une erreur a chaque frappe.
+ */
+export const rechercher = (motif: string, limite?: number) => {
+  const plafond = limite === undefined ? '' : `&limite=${limite}`;
+  return requete<ResultatRecherche[]>(
+    `/api/recherche?q=${encodeURIComponent(motif)}${plafond}`,
+  );
+};
+
+/**
+ * Telecharge les visites planifiees au format iCalendar (SPRINT-21).
+ *
+ * <p>Un telechargement et non une URL d'abonnement : un abonnement supposerait
+ * un jeton permanent dans l'URL, recopie dans les reglages de trois appareils et
+ * transmis en clair a chaque intermediaire. Voir `AgendaIcsService` cote serveur
+ * pour l'arbitrage complet.
+ *
+ * <p>Meme mecanique que les autres exports : la route exige la session, donc
+ * fetch + blob plutot qu'un simple lien.
+ */
+export const telechargerAgendaIcs = async (debut?: string, fin?: string): Promise<void> => {
+  const bornes = debut && fin ? `?debut=${debut}&fin=${fin}` : '';
+  const reponse = await fetch(`/api/plannings/agenda.ics${bornes}`, {
+    headers: { Accept: 'text/calendar' },
+    credentials: 'include',
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const blob = await reponse.blob();
+  const url = URL.createObjectURL(blob);
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = 'zumm-visites.ics';
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+};
+
+/**
+ * Plans de transhumance (SPRINT-21). Sans `siteId`, ce qui reste a deplacer
+ * dans l'exploitation ; avec, l'historique complet d'un rucher.
+ */
+export const listerTransports = (siteId?: number) =>
+  requete<Transport[]>(`/api/transports${siteId === undefined ? '' : `?siteId=${siteId}`}`);
+
+export const planifierTransport = (corps: TransportCorps) =>
+  requete<Transport>('/api/transports', { method: 'POST', ...corpsJson(corps) });
+
+/** Realise le plan : le rucher demenage, et l'historique d'emplacement s'ecrit. */
+export const realiserTransport = (id: number) =>
+  requete<Transport>(`/api/transports/${id}/realiser`, { method: 'POST' });
+
+export const annulerTransport = (id: number) =>
+  requete<Transport>(`/api/transports/${id}/annuler`, { method: 'POST' });
+
+export const supprimerTransport = (id: number) =>
+  requete<void>(`/api/transports/${id}`, { method: 'DELETE' });
+
+/** Abonnements iCalendar d'un agent (SPRINT-21). */
+export const listerAbonnements = (agentId: number) =>
+  requete<Abonnement[]>(`/api/abonnements-calendrier?agentId=${agentId}`);
+
+/**
+ * Emet un abonnement. La reponse porte l'URL complete — la seule fois ou elle
+ * existe, le serveur ne gardant que l'empreinte du jeton.
+ */
+export const creerAbonnement = (corps: AbonnementCorps) =>
+  requete<Abonnement>('/api/abonnements-calendrier', { method: 'POST', ...corpsJson(corps) });
+
+/** Revoque : la ligne demeure et documente la coupure, l'URL cesse de repondre. */
+export const revoquerAbonnement = (id: number) =>
+  requete<Abonnement>(`/api/abonnements-calendrier/${id}`, { method: 'DELETE' });
+
+/**
+ * Indices de colonie : sante et risque d'essaimage (SPRINT-22).
+ *
+ * <p>Sans `rucheId`, tout le parc, du plus preoccupant au plus sain.
+ */
+export const listerIndices = (rucheId?: number) =>
+  requete<IndiceColonie[]>(`/api/indices${rucheId === undefined ? '' : `?rucheId=${rucheId}`}`);
+
+/** Correlations meteo / production sur les douze derniers mois (SPRINT-22). */
+export const correlationsMeteo = () => requete<CorrelationMeteo[]>('/api/correlations/meteo');
+
+/**
+ * Execute le moteur de regles et rend les taches CREEES (SPRINT-22).
+ *
+ * <p>Idempotent : deux appels dans la journee ne produisent rien la seconde
+ * fois. Une reponse vide est donc un resultat normal, pas un echec.
+ */
+export const executerRegles = () => requete<Tache[]>('/api/regles/executer', { method: 'POST' });
+
+/**
+ * Le meme traitement sur plusieurs ruches (SPRINT-23, lot B).
+ *
+ * <p>Repond 200 et un RAPPORT, jamais 201 : le lot cree plusieurs ressources et
+ * peut en refuser une partie. L'appelant doit lire `echecs` — c'est la seule
+ * facon de savoir quoi reprendre.
+ */
+export const traiterEnLot = (corps: { cible: CibleLot; traitement: TraitementCorps }) =>
+  requete<RapportLot>('/api/traitements/lot', { method: 'POST', ...corpsJson(corps) });
+
+/** Le meme nourrissement sur plusieurs ruches (SPRINT-23, lot B). */
+export const nourrirEnLot = (corps: { cible: CibleLot; nourrissement: NourrissementCorps }) =>
+  requete<RapportLot>('/api/nourrissements/lot', { method: 'POST', ...corpsJson(corps) });
+
+/**
+ * Recolte tout un rucher en une saisie (SPRINT-23, lot B).
+ *
+ * <p>`quantiteKgParRuche` vaut pour CHAQUE ruche : le serveur ne repartit jamais
+ * un total, il enregistrerait sinon une masse fausse par colonie.
+ */
+export const recolterEnLot = (corps: RecolteLotCorps) =>
+  requete<RapportLot>('/api/recoltes/lot', { method: 'POST', ...corpsJson(corps) });
+
+/** Synthese par rucher (SPRINT-23). Sans `siteId`, tous, du plus preoccupant au plus calme. */
+export const syntheseRuchers = (siteId?: number) =>
+  requete<SyntheseRucher[]>(
+    `/api/ruchers/synthese${siteId === undefined ? '' : `?siteId=${siteId}`}`,
+  );
+
+/** Compare des emplacements candidats sur leur potentiel (SPRINT-23). */
+export const comparerSites = (ids: number[]) =>
+  requete<ComparaisonSite[]>(`/api/sites/comparaison?ids=${ids.join(',')}`);
+
+/** Charge de l'equipe, du plus charge au moins charge (SPRINT-23). */
+export const chargeEquipe = () => requete<ChargeAgent[]>('/api/equipe/charge');
+
+// ─── Le terrain sans réseau (SPRINT-24, lot C) ─────────────────────────────
+
+/**
+ * Instantané complet d'un rucher, en UN appel (ADR-012).
+ *
+ * <p>Un seul aller-retour, et c'est le point : sur un réseau qui s'effondre —
+ * le contexte même de la fonction — six appels enchaînés donneraient un emport à
+ * moitié fait, c'est-à-dire pire qu'aucun, parce qu'il aurait l'air complet.
+ */
+export const emporterRucher = (siteId: number) =>
+  requete<EmportRucher>(`/api/ruchers/${siteId}/emport`);
+
+/**
+ * Fiche d'inspection VIERGE d'un rucher, à imprimer avant de partir.
+ *
+ * <p>Ouverte dans un onglet plutôt que téléchargée : on la relit à l'écran avant
+ * de l'imprimer, et forcer un enregistrement ajouterait un geste à chaque fois.
+ */
+export const ouvrirFicheInspection = async (siteId: number): Promise<void> => {
+  const reponse = await fetch(`/api/ruchers/${siteId}/fiche-inspection.pdf`, {
+    credentials: 'include',
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const url = URL.createObjectURL(await reponse.blob());
+  window.open(url, '_blank', 'noopener');
+  // Révocation différée : révoquer tout de suite fermerait l'onglet qu'on vient
+  // d'ouvrir sur certains navigateurs.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+};
+
+/** Dépose ou remplace le brouillon de visite d'un agent sur une ruche. */
+export const deposerBrouillon = (corps: BrouillonCorps) =>
+  requete<Brouillon>('/api/brouillons', { method: 'PUT', ...corpsJson(corps) });
+
+/** Mes brouillons, du plus récent au plus ancien. */
+export const listerBrouillons = (agentId: number) =>
+  requete<Brouillon[]>(`/api/brouillons?agentId=${agentId}`);
+
+export const effacerBrouillon = (id: number) =>
+  requete<void>(`/api/brouillons/${id}`, { method: 'DELETE' });
+
+// ─── Jeu de démonstration (SPRINT-25, lot J) ───────────────────────────────
+
+/** Un jeu est-il chargé, et la fonction est-elle seulement ouverte ici ? */
+export const etatDemonstration = () => requete<EtatDemonstration>('/api/demonstration');
+
+export const chargerDemonstration = () =>
+  requete<EtatDemonstration>('/api/demonstration', { method: 'POST' });
+
+/** Retire le jeu — et rien d'autre : la purge suit la trace, jamais les noms. */
+export const purgerDemonstration = () =>
+  requete<EtatDemonstration>('/api/demonstration', { method: 'DELETE' });
+
+// ─── Capteurs : hausse et partage (SPRINT-26, lot F₁) ──────────────────────
+
+/** Enregistre le poids d'un corps ou d'une hausse. */
+export const peserCompartiment = (corps: MesureCompartimentCorps) =>
+  requete<PoidsCompartiment>('/api/compartiments/mesures', {
+    method: 'POST',
+    ...corpsJson(corps),
+  });
+
+/**
+ * Répartition du poids d'une ruche entre ses compartiments.
+ *
+ * <p>Distincte de `chargerSerie` : celle-là rend ce qu'une balance pèse sous la
+ * ruche entière, celle-ci ce qu'on attribue à chaque étage. Les additionner
+ * ferait compter deux fois le même miel.
+ */
+export const repartitionCompartiments = (rucheId: number) =>
+  requete<PoidsCompartiment[]>(`/api/compartiments/repartition?rucheId=${rucheId}`);
+
+/** Ouvre un partage. L'URL n'est rendue qu'ici, et une seule fois. */
+export const ouvrirPartage = (corps: PartageCorps) =>
+  requete<Partage>('/api/partages', { method: 'POST', ...corpsJson(corps) });
+
+export const listerPartages = (rucheId: number) =>
+  requete<Partage[]>(`/api/partages?rucheId=${rucheId}`);
+
+/** Révoque : la ligne demeure, l'URL cesse de répondre. */
+export const revoquerPartage = (id: number) =>
+  requete<Partage>(`/api/partages/${id}`, { method: 'DELETE' });
+
+// ─── Production, stock, matériel (SPRINT-27, lot E) ────────────────────────
+
+export const materiels = ressource<Materiel, MaterielCorps>('/api/materiels');
+export const consommables = ressource<Consommable, ConsommableCorps>('/api/consommables');
+export const depenses = ressource<Depense, DepenseCorps>('/api/depenses');
+
+/**
+ * Marque l'entretien fait, au jour donné.
+ *
+ * <p>Un geste dédié plutôt qu'une modification du champ : c'est l'action réelle,
+ * et elle repousse l'échéance sans rien d'autre à ressaisir.
+ */
+export const entretenirMateriel = (id: number, jour?: string) =>
+  requete<Materiel>(
+    `/api/materiels/${id}/entretien${jour === undefined ? '' : `?jour=${jour}`}`,
+    { method: 'POST' },
+  );
+
+/**
+ * Entrée (positif) ou sortie (négatif) de stock.
+ *
+ * <p>Un mouvement plutôt qu'un total : deux personnes qui prélèvent du candi le
+ * même jour ne s'écrasent pas l'une l'autre.
+ */
+export const mouvementerStock = (id: number, delta: number) =>
+  requete<Consommable>(`/api/consommables/${id}/mouvement?delta=${delta}`, { method: 'POST' });
+
+/** Bilan d'une période. La période est demandée, jamais devinée. */
+export const chargerBilan = (debut: string, fin: string) =>
+  requete<BilanExploitation>(`/api/depenses/bilan?debut=${debut}&fin=${fin}`);
+
+/** Les saisons enregistrées, de la plus récente à la plus ancienne. */
+export const chargerSaisons = () => requete<ComparaisonSaisons[]>('/api/saisons');
+
+/** Les ressources exportables, pour que l'écran n'ait pas à les deviner. */
+export const ressourcesExportables = () => requete<string[]>('/api/export/ressources');
+
+/**
+ * Télécharge une ressource dans l'un des trois formats.
+ *
+ * <p>Comme les autres exports : fetch + blob, parce que la session voyage en
+ * cookie et qu'un simple lien ne la porterait pas de la même façon.
+ */
+export const telechargerRessource = async (
+  ressource: string,
+  format: 'csv' | 'txt' | 'xlsx',
+): Promise<void> => {
+  const reponse = await fetch(`/api/export/${ressource}?format=${format}`, {
+    credentials: 'include',
+  });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const url = URL.createObjectURL(await reponse.blob());
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = `zumm-${ressource}.${format}`;
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+};
+
+/** Bilan annuel en PDF : un document qu'on archive, pas un tableau de bord. */
+export const telechargerBilanAnnuel = async (annee: number): Promise<void> => {
+  const reponse = await fetch(`/api/saisons/${annee}/bilan.pdf`, { credentials: 'include' });
+  if (!reponse.ok) {
+    throw new ErreurApi(reponse.status, await detailErreur(reponse));
+  }
+  const url = URL.createObjectURL(await reponse.blob());
+  const lien = document.createElement('a');
+  lien.href = url;
+  lien.download = `zumm-bilan-${annee}.pdf`;
+  document.body.appendChild(lien);
+  lien.click();
+  lien.remove();
+  URL.revokeObjectURL(url);
+};
+
+/** Sucre et eau pour un volume de sirop. Fonction pure, côté serveur. */
+export const calculerSirop = (proportion: '1:1' | '2:1', litres: number) =>
+  requete<{
+    proportion: string;
+    litres: number;
+    sucreKg: number;
+    eauL: number;
+    usage: string;
+  }>(`/api/calculateurs/sirop?proportion=${encodeURIComponent(proportion)}&litres=${litres}`);
+
+/** Valorisation d'une production. Une valorisation, pas un chiffre d'affaires. */
+export const calculerValorisation = (kilos: number, prixKgEur?: number) =>
+  requete<{ kilos: number; prixKgEur: number; totalEur: number; pots500g: number }>(
+    `/api/calculateurs/valorisation?kilos=${kilos}`
+      + (prixKgEur === undefined ? '' : `&prixKgEur=${prixKgEur}`),
+  );

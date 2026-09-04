@@ -1,7 +1,9 @@
 package com.zumm.controller;
 
 import com.zumm.service.RecolteService;
+import com.zumm.web.dto.RapportLot;
 import com.zumm.web.dto.RecolteCorps;
+import com.zumm.web.dto.RecolteLotCorps;
 import com.zumm.web.dto.RecolteReponse;
 import com.zumm.web.dto.TraceReponse;
 import jakarta.validation.Valid;
@@ -35,6 +37,17 @@ public class RecolteController {
     public ResponseEntity<RecolteReponse> creer(@Valid @RequestBody RecolteCorps corps) {
         RecolteReponse reponse = service.creer(corps);
         return ResponseEntity.created(URI.create("/api/recoltes/" + reponse.id())).body(reponse);
+    }
+
+    /**
+     * Recolte tout un rucher en une saisie (SPRINT-23, lot B).
+     *
+     * <p>La quantite du corps vaut pour CHAQUE ruche : le serveur ne repartit
+     * jamais un total, il enregistrerait sinon une masse fausse par colonie.
+     */
+    @PostMapping("/lot")
+    public RapportLot creerLot(@Valid @RequestBody RecolteLotCorps corps) {
+        return service.creerLot(corps);
     }
 
     @GetMapping

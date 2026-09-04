@@ -1,14 +1,22 @@
 package com.zumm.service;
 
+import com.zumm.domain.EmplacementSite;
 import com.zumm.domain.Ferme;
+import com.zumm.domain.RessourceFlorale;
 import com.zumm.domain.Site;
+import com.zumm.repository.EmplacementSiteRepository;
 import com.zumm.repository.FermeRepository;
+import com.zumm.repository.RessourceFloraleRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.SiteRepository;
 import com.zumm.securite.PolitiquePositions;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
+import com.zumm.web.dto.DemenagementCorps;
+import com.zumm.web.dto.EmplacementReponse;
 import com.zumm.web.dto.GrappeSites;
+import com.zumm.web.dto.RessourceFloraleCorps;
+import com.zumm.web.dto.RessourceFloraleReponse;
 import com.zumm.web.dto.SiteCorps;
 import com.zumm.web.dto.SiteReponse;
 import com.zumm.web.dto.VoisinSite;
@@ -43,13 +51,18 @@ public class SiteService {
     private final SiteRepository sites;
     private final FermeRepository fermes;
     private final RucheRepository ruches;
+    private final RessourceFloraleRepository ressources;
+    private final EmplacementSiteRepository emplacements;
     private final PolitiquePositions positions;
 
     public SiteService(SiteRepository sites, FermeRepository fermes, RucheRepository ruches,
+            RessourceFloraleRepository ressources, EmplacementSiteRepository emplacements,
             PolitiquePositions positions) {
         this.sites = sites;
         this.fermes = fermes;
         this.ruches = ruches;
+        this.ressources = ressources;
+        this.emplacements = emplacements;
         this.positions = positions;
     }
 
@@ -59,7 +72,16 @@ public class SiteService {
      * politique s'applique, donc le seul a auditer.
      */
     private SiteReponse vue(Site site) {
-        return positions.masquer(SiteReponse.de(site));
+        return vue(site, ressourcesDe(site.getId()));
+    }
+
+    private SiteReponse vue(Site site, List<RessourceFloraleReponse> declarees) {
+        return positions.masquer(SiteReponse.de(site, declarees));
+    }
+
+    private List<RessourceFloraleReponse> ressourcesDe(Long siteId) {
+        return ressources.findBySite_IdOrderByRessourceAsc(siteId).stream()
+                .map(RessourceFloraleReponse::de).toList();
     }
 
     public SiteReponse creer(SiteCorps corps) {
@@ -67,18 +89,40 @@ public class SiteService {
         Site site = new Site(corps.nom(), fermeRequise(corps.fermeId()),
                 corps.latitude(), corps.longitude(), corps.dateMiseEnOeuvre());
         appliquerOptionnels(site, corps);
-        return vue(sites.save(site));
+        Site enregistre = sites.save(site);
+        // Le premier emplacement s'ouvre avec le rucher : sans lui, l'historique
+        // commencerait au premier demenagement et perdrait l'installation.
+        emplacements.save(new EmplacementSite(enregistre, enregistre.getLatitude(),
+                enregistre.getLongitude(), enregistre.getAltitude(),
+                enregistre.getDateMiseEnOeuvre(), "installation"));
+        return vue(enregistre, remplacerRessources(enregistre, corps.ressources()));
     }
 
+    /**
+     * Liste complete. Les ressources florales sont lues en UNE requete puis
+     * regroupees : une lecture par site rejouerait le N+1 que le depot chasse
+     * ailleurs (cf. les {@code @EntityGraph} des autres referentiels).
+     */
     @Transactional(readOnly = true)
     public List<SiteReponse> lister() {
-        return sites.findAll().stream().map(this::vue).toList();
+        Map<Long, List<RessourceFloraleReponse>> parSite = ressourcesParSite();
+        return sites.findAll().stream()
+                .map(site -> vue(site, parSite.getOrDefault(site.getId(), List.of())))
+                .toList();
     }
 
     /** Page de la liste (US-052). Le total est porte par la Page, pas recompte. */
     @Transactional(readOnly = true)
     public Page<SiteReponse> lister(Pageable pagination) {
-        return sites.findAll(pagination).map(this::vue);
+        Map<Long, List<RessourceFloraleReponse>> parSite = ressourcesParSite();
+        return sites.findAll(pagination)
+                .map(site -> vue(site, parSite.getOrDefault(site.getId(), List.of())));
+    }
+
+    private Map<Long, List<RessourceFloraleReponse>> ressourcesParSite() {
+        return ressources.findAll().stream().collect(Collectors.groupingBy(
+                ressource -> ressource.getSite().getId(),
+                Collectors.mapping(RessourceFloraleReponse::de, Collectors.toList())));
     }
 
     @Transactional(readOnly = true)
@@ -94,7 +138,112 @@ public class SiteService {
         site.setLatitude(corps.latitude());
         site.setLongitude(corps.longitude());
         appliquerOptionnels(site, corps);
+        return vue(site, remplacerRessources(site, corps.ressources()));
+    }
+
+    /**
+     * Historique des emplacements occupes par un rucher (SPRINT-21, transhumance).
+     *
+     * <p>Le masque s'y applique comme sur la position courante, et pour une raison
+     * plus forte : la suite des emplacements dit aussi ou le rucher se trouvait
+     * quand personne ne le surveillait.
+     */
+    @Transactional(readOnly = true)
+    public List<EmplacementReponse> historique(Long id) {
+        entite(id);
+        return emplacements.findBySite_IdOrderByDateDebutDescIdDesc(id).stream()
+                .map(this::vue)
+                .toList();
+    }
+
+    private EmplacementReponse vue(EmplacementSite emplacement) {
+        EmplacementReponse brut = EmplacementReponse.de(emplacement);
+        BigDecimal[] masquee = positions.masquer(brut.latitude(), brut.longitude());
+        boolean exact = positions.positionExacteAutorisee();
+        return new EmplacementReponse(brut.id(), brut.siteId(), masquee[0], masquee[1],
+                exact ? brut.altitude() : null, brut.dateDebut(), brut.dateFin(),
+                brut.motif(), brut.note(), brut.courant());
+    }
+
+    /**
+     * Deplace un rucher : clot l'emplacement courant et en ouvre un nouveau
+     * (SPRINT-21).
+     *
+     * <p>Operation distincte de la mise a jour, deliberement. Corriger une
+     * position mal saisie et deplacer un rucher touchent aux memes colonnes mais
+     * ne disent pas la meme chose ; seule la seconde doit laisser une trace, sans
+     * quoi l'historique se remplirait de fausses transhumances a chaque faute de
+     * frappe corrigee.
+     */
+    public SiteReponse demenager(Long id, DemenagementCorps corps) {
+        Site site = entite(id);
+        EmplacementSite courant = emplacements.findBySite_IdAndDateFinIsNull(id).orElse(null);
+        if (courant != null) {
+            if (corps.dateDebut().isBefore(courant.getDateDebut())) {
+                throw new RequeteInvalide("Le nouvel emplacement (" + corps.dateDebut()
+                        + ") commence avant l'emplacement courant (" + courant.getDateDebut()
+                        + ").");
+            }
+            // La periode precedente se ferme le jour ou la suivante s'ouvre : un
+            // rucher n'est jamais a deux endroits, ni nulle part entre les deux.
+            courant.setDateFin(corps.dateDebut());
+            // Le flush est OBLIGATOIRE ici, et ce n'est pas une precaution.
+            // Hibernate ordonne ses actions par type : tous les INSERT d'abord,
+            // les UPDATE ensuite. Sans ce flush, le nouvel emplacement (date_fin
+            // nulle) serait insere AVANT que l'ancien ne soit clos, et l'index
+            // unique partiel `uq_emplacement_courant` refuserait deux
+            // emplacements ouverts sur le meme site — un demenagement echouerait
+            // systematiquement, en 500.
+            emplacements.flush();
+        }
+        EmplacementSite nouveau = new EmplacementSite(site, corps.latitude(), corps.longitude(),
+                corps.altitude(), corps.dateDebut(),
+                corps.motif() == null ? "transhumance" : corps.motif());
+        nouveau.setNote(corps.note());
+        emplacements.save(nouveau);
+
+        site.setLatitude(corps.latitude());
+        site.setLongitude(corps.longitude());
+        site.setAltitude(corps.altitude());
+        site.setDateDemenagement(corps.dateDebut());
         return vue(site);
+    }
+
+    /**
+     * Remplace en bloc les ressources declarees d'un site.
+     *
+     * <p>Meme parti que la composition d'une ruche : la liste recue est la liste
+     * finale. Une synchronisation ligne a ligne obligerait le client a suivre des
+     * identifiants qu'il n'a aucune raison de connaitre.
+     */
+    private List<RessourceFloraleReponse> remplacerRessources(
+            Site site, List<RessourceFloraleCorps> declarees) {
+        if (declarees == null) {
+            return ressourcesDe(site.getId());
+        }
+        ressources.deleteBySite_Id(site.getId());
+        // Le vidage precede l'insertion : la contrainte uq_ressource_site refuse
+        // deux fois la meme ressource sur un site, y compris entre l'ancienne
+        // liste et la nouvelle.
+        ressources.flush();
+        List<RessourceFloraleReponse> vues = new ArrayList<>();
+        for (RessourceFloraleCorps declaree : declarees) {
+            RessourceFlorale ressource = new RessourceFlorale(
+                    declaree.ressource(), declaree.distanceM(), declaree.note());
+            ressource.setSite(site);
+            // Les deux mois vont ensemble : une floraison qui commence sans finir
+            // ne se lit pas. La base ne l'accepterait pas davantage
+            // (`ck_ressource_mois`), mais le dire ici evite l'erreur SQL en 500.
+            if (declaree.moisDebut() != null && declaree.moisFin() != null) {
+                ressource.setMoisDebut(declaree.moisDebut());
+                ressource.setMoisFin(declaree.moisFin());
+            } else if (declaree.moisDebut() != null || declaree.moisFin() != null) {
+                throw new RequeteInvalide(
+                        "Une periode de floraison demande son debut ET sa fin, ou aucun des deux.");
+            }
+            vues.add(RessourceFloraleReponse.de(ressources.save(ressource)));
+        }
+        return vues;
     }
 
     public void supprimer(Long id) {
@@ -224,6 +373,31 @@ public class SiteService {
         site.setAltitude(corps.altitude());
         site.setDateDemenagement(corps.dateDemenagement());
         site.setDateCloture(corps.dateCloture());
+        site.setAdresseRue(vide(corps.adresseRue()));
+        site.setCodePostal(vide(corps.codePostal()));
+        site.setVille(vide(corps.ville()));
+        site.setPays(vide(corps.pays()));
+        site.setTypeSite(vide(corps.typeSite()));
+        site.setExposition(vide(corps.exposition()));
+        // Priorite absente = `normale`, jamais « la plus haute par prudence » :
+        // un parc ou tout est strategique ne priorise rien.
+        // La couverture reseau, elle, s'ECRASE avec le nul : « je ne sais plus »
+        // est une reponse valable, la ou une priorite absente veut dire « comme
+        // avant ». Les deux champs n'ont pas la meme semantique du vide.
+        site.setCouvertureReseau(corps.couvertureReseau());
+        if (corps.priorite() != null) {
+            site.setPriorite(corps.priorite());
+        }
+    }
+
+    /**
+     * Une chaine vide n'est pas une valeur : c'est un champ de formulaire qu'on a
+     * ouvert puis quitte. La stocker ferait echouer les CHECK du referentiel
+     * ({@code ck_site_type}, {@code ck_site_pays}) sur une saisie que
+     * l'utilisateur considere comme vierge.
+     */
+    private static String vide(String valeur) {
+        return valeur == null || valeur.isBlank() ? null : valeur.trim();
     }
 
     /** US-006 : demenagement et cloture ne peuvent preceder la mise en oeuvre. */

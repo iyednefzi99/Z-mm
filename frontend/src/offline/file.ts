@@ -12,8 +12,13 @@
  * la ressource en double — exactement ce que l'idempotence doit empêcher. Le
  * serveur reconnaît la clé et rejoue sa réponse au lieu de retraiter (V14).
  *
- * Limite restante : pas de résolution de conflits (deux agents modifiant la même
- * visite hors ligne). Évolution identifiée, pas encore implémentée.
+ * Conflits et refus (SPRINT-24, lot C) : une mutation rejouée que le serveur
+ * refuse n'est plus JETÉE. Jusqu'ici, tout 4xx était considéré comme
+ * définitivement traité et la saisie disparaissait sans un mot — c'est le pire
+ * des sorts pour une observation faite au rucher trois heures plus tôt, et c'est
+ * exactement ce qui arrivait quand deux agents modifiaient la même visite hors
+ * ligne. Elle passe désormais en QUARANTAINE, avec le motif du serveur, et
+ * l'apiculteur tranche : réappliquer, ou abandonner.
  */
 
 export interface MutationEnAttente {
@@ -23,9 +28,38 @@ export interface MutationEnAttente {
   methode: 'POST' | 'PUT' | 'DELETE';
   url: string;
   corps?: string;
+  /**
+   * En-têtes propres à cette mutation, rejoués tels quels (SPRINT-24).
+   *
+   * <p>Le seul usage aujourd'hui est `X-Zumm-Version` : la version que
+   * l'appareil avait sous les yeux quand la saisie a été faite. Sans elle, le
+   * rejeu écraserait en silence ce qu'un autre agent a enregistré entre-temps —
+   * et le dernier à retrouver du réseau gagnerait.
+   */
+  entetes?: Record<string, string>;
+}
+
+/** Une mutation que le serveur a refusée, et la raison qu'il en a donnée. */
+export interface MutationRefusee {
+  mutation: MutationEnAttente;
+  statut: number;
+  detail: string;
+  /** `maj_le` du serveur, présent sur un conflit de version (409). */
+  versionServeur?: string;
+  refuseeLe: string;
+}
+
+/** Ce que l'émetteur rapporte au rejeu. */
+export interface ResultatEnvoi {
+  ok: boolean;
+  reseau: boolean;
+  session?: boolean;
+  /** Motif d'un refus serveur : présent, la mutation part en quarantaine. */
+  refus?: { statut: number; detail: string; versionServeur?: string };
 }
 
 const CLE = 'zumm.file.mutations';
+const CLE_REFUS = 'zumm.file.refus';
 type Abonne = (taille: number) => void;
 const abonnes = new Set<Abonne>();
 
@@ -78,7 +112,7 @@ export function surFile(abonne: Abonne): () => void {
  * la file survit à la reconnexion de session.
  */
 export async function rejouer(
-  envoyer: (m: MutationEnAttente) => Promise<{ ok: boolean; reseau: boolean; session?: boolean }>,
+  envoyer: (m: MutationEnAttente) => Promise<ResultatEnvoi>,
 ): Promise<void> {
   let file = charger();
   while (file.length > 0) {
@@ -87,7 +121,62 @@ export async function rejouer(
     if (!resultat.ok && (resultat.reseau || resultat.session)) {
       return; // Hors-ligne ou session expirée : on réessaiera, sans rien perdre.
     }
+    // Refusée par le serveur : elle sort de la file — la garder la bloquerait —
+    // mais elle n'est pas perdue. Une saisie faite au rucher ne disparaît pas
+    // parce qu'un autre agent est passé avant.
+    if (resultat.refus) {
+      quarantaine([
+        ...refus(),
+        {
+          mutation,
+          statut: resultat.refus.statut,
+          detail: resultat.refus.detail,
+          versionServeur: resultat.refus.versionServeur,
+          refuseeLe: new Date().toISOString(),
+        },
+      ]);
+    }
     file = charger().filter((m) => m.id !== mutation.id);
     sauver(file);
   }
+}
+
+// ─── Quarantaine : ce que le serveur a refusé ──────────────────────────────
+
+function quarantaine(liste: MutationRefusee[]): void {
+  localStorage.setItem(CLE_REFUS, JSON.stringify(liste));
+}
+
+/** Saisies refusées au rejeu, en attente d'un arbitrage humain. */
+export function refus(): MutationRefusee[] {
+  try {
+    return JSON.parse(localStorage.getItem(CLE_REFUS) ?? '[]') as MutationRefusee[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Remet une saisie refusée dans la file, SANS sa garde de version.
+ *
+ * <p>C'est la décision « ma saisie l'emporte » : l'apiculteur a vu le motif du
+ * refus et choisit d'écraser. Conserver `X-Zumm-Version` la ferait refuser une
+ * seconde fois, en boucle.
+ */
+export function reappliquer(id: string): void {
+  const refusee = refus().find((r) => r.mutation.id === id);
+  if (!refusee) {
+    return;
+  }
+  const { entetes, ...reste } = refusee.mutation;
+  const sansVersion = Object.fromEntries(
+    Object.entries(entetes ?? {}).filter(([nom]) => nom !== 'X-Zumm-Version'),
+  );
+  sauver([...charger(), { ...reste, entetes: sansVersion }]);
+  quarantaine(refus().filter((r) => r.mutation.id !== id));
+}
+
+/** Abandonne définitivement une saisie refusée. */
+export function abandonner(id: string): void {
+  quarantaine(refus().filter((r) => r.mutation.id !== id));
 }

@@ -7,6 +7,7 @@ import type {
   EtatRuche,
   Ferme,
   OrigineRuche,
+  PrioriteTerrain,
   Ruche,
   RucheCorps,
   Site,
@@ -17,8 +18,11 @@ import {
   COULEURS_RUCHE,
   ETATS_RUCHE,
   ORIGINES_RUCHE,
+  PRIORITES_TERRAIN,
   TYPES_RUCHE,
 } from '../api/types';
+import { chargeQrRuche, codeCourt, PlancheEtiquettes, QrImage } from '../ui/etiquettes';
+import { ecrireEtiquette, nfcDisponible } from '../terrain/nfc';
 import { useT } from '../i18n/langue';
 import { useRessource, useRoles } from '../hooks';
 import { peutEcrire } from '../routage/routes';
@@ -45,9 +49,17 @@ export function RuchesVue(): ReactElement {
   const [couleur, setCouleur] = useState('');
   const [origine, setOrigine] = useState('');
   const [causeCloture, setCauseCloture] = useState('');
+  // SPRINT-23 : une ruche souche se traite avant les autres, et la tournee
+  // comme les agregats la remontent.
+  const [priorite, setPriorite] = useState<PrioriteTerrain>('normale');
   const [corpsCadres, setCorpsCadres] = useState('10');
   const [hausses, setHausses] = useState<string[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Etiquetage durable (SPRINT-25, lot J) : la ruche dont on affiche le QR, et
+  // le rucher dont on imprime la planche.
+  const [etiquetee, setEtiquetee] = useState<Ruche | null>(null);
+  const [messageNfc, setMessageNfc] = useState<string | null>(null);
+  const [plancheSiteId, setPlancheSiteId] = useState('');
 
   const optionsEtat: Option[] = ETATS_RUCHE.map((e) => ({ valeur: e, libelle: t.etatsRuche[e] }));
   const aucun: Option = { valeur: '', libelle: t.champs.aucun };
@@ -63,7 +75,41 @@ export function RuchesVue(): ReactElement {
     { entete: t.champs.typeRuche, rendu: (x) => (x.typeRuche ? r.types[x.typeRuche] : '—') },
     { entete: t.champs.etat, rendu: (x) => t.etatsRuche[x.etat] },
     { entete: t.champs.hausses, rendu: (x) => String(x.nbHausses) },
+    {
+      // Le code court se lit dans la LISTE, pas seulement sur l'etiquette :
+      // c'est ce qu'un apiculteur a sous les yeux quand il tient une ruche dont
+      // le QR ne se scanne plus et cherche laquelle c'est.
+      entete: t.etiquettes.code,
+      rendu: (x) => (
+        <button type="button" className="z-lien" onClick={() => ouvrirEtiquette(x)}>
+          {codeCourt(x.id)}
+        </button>
+      ),
+    },
   ];
+
+  const ouvrirEtiquette = (ruche: Ruche) => {
+    setMessageNfc(null);
+    setEtiquetee(ruche);
+  };
+
+  /**
+   * Ecrit l'etiquette NFC de la ruche affichee.
+   *
+   * <p>La promesse ne se resout qu'au contact du tag : l'ecran doit donc dire
+   * « approchez l'etiquette » plutot que de rester muet. Le contenu ecrit est
+   * exactement celui du QR — deux charges utiles pour le meme objet donneraient
+   * un jour deux reponses.
+   */
+  const ecrireNfc = async (ruche: Ruche) => {
+    setMessageNfc(t.etiquettes.nfcApprochez);
+    try {
+      await ecrireEtiquette(chargeQrRuche(ruche.id));
+      setMessageNfc(t.etiquettes.nfcEcrite);
+    } catch {
+      setMessageNfc(t.etiquettes.nfcEchec);
+    }
+  };
 
   useEffect(() => {
     void sites.lister().then((l: Site[]) => setOptSites(l.map((s) => ({ valeur: String(s.id), libelle: s.nom })))).catch(() => setOptSites([]));
@@ -88,6 +134,7 @@ export function RuchesVue(): ReactElement {
     setCouleur(ruche?.couleur ?? '');
     setOrigine(ruche?.origine ?? '');
     setCauseCloture(ruche?.causeCloture ?? '');
+    setPriorite(ruche?.priorite ?? 'normale');
     const corps = ruche?.compartiments.find((c) => c.type === 'corps');
     setCorpsCadres(corps ? String(corps.nbCadres) : '10');
     setHausses(
@@ -120,6 +167,7 @@ export function RuchesVue(): ReactElement {
       // que l'utilisateur croirait bonne — le champ est deja masque au-dessus.
       causeCloture:
         etatRuche === 'cloturee' && causeCloture !== '' ? (causeCloture as CauseCloture) : null,
+      priorite,
     };
     try {
       await (edition ? etat.mettreAJour(edition.id, corps) : etat.creer(corps));
@@ -136,10 +184,81 @@ export function RuchesVue(): ReactElement {
     <CorpsSection
       titre={t.onglets.ruches}
       sousTitre={t.soustitres.ruches}
-      etat={etat} onNouveau={() => ouvrir(null)} ecriture={ecriture}>
+      etat={etat}
+      onNouveau={() => ouvrir(null)}
+      ecriture={ecriture}
+      actions={
+        <ChampSelect
+          libelle={t.etiquettes.planche}
+          valeur={plancheSiteId}
+          options={[{ valeur: '', libelle: t.etiquettes.choisirRucher }, ...optSites]}
+          onChange={setPlancheSiteId}
+        />
+      }
+    >
       {etat.elements.length > 0 && (
         <Table colonnes={colonnes} elements={etat.elements} onModifier={ouvrir} onSupprimer={(e) => void etat.supprimer(e.id)} ecriture={ecriture} />
       )}
+      {etiquetee && (
+        <Modale
+          titre={`${t.etiquettes.titre} — ${codeCourt(etiquetee.id)}`}
+          onFermer={() => setEtiquetee(null)}
+        >
+          <div className="z-form">
+            <QrImage payload={chargeQrRuche(etiquetee.id)} />
+            <p className="z-info" style={{ textAlign: 'center' }}>
+              <strong>{codeCourt(etiquetee.id)}</strong> · {etiquetee.modele} ·{' '}
+              {etiquetee.siteNom}
+            </p>
+            {/* Le code court EST l'identifiant de la ruche, prefixe. En inventer
+                un second, opaque et joli, aurait cree deux facons de nommer la
+                meme colonie — et un jour deux reponses. */}
+            <p className="z-info">{t.etiquettes.aide}</p>
+            {messageNfc && (
+              <p className="z-info" role="status">
+                {messageNfc}
+              </p>
+            )}
+            <div className="z-form__actions">
+              {/* Le NFC n'apparait QUE la ou il existe : `NDEFReader` est absent
+                  d'iOS et de Firefox. Un bouton qui echoue une fois sur deux
+                  apprend a ne plus l'essayer, y compris la ou il marche. */}
+              {nfcDisponible() && (
+                <Bouton variante="secondaire" onClick={() => void ecrireNfc(etiquetee)}>
+                  {t.etiquettes.ecrireNfc}
+                </Bouton>
+              )}
+              <Bouton variante="fantome" onClick={() => setEtiquetee(null)}>
+                {t.actions.fermer}
+              </Bouton>
+            </div>
+            {!nfcDisponible() && <p className="z-info">{t.etiquettes.nfcIndisponible}</p>}
+          </div>
+        </Modale>
+      )}
+
+      {plancheSiteId !== '' && (
+        <Modale titre={t.etiquettes.planche} onFermer={() => setPlancheSiteId('')}>
+          <div className="z-form">
+            <p className="z-info z-sans-impression">{t.etiquettes.plancheAide}</p>
+            <PlancheEtiquettes
+              rucherNom={
+                optSites.find((o) => o.valeur === plancheSiteId)?.libelle ?? ''
+              }
+              ruches={etat.elements.filter((x) => String(x.siteId) === plancheSiteId)}
+            />
+            <div className="z-form__actions z-sans-impression">
+              <Bouton variante="fantome" onClick={() => setPlancheSiteId('')}>
+                {t.actions.fermer}
+              </Bouton>
+              <Bouton variante="primaire" onClick={() => window.print()}>
+                {t.etiquettes.imprimer}
+              </Bouton>
+            </div>
+          </div>
+        </Modale>
+      )}
+
       {ouvert && (
         <Modale titre={t.onglets.ruches} onFermer={() => setOuvert(false)}>
           <form
@@ -189,6 +308,15 @@ export function RuchesVue(): ReactElement {
                 onChange={setOrigine}
               />
             </div>
+            <ChampSelect
+              libelle={t.champs.prioriteTerrain}
+              valeur={priorite}
+              options={PRIORITES_TERRAIN.map((niveau) => ({
+                valeur: niveau,
+                libelle: t.prioriteTerrain[niveau],
+              }))}
+              onChange={(valeur) => setPriorite(valeur as PrioriteTerrain)}
+            />
             {/* La cause de cloture n'apparait que sur une ruche cloturee : la
                 demander avant serait demander pourquoi on ferme une porte
                 ouverte, et la base le refuse de toute facon. */}

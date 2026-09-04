@@ -26,6 +26,16 @@ public class AuditEntree {
     public static final String MODIFICATION = "modification";
     public static final String SUPPRESSION = "suppression";
 
+    /**
+     * Passage outre une regle metier (SPRINT-22).
+     *
+     * <p>Distinguee des trois autres parce qu'elle ne dit pas la meme chose :
+     * creer, modifier et supprimer sont le travail ordinaire ; forcer est une
+     * decision de s'ecarter d'une regle, et c'est exactement ce qu'un controle
+     * cherche. La noyer dans les creations reviendrait a ne pas la tracer.
+     */
+    public static final String FORCAGE = "forcage";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

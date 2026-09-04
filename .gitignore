@@ -99,3 +99,9 @@ infra/nginx/ssl/
 
 # Realm Keycloak de developpement (mot de passe faible, direct-grant) — jamais versionne
 infra/keycloak/realm-zumm.dev.json
+
+# Guide local : contient les mots de passe reels du .env — jamais versionne
+docs/GUIDE-UTILISATION.md
+
+# Prompts de travail internes : documents de cadrage, hors livrable.
+docs/PROMPT-ARBORESCENCE-PAGES.md

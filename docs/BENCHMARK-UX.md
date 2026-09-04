@@ -61,7 +61,7 @@ C'était le défaut structurant. Passé la septième entrée, une barre horizont
 cesse d'être balayée et devient une liste où l'on cherche ; aucun concurrent ne
 dépasse sept destinations de premier niveau.
 
-**Fait** : les dix-neuf écrans sont répartis en **cinq familles** suivant le déroulé
+**Fait** : les vingt écrans sont répartis en **cinq familles** suivant le déroulé
 du métier — Pilotage, Cheptel, Terrain, Production, Administration
 (`routage/routes.ts`, `GROUPES`). Un test tient l'invariant : chaque écran
 appartient à exactement une famille, sinon un écran ajouté resterait joignable
@@ -102,7 +102,7 @@ l'information ne disparaît pas en vision monochrome.
 
 ### 3.6 En plus : palette de commandes (Ctrl/⌘ + K)
 
-Grouper règle la lisibilité, pas la distance. La palette filtre les dix-neuf écrans
+Grouper règle la lisibilité, pas la distance. La palette filtre les vingt écrans
 par **sous-séquence** — « lts » trouve « Lots & origines », « tbx » trouve
 « Tableaux de bord » — et cherche aussi les noms de familles, si bien que taper
 « terrain » sort les quatre écrans de terrain. Elle s'ouvre pleine, jamais sur le

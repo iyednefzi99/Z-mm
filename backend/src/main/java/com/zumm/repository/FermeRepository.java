@@ -2,6 +2,7 @@ package com.zumm.repository;
 
 import com.zumm.domain.Ferme;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -24,4 +25,7 @@ public interface FermeRepository extends JpaRepository<Ferme, Long> {
     @Override
     @EntityGraph(attributePaths = "fermier")
     List<Ferme> findAll();
+
+    /** Fermes dont le nom contient {@code motif} (recherche globale, SPRINT-21). */
+    List<Ferme> findByNomContainingIgnoreCaseOrderByNomAsc(String motif, Pageable pagination);
 }

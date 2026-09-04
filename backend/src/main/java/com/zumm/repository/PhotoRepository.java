@@ -4,7 +4,25 @@ import com.zumm.domain.Photo;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-/** Acces aux photos (US-010/028). Restreint au tenant (@TenantId + RLS). */
+/**
+ * Acces aux photos (US-010/028, elargi au SPRINT-21). Restreint au tenant
+ * ({@code @TenantId} + RLS).
+ *
+ * <p>Une methode par cible plutot qu'une requete generique sur un couple
+ * {@code (type, id)} : la cible est portee par cinq colonnes distinctes et non
+ * par un discriminant, ce qui permet aux cles etrangeres composites de faire leur
+ * travail. Le prix est cinq methodes ; le gain est qu'aucune photo ne peut
+ * designer un objet inexistant.
+ */
 public interface PhotoRepository extends JpaRepository<Photo, Long> {
+
     List<Photo> findByVisiteIdOrderByIdAsc(Long visiteId);
+
+    List<Photo> findByRucheIdOrderByIdAsc(Long rucheId);
+
+    List<Photo> findBySiteIdOrderByIdAsc(Long siteId);
+
+    List<Photo> findByReineIdOrderByIdAsc(Long suiviReineId);
+
+    List<Photo> findByRecolteIdOrderByIdAsc(Long recolteId);
 }

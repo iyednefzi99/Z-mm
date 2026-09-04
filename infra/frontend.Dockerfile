@@ -53,5 +53,11 @@ USER nginx
 
 EXPOSE 8080
 
+# 127.0.0.1 et NON `localhost` : `listen 8080;` n'ouvre qu'IPv4, alors que le
+# /etc/hosts de l'image resout `localhost` en ::1 AVANT 127.0.0.1. Le wget de
+# BusyBox tentait donc IPv6 en premier et echouait en « Connection refused »,
+# marquant le conteneur `unhealthy` en permanence alors qu'il servait la PWA
+# normalement. L'alternative — ajouter `listen [::]:8080;` a nginx-pwa.conf —
+# elargirait la surface d'ecoute pour le seul besoin de la sonde.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -q -O /dev/null http://localhost:8080/index.html || exit 1
+    CMD wget -q -O /dev/null http://127.0.0.1:8080/index.html || exit 1

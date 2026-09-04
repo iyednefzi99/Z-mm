@@ -1,6 +1,7 @@
 package com.zumm.web.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -20,5 +21,24 @@ public record RecolteCorps(
         @NotNull LocalDate dateRecolte,
         @NotNull @PositiveOrZero BigDecimal quantiteKg,
         @Size(max = 60) String typeMiel,
-        String note) {
+        /**
+         * miel | cire | pollen | propolis | gelee_royale | essaim | reine
+         * (SPRINT-27). Absent, c'est du MIEL : c'est ce que le modele
+         * presupposait avant, et le defaut preserve les donnees existantes.
+         */
+        @Pattern(regexp = "miel|cire|pollen|propolis|gelee_royale|essaim|reine")
+        String typeProduit,
+        /**
+         * kg | unite. Absente, `kg`. La base refuse un essaim pese en
+         * kilogrammes : cinq essaims ne pesent pas cinq kilos.
+         */
+        @Pattern(regexp = "kg|unite") String unite,
+        @Size(max = 2000) String note,
+        /**
+         * Enregistrer malgre une carence en cours. Faux par defaut : forcer doit
+         * etre un acte, jamais un reglage qu'on oublie a vrai.
+         */
+        boolean forcerCarence,
+        /** Obligatoire des lors qu'on force. Le service refuse un forcage muet. */
+        @Size(max = 2000) String motifForcage) {
 }

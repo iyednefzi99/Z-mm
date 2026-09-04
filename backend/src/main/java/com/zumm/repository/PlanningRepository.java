@@ -42,4 +42,44 @@ public interface PlanningRepository extends JpaRepository<Planning, Long> {
     @Override
     @EntityGraph(attributePaths = {"ruche", "agent"})
     List<Planning> findAll();
+
+    /**
+     * Plannings d'une periode, hors statut exclu, pour l'export iCalendar
+     * (SPRINT-21). La ruche, son site et l'agent sont charges dans la meme
+     * requete : le fichier les cite tous, et un chargement paresseux par
+     * evenement ferait N+1 requetes pour produire un simple texte.
+     */
+    @Query("""
+            SELECT p FROM Planning p
+            JOIN FETCH p.ruche r
+            JOIN FETCH r.site
+            JOIN FETCH p.agent
+            WHERE p.datePrevue BETWEEN :debut AND :fin
+              AND p.statut <> :exclu
+            ORDER BY p.datePrevue, p.heurePrevue NULLS LAST, p.id
+            """)
+    List<Planning> parPeriode(LocalDate debut, LocalDate fin, StatutPlanning exclu);
+
+    /**
+     * Meme fenetre, bornee a UN agent : c'est ce que publie un abonnement
+     * iCalendar (SPRINT-21).
+     *
+     * <p>Le filtre applicatif sur l'agent double la portee posee par la RLS. Ce
+     * n'est pas une redondance inutile : en test, l'application se connecte avec
+     * le role proprietaire de la base, qui contourne la RLS. Sans ce `where`, le
+     * flux publierait tout le parc sous un jeton nominatif, et aucun test ne le
+     * verrait.
+     */
+    @Query("""
+            SELECT p FROM Planning p
+            JOIN FETCH p.ruche r
+            JOIN FETCH r.site
+            JOIN FETCH p.agent
+            WHERE p.agent.id = :agentId
+              AND p.datePrevue BETWEEN :debut AND :fin
+              AND p.statut <> :exclu
+            ORDER BY p.datePrevue, p.heurePrevue NULLS LAST, p.id
+            """)
+    List<Planning> parPeriodeEtAgent(Long agentId, LocalDate debut, LocalDate fin,
+            StatutPlanning exclu);
 }

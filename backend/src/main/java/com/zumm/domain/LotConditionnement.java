@@ -51,6 +51,26 @@ public class LotConditionnement extends EntiteTenant {
     @Column(name = "type_miel", length = 60)
     private String typeMiel;
 
+    /**
+     * Descente du maturateur (SPRINT-27, lot E).
+     *
+     * <p>Une DATE, pas une etape de workflow. Le §6 reprochait que « l'etape de
+     * maturation et les dates de peremption » manquent ; la tentation etait un
+     * enchainement recolte -> maturation -> mise en pot avec ses etats et ses
+     * transitions. Deux dates disent la meme chose et ne bloquent aucune saisie.
+     */
+    @Column(name = "date_maturation")
+    private LocalDate dateMaturation;
+
+    /**
+     * DDM — date de durabilite minimale.
+     *
+     * <p>C'est le nom legal actuel : la DLUO a ete remplacee en droit francais
+     * en 2015. Le miel n'a pas de DLC, il a une DDM.
+     */
+    @Column(name = "date_durabilite")
+    private LocalDate dateDurabilite;
+
     @Column(name = "note", columnDefinition = "text")
     private String note;
 
@@ -67,6 +87,22 @@ public class LotConditionnement extends EntiteTenant {
         this.reference = reference;
         this.dateConditionnement = dateConditionnement;
         this.quantiteKg = quantiteKg;
+    }
+
+    public LocalDate getDateMaturation() {
+        return dateMaturation;
+    }
+
+    public void setDateMaturation(LocalDate dateMaturation) {
+        this.dateMaturation = dateMaturation;
+    }
+
+    public LocalDate getDateDurabilite() {
+        return dateDurabilite;
+    }
+
+    public void setDateDurabilite(LocalDate dateDurabilite) {
+        this.dateDurabilite = dateDurabilite;
     }
 
     public String getReference() {

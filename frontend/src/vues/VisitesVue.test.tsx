@@ -131,6 +131,9 @@ describe('vue Visites', () => {
         actionsEffectuees: 'Nourri',
         recommandations: 'Surveiller',
       }),
+      // Depuis le SPRINT-24, une modification porte la version lue : c'est ce
+      // qui empeche le rejeu d'une saisie hors ligne d'ecraser un collegue.
+      { 'X-Zumm-Version': expect.any(String) },
     );
   });
 
@@ -163,6 +166,7 @@ describe('vue Visites', () => {
     expect(visites.mettreAJour).toHaveBeenCalledWith(
       42,
       expect.objectContaining({ observation: null, meteo: null, pathologies: [] }),
+      { 'X-Zumm-Version': expect.any(String) },
     );
   });
 
@@ -193,6 +197,7 @@ describe('vue Visites', () => {
         }),
         pathologies: [{ pathologie: 'varroose', gravite: 'moderee', note: null }],
       }),
+      { 'X-Zumm-Version': expect.any(String) },
     );
   });
 

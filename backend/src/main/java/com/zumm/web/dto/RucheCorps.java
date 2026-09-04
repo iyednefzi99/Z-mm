@@ -37,5 +37,10 @@ public record RucheCorps(
         @Pattern(regexp = "essaim_capture|essaim_achete|division|nucleus|paquet|achat|autre")
         String origine,
         @Pattern(regexp = "morte|fusionnee|vendue|volee|reformee|essaimee|autre")
-        String causeCloture) {
+        String causeCloture,
+        /**
+         * basse | normale | haute (SPRINT-23). Une ruche souche se traite avant
+         * les autres, et la tournee comme les agregats la remontent.
+         */
+        @Pattern(regexp = "basse|normale|haute") String priorite) {
 }

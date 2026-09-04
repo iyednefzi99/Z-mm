@@ -154,7 +154,11 @@
     "invitations": "Invitations",
     "config": "Configuration",
     "permissions": "Permissions",
-    "audit": "Audit"
+    "audit": "Audit",
+    "essaims": "Swarms & splits",
+    "horsligne": "Offline",
+    "materiel": "Equipment",
+    "comptabilite": "Accounts"
   },
   "soustitres": {
     "fermiers": "Owner-operators — the root of the farmer → farm → site hierarchy.",
@@ -173,7 +177,11 @@
     "lots": "Packed lots and origin statement — required by Directive (EU) 2024/1438.",
     "carte": "Apiaries in the field. Which positions you see depends on your role.",
     "permissions": "Who may do what. The matrix the server applies, read-only.",
-    "audit": "Who did what, and when. Read-only — the log cannot be edited."
+    "audit": "Who did what, and when. Read-only — the log cannot be edited.",
+    "essaims": "Colonies coming in, and colonies being split.",
+    "horsligne": "What you take to the apiary, and what waits for you on return.",
+    "materiel": "What you own, and what you are short of.",
+    "comptabilite": "What the operation spends, and what each hive brings in."
   },
   "groupes": {
     "navigation": "Main navigation",
@@ -189,7 +197,21 @@
     "invite": "Search a screen…",
     "aucun": "No screen matches.",
     "indice": "↑↓ browse · Enter open · Esc close",
-    "raccourci": "Ctrl K"
+    "raccourci": "Ctrl K",
+    "ecrans": "Screens",
+    "objets": "In your data",
+    "inviteGlobale": "Search a screen or a record…",
+    "aucunObjet": "No record matches.",
+    "chercheEnCours": "Searching…",
+    "typesObjet": {
+      "ruche": "Hive",
+      "site": "Apiary",
+      "ferme": "Farm",
+      "fermier": "Farmer",
+      "agent": "Agent",
+      "recolte": "Harvest",
+      "lot": "Batch"
+    }
   },
   "actions": {
     "nouveau": "New",
@@ -204,7 +226,21 @@
     "ajouterHausse": "Add a super",
     "approuver": "Approve",
     "refuser": "Reject",
-    "ajouterPhoto": "Add a photo"
+    "ajouterPhoto": "Add a photo",
+    "demenager": "Move apiary",
+    "historique": "History",
+    "ajouterRessource": "Add a source",
+    "loger": "Hive it",
+    "exporterIcs": "Export to my calendar",
+    "realiser": "Carry out",
+    "revoquer": "Revoke",
+    "creerAbonnement": "Create a subscription",
+    "copier": "Copy",
+    "proposerTaches": "Suggest tasks",
+    "forcer": "Override and save",
+    "traiterLeRucher": "Treat the whole apiary",
+    "comparer": "Compare",
+    "recolterLeRucher": "Harvest the whole apiary"
   },
   "etats": {
     "chargement": "Loading…",
@@ -240,7 +276,44 @@
     "typeRuche": "Hive type",
     "couleur": "Colour",
     "origine": "Origin",
-    "causeCloture": "Closing cause"
+    "causeCloture": "Closing cause",
+    "adresseRue": "Address",
+    "codePostal": "Postcode",
+    "ville": "Town",
+    "pays": "Country",
+    "typeSite": "Apiary type",
+    "exposition": "Aspect",
+    "ressourcesFlorales": "Nectar sources",
+    "distanceRessource": "Distance (m)",
+    "lieu": "Place",
+    "poidsEssaim": "Weight (kg)",
+    "hauteur": "Height (m)",
+    "methode": "Method",
+    "origineReine": "Queen of the split",
+    "cadresCouvain": "Brood frames",
+    "cadresProvisions": "Stores frames",
+    "motif": "Reason",
+    "dateDivision": "Split date",
+    "dateCapture": "Capture date",
+    "rucheMere": "Parent hive",
+    "rucheFille": "Daughter hive",
+    "note": "Note",
+    "moisDebut": "Bloom starts",
+    "moisFin": "Bloom ends",
+    "vehicule": "Vehicle",
+    "capaciteRuches": "Capacity (hives)",
+    "nbRuches": "Hives to move",
+    "destination": "Destination",
+    "datePrevue": "Planned date",
+    "libelle": "Label",
+    "duree": "Duration (days)",
+    "priorite": "Priority",
+    "categorie": "Category",
+    "origine2": "Origin",
+    "prioriteTerrain": "Priority",
+    "couvertureReseau": "Network coverage",
+    "notificationsEmail": "Email notifications",
+    "quantite": "Quantity"
   },
   "roles": {
     "apiculteur": "Beekeeper",
@@ -469,7 +542,27 @@
     "rappels": "Active reminders",
     "ruche": "Hive",
     "agent": "Agent",
-    "sansEcheance": "No due date"
+    "sansEcheance": "No due date",
+    "priorites": {
+      "basse": "Low",
+      "normale": "Normal",
+      "haute": "High",
+      "critique": "Critical"
+    },
+    "categories": {
+      "controle": "Inspection",
+      "traitement": "Treatment",
+      "nourrissement": "Feeding",
+      "recolte": "Harvest",
+      "materiel": "Equipment",
+      "elevage": "Breeding",
+      "administratif": "Admin",
+      "autre": "Other"
+    },
+    "engendree": "Suggested automatically",
+    "parRegle": "Rule: {code}",
+    "aucuneProposition": "No new task to suggest — everything the rules can see is already listed.",
+    "proposees": "{nombre} task(s) suggested."
   },
   "tableau": {
     "calendrier": "Calendar",
@@ -522,7 +615,9 @@
     "valeurProduction": "Production value (€)",
     "coutInterventions": "Interventions cost (€)",
     "roiPourcent": "ROI",
-    "visitesParRaison": "Visits by reason"
+    "visitesParRaison": "Visits by reason",
+    "ruchers": "By apiary",
+    "equipe": "Team"
   },
   "graphique": {
     "tableauEquivalent": "View the data as a table",
@@ -551,7 +646,15 @@
     "mention": "Origin statement",
     "mielAchete": "Purchased honey (outside the farm)",
     "estMelange": "Blend: percentages are mandatory on the label.",
-    "monoOrigine": "Single origin: the percentage is not required."
+    "monoOrigine": "Single origin: the percentage is not required.",
+    "titre": "Operation on several hives",
+    "cible": "Hives targeted",
+    "toutLeRucher": "Whole apiary",
+    "selection": "Selection",
+    "rapport": "{reussites} of {demandees} recorded.",
+    "echecs": "Not recorded:",
+    "aucunEchec": "Every targeted hive was recorded.",
+    "aide": "A batch rarely succeeds entirely, and that is not a fault: a closed hive or one within a withdrawal period comes back as a reasoned refusal. Retry those hives, not the whole apiary."
   },
   "capteur": {
     "ingestion": "Ingest a measure",
@@ -583,7 +686,8 @@
       "poids": "Weight",
       "temperature": "Temperature",
       "humidite": "Humidity",
-      "activite": "Activity"
+      "activite": "Activity",
+      "alimentation": "Sensor battery"
     },
     "niveaux": {
       "attention": "Warning",
@@ -1151,7 +1255,8 @@
         "titre": "Meanwhile, nothing is stuck",
         "texte": "An account you cannot reach does not lock the livestock: the data belongs to the holding, not to your account, and the other agents reach it according to their role."
       }
-    ]
+    ],
+    "libreService": "Reset my password"
   },
   "permissions": {
     "titre": "Roles and permissions",
@@ -1166,7 +1271,8 @@
       "plannings": "Approving or refusing a round",
       "referentiel": "Creating, changing or deleting in the reference data: farmers, farms, apiaries, agents, hives",
       "mesures": "Submitting a sensor measurement",
-      "reste": "Everything else: consultation, and recording field work"
+      "reste": "Everything else: consultation, and recording field work",
+      "comptabilite": "Accounts: expenses and operation summary"
     },
     "ecransTitre": "Screens removed from the navigation",
     "ecransTexte": "For the roles that do not open them, these screens appear neither in the rail nor in the palette: {ecrans}.",
@@ -1202,7 +1308,13 @@
     "visites": "Visits",
     "depuisPrecedente": "From previous stop",
     "total": "Total distance",
-    "avertissement": "Indicative order: straight-line distances, non-optimal heuristic. Not a road itinerary."
+    "avertissement": "Indicative order: straight-line distances, non-optimal heuristic. Not a road itinerary.",
+    "saisir": "Move",
+    "monter": "Move up one place",
+    "descendre": "Move down one place",
+    "deplace": "{site} is now in position {rang} of {total}.",
+    "simulee": "Order changed on this screen only: nothing is saved, and distances become estimates.",
+    "retablir": "Back to the proposed order"
   },
   "anomalie": {
     "titre": "Anomaly detection (EWMA)",
@@ -1230,5 +1342,416 @@
     "echecCreation": "Creation failed.",
     "echecModification": "Saving failed.",
     "echecSuppression": "Deletion failed."
+  },
+  "referentielSite": {
+    "types": {
+      "sedentaire": "Stationary",
+      "transhumance": "Migratory",
+      "fecondation": "Mating",
+      "elevage": "Breeding",
+      "conservatoire": "Conservation",
+      "autre": "Other"
+    },
+    "expositions": {
+      "nord": "North",
+      "nord_est": "North-east",
+      "est": "East",
+      "sud_est": "South-east",
+      "sud": "South",
+      "sud_ouest": "South-west",
+      "ouest": "West",
+      "nord_ouest": "North-west"
+    },
+    "ressources": {
+      "colza": "Rapeseed",
+      "tournesol": "Sunflower",
+      "acacia": "Acacia",
+      "chataignier": "Chestnut",
+      "tilleul": "Lime",
+      "lavande": "Lavender",
+      "bruyere": "Heather",
+      "luzerne": "Alfalfa",
+      "sarrasin": "Buckwheat",
+      "verger": "Orchard",
+      "agrumes": "Citrus",
+      "eucalyptus": "Eucalyptus",
+      "thym": "Thyme",
+      "romarin": "Rosemary",
+      "jujubier": "Jujube (sidr)",
+      "palmier_dattier": "Date palm",
+      "prairie": "Meadow",
+      "foret": "Forest",
+      "garrigue": "Scrubland",
+      "autre": "Other"
+    },
+    "motifs": {
+      "installation": "Set-up",
+      "transhumance": "Migration",
+      "miellee": "Nectar flow",
+      "securite": "Safety",
+      "reglementaire": "Regulatory",
+      "autre": "Other"
+    },
+    "mois": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    }
+  },
+  "terrain": {
+    "emplacements": {
+      "titre": "Successive locations",
+      "aucun": "No location recorded.",
+      "courant": "Current location",
+      "depuis": "Since",
+      "jusqua": "Until",
+      "nouvelle": "New location",
+      "aide": "Moving the apiary closes the current location and opens a new one. To fix a mistyped position, edit the record instead."
+    },
+    "divisions": {
+      "titre": "Splits",
+      "aucune": "No split recorded.",
+      "nouvelle": "Record a split",
+      "filleAbsente": "Daughter not registered",
+      "issueDe": "Split from hive",
+      "aDonne": "Produced hive",
+      "methodes": {
+        "essaim_artificiel": "Artificial swarm",
+        "nucleus": "Nucleus",
+        "partage_egal": "Even split",
+        "prelevement_cadres": "Frame removal",
+        "autre": "Other"
+      },
+      "origines": {
+        "cellule_royale": "Queen cell",
+        "reine_introduite": "Introduced queen",
+        "orpheline": "Queenless",
+        "reine_mere": "Parent queen",
+        "autre": "Other"
+      }
+    },
+    "captures": {
+      "titre": "Swarm captures",
+      "aucune": "No capture recorded.",
+      "nouvelle": "Record a capture",
+      "enAttente": "In a holding nuc",
+      "logee": "Hived",
+      "toutes": "All",
+      "origines": {
+        "essaim_naturel": "Wild swarm",
+        "piege": "Bait hive",
+        "recuperation": "Collected",
+        "signalement": "Call-out",
+        "autre": "Other"
+      },
+      "filtre": "Show"
+    },
+    "transports": {
+      "titre": "Planned moves",
+      "aucun": "No move planned.",
+      "nouveau": "Plan a move",
+      "aide": "Carrying out a move relocates the apiary: the current location closes and a new one opens, exactly as a direct move would.",
+      "voyages": "{nombre} trip(s)",
+      "statuts": {
+        "prevu": "Planned",
+        "realise": "Done",
+        "annule": "Cancelled"
+      }
+    },
+    "abonnements": {
+      "titre": "Subscriptions to my calendar",
+      "aucun": "No subscription.",
+      "aide": "A URL your calendar (Google, Outlook, Apple) re-reads on its own. Treat it as a password: don't share it, and revoke it when you change device.",
+      "urlUnique": "This URL is shown once. Copy it now — it cannot be retrieved later.",
+      "expireLe": "Expires on",
+      "revoqueLe": "Revoked on",
+      "jamaisUtilise": "Never used",
+      "derniereUtilisation": "Last call",
+      "actif": "Active",
+      "inactif": "Inactive"
+    }
+  },
+  "indice": {
+    "titre": "Colony indices",
+    "sante": "Health",
+    "essaimage": "Swarming risk",
+    "nonEvalue": "Not assessed",
+    "aide": "Computed on each read from inspection observations, never stored. With no recent observation, no index is shown — a gauge over nothing would pass ignorance off as a diagnosis.",
+    "composantes": "{nombre} observation(s) taken into account",
+    "motifs": {
+      "etat_sante_mauvais": "Poor health status",
+      "etat_sante_moyen": "Fair health status",
+      "pas_de_couvain_opercule": "No capped brood",
+      "reine_non_vue": "Queen not seen",
+      "ponte_lacunaire": "Patchy brood pattern",
+      "ponte_irregulier": "Irregular brood pattern",
+      "ponte_absente": "No laying",
+      "reserves_basses": "Low stores",
+      "pathologie_confirmee": "Confirmed disease",
+      "varroa_a_traiter": "Varroa above treatment threshold",
+      "varroa_a_surveiller": "Varroa to watch"
+    }
+  },
+  "carence": {
+    "bloquee": "This hive is within a withdrawal period: its honey cannot be harvested.",
+    "motif": "Override reason",
+    "aide": "You may override, but the decision goes to the audit log with your reason. An override without an explanation is worthless during an inspection."
+  },
+  "correlation": {
+    "titre": "Weather and production",
+    "temperature": "Temperature",
+    "humidite": "Humidity",
+    "vent": "Wind",
+    "echantillon": "{nombre} pair(s)",
+    "lectures": {
+      "echantillon_insuffisant": "Sample too small to conclude",
+      "variance_nulle": "Constant value: no coefficient can be computed",
+      "lien_faible": "Weak link",
+      "lien_modere_positif": "Moderate link, positive",
+      "lien_modere_negatif": "Moderate link, negative",
+      "lien_marque_positif": "Marked link, positive",
+      "lien_marque_negatif": "Marked link, negative"
+    },
+    "avertissement": "A correlation is not a cause: two warm months coinciding with an acacia flow do not prove that heat makes honey."
+  },
+  "prioriteTerrain": {
+    "basse": "Low",
+    "normale": "Normal",
+    "haute": "High"
+  },
+  "rucher": {
+    "titre": "By apiary",
+    "sante": "Average health",
+    "nonEvalue": "Not assessed",
+    "evaluees": "{nombre} colony/colonies assessed",
+    "risqueMax": "Highest swarming risk",
+    "sousCarence": "In withdrawal",
+    "production": "Production (12 months)",
+    "aide": "The average covers only colonies actually assessed: counting an unvisited colony as zero would sink an apiary nobody has seen yet."
+  },
+  "comparaison": {
+    "titre": "Compare locations",
+    "rendement": "Yield (kg/hive, 2 seasons)",
+    "ressources": "Nectar sources",
+    "enFleur": "in bloom this month",
+    "voisinage": "Apiaries within 3 km",
+    "aide": "No overall score: mixing kilos, plant species and altitude would give a number with the authority of a measurement and none of its substance. The criteria stay side by side.",
+    "choisir": "Pick at least two locations.",
+    "sansRuche": "No colony"
+  },
+  "equipe": {
+    "titre": "Team workload",
+    "ruches": "Hives",
+    "ruchers": "Apiaries",
+    "taches": "Open tasks",
+    "retard": "Overdue",
+    "critiques": "Critical",
+    "visites": "Visits within 7 days",
+    "aide": "These figures help spread a workload, never compare people: ten overdue tasks usually means three days of rain."
+  },
+  "couvertureReseau": {
+    "aucune": "None",
+    "faible": "Poor",
+    "correcte": "Fair",
+    "bonne": "Good"
+  },
+  "horsLigne": {
+    "aide": "A download is dated: the console shows when it was taken every time it is read, so disk data never passes for fresh data. No sensor readings and no weather — they go stale too fast.",
+    "emporter": "Take offline",
+    "emporte": "{rucher} taken offline ({instant}).",
+    "emportImpossible": "Taking an apiary offline needs the network: do it before you leave.",
+    "ruchersEmportes": "Apiaries taken offline",
+    "aucunEmport": "No apiary taken offline.",
+    "preleveLe": "taken on {instant}",
+    "perime": "taken {jours} days ago — too old to be read",
+    "contenu": "{ruches} hive(s) · {taches} task(s) · {carences} withdrawal period(s) running",
+    "actualiser": "Refresh",
+    "ficheVierge": "Blank inspection sheet",
+    "purger": "Clear",
+    "purgerTout": "Clear all",
+    "couvertureInconnue": "Unknown",
+    "refuses": "Entries refused on return",
+    "refusAide": "The server refused these entries when syncing — usually because another beekeeper got there first. Nothing is lost: the call is yours.",
+    "aucunRefus": "No refused entry.",
+    "reappliquer": "Keep my entry",
+    "abandonner": "Discard",
+    "brouillons": "Visit drafts",
+    "brouillonsAide": "An entry started at the apiary can be finished at home. A draft belongs to its beekeeper: nobody else reads it, not even a manager.",
+    "aucunBrouillon": "No draft.",
+    "brouillonDe": "edited on {instant} from {appareil}",
+    "appareilInconnu": "an unknown device",
+    "effacerBrouillon": "Delete",
+    "reprendre": "Resume draft",
+    "enregistrerBrouillon": "Save draft",
+    "brouillonEnregistre": "Draft saved ({instant}).",
+    "reglages": "Field settings",
+    "economie": "Battery saver",
+    "economieAide": "Turns off the map background (WebGL), background refreshes and animations. Nothing switches on by itself: an app that changes behaviour silently looks broken.",
+    "installer": "Add to home screen",
+    "installerAide": "Once installed, the console starts without a network. Do it before heading out.",
+    "installationManuelle": "On this browser, use the share menu: “Add to Home Screen”.",
+    "installee": "App installed.",
+    "installationRefusee": "Installation cancelled.",
+    "dejaInstallee": "App already installed on this device.",
+    "noteVocale": "Voice note",
+    "enregistrerNote": "Record a note",
+    "arreterNote": "Stop",
+    "effacerNote": "Delete note",
+    "noteVocaleAide": "The note stays on this device: the server stores no audio file. It is there to help you type up on return, then it is deleted.",
+    "noteVocaleImpossible": "The microphone is not available on this device."
+  },
+  "etiquettes": {
+    "titre": "Hive label",
+    "code": "Code",
+    "aide": "The short code is the hive's identifier: it can be read by eye when the QR is dirty, wet or propolised. The NFC tag carries exactly the same thing.",
+    "planche": "Label sheet",
+    "plancheAide": "One label per hive in the chosen apiary. Printing outputs the sheet only, not the console around it.",
+    "choisirRucher": "Print an apiary…",
+    "imprimer": "Print",
+    "ecrireNfc": "Write to an NFC tag",
+    "nfcApprochez": "Hold the tag against the device…",
+    "nfcEcrite": "NFC tag written.",
+    "nfcEchec": "NFC write failed: tag too far, write-protected, or permission denied.",
+    "nfcIndisponible": "NFC is not available in this browser — it exists on neither iOS nor Firefox. The QR code stays the baseline; the tag is a convenience."
+  },
+  "interfaceProgressive": {
+    "titre": "Interface scope",
+    "complete": "Full — all twenty-one screens",
+    "essentielle": "Essential — stock, field, harvest",
+    "aide": "The essential interface hides the screens a three-hive beekeeper has no use for: sensors, packing batches, swarms, queens, audit log. It removes no rights — a direct link still works, and the setting changes back in one click."
+  },
+  "demonstration": {
+    "titre": "Demo dataset",
+    "aide": "Loads a fictional operation — one farmer, one farm, one beekeeper, two apiaries, five hives and their visits — so you can walk the console with data in it. Everything loaded is tracked, and removal deletes only that: never something you entered yourself, even if it shares the name.",
+    "indisponible": "The demo dataset is disabled on this deployment.",
+    "absent": "No demo dataset loaded.",
+    "charge": "{objets} demo objects in place.",
+    "charger": "Load the demo",
+    "retirer": "Remove the demo",
+    "confirmation": "Remove the demo dataset and the {objets} objects it created?"
+  },
+  "etage": {
+    "titre": "Weight per box",
+    "aide": "This weight answers a different question from the scale: not how much the hive weighs, but where the honey is. It feeds neither threshold alerts nor the harvest forecast — adding up weighings taken at different times would give a weight that never existed.",
+    "compartiment": "Box",
+    "corps": "Brood box",
+    "hausse": "Super",
+    "poids": "Weight (kg)",
+    "peser": "Save weighing",
+    "jamaisPese": "never weighed"
+  },
+  "partage": {
+    "titre": "Share a feed",
+    "aide": "Shows ONE hive's curve to someone outside the operation — a mentor, a bee inspector, an association. They see a curve and a label: no identifier, no apiary, no location. The link expires, can be revoked, and its last use is visible.",
+    "libelle": "To whom, and why",
+    "duree": "Duration (days)",
+    "ouvrir": "Open a share",
+    "urlUnique": "Copy this link now: it will never be shown again.",
+    "ligne": "expires on {expire} · last access: {usage}",
+    "jamaisConsulte": "never opened",
+    "revoquer": "Revoke",
+    "revoque": "revoked"
+  },
+  "materiel": {
+    "categories": {
+      "ruche": "Hive",
+      "hausse": "Super",
+      "cadre": "Frame",
+      "extracteur": "Extractor",
+      "maturateur": "Settling tank",
+      "enfumoir": "Smoker",
+      "protection": "Protective gear",
+      "vehicule": "Vehicle",
+      "balance": "Scale",
+      "autre": "Other"
+    },
+    "etats": {
+      "neuf": "New",
+      "bon": "Good",
+      "a_reviser": "Needs service",
+      "hors_service": "Out of order"
+    },
+    "prochaine": "Next service",
+    "entretien": "Service",
+    "marquerFait": "Done today",
+    "sansEntretien": "no servicing",
+    "periodicite": "Interval (days)",
+    "derniere": "Last service",
+    "aidePeriodicite": "An empty interval means “needs no servicing” — an empty super, say — not “service it whenever”: nothing will be proposed for this item."
+  },
+  "stock": {
+    "titre": "Supplies",
+    "categories": {
+      "sirop": "Syrup",
+      "candi": "Fondant",
+      "traitement": "Treatment",
+      "cire_gaufree": "Foundation wax",
+      "pot": "Jar",
+      "etiquette": "Label",
+      "cadre": "Frame",
+      "protection": "Protective gear",
+      "autre": "Other"
+    },
+    "aide": "Stock without a threshold is an inventory: it says what you have, never what you lack. The threshold is what raises “reorder”.",
+    "aucun": "No supplies recorded.",
+    "nouveau": "New item",
+    "ligne": "{quantite} {unite} in stock · threshold {seuil}",
+    "aRacheter": "reorder",
+    "seuil": "Alert threshold",
+    "unite": "unit",
+    "aideSeuil": "Hitting the threshold exactly is already being short: the comparison is inclusive."
+  },
+  "depense": {
+    "categories": {
+      "materiel": "Equipment",
+      "consommable": "Supplies",
+      "traitement": "Treatment",
+      "nourrissement": "Feeding",
+      "cheptel": "Stock",
+      "transport": "Transport",
+      "analyse": "Analysis",
+      "assurance": "Insurance",
+      "formation": "Training",
+      "autre": "Other"
+    },
+    "montant": "Amount (€)",
+    "affectation": "Assigned to",
+    "aucune": "operation",
+    "aideAffectation": "Assignment is optional: a bought queen belongs to a hive, transport to an apiary, insurance to nothing at all. Requiring one would invent assignments, and per-hive profitability would become false."
+  },
+  "bilan": {
+    "titre": "Period summary",
+    "recettes": "Income",
+    "depenses": "Expenses",
+    "resultat": "Result",
+    "production": "Production",
+    "aide": "Income is a VALUATION of honey production at the configured price, not turnover: Zümm does not know your selling prices. The period is asked for, never guessed.",
+    "nonAffectees": "Including €{montant} not assigned to any hive — not distributed: insurance does not divide by the number of colonies."
+  },
+  "saison": {
+    "titre": "Season by season",
+    "annee": "Season",
+    "productives": "Producing hives",
+    "rendement": "Yield per hive",
+    "nonEvalue": "not assessed",
+    "bilanPdf": "Annual report",
+    "telecharger": "PDF",
+    "aide": "Dashboards work on a rolling period — twelve months receding every day. These are calendar years, and the yield counts the hives that produced, not those that existed."
+  },
+  "exportIntegral": {
+    "titre": "Export",
+    "ressource": "Resource",
+    "format": "Format",
+    "telecharger": "Download",
+    "aide": "Fourteen resources, three formats. Sensor readings are capped at the last ninety days, and the apiary export carries no coordinates — a file travels, and it has no role attached."
   }
 }

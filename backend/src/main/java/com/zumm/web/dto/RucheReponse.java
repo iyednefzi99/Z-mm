@@ -26,6 +26,7 @@ public record RucheReponse(
         String couleur,
         String origine,
         String causeCloture,
+        String priorite,
         Instant creeLe,
         Instant majLe) {
 
@@ -60,6 +61,7 @@ public record RucheReponse(
                 ruche.getCouleur(),
                 ruche.getOrigine(),
                 ruche.getCauseCloture(),
+                ruche.getPriorite(),
                 ruche.getCreeLe(),
                 ruche.getMajLe());
     }

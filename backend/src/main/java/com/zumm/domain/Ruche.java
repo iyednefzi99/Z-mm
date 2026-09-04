@@ -90,6 +90,24 @@ public class Ruche extends EntiteTenant {
     @Column(name = "cause_cloture", length = 15)
     private String causeCloture;
 
+
+    /**
+     * Ruche souche ou secondaire (SPRINT-23).
+     *
+     * <p>Independante de celle du rucher : un rucher strategique peut contenir une
+     * ruche ordinaire, et une ruche souche vivre dans un rucher secondaire. Les
+     * deduire l'une de l'autre demanderait une regle d'heritage que personne n'a
+     * demandee, et qui serait fausse dans les deux sens.
+     *
+     * <p>Trois niveaux et non quatre, contrairement a {@code Tache} : une tache
+     * se classe dans une journee, un rucher dans une saison — et au-dela de trois
+     * rangs, personne ne fait la difference.
+     */
+    @NotBlank
+    @Pattern(regexp = "basse|normale|haute")
+    @Column(name = "priorite", nullable = false, length = 10)
+    private String priorite = "normale";
+
     protected Ruche() {
         // Requis par JPA.
     }
@@ -110,6 +128,14 @@ public class Ruche extends EntiteTenant {
     /** Vide la composition (avant de la reconstruire lors d'une mise a jour). */
     public void viderCompartiments() {
         compartiments.clear();
+    }
+
+public String getPriorite() {
+        return priorite;
+    }
+
+    public void setPriorite(String priorite) {
+        this.priorite = priorite;
     }
 
     public String getModele() {

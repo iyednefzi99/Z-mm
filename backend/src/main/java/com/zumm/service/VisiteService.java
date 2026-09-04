@@ -14,6 +14,7 @@ import com.zumm.repository.PlanningRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
+import com.zumm.web.ConflitVersion;
 import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.MeteoVisite;
 import com.zumm.web.dto.ObservationVisite;
@@ -22,6 +23,8 @@ import com.zumm.web.dto.PhotoCorps;
 import com.zumm.web.dto.PhotoReponse;
 import com.zumm.web.dto.VisiteCorps;
 import com.zumm.web.dto.VisiteReponse;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,8 +86,28 @@ public class VisiteService {
                 pathologies.findByVisite_IdOrderByPathologieAsc(v.getId()));
     }
 
-    public VisiteReponse mettreAJour(Long id, VisiteCorps corps) {
+    /**
+     * Modifie une visite, en refusant d'ecraser une version plus recente.
+     *
+     * <p>{@code versionAttendue} est le {@code majLe} que l'appelant avait sous
+     * les yeux, ou {@code null} s'il n'en avait pas. Nul, la garde ne joue pas :
+     * les ecrans en ligne modifient ce qu'ils viennent de lire, et leur imposer
+     * un en-tete supplementaire n'aurait protege personne. C'est le rejeu de la
+     * file HORS LIGNE qui en a besoin — une saisie redescendue du rucher a
+     * plusieurs heures de retard, et deux agents peuvent l'avoir faite.
+     *
+     * <p>La comparaison porte sur l'instant a la SECONDE. PostgreSQL rend un
+     * {@code timestamptz} a la microseconde, que JSON ne restitue pas toujours
+     * a l'identique : comparer les instants bruts produirait des conflits
+     * fantomes sur une valeur pourtant relue telle quelle.
+     */
+    public VisiteReponse mettreAJour(Long id, VisiteCorps corps, Instant versionAttendue) {
         Visite visite = entite(id);
+        if (versionAttendue != null && visite.getMajLe() != null
+                && visite.getMajLe().truncatedTo(ChronoUnit.SECONDS)
+                        .isAfter(versionAttendue.truncatedTo(ChronoUnit.SECONDS))) {
+            throw new ConflitVersion("visite", id, visite.getMajLe());
+        }
         visite.setRuche(rucheRequise(corps.rucheId()));
         visite.setAgent(agentRequis(corps.agentId()));
         appliquer(visite, corps);

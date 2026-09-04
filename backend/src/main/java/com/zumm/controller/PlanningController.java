@@ -1,5 +1,6 @@
 package com.zumm.controller;
 
+import com.zumm.service.AgendaIcsService;
 import com.zumm.service.PlanningService;
 import com.zumm.web.Pagination;
 import com.zumm.web.dto.DecisionCorps;
@@ -30,10 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlanningController {
 
     private final PlanningService service;
+    private final AgendaIcsService agendaIcs;
     private final Pagination pagination;
 
-    public PlanningController(PlanningService service, Pagination pagination) {
+    public PlanningController(PlanningService service, AgendaIcsService agendaIcs,
+            Pagination pagination) {
         this.service = service;
+        this.agendaIcs = agendaIcs;
         this.pagination = pagination;
     }
 
@@ -71,6 +75,37 @@ public class PlanningController {
         return service.tournee(agentId, date, departSiteId);
     }
 
+    /**
+     * Visites planifiees au format iCalendar, a importer dans Google Agenda,
+     * Outlook ou Apple Calendar (SPRINT-21, §1 de
+     * {@code docs/ECART-CONCURRENTS.md}).
+     *
+     * <p>Exemple : {@code GET /api/plannings/agenda.ics?debut=2026-09-01&fin=2026-09-30}.
+     * Sans dates, les trente jours a venir — la fenetre a laquelle on prepare une
+     * saison.
+     *
+     * <p><strong>Un telechargement authentifie, pas une URL d'abonnement.</strong>
+     * Un abonnement suppose un jeton permanent dans l'URL, recopie dans les
+     * reglages de trois appareils et transmis en clair a chaque intermediaire :
+     * un secret de plus, non revocable en pratique. Voir {@code AgendaIcsService}
+     * pour l'arbitrage complet, et pour la raison qui exclut toute position du
+     * fichier produit.
+     */
+    @GetMapping(value = "/agenda.ics", produces = "text/calendar;charset=UTF-8")
+    public ResponseEntity<String> agenda(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate debut,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate fin) {
+        LocalDate depuis = debut == null ? LocalDate.now() : debut;
+        LocalDate jusqua = fin == null ? depuis.plusDays(30) : fin;
+        return ResponseEntity.ok()
+                // Nom de fichier explicite : un « agenda.ics » anonyme dans le
+                // dossier de telechargements ne se retrouve pas.
+                .header("Content-Disposition", "attachment; filename=\"zumm-visites.ics\"")
+                .body(agendaIcs.calendrier(depuis, jusqua));
+    }
+
     @GetMapping("/{id}")
     public PlanningReponse obtenir(@PathVariable Long id) {
         return service.obtenir(id);
@@ -87,7 +122,7 @@ public class PlanningController {
     }
 
     @PostMapping("/{id}/refuser")
-    public PlanningReponse refuser(@PathVariable Long id, @RequestBody DecisionCorps decision) {
+    public PlanningReponse refuser(@PathVariable Long id, @Valid @RequestBody DecisionCorps decision) {
         return service.refuser(id, decision.motif());
     }
 

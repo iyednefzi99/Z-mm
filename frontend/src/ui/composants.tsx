@@ -1,14 +1,7 @@
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type ReactElement,
-  type ReactNode,
-} from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
+import { cibleDemandee } from '../routage/routes';
 
 /**
  * Duree de la sortie de modale, en millisecondes.
@@ -393,6 +386,18 @@ export function Table<E extends { id: number }>({
   ecriture?: boolean;
 }): ReactElement {
   const t = useT();
+  const cible = cibleDemandee(window.location.pathname + window.location.search);
+  const ligneCible = useRef<HTMLTableRowElement>(null);
+
+  // Amener la ligne sous les yeux, et pas seulement la peindre : arriver depuis
+  // la palette sur un tableau de deux cents lignes sans défilement revient à
+  // n'avoir rien ouvert. `scrollIntoView` est appelé en optionnel — jsdom ne
+  // l'implémente pas, et un tableau ne doit pas dépendre d'un confort de
+  // défilement pour se monter.
+  useEffect(() => {
+    ligneCible.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  }, [cible, elements]);
+
   return (
     <div className="z-table-enveloppe">
       <table className="z-table">
@@ -406,7 +411,15 @@ export function Table<E extends { id: number }>({
         </thead>
         <tbody>
           {elements.map((element) => (
-            <tr key={element.id}>
+            <tr
+              key={element.id}
+              // Ligne visée par la recherche transverse (SPRINT-21). Le tableau
+              // est le seul endroit à connaître : le poser ici couvre les vingt
+              // écrans d'un coup, là où le faire écran par écran aurait produit
+              // vingt implémentations à maintenir.
+              className={element.id === cible ? 'is-cible' : undefined}
+              ref={element.id === cible ? ligneCible : undefined}
+            >
               {colonnes.map((colonne) => (
                 <td key={colonne.entete}>{colonne.rendu(element)}</td>
               ))}

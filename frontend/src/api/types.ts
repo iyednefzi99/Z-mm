@@ -49,6 +49,70 @@ export interface FermeCorps {
   fermierId: number;
 }
 
+/** Ressource du referentiel de sources de nectar (SPRINT-21). */
+export type RessourceFloraleType =
+  | 'colza'
+  | 'tournesol'
+  | 'acacia'
+  | 'chataignier'
+  | 'tilleul'
+  | 'lavande'
+  | 'bruyere'
+  | 'luzerne'
+  | 'sarrasin'
+  | 'verger'
+  | 'agrumes'
+  | 'eucalyptus'
+  | 'thym'
+  | 'romarin'
+  | 'jujubier'
+  | 'palmier_dattier'
+  | 'prairie'
+  | 'foret'
+  | 'garrigue'
+  | 'autre';
+
+export type TypeSite =
+  | 'sedentaire'
+  | 'transhumance'
+  | 'fecondation'
+  | 'elevage'
+  | 'conservatoire'
+  | 'autre';
+
+export type Exposition =
+  | 'nord'
+  | 'nord_est'
+  | 'est'
+  | 'sud_est'
+  | 'sud'
+  | 'sud_ouest'
+  | 'ouest'
+  | 'nord_ouest';
+
+export interface RessourceFlorale {
+  id: number;
+  ressource: RessourceFloraleType;
+  distanceM: number | null;
+  /**
+   * Fenêtre de floraison en MOIS (1-12) — la « miellée » du §1.
+   *
+   * <p>Elle peut enjamber l'année : `moisFin` inférieur à `moisDebut` est
+   * valide et se lit modulo douze (eucalyptus, novembre → février).
+   */
+  moisDebut: number | null;
+  moisFin: number | null;
+  note: string | null;
+}
+
+export interface RessourceFloraleCorps {
+  ressource: RessourceFloraleType;
+  distanceM: number | null;
+  moisDebut: number | null;
+  moisFin: number | null;
+  note: string | null;
+}
+
 export interface Site {
   id: number;
   nom: string;
@@ -60,6 +124,30 @@ export interface Site {
   dateMiseEnOeuvre: string;
   dateDemenagement: string | null;
   dateCloture: string | null;
+  /**
+   * Adresse postale (SPRINT-21). NULLE pour les profils non proprietaires : le
+   * serveur la retire avec l'altitude, parce qu'une rue situe un rucher au
+   * portail la ou deux decimales le situent au kilometre. La commune et le pays,
+   * eux, restent.
+   */
+  adresseRue: string | null;
+  codePostal: string | null;
+  ville: string | null;
+  pays: string | null;
+  typeSite: TypeSite | null;
+  exposition: Exposition | null;
+  /**
+   * basse | normale | haute (SPRINT-23). Jamais nulle : un défaut nul
+   * obligerait chaque lecture à traiter l'absence comme un cas particulier.
+   */
+  priorite: PrioriteTerrain;
+  /**
+   * Couverture mobile constatée sur place (SPRINT-24). NULLE = inconnue,
+   * ce qui est la réponse honnête tant que personne n'y est allé avec un
+   * téléphone. Ce n'est pas une position : elle n'est donc pas masquée.
+   */
+  couvertureReseau: CouvertureReseau | null;
+  ressources: RessourceFlorale[];
   creeLe: string;
   majLe: string;
 }
@@ -73,6 +161,61 @@ export interface SiteCorps {
   dateMiseEnOeuvre: string;
   dateDemenagement: string | null;
   dateCloture: string | null;
+  adresseRue: string | null;
+  codePostal: string | null;
+  ville: string | null;
+  pays: string | null;
+  typeSite: TypeSite | null;
+  exposition: Exposition | null;
+  /**
+   * basse | normale | haute (SPRINT-23). Jamais nulle : un défaut nul
+   * obligerait chaque lecture à traiter l'absence comme un cas particulier.
+   */
+  priorite: PrioriteTerrain;
+  /**
+   * Couverture mobile constatée sur place (SPRINT-24). NULLE = inconnue,
+   * ce qui est la réponse honnête tant que personne n'y est allé avec un
+   * téléphone. Ce n'est pas une position : elle n'est donc pas masquée.
+   */
+  couvertureReseau: CouvertureReseau | null;
+  ressources: RessourceFloraleCorps[];
+}
+
+/** Motif d'un changement d'emplacement (SPRINT-21). */
+export type MotifEmplacement =
+  | 'installation'
+  | 'transhumance'
+  | 'miellee'
+  | 'securite'
+  | 'reglementaire'
+  | 'autre';
+
+/**
+ * Un emplacement occupe par un rucher (SPRINT-21).
+ *
+ * <p>`courant` distingue la ligne en cours : c'est la seule dont `dateFin` est
+ * nulle, et l'index unique partiel de la base garantit qu'il n'y en a qu'une.
+ */
+export interface Emplacement {
+  id: number;
+  siteId: number;
+  latitude: number;
+  longitude: number;
+  altitude: number | null;
+  dateDebut: string;
+  dateFin: string | null;
+  motif: MotifEmplacement | null;
+  note: string | null;
+  courant: boolean;
+}
+
+export interface DemenagementCorps {
+  latitude: number;
+  longitude: number;
+  altitude: number | null;
+  dateDebut: string;
+  motif: MotifEmplacement | null;
+  note: string | null;
 }
 
 export interface Agent {
@@ -82,6 +225,13 @@ export interface Agent {
   fermeId: number | null;
   fermeNom: string | null;
   email: string | null;
+  /**
+   * Cet agent accepte-t-il les courriels d'alerte (SPRINT-25) ?
+   *
+   * <p>S'AJOUTE au réglage global du serveur, il ne le remplace pas :
+   * les deux doivent être vrais pour qu'un message parte.
+   */
+  notificationsEmail: boolean;
   creeLe: string;
   majLe: string;
 }
@@ -91,6 +241,8 @@ export interface AgentCorps {
   role: RoleAgent;
   fermeId: number | null;
   email?: string | null;
+  /** NUL = on ne touche pas au réglage existant (SPRINT-25). */
+  notificationsEmail?: boolean | null;
 }
 
 export type EtatRuche =
@@ -219,6 +371,11 @@ export const CAUSES_CLOTURE: readonly CauseCloture[] = [
   'autre',
 ];
 
+/** Priorité d'une ruche ou d'un rucher (SPRINT-23). Trois niveaux, pas quatre. */
+export type PrioriteTerrain = 'basse' | 'normale' | 'haute';
+
+export const PRIORITES_TERRAIN: readonly PrioriteTerrain[] = ['basse', 'normale', 'haute'];
+
 export interface Ruche {
   id: number;
   modele: string;
@@ -235,6 +392,11 @@ export interface Ruche {
   couleur: CouleurRuche | null;
   origine: OrigineRuche | null;
   causeCloture: CauseCloture | null;
+  /**
+   * basse | normale | haute (SPRINT-23). Jamais nulle : un défaut nul
+   * obligerait chaque lecture à traiter l'absence comme un cas particulier.
+   */
+  priorite: PrioriteTerrain;
   creeLe: string;
   majLe: string;
 }
@@ -250,6 +412,11 @@ export interface RucheCorps {
   couleur: CouleurRuche | null;
   origine: OrigineRuche | null;
   causeCloture: CauseCloture | null;
+  /**
+   * basse | normale | haute (SPRINT-23). Jamais nulle : un défaut nul
+   * obligerait chaque lecture à traiter l'absence comme un cas particulier.
+   */
+  priorite: PrioriteTerrain;
 }
 
 export type RaisonVisite =
@@ -300,14 +467,27 @@ export interface PlanningCorps {
   raison: RaisonVisite;
 }
 
+/** Objet auquel une photo est attachee (SPRINT-21). */
+export type CiblePhoto = 'VISITE' | 'RUCHE' | 'SITE' | 'REINE' | 'RECOLTE';
+
 export interface Photo {
   id: number;
+  cible: CiblePhoto;
+  cibleId: number;
   url: string;
   legende: string | null;
   creeLe: string;
 }
 
 export interface PhotoCorps {
+  url: string;
+  legende: string | null;
+}
+
+/** Corps de la route generique `/api/photos`, ou la cible est dans le corps. */
+export interface PhotoCibleCorps {
+  cible: CiblePhoto;
+  cibleId: number;
   url: string;
   legende: string | null;
 }
@@ -359,6 +539,37 @@ export interface VisiteCorps {
 }
 
 /** Tâche ou rappel de l'apiculteur (US-031). */
+/** Priorite d'une tache (SPRINT-22). Absente a la saisie, elle vaut `normale`. */
+export type PrioriteTache = 'basse' | 'normale' | 'haute' | 'critique';
+
+export const PRIORITES_TACHE: readonly PrioriteTache[] = [
+  'basse',
+  'normale',
+  'haute',
+  'critique',
+];
+
+export type CategorieTache =
+  | 'controle'
+  | 'traitement'
+  | 'nourrissement'
+  | 'recolte'
+  | 'materiel'
+  | 'elevage'
+  | 'administratif'
+  | 'autre';
+
+export const CATEGORIES_TACHE: readonly CategorieTache[] = [
+  'controle',
+  'traitement',
+  'nourrissement',
+  'recolte',
+  'materiel',
+  'elevage',
+  'administratif',
+  'autre',
+];
+
 export interface Tache {
   id: number;
   libelle: string;
@@ -368,6 +579,17 @@ export interface Tache {
   agentNom: string | null;
   echeance: string | null;
   faite: boolean;
+  priorite: PrioriteTache;
+  categorie: CategorieTache | null;
+  /**
+   * `manuelle` ou `regle`.
+   *
+   * <p>Une tâche engendrée doit pouvoir se justifier à l'écran — « proposée par
+   * la règle des délais de carence ». Une liste où les deux se confondent finit
+   * par ne plus être lue.
+   */
+  origine: 'manuelle' | 'regle';
+  regleCode: string | null;
   creeLe: string;
   majLe: string;
 }
@@ -378,6 +600,35 @@ export interface TacheCorps {
   agentId: number | null;
   echeance: string | null;
   faite: boolean;
+  priorite: PrioriteTache | null;
+  categorie: CategorieTache | null;
+}
+
+/**
+ * Indices calculés d'une colonie (SPRINT-22).
+ *
+ * <p>`composantes` à zéro signifie que **rien n'a pu être évalué** : `sante` et
+ * `risqueEssaimage` valent alors zéro et ne veulent rien dire. L'écran doit
+ * afficher « non évalué », jamais une jauge — une jauge sur du vide fait passer
+ * l'ignorance pour un diagnostic.
+ */
+export interface IndiceColonie {
+  rucheId: number;
+  rucheModele: string;
+  sante: number;
+  risqueEssaimage: number;
+  composantes: number;
+  derniereVisite: string | null;
+  motifs: string[];
+}
+
+/** Corrélation entre un indicateur météo figé et la production (SPRINT-22). */
+export interface CorrelationMeteo {
+  indicateur: 'temperature' | 'humidite' | 'vent';
+  /** `null` quand le coefficient n'existe pas : série constante ou une seule paire. */
+  coefficient: number | null;
+  echantillon: number;
+  interpretation: string;
 }
 
 /**
@@ -473,12 +724,25 @@ export interface AlerteSanitaire {
   motif: string;
 }
 
-export type TypeIndicateur = 'poids' | 'temperature' | 'humidite' | 'activite';
+export type TypeIndicateur =
+  | 'poids'
+  | 'temperature'
+  | 'humidite'
+  | 'activite'
+  /**
+   * Niveau de batterie du capteur, en pourcent (SPRINT-26).
+   *
+   * <p>Ne dit rien de la colonie : c'est l'état du MATÉRIEL qui l'observe. Le
+   * reproche fait à BeeLog et Onibi n'est pas l'absence de mesure, c'est la
+   * panne silencieuse — d'où une valeur de plus, et le même mécanisme d'alerte.
+   */
+  | 'alimentation';
 export const TYPES_INDICATEUR: readonly TypeIndicateur[] = [
   'poids',
   'temperature',
   'humidite',
   'activite',
+  'alimentation',
 ];
 
 /** Alerte de seuil déclenchée par une mesure (US-018). */
@@ -605,8 +869,13 @@ export interface Recolte {
   dateRecolte: string;
   quantiteKg: number;
   typeMiel: string | null;
+  typeProduit: TypeProduit;
+  unite: UniteProduit;
   lot: string;
   note: string | null;
+  /** Récolte enregistrée malgré une carence, avec son motif (SPRINT-22). */
+  carenceForcee: boolean;
+  motifForcage: string | null;
   qrPayload: string;
   creeLe: string;
   majLe: string;
@@ -617,7 +886,19 @@ export interface RecolteCorps {
   dateRecolte: string;
   quantiteKg: number;
   typeMiel: string | null;
+  /** Absents, c'est du MIEL en kilogrammes : le défaut d'avant le SPRINT-27. */
+  typeProduit?: TypeProduit | null;
+  unite?: UniteProduit | null;
   note: string | null;
+  /**
+   * Enregistrer malgré une carence en cours (SPRINT-22).
+   *
+   * <p>Le serveur répond **409** tant que ce drapeau est faux : la requête est
+   * valide, c'est l'état de la ruche qui s'y oppose. Forcer exige un motif, et
+   * la décision est consignée au journal d'audit.
+   */
+  forcerCarence: boolean;
+  motifForcage: string | null;
 }
 
 /** Fiche de traçabilité d'un lot (US-033). */
@@ -1104,4 +1385,714 @@ export interface MeteoVisite {
   humiditePourcent: number | null;
   ventKmh: number | null;
   source: SourceMeteo | null;
+}
+
+/** Methode employee pour diviser une colonie (SPRINT-21). */
+export type MethodeDivision =
+  | 'essaim_artificiel'
+  | 'nucleus'
+  | 'partage_egal'
+  | 'prelevement_cadres'
+  | 'autre';
+
+export type OrigineReineDivision =
+  | 'cellule_royale'
+  | 'reine_introduite'
+  | 'orpheline'
+  | 'reine_mere'
+  | 'autre';
+
+/**
+ * Division d'une colonie (SPRINT-21).
+ *
+ * <p>`rucheFilleId` peut manquer : on divise souvent vers un nucleus qui ne sera
+ * enregistre comme ruche que s'il prend.
+ */
+export interface Division {
+  id: number;
+  rucheMereId: number;
+  rucheMereModele: string;
+  rucheFilleId: number | null;
+  rucheFilleModele: string | null;
+  agentId: number;
+  agentNom: string;
+  visiteId: number | null;
+  dateDivision: string;
+  methode: MethodeDivision | null;
+  cadresCouvain: number | null;
+  cadresProvisions: number | null;
+  origineReine: OrigineReineDivision | null;
+  note: string | null;
+  creeLe: string;
+}
+
+export interface DivisionCorps {
+  rucheMereId: number;
+  rucheFilleId: number | null;
+  agentId: number;
+  visiteId: number | null;
+  dateDivision: string;
+  methode: MethodeDivision | null;
+  cadresCouvain: number | null;
+  cadresProvisions: number | null;
+  origineReine: OrigineReineDivision | null;
+  note: string | null;
+}
+
+export type OrigineCapture =
+  | 'essaim_naturel'
+  | 'piege'
+  | 'recuperation'
+  | 'signalement'
+  | 'autre';
+
+/**
+ * Capture d'essaim (SPRINT-21).
+ *
+ * <p>Aucune coordonnee, deliberement : `lieu` est un repere humain, pas un point
+ * sur une carte. `logee` dit si l'essaim a rejoint une ruche du parc.
+ */
+export interface CaptureEssaim {
+  id: number;
+  agentId: number;
+  agentNom: string;
+  rucheId: number | null;
+  siteId: number | null;
+  siteNom: string | null;
+  dateCapture: string;
+  origine: OrigineCapture;
+  lieu: string | null;
+  poidsKg: number | null;
+  hauteurM: number | null;
+  note: string | null;
+  logee: boolean;
+  creeLe: string;
+}
+
+export interface CaptureEssaimCorps {
+  agentId: number;
+  rucheId: number | null;
+  siteId: number | null;
+  dateCapture: string;
+  origine: OrigineCapture;
+  lieu: string | null;
+  poidsKg: number | null;
+  hauteurM: number | null;
+  note: string | null;
+}
+
+/** Famille d'objet rendue par la recherche globale (SPRINT-21). */
+export type TypeResultat =
+  | 'ruche'
+  | 'site'
+  | 'ferme'
+  | 'fermier'
+  | 'agent'
+  | 'recolte'
+  | 'lot';
+
+/**
+ * Une reponse de la recherche globale (SPRINT-21).
+ *
+ * <p>Volontairement pauvre — ni position, ni adresse, ni courriel : c'est le seul
+ * endroit du produit ou un appel rend d'un coup un echantillon de toutes les
+ * tables.
+ */
+export interface ResultatRecherche {
+  type: TypeResultat;
+  id: number;
+  libelle: string;
+  precision: string | null;
+  route: string;
+}
+
+/** Referentiel des methodes de division (SPRINT-21). */
+export const METHODES_DIVISION: readonly MethodeDivision[] = [
+  'essaim_artificiel',
+  'nucleus',
+  'partage_egal',
+  'prelevement_cadres',
+  'autre',
+];
+
+export const ORIGINES_REINE: readonly OrigineReineDivision[] = [
+  'cellule_royale',
+  'reine_introduite',
+  'orpheline',
+  'reine_mere',
+  'autre',
+];
+
+export const ORIGINES_CAPTURE: readonly OrigineCapture[] = [
+  'essaim_naturel',
+  'piege',
+  'recuperation',
+  'signalement',
+  'autre',
+];
+
+/** Referentiel des sources de nectar declarables sur un rucher (SPRINT-21). */
+export const RESSOURCES_FLORALES: readonly RessourceFloraleType[] = [
+  'colza',
+  'tournesol',
+  'acacia',
+  'chataignier',
+  'tilleul',
+  'lavande',
+  'bruyere',
+  'luzerne',
+  'sarrasin',
+  'verger',
+  'agrumes',
+  'eucalyptus',
+  'thym',
+  'romarin',
+  'jujubier',
+  'palmier_dattier',
+  'prairie',
+  'foret',
+  'garrigue',
+  'autre',
+];
+
+export const TYPES_SITE: readonly TypeSite[] = [
+  'sedentaire',
+  'transhumance',
+  'fecondation',
+  'elevage',
+  'conservatoire',
+  'autre',
+];
+
+export const EXPOSITIONS: readonly Exposition[] = [
+  'nord',
+  'nord_est',
+  'est',
+  'sud_est',
+  'sud',
+  'sud_ouest',
+  'ouest',
+  'nord_ouest',
+];
+
+export const MOTIFS_EMPLACEMENT: readonly MotifEmplacement[] = [
+  'installation',
+  'transhumance',
+  'miellee',
+  'securite',
+  'reglementaire',
+  'autre',
+];
+
+/** Statut d'un plan de transhumance (SPRINT-21). */
+export type StatutTransport = 'prevu' | 'realise' | 'annule';
+
+export const STATUTS_TRANSPORT: readonly StatutTransport[] = ['prevu', 'realise', 'annule'];
+
+/**
+ * Plan de deplacement d'un rucher (SPRINT-21).
+ *
+ * <p>`voyages` est calcule par le serveur a partir de la capacite et du nombre
+ * de ruches : il n'est stocke nulle part, pour que les trois valeurs ne puissent
+ * pas diverger.
+ *
+ * <p>La destination arrive MASQUEE pour les profils non proprietaires, comme
+ * toute position : un plan de transport est une carte des ruchers a venir.
+ */
+export interface Transport {
+  id: number;
+  siteId: number;
+  siteNom: string;
+  agentId: number;
+  agentNom: string;
+  datePrevue: string;
+  heurePrevue: string | null;
+  vehicule: string | null;
+  capaciteRuches: number | null;
+  nbRuches: number | null;
+  voyages: number | null;
+  destinationLibelle: string;
+  destinationLatitude: number | null;
+  destinationLongitude: number | null;
+  statut: StatutTransport;
+  note: string | null;
+  creeLe: string;
+}
+
+export interface TransportCorps {
+  siteId: number;
+  agentId: number;
+  datePrevue: string;
+  heurePrevue: string | null;
+  vehicule: string | null;
+  capaciteRuches: number | null;
+  nbRuches: number | null;
+  destinationLibelle: string;
+  destinationLatitude: number | null;
+  destinationLongitude: number | null;
+  note: string | null;
+}
+
+/**
+ * Abonnement iCalendar (SPRINT-21).
+ *
+ * <p>`url` n'est renseignee qu'a la CREATION : elle porte le jeton en clair, qui
+ * n'existe nulle part ailleurs — la base n'en garde que l'empreinte. Perdue,
+ * elle se remplace, elle ne se retrouve pas.
+ */
+export interface Abonnement {
+  id: number;
+  agentId: number;
+  libelle: string;
+  creeLe: string;
+  expireLe: string;
+  revoqueLe: string | null;
+  derniereUtilisation: string | null;
+  actif: boolean;
+  url: string | null;
+}
+
+export interface AbonnementCorps {
+  agentId: number;
+  libelle: string;
+  dureeJours: number;
+}
+
+/**
+ * Sur quelles ruches porte une opération de lot (SPRINT-23).
+ *
+ * <p>Les deux champs sont cumulables et le serveur déduplique : scanner trente
+ * ruches d'un rucher qui en compte quarante, puis viser le rucher entier, donne
+ * quarante lignes — jamais soixante-dix.
+ */
+export interface CibleLot {
+  rucheIds: number[] | null;
+  siteId: number | null;
+}
+
+/**
+ * Ce qu'une opération de lot a réellement fait (SPRINT-23).
+ *
+ * <p><strong>Un lot réussit rarement en entier, et ce n'est pas une anomalie.</strong>
+ * Sur quarante ruches, deux clôturées et une sous carence donnent trente-sept
+ * succès et trois refus : c'est le résultat normal. L'écran doit donc afficher
+ * les deux, et nommer les refus — c'est ce qui permet de reprendre trois ruches
+ * au lieu de quarante.
+ */
+export interface RapportLot {
+  demandees: number;
+  reussites: number[];
+  echecs: { rucheId: number; motif: string }[];
+}
+
+/** Le rucher vu d'un coup : le niveau auquel on travaille (SPRINT-23). */
+export interface SyntheseRucher {
+  siteId: number;
+  siteNom: string;
+  ville: string | null;
+  priorite: PrioriteTerrain;
+  nbRuches: number;
+  nbActives: number;
+  /** `null` si aucune colonie n'a pu être évaluée — jamais 0, qui serait un jugement. */
+  santeMoyenne: number | null;
+  coloniesEvaluees: number;
+  risqueEssaimageMax: number | null;
+  ruchesSousCarence: number;
+  alertesOuvertes: number;
+  tachesOuvertes: number;
+  productionKg: number;
+}
+
+/** Un emplacement aligné pour la comparaison (SPRINT-23). Aucune note globale. */
+export interface ComparaisonSite {
+  siteId: number;
+  siteNom: string;
+  ville: string | null;
+  typeSite: TypeSite | null;
+  exposition: Exposition | null;
+  altitude: number | null;
+  nbRuches: number;
+  rendementKgParRuche: number | null;
+  ressourcesDeclarees: number;
+  ressourcesEnFleur: number;
+  ruchersA3km: number;
+}
+
+/**
+ * Charge d'un agent (SPRINT-23).
+ *
+ * <p>Ces chiffres servent à répartir, jamais à comparer des personnes : dix
+ * tâches en retard, c'est le plus souvent trois jours de pluie.
+ */
+export interface ChargeAgent {
+  agentId: number;
+  agentNom: string;
+  role: string | null;
+  ruchesResponsable: number;
+  ruchersConcernes: number;
+  tachesOuvertes: number;
+  tachesEnRetard: number;
+  tachesCritiques: number;
+  visites7Jours: number;
+}
+
+/** Corps d'une récolte de rucher entier (SPRINT-23). */
+export interface RecolteLotCorps {
+  cible: CibleLot;
+  dateRecolte: string;
+  /** Masse récoltée sur CHAQUE ruche visée, jamais un total à répartir. */
+  quantiteKgParRuche: number;
+  typeMiel: string | null;
+  note: string | null;
+  forcerCarence: boolean;
+  motifForcage: string | null;
+}
+
+
+// ─── Le terrain sans réseau (SPRINT-24, lot C) ─────────────────────────────
+
+export type CouvertureReseau = 'aucune' | 'faible' | 'correcte' | 'bonne';
+export const COUVERTURES_RESEAU: readonly CouvertureReseau[] = [
+  'aucune',
+  'faible',
+  'correcte',
+  'bonne',
+];
+
+/**
+ * Instantané d'un rucher, à emporter hors ligne (ADR-012).
+ *
+ * <p>`preleveLe` est la raison d'être de ce type : une donnée servie depuis le
+ * disque ne doit jamais passer pour fraîche. Il s'affiche partout où
+ * l'instantané sert, pas seulement là où on l'a déclenché.
+ *
+ * <p>Ni mesures de capteurs, ni météo, ni position exacte : voir `EmportRucher`
+ * côté serveur, qui dit pourquoi chacune est dehors.
+ */
+export interface EmportRucher {
+  preleveLe: string;
+  site: Site;
+  ruches: Ruche[];
+  dernieresVisites: Visite[];
+  tachesOuvertes: Tache[];
+  sousCarence: Traitement[];
+}
+
+/**
+ * Saisie de visite en cours, reprenable sur un autre appareil (SPRINT-24).
+ *
+ * <p>`contenu` est du JSON opaque au serveur — le formulaire tel que le front
+ * l'a laissé. `appareil` et `majLe` sont ce qui rend la reprise décidable :
+ * « commencé il y a deux heures sur le téléphone » se reprend, « commencé il y a
+ * trois semaines » s'efface.
+ */
+export interface Brouillon {
+  id: number;
+  agentId: number;
+  agentNom: string;
+  rucheId: number;
+  rucheModele: string;
+  siteNom: string | null;
+  contenu: string;
+  appareil: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface BrouillonCorps {
+  agentId: number;
+  rucheId: number;
+  contenu: string;
+  appareil: string | null;
+}
+
+// ─── Identification et confort (SPRINT-25, lot J) ──────────────────────────
+
+/**
+ * État du jeu de démonstration.
+ *
+ * <p>`objets` est ce qui rend le bouton « Retirer » décidable plutôt
+ * qu'inquiétant : on sait combien de lignes disparaîtront.
+ */
+export interface EtatDemonstration {
+  disponible: boolean;
+  charge: boolean;
+  objets: number;
+}
+
+// ─── Capteurs : hausse et partage (SPRINT-26, lot F₁) ──────────────────────
+
+/**
+ * Poids attribué à un compartiment.
+ *
+ * <p>`valeur` et `instant` sont NULS tant qu'aucune pesée n'a eu lieu, et le
+ * restent plutôt que de valoir zéro : une hausse jamais pesée n'est pas une
+ * hausse vide, c'est une hausse inconnue. Afficher 0 kg ferait croire à une
+ * colonie qui a perdu ses réserves.
+ */
+export interface PoidsCompartiment {
+  compartimentId: number;
+  type: 'corps' | 'hausse';
+  nbCadres: number;
+  valeur: number | null;
+  instant: string | null;
+}
+
+export interface MesureCompartimentCorps {
+  compartimentId: number;
+  valeur: number;
+  instant?: string | null;
+}
+
+/**
+ * Partage d'un flux de télémétrie hors de l'exploitation.
+ *
+ * <p>`url` n'est renseignée QU'À LA CRÉATION : le jeton n'existe en clair
+ * qu'une fois, la base n'en gardant que l'empreinte. La relire plus tard est
+ * impossible — c'est le prix, assumé, de ne rien stocker de réutilisable.
+ */
+export interface Partage {
+  id: number;
+  rucheId: number;
+  libelle: string;
+  creeLe: string;
+  expireLe: string;
+  revoqueLe: string | null;
+  derniereUtilisation: string | null;
+  actif: boolean;
+  url: string | null;
+}
+
+export interface PartageCorps {
+  rucheId: number;
+  libelle: string;
+  dureeJours: number;
+}
+
+// ─── Production, stock, matériel (SPRINT-27, lot E) ────────────────────────
+
+export type TypeProduit =
+  | 'miel'
+  | 'cire'
+  | 'pollen'
+  | 'propolis'
+  | 'gelee_royale'
+  | 'essaim'
+  | 'reine';
+export const TYPES_PRODUIT: readonly TypeProduit[] = [
+  'miel',
+  'cire',
+  'pollen',
+  'propolis',
+  'gelee_royale',
+  'essaim',
+  'reine',
+];
+
+/** kg pour ce qui se pèse, unite pour ce qui se compte. */
+export type UniteProduit = 'kg' | 'unite';
+
+export type CategorieMateriel =
+  | 'ruche'
+  | 'hausse'
+  | 'cadre'
+  | 'extracteur'
+  | 'maturateur'
+  | 'enfumoir'
+  | 'protection'
+  | 'vehicule'
+  | 'balance'
+  | 'autre';
+export const CATEGORIES_MATERIEL: readonly CategorieMateriel[] = [
+  'ruche',
+  'hausse',
+  'cadre',
+  'extracteur',
+  'maturateur',
+  'enfumoir',
+  'protection',
+  'vehicule',
+  'balance',
+  'autre',
+];
+
+export type EtatMateriel = 'neuf' | 'bon' | 'a_reviser' | 'hors_service';
+export const ETATS_MATERIEL: readonly EtatMateriel[] = [
+  'neuf',
+  'bon',
+  'a_reviser',
+  'hors_service',
+];
+
+/**
+ * Un équipement, avec son échéance d'entretien CALCULÉE.
+ *
+ * <p>`prochaineMaintenance` et `enRetard` ne sont pas stockés : les ranger en
+ * base créerait une valeur à maintenir en cohérence avec la dernière
+ * maintenance.
+ */
+export interface Materiel {
+  id: number;
+  libelle: string;
+  categorie: CategorieMateriel;
+  quantite: number;
+  siteId: number | null;
+  siteNom: string | null;
+  etat: EtatMateriel;
+  periodiciteJours: number | null;
+  derniereMaintenance: string | null;
+  prochaineMaintenance: string | null;
+  enRetard: boolean;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface MaterielCorps {
+  libelle: string;
+  categorie: CategorieMateriel;
+  quantite: number;
+  siteId: number | null;
+  etat: EtatMateriel;
+  periodiciteJours: number | null;
+  derniereMaintenance: string | null;
+  note: string | null;
+}
+
+export type CategorieConsommable =
+  | 'sirop'
+  | 'candi'
+  | 'traitement'
+  | 'cire_gaufree'
+  | 'pot'
+  | 'etiquette'
+  | 'cadre'
+  | 'protection'
+  | 'autre';
+export const CATEGORIES_CONSOMMABLE: readonly CategorieConsommable[] = [
+  'sirop',
+  'candi',
+  'traitement',
+  'cire_gaufree',
+  'pot',
+  'etiquette',
+  'cadre',
+  'protection',
+  'autre',
+];
+
+/** `sousSeuil` est calculé, et la comparaison est INCLUSIVE. */
+export interface Consommable {
+  id: number;
+  libelle: string;
+  categorie: CategorieConsommable;
+  quantite: number;
+  unite: 'kg' | 'l' | 'unite';
+  seuilAlerte: number;
+  sousSeuil: boolean;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface ConsommableCorps {
+  libelle: string;
+  categorie: CategorieConsommable;
+  quantite: number;
+  unite: 'kg' | 'l' | 'unite';
+  seuilAlerte: number;
+  note: string | null;
+}
+
+export type CategorieDepense =
+  | 'materiel'
+  | 'consommable'
+  | 'traitement'
+  | 'nourrissement'
+  | 'cheptel'
+  | 'transport'
+  | 'analyse'
+  | 'assurance'
+  | 'formation'
+  | 'autre';
+export const CATEGORIES_DEPENSE: readonly CategorieDepense[] = [
+  'materiel',
+  'consommable',
+  'traitement',
+  'nourrissement',
+  'cheptel',
+  'transport',
+  'analyse',
+  'assurance',
+  'formation',
+  'autre',
+];
+
+export interface Depense {
+  id: number;
+  libelle: string;
+  categorie: CategorieDepense;
+  montantEur: number;
+  dateDepense: string;
+  rucheId: number | null;
+  rucheModele: string | null;
+  siteId: number | null;
+  siteNom: string | null;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface DepenseCorps {
+  libelle: string;
+  categorie: CategorieDepense;
+  montantEur: number;
+  dateDepense: string;
+  rucheId: number | null;
+  siteId: number | null;
+  note: string | null;
+}
+
+/**
+ * Rentabilité d'une ruche.
+ *
+ * <p>`recettesEur` est une VALORISATION au prix du kilo paramétré, pas un
+ * chiffre d'affaires : Zümm ne connaît pas les prix de vente.
+ */
+export interface RentabiliteRuche {
+  rucheId: number;
+  rucheModele: string;
+  siteNom: string | null;
+  productionKg: number;
+  recettesEur: number;
+  depensesEur: number;
+  resultatEur: number;
+}
+
+/**
+ * Bilan d'une période.
+ *
+ * <p>`depensesNonAffectees` figure À PART et n'est pas répartie : une assurance
+ * ne se divise pas par le nombre de ruches.
+ */
+export interface BilanExploitation {
+  debut: string;
+  fin: string;
+  productionMielKg: number;
+  recettesEur: number;
+  depensesEur: number;
+  resultatEur: number;
+  depensesNonAffectees: number;
+  parCategorie: Record<string, number>;
+  parRuche: RentabiliteRuche[];
+}
+
+/** Une saison, en année civile. `rendementKg` est NUL si rien n'a produit. */
+export interface ComparaisonSaisons {
+  annee: number;
+  productionMielKg: number;
+  ruchesProductives: number;
+  rendementKg: number | null;
+  nombreRecoltes: number;
+  parProduit: { typeProduit: string; unite: string; quantite: number }[];
 }

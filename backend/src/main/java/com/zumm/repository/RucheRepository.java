@@ -2,9 +2,11 @@ package com.zumm.repository;
 
 import com.zumm.domain.Ruche;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * Acces aux ruches (US-004). Restreint au tenant courant (@TenantId + RLS). Le
@@ -32,4 +34,26 @@ public interface RucheRepository extends JpaRepository<Ruche, Long> {
     @Override
     @EntityGraph(attributePaths = {"site", "ferme", "compartiments"})
     List<Ruche> findAll();
+
+    /**
+     * Ruches dont le modele ou le type contient {@code motif} (recherche globale,
+     * SPRINT-21). La RLS y ajoute la portee : un agent ne trouve que ses ruches.
+     */
+    @Query("""
+            select r from Ruche r
+            where lower(r.modele) like lower(concat('%', :motif, '%'))
+               or lower(r.typeRuche) like lower(concat('%', :motif, '%'))
+            order by r.id asc
+            """)
+    List<Ruche> rechercher(@Param("motif") String motif, Pageable pagination);
+
+    /**
+     * Ruches d'un rucher, dans l'ordre des identifiants (SPRINT-23).
+     *
+     * <p>Cible des operations de lot quand l'appelant designe TOUT un rucher.
+     * L'ordre est stable et previsible : un rapport de lot se relit ligne a
+     * ligne, et un ordre qui changerait d'un appel a l'autre rendrait la
+     * comparaison de deux rapports impossible.
+     */
+    List<Ruche> findBySite_IdOrderByIdAsc(Long siteId);
 }

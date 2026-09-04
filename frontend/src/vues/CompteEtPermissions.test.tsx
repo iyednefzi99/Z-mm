@@ -16,7 +16,15 @@ import type { Session } from '../auth/session';
  * publier. Elle ne peut pas se vérifier toute seule, mais elle peut au moins
  * refuser de se taire sur un écran que le front déclare réservé.
  */
-vi.mock('../api/client', () => ({ jetonCsrf: () => 'jeton-de-test' }));
+vi.mock('../api/client', () => ({
+  jetonCsrf: () => 'jeton-de-test',
+  // La page de récupération lit `/api/info` depuis le SPRINT-25 : sans URL de
+  // réinitialisation, elle garde le bandeau des manques et l'aiguillage vers le
+  // responsable — c'est ce que vérifient les deux tests ci-dessous.
+  chargerInfo: vi.fn(() =>
+    Promise.resolve({ nom: 'Zümm', version: '0', accueil: '', langues: ['fr'], reinitialisationUrl: '' }),
+  ),
+}));
 vi.mock('../auth/oidc', () => ({ deconnexion: vi.fn() }));
 
 const session: Session = {
@@ -42,7 +50,8 @@ describe('matrice des permissions', () => {
   it('nomme les écrans retirés de la navigation, sans les réécrire', () => {
     monter(<PermissionsVue />);
 
-    expect(screen.getByText(/Audit, Invitations, Permissions/)).toBeInTheDocument();
+    expect(screen.getByText(/Audit, Comptabilité, Invitations, Permissions/))
+      .toBeInTheDocument();
   });
 
   it('rappelle que le masquage n’est pas la protection', () => {
@@ -102,5 +111,25 @@ describe('page mot de passe oublié', () => {
     expect(
       screen.getByRole('heading', { name: 'Passez par votre responsable' }),
     ).toBeInTheDocument();
+  });
+
+  it('propose le libre-service dès que le fournisseur d’identité est configuré', async () => {
+    const { chargerInfo } = await import('../api/client');
+    vi.mocked(chargerInfo).mockResolvedValue({
+      nom: 'Zümm',
+      version: '0',
+      accueil: '',
+      langues: ['fr'],
+      reinitialisationUrl: 'https://identite.zumm.test/reset',
+    });
+
+    monter(<RecuperationVue />);
+
+    // Le lien n'apparaît QUE s'il mène quelque part : affiché sans serveur
+    // d'envoi, il conduirait à un formulaire dont le courriel ne part jamais.
+    const lien = await screen.findByRole('link', { name: 'Réinitialiser mon mot de passe' });
+    expect(lien).toHaveAttribute('href', 'https://identite.zumm.test/reset');
+    // Et le bandeau des manques disparaît : il n'y a plus de manque.
+    expect(screen.queryByText(/aucun serveur d’envoi n’est configuré/)).toBeNull();
   });
 });

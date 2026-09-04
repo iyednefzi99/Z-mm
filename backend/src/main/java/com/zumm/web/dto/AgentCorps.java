@@ -19,5 +19,11 @@ public record AgentCorps(
         @NotBlank @Size(max = 120) String nom,
         @NotNull RoleAgent role,
         Long fermeId,
-        @Email @Size(max = 180) String email) {
+        @Email @Size(max = 180) String email,
+        /**
+         * Cet agent accepte-t-il les courriels (SPRINT-25) ? NUL = on ne touche
+         * pas au reglage existant, ce qui evite qu'une modification de nom
+         * reactive en silence des notifications coupees exprès.
+         */
+        Boolean notificationsEmail) {
 }

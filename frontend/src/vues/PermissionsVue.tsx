@@ -19,6 +19,7 @@ export const MATRICE: readonly { cle: CleRegle; roles: readonly string[] }[] = [
   { cle: 'audit', roles: ['responsable', 'admin'] },
   { cle: 'invitations', roles: ['responsable', 'admin'] },
   { cle: 'permissions', roles: ['responsable', 'admin'] },
+  { cle: 'comptabilite', roles: ['responsable', 'admin'] },
   { cle: 'referentiel', roles: ['responsable', 'admin'] },
   { cle: 'plannings', roles: ['superviseur', 'responsable', 'admin'] },
   { cle: 'mesures', roles: ['capteur', 'apiculteur', 'superviseur', 'responsable', 'admin'] },

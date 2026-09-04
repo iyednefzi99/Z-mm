@@ -1,28 +1,33 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import {
+  chargeEquipe,
   chargerAlertesSanitaires,
   chargerCalendrier,
   chargerPrevisions,
   chargerProduction,
   chargerSynthese,
+  syntheseRuchers,
   telechargerExport,
 } from '../api/client';
 import type {
   AlerteSanitaire,
   CalendrierCellule,
+  ChargeAgent,
   EtatSante,
   LigneProduction,
   NiveauAlerte,
   PrevisionRecolte,
   Synthese,
+  SyntheseRucher,
 } from '../api/types';
-import { useT } from '../i18n/langue';
+import { gabarit } from '../i18n/console';
+import { useFormats, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate, Pastille, type TonPastille } from '../ui/composants';
 import { Barres, Tuile } from '../ui/graphiques';
 import { useLangue } from '../i18n/langue';
 
-type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese';
+type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese' | 'ruchers' | 'equipe';
 
 /** Gravité d'un niveau d'alerte, et santé de la dernière visite, en tons de pastille. */
 const TON_NIVEAU: Record<NiveauAlerte, TonPastille> = {
@@ -52,6 +57,7 @@ function moisCourant(): { debut: string; fin: string } {
 export function TableauxVue(): ReactElement {
   const t = useT();
   const { langue } = useLangue();
+  const f = useFormats();
   const indisponible = t.etats.serviceIndisponible;
   const [sous, setSous] = useState<Sous>('calendrier');
   const defaut = moisCourant();
@@ -62,6 +68,10 @@ export function TableauxVue(): ReactElement {
   const [previsions, setPrevisions] = useState<PrevisionRecolte[]>([]);
   const [alertes, setAlertes] = useState<AlerteSanitaire[]>([]);
   const [synthese, setSynthese] = useState<Synthese | null>(null);
+  // Le niveau intermediaire — celui auquel on travaille : personne ne se
+  // deplace pour une ruche ni pour une exploitation, on va au rucher.
+  const [ruchers, setRuchers] = useState<SyntheseRucher[]>([]);
+  const [equipe, setEquipe] = useState<ChargeAgent[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
 
   const chargerCal = useCallback(() => {
@@ -78,6 +88,12 @@ export function TableauxVue(): ReactElement {
     } else if (sous === 'previsions') {
       setErreur(null);
       void chargerPrevisions().then(setPrevisions).catch((c) => setErreur(messageErreur(c, indisponible)));
+    } else if (sous === 'ruchers') {
+      void syntheseRuchers().then(setRuchers)
+        .catch((c) => setErreur(messageErreur(c, indisponible)));
+    } else if (sous === 'equipe') {
+      void chargeEquipe().then(setEquipe)
+        .catch((c) => setErreur(messageErreur(c, indisponible)));
     } else if (sous === 'alertes') {
       setErreur(null);
       void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c, indisponible)));
@@ -87,7 +103,8 @@ export function TableauxVue(): ReactElement {
     }
   }, [sous, chargerCal, indisponible]);
 
-  const sousOnglets: Sous[] = ['calendrier', 'production', 'previsions', 'alertes', 'synthese'];
+  const sousOnglets: Sous[] = ['calendrier', 'production', 'previsions', 'alertes',
+    'synthese', 'ruchers', 'equipe'];
 
   return (
     <section className="z-section">
@@ -318,6 +335,106 @@ export function TableauxVue(): ReactElement {
             </table>
           </div>
         )
+      )}
+
+      {sous === 'ruchers' && (
+        <>
+          <p className="z-info">{t.rucher.aide}</p>
+          {ruchers.length === 0 ? (
+            <p className="z-info">{t.etats.vide}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{t.onglets.sites}</th>
+                    <th>{t.champs.prioriteTerrain}</th>
+                    <th>{t.onglets.ruches}</th>
+                    <th>{t.rucher.sante}</th>
+                    <th>{t.rucher.risqueMax}</th>
+                    <th>{t.rucher.sousCarence}</th>
+                    <th>{t.rucher.production}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ruchers.map((r) => (
+                    <tr key={r.siteId}>
+                      <td>
+                        {r.siteNom}
+                        {r.ville ? <small className="z-info"> · {r.ville}</small> : null}
+                      </td>
+                      <td>{t.prioriteTerrain[r.priorite]}</td>
+                      <td>
+                        {r.nbActives} / {r.nbRuches}
+                      </td>
+                      <td>
+                        {/* Pas de jauge sur du vide : un rucher qu'on n'a pas
+                            encore visite n'est pas en mauvaise sante, il est
+                            inconnu. */}
+                        {r.santeMoyenne === null ? (
+                          <span className="z-info">{t.rucher.nonEvalue}</span>
+                        ) : (
+                          <>
+                            {r.santeMoyenne}
+                            <small className="z-info">
+                              {' '}
+                              ({gabarit(t.rucher.evaluees, {
+                                nombre: String(r.coloniesEvaluees),
+                              })})
+                            </small>
+                          </>
+                        )}
+                      </td>
+                      <td>
+                        {r.risqueEssaimageMax === null ? '—' : r.risqueEssaimageMax}
+                      </td>
+                      <td>{r.ruchesSousCarence === 0 ? '—' : r.ruchesSousCarence}</td>
+                      <td>{f.nombre(r.productionKg)} kg</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {sous === 'equipe' && (
+        <>
+          <p className="z-info">{t.equipe.aide}</p>
+          {equipe.length === 0 ? (
+            <p className="z-info">{t.etats.vide}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{t.visite.agent}</th>
+                    <th>{t.equipe.ruches}</th>
+                    <th>{t.equipe.ruchers}</th>
+                    <th>{t.equipe.taches}</th>
+                    <th>{t.equipe.retard}</th>
+                    <th>{t.equipe.critiques}</th>
+                    <th>{t.equipe.visites}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {equipe.map((a) => (
+                    <tr key={a.agentId}>
+                      <td>{a.agentNom}</td>
+                      <td>{a.ruchesResponsable}</td>
+                      <td>{a.ruchersConcernes}</td>
+                      <td>{a.tachesOuvertes}</td>
+                      <td>{a.tachesEnRetard === 0 ? '—' : a.tachesEnRetard}</td>
+                      <td>{a.tachesCritiques === 0 ? '—' : a.tachesCritiques}</td>
+                      <td>{a.visites7Jours}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {sous === 'synthese' && synthese && (

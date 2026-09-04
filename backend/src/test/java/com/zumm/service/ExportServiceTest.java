@@ -38,7 +38,7 @@ class ExportServiceTest {
         visite.setConstatations("Colonie forte, calme");
         when(visites.findAllByOrderByDateVisiteAsc()).thenReturn(List.of(visite));
 
-        String csv = new ExportService(visites, ruches).exporterVisites(Format.CSV);
+        String csv = new String(service().exporter("visites", Format.CSV), java.nio.charset.StandardCharsets.UTF_8);
 
         assertThat(csv).startsWith("id,date,heure");
         // La virgule interne force l'entourage par des guillemets (RFC 4180).
@@ -53,9 +53,21 @@ class ExportServiceTest {
         Visite visite = new Visite(ruche, agent, LocalDate.of(2026, 9, 11), RaisonVisite.RECOLTE);
         when(visites.findAllByOrderByDateVisiteAsc()).thenReturn(List.of(visite));
 
-        String txt = new ExportService(visites, ruches).exporterVisites(Format.TXT);
+        String txt = new String(service().exporter("visites", Format.TXT), java.nio.charset.StandardCharsets.UTF_8);
 
         assertThat(txt).startsWith("id\tdate\theure");
         assertThat(txt).contains("Dadant\tBen");
+    }
+
+    /**
+     * Le service avec ses seuls depots utiles a l'export des visites.
+     *
+     * <p>Les onze autres sont nuls, et ne sont jamais atteints : chaque grille
+     * ne touche que son propre depot. Les simuler tous ferait un montage plus
+     * long que les tests qu'il sert.
+     */
+    private ExportService service() {
+        return new ExportService(visites, ruches, null, null, null, null, null, null,
+                null, null, null, null, null, null);
     }
 }

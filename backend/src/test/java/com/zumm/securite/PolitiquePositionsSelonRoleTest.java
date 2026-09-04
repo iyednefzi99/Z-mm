@@ -31,7 +31,10 @@ class PolitiquePositionsSelonRoleTest {
     private static final SiteReponse RUCHER = new SiteReponse(
             1L, "Rucher des tilleuls", 2L, "Ferme du causse",
             new BigDecimal("44.123456"), new BigDecimal("1.987654"), new BigDecimal("312.50"),
-            LocalDate.of(2026, 3, 1), null, null, Instant.EPOCH, Instant.EPOCH);
+            LocalDate.of(2026, 3, 1), null, null,
+            "12 chemin des Vignes", "46100", "Figeac", "FR", "sedentaire", "sud_est",
+            java.util.List.<com.zumm.web.dto.RessourceFloraleReponse>of(), "haute", "aucune",
+            Instant.EPOCH, Instant.EPOCH);
 
     private void authentifier(String... roles) {
         var autorites = java.util.Arrays.stream(roles).map(SimpleGrantedAuthority::new).toList();
@@ -44,7 +47,8 @@ class PolitiquePositionsSelonRoleTest {
         when(configuration.seuils()).thenReturn(new SeuilsMetier(
                 defauts.langueParDefaut(), defauts.languesActives(), defauts.poidsRucheAlerteKg(),
                 defauts.temperatureMinCelsius(), defauts.temperatureMaxCelsius(),
-                defauts.humiditeMaxPourcent(), defauts.delaiAlerteJours(), decimales,
+                defauts.humiditeMaxPourcent(), defauts.batterieMinPourcent(),
+                defauts.delaiAlerteJours(), decimales,
                 defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur()));
     }
 
@@ -96,11 +100,55 @@ class PolitiquePositionsSelonRoleTest {
     }
 
     @Test
+    @DisplayName("l'adresse postale disparait avec la position exacte")
+    void adresseMasquee() {
+        authentifier("ROLE_apiculteur");
+        seuilArrondi(2);
+        SiteReponse vue = politique.masquer(RUCHER);
+        // Arrondir la position en laissant passer « 12 chemin des Vignes »
+        // aurait annule la mesure : une rue situe un rucher au portail la ou
+        // deux decimales le situent au kilometre.
+        assertThat(vue.adresseRue()).isNull();
+        assertThat(vue.codePostal()).isNull();
+    }
+
+    @Test
+    @DisplayName("la commune et le pays restent lisibles par tous")
+    void communeConservee() {
+        authentifier("ROLE_apiculteur");
+        seuilArrondi(2);
+        SiteReponse vue = politique.masquer(RUCHER);
+        // C'est la maille a laquelle un agent situe un rucher pour s'y rendre, et
+        // elle est deja plus grossiere que l'arrondi applique aux coordonnees.
+        assertThat(vue.ville()).isEqualTo("Figeac");
+        assertThat(vue.pays()).isEqualTo("FR");
+    }
+
+    @Test
+    @DisplayName("le responsable garde l'adresse complete")
+    void responsableGardeAdresse() {
+        authentifier("ROLE_responsable");
+        assertThat(politique.masquer(RUCHER).adresseRue()).isEqualTo("12 chemin des Vignes");
+    }
+
+    @Test
     @DisplayName("un appelant non authentifie n'obtient jamais la position exacte")
     void anonymeMasque() {
         seuilArrondi(2);
         assertThat(politique.positionExacteAutorisee()).isFalse();
         assertThat(politique.masquer(RUCHER).latitude()).isEqualByComparingTo("44.12");
+    }
+
+    @Test
+    @DisplayName("la couverture reseau survit au masque : elle ne dit pas ou est le rucher")
+    void couvertureReseauConservee() {
+        authentifier("ROLE_apiculteur");
+        seuilArrondi(2);
+        // C'est l'information qui decide d'emporter le rucher hors ligne AVANT
+        // de partir (SPRINT-24). La masquer avec l'adresse aurait retire a
+        // l'agent de terrain la seule donnee qui le concerne sur ce point, pour
+        // proteger une position qu'elle ne revele pas.
+        assertThat(politique.masquer(RUCHER).couvertureReseau()).isEqualTo("aucune");
     }
 
     @Test

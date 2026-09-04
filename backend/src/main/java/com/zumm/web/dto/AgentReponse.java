@@ -14,6 +14,7 @@ public record AgentReponse(
         Long fermeId,
         String fermeNom,
         String email,
+        boolean notificationsEmail,
         Instant creeLe,
         Instant majLe) {
 
@@ -26,6 +27,7 @@ public record AgentReponse(
                 ferme == null ? null : ferme.getId(),
                 ferme == null ? null : ferme.getNom(),
                 agent.getEmail(),
+                agent.isNotificationsEmail(),
                 agent.getCreeLe(),
                 agent.getMajLe());
     }

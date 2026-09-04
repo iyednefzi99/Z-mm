@@ -200,6 +200,26 @@ public class SecurityConfig {
                 // Identite de l'application : page d'accueil publique.
                 .requestMatchers(HttpMethod.GET, "/api/info").permitAll()
 
+                // Flux iCalendar d'abonnement (SPRINT-21) : un client de
+                // calendrier appelle cette URL sans session ni en-tete, c'est la
+                // definition meme d'un abonnement. Le jeton du chemin tient lieu
+                // d'authentification — 256 bits, stocke en empreinte, expirant et
+                // revocable — et ne donne acces qu'a l'agenda d'un agent, sans
+                // aucune position. En GET seulement : rien ne s'ecrit par la.
+                .requestMatchers(HttpMethod.GET, "/api/calendrier/*").permitAll()
+
+                // Seconde route publique, et derniere (SPRINT-26) : le flux
+                // partage d'une ruche. Memes garanties que le calendrier —
+                // jeton de 256 bits jamais stocke en clair, expiration
+                // obligatoire, revocation, usage horodate — et meme faiblesse :
+                // aucune limitation de debit sur ce chemin. En GET seulement :
+                // rien ne s'ecrit par la, hors l'horodatage d'usage.
+                //
+                // Prefixe SEPARE de `/api/partages`, qui porte la gestion : la
+                // liste des partages d'une ruche est une liste de clefs, et
+                // `TenantFilter` exempte par prefixe.
+                .requestMatchers(HttpMethod.GET, "/api/flux/*").permitAll()
+
                 // Le journal d'audit (US-043) est reserve au pilotage.
                 .requestMatchers(HttpMethod.GET, "/api/audit", "/api/audit/**")
                 .hasAnyRole("responsable", "admin")
@@ -209,10 +229,34 @@ public class SecurityConfig {
                 // une liste de clefs valides.
                 .requestMatchers("/api/invitations", "/api/invitations/**")
                 .hasAnyRole("responsable", "admin")
+                // Le jeu de demonstration ECRIT dans l'exploitation, et sa purge y
+                // SUPPRIME : c'est la seule route du produit qui fasse les deux
+                // sur commande, et elle est reservee a l'administrateur. La
+                // lecture l'est aussi — savoir si un jeu est charge n'interesse
+                // que celui qui peut le retirer, et l'exposer plus largement
+                // inviterait a demander pourquoi le bouton ne marche pas.
+                .requestMatchers("/api/demonstration", "/api/demonstration/**")
+                .hasRole("admin")
                 // L'approbation d'un planning est la fonction propre du superviseur.
                 .requestMatchers(HttpMethod.POST,
                         "/api/plannings/*/approuver", "/api/plannings/*/refuser")
                 .hasAnyRole("superviseur", "responsable", "admin")
+                // La comptabilite est une vue d'exploitation : ce qu'on a depense,
+                // et ce que chaque ruche rapporte. Elle se lit et s'ecrit au
+                // niveau du pilotage — un apiculteur n'a pas a connaitre le
+                // resultat de l'exploitation pour tenir ses ruches (SPRINT-27).
+                .requestMatchers("/api/depenses", "/api/depenses/**")
+                .hasAnyRole("responsable", "admin")
+                // Le materiel et le stock, eux, se LISENT avec tout role metier
+                // et se MOUVEMENTENT de meme : un apiculteur qui prend du candi
+                // doit pouvoir le decompter. Seule la creation du referentiel
+                // reste au pilotage.
+                .requestMatchers(HttpMethod.POST, "/api/materiels", "/api/consommables")
+                .hasAnyRole("responsable", "admin")
+                .requestMatchers(HttpMethod.PUT, "/api/materiels/**", "/api/consommables/**")
+                .hasAnyRole("responsable", "admin")
+                .requestMatchers(HttpMethod.DELETE, "/api/materiels/**", "/api/consommables/**")
+                .hasAnyRole("responsable", "admin")
                 // Le referentiel et la configuration sont geres par le responsable
                 // et l'administrateur ; les autres roles y ont un acces en LECTURE.
                 .requestMatchers(HttpMethod.POST, "/api/fermiers/**", "/api/fermes/**",

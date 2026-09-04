@@ -4,7 +4,8 @@ import { deconnexion } from '../auth/oidc';
 import type { Session } from '../auth/session';
 import { useT } from '../i18n/langue';
 import { ROUTES_PUBLIQUES } from '../routage/routes';
-import { Bouton } from '../ui/composants';
+import { Bouton, ChampSelect } from '../ui/composants';
+import { ETENDUES, useEtendue, type Etendue } from '../terrain/interface';
 
 /**
  * Écran « Mon compte » (SPRINT-19, lot 4).
@@ -34,6 +35,7 @@ export function CompteVue({
 }): ReactElement {
   const t = useT();
   const c = t.compte;
+  const [etendue, definirEtendue] = useEtendue();
 
   const roles =
     session.roles.length === 0
@@ -85,6 +87,23 @@ export function CompteVue({
       <div className="z-legal__section">
         <h2 className="z-legal__soustitre">{c.preferencesTitre}</h2>
         <p>{c.preferencesTexte}</p>
+      </div>
+
+      <div className="z-legal__section">
+        <h2 className="z-legal__soustitre">{t.interfaceProgressive.titre}</h2>
+        {/* Masquer n'est pas interdire : les rôles décident de ce qui est
+            PERMIS, ce réglage de ce qui est MONTRÉ. Un écran masqué reste
+            atteignable par son lien, et le réglage revient en un clic. */}
+        <p>{t.interfaceProgressive.aide}</p>
+        <ChampSelect
+          libelle={t.interfaceProgressive.titre}
+          valeur={etendue}
+          options={ETENDUES.map((valeur) => ({
+            valeur,
+            libelle: t.interfaceProgressive[valeur],
+          }))}
+          onChange={(valeur) => definirEtendue(valeur as Etendue)}
+        />
       </div>
 
       <div className="z-legal__section">

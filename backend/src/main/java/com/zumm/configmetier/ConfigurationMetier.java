@@ -103,6 +103,7 @@ public class ConfigurationMetier {
                 entier(seuilsIni.get("temperature_min_celsius"), defauts.temperatureMinCelsius()),
                 entier(seuilsIni.get("temperature_max_celsius"), defauts.temperatureMaxCelsius()),
                 entier(seuilsIni.get("humidite_max_pourcent"), defauts.humiditeMaxPourcent()),
+                entier(seuilsIni.get("batterie_min_pourcent"), defauts.batterieMinPourcent()),
                 entier(visites.get("delai_alerte_jours"), defauts.delaiAlerteJours()),
                 entier(carte.get("arrondi_degres_public"), defauts.arrondiDegresPublic()),
                 entier(listes.get("taille_page_defaut"), defauts.taillePageParDefaut()),

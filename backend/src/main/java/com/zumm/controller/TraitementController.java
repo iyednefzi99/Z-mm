@@ -1,7 +1,9 @@
 package com.zumm.controller;
 
 import com.zumm.service.TraitementService;
+import com.zumm.web.dto.RapportLot;
 import com.zumm.web.dto.TraitementCorps;
+import com.zumm.web.dto.TraitementLotCorps;
 import com.zumm.web.dto.TraitementReponse;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -45,6 +47,19 @@ public class TraitementController {
             @Valid @RequestBody TraitementCorps corps) {
         TraitementReponse reponse = service.enregistrer(corps);
         return ResponseEntity.created(URI.create("/api/traitements/" + reponse.id())).body(reponse);
+    }
+
+    /**
+     * Le meme traitement sur plusieurs ruches (SPRINT-23, lot B).
+     *
+     * <p>Repond <strong>200 et un rapport</strong>, jamais 201 : le lot cree
+     * plusieurs ressources, dont aucune n'est « la » ressource creee, et il peut
+     * en refuser une partie. Un 201 avec un {@code Location} serait faux dans les
+     * deux cas.
+     */
+    @PostMapping("/lot")
+    public RapportLot enregistrerLot(@Valid @RequestBody TraitementLotCorps corps) {
+        return service.enregistrerLot(corps);
     }
 
     @GetMapping

@@ -19,8 +19,25 @@ services:
   keycloak:
     volumes:
       - ./keycloak/realm-zumm.dev.json:/opt/keycloak/data/import/realm-zumm.json:ro
+    environment:
+      # Emetteur FIGE. Sans cela, `start-dev` derive le « iss » de l'hote de la
+      # requete : un jeton demande par le BFF via `keycloak:8080` en porte un
+      # different de celui obtenu par le navigateur via `localhost:8081`, et un
+      # validateur unique ne peut pas satisfaire les deux — d'ou les
+      # « The iss claim is not valid » sur la connexion applicative.
+      KC_HOSTNAME: http://localhost:8081
+      # Les appels de service continuent de viser l'hote interne, que l'URL
+      # publique figee ci-dessus ne permet pas de joindre depuis le reseau compose.
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
 
   backend:
+    # NOMME l'image du back-end de développement. Le `build:` du compose de base
+    # reste en place : `docker compose build backend` reconstruit donc bien
+    # depuis les sources et republie CE tag. Le nommer sert au cas dégradé —
+    # quand le pull de `maven:3.9-eclipse-temurin-17` échoue, `infra/backend-jar.Dockerfile`
+    # reconstruit le même tag à partir d'un JAR compilé sur l'hôte, et
+    # `demarrer.ps1 -Rapide` le reprend sans rien reconstruire.
+    image: zumm-backend:dev
     # Publié sur l'hôte pour que le serveur de dev Vite (proxy /api → :8080)
     # atteigne directement l'API, sans passer par le proxy TLS.
     ports:
@@ -33,3 +50,10 @@ services:
       # interne (hérité du compose de base). Ne jamais laisser vide : Spring Boot
       # construirait un validateur attendant une chaîne « iss » vide.
       ZUMM_OIDC_ISSUER_URI: http://localhost:8081/realms/zumm
+      # Adresse par laquelle le BFF JOINT Keycloak, distincte de l'« iss » ci-dessus.
+      # Sans elle, `IdentiteService` reprenait l'issuer — donc http://localhost:8081
+      # DEPUIS LE CONTENEUR, qui n'y ecoute rien : la demande de jeton tombait en
+      # « connection refused » et l'ecran de connexion affichait « Service
+      # momentanement indisponible ». Hors surcharge, le compose de base laisse
+      # l'issuer valoir deja l'URL interne et cette variable est inutile.
+      ZUMM_OIDC_INTERNE: http://keycloak:8080/realms/zumm

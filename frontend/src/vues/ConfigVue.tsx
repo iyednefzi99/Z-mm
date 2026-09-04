@@ -1,9 +1,16 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { recupererSeuils } from '../api/client';
-import type { Seuils } from '../api/types';
+import {
+  chargerDemonstration,
+  etatDemonstration,
+  purgerDemonstration,
+  recupererSeuils,
+} from '../api/client';
+import type { EtatDemonstration, Seuils } from '../api/types';
+import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton } from '../ui/composants';
+import { useDialogues } from '../ui/dialogues';
 
 /** Affiche, en lecture seule, les seuils metier de ConfigZumm.ini (US-025). */
 export function ConfigVue(): ReactElement {
@@ -12,6 +19,11 @@ export function ConfigVue(): ReactElement {
   const [seuils, setSeuils] = useState<Seuils | null>(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState<string | null>(null);
+  // Jeu de démonstration (SPRINT-25, lot J). Il vit ici parce qu'il ÉCRIT dans
+  // l'exploitation : c'est un geste d'administration, pas d'apiculture.
+  const [demo, setDemo] = useState<EtatDemonstration | null>(null);
+  const [demoEnCours, setDemoEnCours] = useState(false);
+  const { confirmer } = useDialogues();
 
   const charger = () => {
     setChargement(true);
@@ -24,6 +36,34 @@ export function ConfigVue(): ReactElement {
 
   // `charger` lit le message d'indisponibilite : le recharger si la langue change.
   useEffect(charger, [indisponible]);
+
+  useEffect(() => {
+    // Un 403 est la réponse NORMALE pour un rôle autre qu'`admin` : la section
+    // disparaît alors, plutôt que d'afficher une erreur pour une fonction qui
+    // ne le concerne pas.
+    void etatDemonstration()
+      .then(setDemo)
+      .catch(() => setDemo(null));
+  }, []);
+
+  const agirDemonstration = async (charger: boolean) => {
+    if (!charger) {
+      const suite = await confirmer(
+        gabarit(t.demonstration.confirmation, { objets: String(demo?.objets ?? 0) }),
+      );
+      if (!suite) {
+        return;
+      }
+    }
+    setDemoEnCours(true);
+    try {
+      setDemo(charger ? await chargerDemonstration() : await purgerDemonstration());
+    } catch (cause) {
+      setErreur(messageErreur(cause, indisponible));
+    } finally {
+      setDemoEnCours(false);
+    }
+  };
 
   return (
     <section className="z-section">
@@ -61,6 +101,45 @@ export function ConfigVue(): ReactElement {
           <Seuil libelle={t.config.coutVisite} valeur={seuils.coutVisiteEur} />
           <Seuil libelle={t.config.langues} valeur={seuils.languesActives.join(' · ')} />
         </div>
+      )}
+
+      {demo && (
+        <section className="z-legal__section">
+          <h2 className="z-legal__soustitre">{t.demonstration.titre}</h2>
+          <p>{t.demonstration.aide}</p>
+          {!demo.disponible ? (
+            // Éteinte par défaut : une production ne doit pas seulement refuser
+            // d'écrire vingt lignes fictives, elle ne doit pas proposer le bouton.
+            <p className="z-info">{t.demonstration.indisponible}</p>
+          ) : (
+            <>
+              <p className="z-info" role="status">
+                {demo.charge
+                  ? gabarit(t.demonstration.charge, { objets: String(demo.objets) })
+                  : t.demonstration.absent}
+              </p>
+              <div className="z-form__actions">
+                {demo.charge ? (
+                  <Bouton
+                    variante="secondaire"
+                    disabled={demoEnCours}
+                    onClick={() => void agirDemonstration(false)}
+                  >
+                    {t.demonstration.retirer}
+                  </Bouton>
+                ) : (
+                  <Bouton
+                    variante="primaire"
+                    disabled={demoEnCours}
+                    onClick={() => void agirDemonstration(true)}
+                  >
+                    {t.demonstration.charger}
+                  </Bouton>
+                )}
+              </div>
+            </>
+          )}
+        </section>
       )}
     </section>
   );

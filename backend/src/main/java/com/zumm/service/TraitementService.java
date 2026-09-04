@@ -10,11 +10,14 @@ import com.zumm.repository.TraitementRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
+import com.zumm.web.dto.RapportLot;
 import com.zumm.web.dto.TraitementCorps;
+import com.zumm.web.dto.TraitementLotCorps;
 import com.zumm.web.dto.TraitementReponse;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,13 +41,15 @@ public class TraitementService {
     private final RucheRepository ruches;
     private final AgentRepository agents;
     private final VisiteRepository visites;
+    private final OperationsLotService lots;
 
     public TraitementService(TraitementRepository traitements, RucheRepository ruches,
-            AgentRepository agents, VisiteRepository visites) {
+            AgentRepository agents, VisiteRepository visites, OperationsLotService lots) {
         this.traitements = traitements;
         this.ruches = ruches;
         this.agents = agents;
         this.visites = visites;
+        this.lots = lots;
     }
 
     public TraitementReponse enregistrer(TraitementCorps corps) {
@@ -68,6 +73,37 @@ public class TraitementService {
         t.setVisite(visiteRattachee(corps.visiteId()));
 
         return TraitementReponse.de(traitements.save(t), LocalDate.now());
+    }
+
+    /**
+     * Applique le meme traitement a plusieurs ruches (SPRINT-23, lot B).
+     *
+     * <p>Chaque ruche a sa propre transaction : une colonie clôturee dans le lot
+     * ne doit pas annuler les trente-sept traitements qui ont bien eu lieu.
+     * L'appel unitaire reste le meme code — c'est {@link #enregistrer} qui est
+     * rejoue par ruche, et non une seconde implementation qui finirait par
+     * diverger.
+     */
+    public RapportLot enregistrerLot(TraitementLotCorps corps) {
+        return lots.executer(corps.cible(), ruche -> enregistrerPour(ruche, corps.traitement()));
+    }
+
+    /**
+     * Un traitement pour UNE ruche, dans sa propre transaction.
+     *
+     * <p>{@code REQUIRES_NEW} est ce qui rend l'echec partiel possible : sans
+     * cela, le refus de la trente-huitieme ruche marquerait la transaction
+     * englobante pour annulation, et les trente-sept precedentes seraient
+     * perdues au commit.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Long enregistrerPour(Ruche ruche, TraitementCorps modele) {
+        TraitementCorps pourCetteRuche = new TraitementCorps(
+                ruche.getId(), modele.agentId(), modele.visiteId(), modele.produit(),
+                modele.substanceActive(), modele.cible(), modele.dose(), modele.doseUnite(),
+                modele.dateDebut(), modele.dateFin(), modele.delaiCarenceJours(),
+                modele.ordonnance(), modele.note());
+        return enregistrer(pourCetteRuche).id();
     }
 
     /** Registre d'une ruche, du traitement le plus recent au plus ancien. */

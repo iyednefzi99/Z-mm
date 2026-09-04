@@ -26,7 +26,11 @@ export default defineConfig({
         // qui n'ouvrira peut-etre jamais la carte, et annulerait le benefice du
         // chargement paresseux. Il est mis en cache a son premier usage (regle
         // d'execution ci-dessous) et reste alors disponible hors ligne.
-        globIgnores: ['**/CarteFond-*.js', '**/maplibre*'],
+        // Meme raison pour `reordonnable-*` : `Reorder` embarque Motion en entier
+        // (~44 ko compresses). Le precacher ferait telecharger la bibliotheque a
+        // l'installation, y compris aux utilisateurs qui n'ouvrent jamais l'ecran
+        // des plannings. Elle est mise en cache a son premier usage, comme le fond.
+        globIgnores: ['**/CarteFond-*.js', '**/maplibre*', '**/reordonnable-*.js'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: '/index.html',
         // JAMAIS d'API en cache : une mesure de capteur perimee ou une position
@@ -38,6 +42,12 @@ export default defineConfig({
             urlPattern: /\/assets\/CarteFond-.*\.js$/,
             handler: 'StaleWhileRevalidate',
             options: { cacheName: 'zumm-carte' },
+          },
+          {
+            // Motion, tire par la liste reordonnable de la tournee.
+            urlPattern: /\/assets\/reordonnable-.*\.js$/,
+            handler: 'StaleWhileRevalidate',
+            options: { cacheName: 'zumm-mouvement' },
           },
           {
             // Les tuiles cartographiques, elles, se cachent volontiers : un fond

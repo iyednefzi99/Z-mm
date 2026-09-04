@@ -1,6 +1,8 @@
 package com.zumm.repository;
 
 import com.zumm.domain.Agent;
+import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -22,4 +24,11 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
      * manuelle.
      */
     java.util.Optional<Agent> findByEmailIgnoreCase(String email);
+
+    /**
+     * Agents dont le nom contient {@code motif} (recherche globale, SPRINT-21).
+     * Le courriel n'est pas cherche : une recherche par adresse transformerait la
+     * palette en annuaire.
+     */
+    List<Agent> findByNomContainingIgnoreCaseOrderByNomAsc(String motif, Pageable pagination);
 }

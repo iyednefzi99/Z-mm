@@ -35,6 +35,7 @@ de savoir plus tard si la décision reste valable.
 | [ADR-009](ADR-009-connexion-dans-l-application.md) | Connexion et inscription depuis l'application | 🟢 Accepté et **mis en œuvre** (SPRINT-18) | Parcours d'entrée, création de comptes |
 | [ADR-010](ADR-010-jetons-de-session-au-repos.md) | Les jetons de session au repos | 🟢 Accepté | Sauvegardes, restauration, procédure d'incident |
 | [ADR-011](ADR-011-positions-au-repos.md) | Chiffrement au repos des positions de ruchers | 🟡 **Proposé** | Mise en production, AIPD, EPIC-012 |
+| [ADR-012](ADR-012-hors-ligne-selectif.md) | Consultation hors ligne : emport déclenché, jamais cache automatique | 🟢 Accepté | — (lève D2 du plan de couverture) |
 
 > ✅ **Les quatre premiers ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
 > Faute d'arbitrage client dans les délais du Sprint 0 (escalade J+5 échue),

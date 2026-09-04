@@ -3,6 +3,7 @@ package com.zumm.repository;
 import com.zumm.domain.Visite;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -103,4 +104,14 @@ public interface VisiteRepository extends JpaRepository<Visite, Long> {
      */
     @Query("SELECT avg(v.productivite) FROM Visite v WHERE v.productivite IS NOT NULL")
     Double productiviteMoyenneGlobale();
+
+    /**
+     * Derniere visite d'une ruche (SPRINT-22).
+     *
+     * <p>C'est la source des indices de colonie : un indice se lit sur le
+     * dernier etat CONNU, jamais sur une moyenne — moyenner une colonie qui va
+     * mal avec ses bons mois passes produirait exactement le chiffre rassurant
+     * qu'il ne faut pas afficher.
+     */
+    Optional<Visite> findFirstByRuche_IdOrderByDateVisiteDescIdDesc(Long rucheId);
 }

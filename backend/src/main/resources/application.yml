@@ -151,6 +151,20 @@ zumm:
     # vers cette valeur ; les deux moities doivent rester synchronisees. Vider la
     # variable desactive la verification — repli d'incident, jamais un reglage.
     audience: ${ZUMM_OIDC_AUDIENCE:zumm-backend}
+  auth:
+    # Parcours « mot de passe oublie » du fournisseur d'identite (SPRINT-25).
+    # VIDE par defaut : le realm livre ne configure AUCUN serveur d'envoi, donc
+    # aucun courriel ne partirait. Afficher le lien quand meme ferait attendre a
+    # l'utilisateur un message qui n'arrive jamais — le pire des trois etats.
+    # L'exploitant qui a configure son SMTP (voir infra/keycloak/README.md)
+    # renseigne cette URL, et le lien apparait dans la page de recuperation.
+    reinitialisation-url: ${ZUMM_AUTH_REINITIALISATION_URL:}
+  demonstration:
+    # Jeu de demonstration chargeable ET retirable depuis la console (SPRINT-25).
+    # FAUX par defaut : une production ne doit pas seulement refuser d'ecrire
+    # vingt lignes fictives dans l'exploitation, elle ne doit pas proposer le
+    # bouton. Reserve au role `admin` par ailleurs.
+    activee: ${ZUMM_DEMONSTRATION_ACTIVEE:false}
   openapi:
     # Contrat OpenAPI et Swagger UI accessibles sans jeton. Vrai par defaut (le
     # contrat est un livrable), FAUX sous le profil `prod` : voir SecurityConfig.

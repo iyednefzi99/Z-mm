@@ -43,19 +43,30 @@ public class IdentiteService {
 
     private final RestClient client;
     private final InvitationRepository invitations;
-    private final String emetteur;
+    /**
+     * Adresse a laquelle le BFF JOINT le royaume, et non l'identifiant « iss »
+     * des jetons. La distinction n'est pas cosmetique : derriere Docker,
+     * `ZUMM_OIDC_ISSUER_URI` vaut l'URL vue par le NAVIGATEUR
+     * (http://localhost:8081/...), qui depuis le conteneur ne designe que
+     * lui-meme — la demande de jeton partait donc en « connection refused » et
+     * remontait en 503 « indisponible » jusqu'a l'ecran de connexion. Les appels
+     * sortants passent par ici, la validation du « iss » reste sur
+     * `ZUMM_OIDC_ISSUER_URI` (SecurityConfig et application.yml).
+     */
+    private final String adresseRoyaume;
     private final String clientId;
     private final String secret;
 
     public IdentiteService(
             RestClient.Builder constructeur,
             InvitationRepository invitations,
-            @Value("${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}") String emetteur,
+            @Value("${ZUMM_OIDC_INTERNE:${ZUMM_OIDC_ISSUER_URI:http://localhost:8081/realms/zumm}}")
+                    String adresseRoyaume,
             @Value("${ZUMM_BFF_CLIENT:zumm-bff}") String clientId,
             @Value("${ZUMM_BFF_SECRET:secret-bff-dev}") String secret) {
         this.client = constructeur.build();
         this.invitations = invitations;
-        this.emetteur = emetteur;
+        this.adresseRoyaume = adresseRoyaume;
         this.clientId = clientId;
         this.secret = secret;
     }
@@ -122,7 +133,7 @@ public class IdentiteService {
         Map<?, ?> reponse;
         try {
             reponse = client.post()
-                    .uri(emetteur + "/protocol/openid-connect/token")
+                    .uri(adresseRoyaume + "/protocol/openid-connect/token")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(corps)
                     .retrieve()
@@ -177,8 +188,8 @@ public class IdentiteService {
     private void creerCompte(String nom, String courriel, String motDePasse, String tenant,
             String role) {
         String jetonAdmin = jetonDeService();
-        String royaume = emetteur.substring(emetteur.lastIndexOf('/') + 1);
-        String base = emetteur.substring(0, emetteur.indexOf("/realms/"));
+        String royaume = adresseRoyaume.substring(adresseRoyaume.lastIndexOf('/') + 1);
+        String base = adresseRoyaume.substring(0, adresseRoyaume.indexOf("/realms/"));
 
         int espace = nom.trim().indexOf(' ');
         String prenom = espace > 0 ? nom.trim().substring(0, espace) : nom.trim();
@@ -218,7 +229,7 @@ public class IdentiteService {
         corps.add("client_secret", secret);
         try {
             Map<?, ?> reponse = client.post()
-                    .uri(emetteur + "/protocol/openid-connect/token")
+                    .uri(adresseRoyaume + "/protocol/openid-connect/token")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(corps)
                     .retrieve()

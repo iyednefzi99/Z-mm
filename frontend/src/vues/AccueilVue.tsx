@@ -35,6 +35,20 @@ const ETAPES = ['un', 'deux', 'trois'] as const;
 const GARANTIES = ['cloisonnement', 'positions', 'session', 'langues'] as const;
 
 /**
+ * Les signaux de confiance repris DANS le héros, au-dessus de la ligne de
+ * flottaison.
+ *
+ * <p>Trois et non quatre : « Trois langues » est déjà dit par l'intro, deux
+ * lignes plus haut. Ne restent que les trois garanties de sécurité — celles
+ * qu'aucun concurrent n'affiche, et qu'un visiteur ne devinerait pas.
+ *
+ * <p>Les libellés ne sont pas réécrits ici : ce sont ceux de la section « Ce qui
+ * est protégé ». Les recopier les laisserait diverger dès la première retouche —
+ * le travers que ce dépôt combat partout ailleurs.
+ */
+const PREUVES = ['cloisonnement', 'positions', 'session'] as const;
+
+/**
  * Page d'accueil publique — la vitrine du produit (SPRINT-19).
  *
  * <p><strong>Ce qu'elle corrige.</strong> L'application n'avait qu'une porte :
@@ -107,6 +121,12 @@ export function AccueilVue({
               </>
             )}
           </div>
+
+          <ul className="z-accueil__preuves">
+            {PREUVES.map((cle) => (
+              <li key={cle}>{a.confiance[cle].titre}</li>
+            ))}
+          </ul>
         </div>
 
         {/* Aperçu illustratif. Il nomme ce que l'application suit, sans

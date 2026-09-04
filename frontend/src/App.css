@@ -919,6 +919,20 @@
   flex: 0 0 auto;
 }
 
+/* Contexte d'un resultat de donnee : famille de l'objet, commune, type de miel.
+   Pousse a droite et en retrait de ton, pour que le libelle reste ce qu'on lit. */
+.z-palette__precision {
+  margin-inline-start: auto;
+  padding-inline-start: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--z-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-inline-size: 45%;
+}
+
 .z-palette__vide {
   margin: 0;
   padding: 2rem 1rem;
@@ -2437,13 +2451,38 @@ a:focus-visible,
       color-mix(in srgb, var(--z-honey-500) 14%, transparent),
       transparent
     );
-  animation: z-entree-apparition var(--z-duration-slow) var(--z-ease-out) both;
 }
 
 @media (min-width: 900px) {
   .z-accueil__hero {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
+}
+
+/* Le heros entrait d'un seul bloc. Un fondu unique sur une zone de cette taille
+   ne dit rien : tout arrive en meme temps, donc rien ne guide l'oeil. Echelonner
+   donne l'ordre de lecture — accroche, promesse, action, preuves, apercu — au pas
+   de 40 ms de la charte (`design/motion/transitions.md`, § stagger). La garde
+   globale `prefers-reduced-motion` neutralise l'ensemble sans exception. */
+.z-accueil__hero-texte > *,
+.z-accueil__apercu {
+  animation: z-entree-apparition var(--z-duration-slow) var(--z-ease-out) both;
+}
+
+.z-accueil__hero-texte > *:nth-child(2) {
+  animation-delay: 40ms;
+}
+
+.z-accueil__hero-texte > *:nth-child(3) {
+  animation-delay: 80ms;
+}
+
+.z-accueil__hero-texte > *:nth-child(4) {
+  animation-delay: 120ms;
+}
+
+.z-accueil__apercu {
+  animation-delay: 160ms;
 }
 
 .z-accueil__accroche {
@@ -2468,6 +2507,44 @@ a:focus-visible,
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-block-start: 1.75rem;
+}
+
+/* Bandeau de preuves. Des puces sobres, PAS des boutons : elles n'ouvrent rien,
+   et leur donner l'allure d'un contrôle promettrait une action qui n'existe pas.
+   Pas de couleur pleine non plus — le héros n'a qu'un seul aplat de marque, la
+   carte d'aperçu, et lui en opposer un second ferait deux points d'attraction
+   là où il en faut un. */
+.z-accueil__preuves {
+  margin: 1.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.z-accueil__preuves li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-pill);
+  background: var(--z-surface);
+  color: var(--z-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* La pastille de tête porte le miel de la marque. Décorative : le libellé dit
+   déjà tout, et une puce colorée seule ne dirait rien à qui ne la voit pas. */
+.z-accueil__preuves li::before {
+  content: '';
+  inline-size: 0.4rem;
+  block-size: 0.4rem;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-honey-500);
+  flex: none;
 }
 
 /* Carte d'aperçu : la seule surface de la page qui porte le dégradé signature.
@@ -3072,4 +3149,184 @@ a:focus-visible,
   padding: 0 1.1rem 1.1rem;
   line-height: 1.7;
   color: var(--z-text-muted);
+}
+
+/* ─── Liste réordonnable ──────────────────────────────────────────────────── */
+
+.z-reordonnable {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+}
+
+.z-reordonnable__ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-surface);
+  color: var(--z-text);
+}
+
+/* La ligne saisie se detache du plan de la liste. C'est la seule chose qui
+   distingue « je deplace ceci » de « je fais defiler la page », et elle doit donc
+   se voir sans couleur seule : l'ombre porte le sens, la bordure la confirme. */
+.z-reordonnable__ligne.is-saisie {
+  box-shadow: var(--z-shadow-3);
+  border-color: var(--z-honey-500);
+}
+
+.z-reordonnable__corps {
+  flex: 1;
+}
+
+/* `touch-action: none` n'est pas optionnel : sans lui, le navigateur prend le
+   glissement vertical pour un defilement et la poignee ne saisit jamais rien. */
+.z-poignee {
+  touch-action: none;
+  cursor: grab;
+  background: none;
+  border: 0;
+  padding: 0.2rem 0.35rem;
+  color: var(--z-text-muted);
+  font-size: 1rem;
+  line-height: 1;
+  border-radius: var(--z-radius-sm);
+}
+
+.z-poignee:active {
+  cursor: grabbing;
+}
+
+/* Au doigt, la poignee suit la meme regle que `.z-lien` : 44 px de haut. Une
+   poignee au gabarit de la souris est intenable avec des gants — et c'est le seul
+   endroit par ou passe le glissement. */
+@media (pointer: coarse) {
+  .z-poignee {
+    min-block-size: 2.75rem;
+    min-inline-size: 2.75rem;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.z-reordonnable__commandes {
+  display: flex;
+  gap: 0.15rem;
+}
+
+.z-reordonnable__commandes .z-lien {
+  padding: 0.2rem 0.35rem;
+}
+
+.z-reordonnable__commandes .z-lien:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ─── Le terrain sans réseau (SPRINT-24, lot C) ───────────────────────────── */
+
+.z-carte__titre {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--z-text);
+}
+
+/* Case à cocher accompagnée de son libellé, sur une seule ligne cliquable :
+   au rucher, la cible de clic est un doigt ganté, pas un curseur. */
+.z-champ__case {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.2rem;
+  cursor: pointer;
+}
+
+.z-champ__case input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--z-honey-500);
+}
+
+/* Texte d'alerte en ligne, sans le cadre de `.z-erreur` : sert aux emports
+   périmés et aux saisies refusées, où le message accompagne une ligne de liste
+   plutôt que de remplacer un écran. */
+.z-erreur-texte {
+  color: var(--z-danger);
+  font-size: 0.82rem;
+}
+
+/* ─── Étiquetage durable (SPRINT-25, lot J) ───────────────────────────────── */
+
+.z-planche {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.z-etiquette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.6rem 0.4rem;
+  border: 1px dashed var(--z-text-muted);
+  border-radius: 6px;
+  text-align: center;
+  /* Fond blanc explicite : une étiquette s'imprime, et un fond sombre hérité du
+     thème mangerait l'encre sans rendre le QR plus lisible. */
+  background: #fff;
+  color: #1b2320;
+}
+
+.z-etiquette__code {
+  font-family: var(--z-font-mono, monospace);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+}
+
+.z-etiquette__detail {
+  font-size: 0.7rem;
+  opacity: 0.8;
+}
+
+/* À l'impression, ne sortir QUE la planche : imprimer la console autour
+   gâcherait une feuille pour trois étiquettes utiles. */
+@media print {
+  .z-rail,
+  .z-topbar,
+  .z-bandeau-maj,
+  .z-modale__entete,
+  .z-sans-impression {
+    display: none !important;
+  }
+
+  /* La modale redevient une simple feuille : ni voile, ni cadre, ni ombre —
+     rien de tout cela n'a de sens sur du papier, et le voile sortirait en
+     aplat gris sur toute la page. */
+  .z-overlay,
+  .z-modale {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    background: #fff;
+    box-shadow: none;
+    border: 0;
+    padding: 0;
+  }
+
+  .z-planche {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .z-etiquette {
+    break-inside: avoid;
+  }
 }

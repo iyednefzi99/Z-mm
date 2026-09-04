@@ -199,6 +199,68 @@ Les trois familles couvertes :
 
 ---
 
+## 🤏 Relâchement — ce qu'un élément fait quand le doigt le lâche
+
+> **Cette section est une décision, pas un relevé.** Elle a été ajoutée le 31/08/2026,
+> quand le premier composant glissable l'a exigée. Avant elle, la charte ne décrivait
+> aucun mouvement projeté — et le code n'avait donc aucune valeur légitime à reprendre.
+
+Les trois familles ci-dessus décrivent des mouvements que l'**interface** déclenche.
+Le glissement au doigt en est un quatrième : le mouvement est produit par
+l'utilisateur, et la seule question de design est **ce qui se passe au relâchement**.
+
+### La règle : Zümm ne projette pas
+
+Un élément lâché **ne glisse pas** vers une position calculée depuis la vitesse du
+geste. Il rejoint un état que le code a décidé : rejeté ou remis en place, réordonné
+ou revenu à son rang. Trois raisons :
+
+- la charte pose que le mouvement **guide** ; une projection libre amène l'élément
+  là où personne ne l'a demandé ;
+- au rucher, avec des gants, une ligne qui continue de filer après le relâchement
+  est un défaut de contrôle, pas une fluidité ;
+- la position finale reste **prévisible**, donc annonçable à une technologie
+  d'assistance — ce qu'une position issue d'une vitesse ne serait pas.
+
+### Les valeurs
+
+Elles n'ont **aucun équivalent CSS** : l'inertie ne s'exprime pas en feuille de style.
+Elles vivent dans `design/tokens.json` (`motion.inertia`) et dans
+`frontend/src/mouvement/jetons.ts` (`relachement`).
+
+| Réglage | Valeur | D'où elle vient |
+|---|---|---|
+| `power` | `0` | La règle ci-dessus : pas de projection. |
+| `bounceStiffness` | `900` | ω² avec ω = 6 / `--z-dur-base`. |
+| `bounceDamping` | `60` | 2ω — **amortissement critique**. |
+| `timeConstant` | `106,67 ms` | `--z-dur-slow` / 3. |
+
+**Le rappel est critique** (`amortissement² = 4 × raideur`) pour la même raison que
+les ressorts de la charte ne rebondissent pas : rien, ici, ne dépasse sa cible. Un
+ressort critique a restitué ~98 % du déplacement à ωt = 6, soit t = 12 / amortissement
+= **200 ms** — la durée standard de la charte, `--z-dur-base`. Le rappel d'un élément
+lâché dure donc exactement le temps d'un changement d'état ordinaire.
+
+`timeConstant` **n'a d'effet que si un composant relève `power`**. Il est fixé quand
+même, pour que l'exception — un jour, une surface réellement balayable — hérite d'une
+valeur au lieu d'en inventer une : trois constantes de temps couvrent 95 % du
+glissement, donc à `--z-dur-slow` / 3, une projection ne survivrait jamais au plus
+lent des mouvements de la charte.
+
+### Ce qui reste à trancher
+
+Les **seuils de geste** — à partir de quel déplacement, et de quelle vitesse, un
+glissement vaut « rejeter » plutôt que « remettre en place ». Ils dépendent de la
+cible (une feuille de bas d'écran et une ligne de liste n'ont pas le même seuil) et
+n'ont donc pas de valeur unique. À fixer composant par composant, **ici**, au moment
+où chacun arrive.
+
+⚠️ **Direction du texte.** Un seuil horizontal (`offset.x > n`) part du mauvais côté
+en arabe. Tout geste sur l'axe horizontal lit `dir` avant de conclure, ou reste
+vertical.
+
+---
+
 ## ♿ Garde accessibilité (obligatoire)
 
 À placer **une fois** dans la feuille globale — elle neutralise tout ce qui précède
