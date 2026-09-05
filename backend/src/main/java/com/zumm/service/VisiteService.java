@@ -4,13 +4,17 @@ import com.zumm.domain.Agent;
 import com.zumm.domain.ObservationPathologie;
 import com.zumm.domain.Photo;
 import com.zumm.domain.Planning;
+import com.zumm.domain.PointObservation;
 import com.zumm.domain.RaisonVisite;
+import com.zumm.domain.ReleveObservation;
 import com.zumm.domain.Ruche;
 import com.zumm.domain.Visite;
 import com.zumm.repository.AgentRepository;
 import com.zumm.repository.ObservationPathologieRepository;
 import com.zumm.repository.PhotoRepository;
 import com.zumm.repository.PlanningRepository;
+import com.zumm.repository.PointObservationRepository;
+import com.zumm.repository.ReleveObservationRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
@@ -21,11 +25,15 @@ import com.zumm.web.dto.ObservationVisite;
 import com.zumm.web.dto.PathologieCorps;
 import com.zumm.web.dto.PhotoCorps;
 import com.zumm.web.dto.PhotoReponse;
+import com.zumm.web.dto.PointReleve;
 import com.zumm.web.dto.VisiteCorps;
 import com.zumm.web.dto.VisiteReponse;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +44,10 @@ import org.springframework.transaction.annotation.Transactional;
  * structuree, la meteo figee et les pathologies constatees. Les trois sont
  * facultatives : une visite eclair n'en remplit aucune, et exiger la grille
  * ferait sauter la saisie plutot que la completer.
+ *
+ * <p>Le SPRINT-28 y ajoute les releves du carnet parametrable : les points que
+ * l'exploitation a choisis dans le referentiel ferme, en plus des onze colonnes
+ * du noyau — qui, elles, restent des colonnes.
  */
 @Service
 @Transactional
@@ -47,16 +59,21 @@ public class VisiteService {
     private final AgentRepository agents;
     private final PlanningRepository plannings;
     private final ObservationPathologieRepository pathologies;
+    private final ReleveObservationRepository releves;
+    private final PointObservationRepository points;
 
     public VisiteService(VisiteRepository visites, PhotoRepository photos, RucheRepository ruches,
             AgentRepository agents, PlanningRepository plannings,
-            ObservationPathologieRepository pathologies) {
+            ObservationPathologieRepository pathologies, ReleveObservationRepository releves,
+            PointObservationRepository points) {
         this.visites = visites;
         this.photos = photos;
         this.ruches = ruches;
         this.agents = agents;
         this.plannings = plannings;
         this.pathologies = pathologies;
+        this.releves = releves;
+        this.points = points;
     }
 
     public VisiteReponse creer(VisiteCorps corps) {
@@ -68,14 +85,16 @@ public class VisiteService {
         appliquer(visite, corps);
         Visite enregistree = visites.save(visite);
         return VisiteReponse.de(enregistree, List.of(),
-                remplacerPathologies(enregistree, corps.pathologiesOuVide()));
+                remplacerPathologies(enregistree, corps.pathologiesOuVide()),
+                remplacerReleves(enregistree, corps.pointsOuVide()));
     }
 
     @Transactional(readOnly = true)
     public List<VisiteReponse> lister() {
         return visites.findAll().stream()
                 .map(v -> VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId()),
-                        pathologies.findByVisite_IdOrderByPathologieAsc(v.getId())))
+                        pathologies.findByVisite_IdOrderByPathologieAsc(v.getId()),
+                        releves.findByIdVisiteIdOrderByIdPointCodeAsc(v.getId())))
                 .toList();
     }
 
@@ -83,7 +102,8 @@ public class VisiteService {
     public VisiteReponse obtenir(Long id) {
         Visite v = entite(id);
         return VisiteReponse.de(v, photos.findByVisiteIdOrderByIdAsc(v.getId()),
-                pathologies.findByVisite_IdOrderByPathologieAsc(v.getId()));
+                pathologies.findByVisite_IdOrderByPathologieAsc(v.getId()),
+                releves.findByIdVisiteIdOrderByIdPointCodeAsc(v.getId()));
     }
 
     /**
@@ -112,7 +132,8 @@ public class VisiteService {
         visite.setAgent(agentRequis(corps.agentId()));
         appliquer(visite, corps);
         return VisiteReponse.de(visite, photos.findByVisiteIdOrderByIdAsc(id),
-                remplacerPathologies(visite, corps.pathologiesOuVide()));
+                remplacerPathologies(visite, corps.pathologiesOuVide()),
+                remplacerReleves(visite, corps.pointsOuVide()));
     }
 
     public void supprimer(Long id) {
@@ -199,6 +220,52 @@ public class VisiteService {
                 })
                 .toList();
         return pathologies.saveAll(nouvelles);
+    }
+
+    /**
+     * Reecrit les releves du carnet parametrable pour une visite (SPRINT-28).
+     *
+     * <p>Meme regle que pour les pathologies : remplacement complet. Une fusion
+     * rendrait impossible de retirer une case cochee par erreur.
+     *
+     * <p>C'est ici que se verifie la CORRESPONDANCE entre la valeur envoyee et
+     * le type du point. La base ne peut pas le faire — le type vit dans une
+     * autre table, hors de portee d'un {@code CHECK} — et l'accepter
+     * silencieusement produirait des colonnes a moitie remplies dans toute
+     * statistique construite ensuite.
+     */
+    private List<ReleveObservation> remplacerReleves(Visite visite, List<PointReleve> demandes) {
+        releves.deleteAll(releves.findByIdVisiteIdOrderByIdPointCodeAsc(visite.getId()));
+        if (demandes.isEmpty()) {
+            return List.of();
+        }
+        releves.flush();
+        Map<String, PointObservation> connus = points
+                .findAllById(demandes.stream().map(PointReleve::code).toList()).stream()
+                .collect(Collectors.toMap(PointObservation::getCode,
+                        Function.identity()));
+        List<ReleveObservation> nouveaux = demandes.stream().distinct().map(demande -> {
+            PointObservation point = connus.get(demande.code());
+            if (point == null) {
+                // Le referentiel est ferme : un code inconnu est une faute de
+                // frappe du client, pas une panne du serveur.
+                throw new RequeteInvalide("Point d'observation inconnu : " + demande.code());
+            }
+            if (point.estEchelle()) {
+                if (demande.niveau() == null || demande.coche() != null) {
+                    throw new RequeteInvalide("Le point « " + point.getLibelle()
+                            + " » attend une intensite de 0 a 3, pas une case cochee.");
+                }
+                return new ReleveObservation(visite.getId(), point.getCode(), null,
+                        demande.niveau().shortValue());
+            }
+            if (demande.coche() == null || demande.niveau() != null) {
+                throw new RequeteInvalide("Le point « " + point.getLibelle()
+                        + " » attend une case cochee, pas une intensite.");
+            }
+            return new ReleveObservation(visite.getId(), point.getCode(), demande.coche(), null);
+        }).toList();
+        return releves.saveAll(nouveaux);
     }
 
     Visite entite(Long id) {

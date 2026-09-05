@@ -467,8 +467,20 @@ export interface PlanningCorps {
   raison: RaisonVisite;
 }
 
-/** Objet auquel une photo est attachee (SPRINT-21). */
-export type CiblePhoto = 'VISITE' | 'RUCHE' | 'SITE' | 'REINE' | 'RECOLTE';
+/**
+ * Objet auquel une photo est attachee (SPRINT-21, sixieme cible au SPRINT-28).
+ *
+ * <p>`TRAITEMENT` porte le scan de l'ordonnance veterinaire : un registre
+ * d'elevage devient verifiable quand la piece y est attachee, et non seulement
+ * sa reference recopiee a la main.
+ */
+export type CiblePhoto =
+  | 'VISITE'
+  | 'RUCHE'
+  | 'SITE'
+  | 'REINE'
+  | 'RECOLTE'
+  | 'TRAITEMENT';
 
 export interface Photo {
   id: number;
@@ -513,6 +525,8 @@ export interface Visite {
   observation: ObservationVisite | null;
   meteo: MeteoVisite | null;
   pathologies: PathologieObservee[];
+  /** Points du carnet paramétrable RELEVÉS (SPRINT-28) — pas tous les points. */
+  points: PointReleve[];
   photos: Photo[];
   creeLe: string;
   majLe: string;
@@ -536,6 +550,145 @@ export interface VisiteCorps {
   observation: ObservationVisite | null;
   meteo: MeteoVisite | null;
   pathologies: PathologieCorps[];
+  /**
+   * Points du carnet relevés pendant cette visite (SPRINT-28).
+   *
+   * <p>N'envoyer que ce qui a été REGARDÉ. Omettre un point n'est pas l'envoyer
+   * à « non » : l'absence dit qu'on n'a pas regardé, `coche: false` dit qu'on a
+   * regardé et que ce n'était pas là. Les statistiques reposent sur cette
+   * différence.
+   */
+  points: PointReleve[];
+}
+
+// ─── Le carnet paramétrable (SPRINT-28, lot I) ──────────────────────────────
+
+/** Ce qu'un point du référentiel attend comme valeur. */
+export type TypePointObservation = 'booleen' | 'echelle';
+
+/** Familles du référentiel, dans l'ordre où l'inspection les rencontre. */
+export type CategoriePoint =
+  | 'population'
+  | 'reine'
+  | 'reserves'
+  | 'batisse'
+  | 'sanitaire'
+  | 'materiel'
+  | 'environnement'
+  | 'geste';
+
+/**
+ * Un point du référentiel **fermé** d'observation.
+ *
+ * <p>Le référentiel ne s'écrit que par migration : un gabarit y choisit un
+ * sous-ensemble, il n'y ajoute jamais rien. C'est ce qui garde les observations
+ * comparables d'une exploitation à l'autre.
+ *
+ * <p>`libelle` est le libellé FRANÇAIS du serveur. L'interface traduit par
+ * `code` et ne s'en sert qu'en repli — pour un point ajouté côté serveur que
+ * cette version du front ne connaît pas encore.
+ */
+export interface PointReferentiel {
+  code: string;
+  categorie: CategoriePoint;
+  typeValeur: TypePointObservation;
+  libelle: string;
+  ordre: number;
+}
+
+/**
+ * Valeur relevée pour un point, sur une visite.
+ *
+ * <p>Exactement un des deux champs est renseigné, selon le type du point. Le
+ * serveur refuse l'autre plutôt que de l'ignorer.
+ */
+export interface PointReleve {
+  code: string;
+  coche: boolean | null;
+  niveau: number | null;
+}
+
+/** Gabarit d'inspection : le carnet tel que l'exploitation le veut. */
+export interface Gabarit {
+  id: number;
+  nom: string;
+  description: string | null;
+  /** Sections du noyau (SPRINT-20) allumées. Éteintes, elles sont masquées — pas effacées. */
+  noyauCouvain: boolean;
+  noyauReine: boolean;
+  noyauCadres: boolean;
+  noyauTemperament: boolean;
+  parDefaut: boolean;
+  actif: boolean;
+  /** Codes du référentiel, dans l'ordre d'affichage. */
+  points: string[];
+  creeLe: string;
+  majLe: string;
+}
+
+export interface GabaritCorps {
+  nom: string;
+  description: string | null;
+  noyauCouvain: boolean;
+  noyauReine: boolean;
+  noyauCadres: boolean;
+  noyauTemperament: boolean;
+  parDefaut: boolean;
+  actif: boolean;
+  points: string[];
+}
+
+/**
+ * Produit du référentiel de traitement, **indicatif**.
+ *
+ * <p>Il pré-remplit la saisie ; la notice fait foi, et `mention` doit rester
+ * affichée. `haussesRetirees` porte la contrainte réelle de la plupart des
+ * varroacides : un délai de carence de zéro jour, lu seul, se comprend comme
+ * « on peut récolter ».
+ */
+export interface ProduitReferentiel {
+  code: string;
+  nom: string;
+  substanceActive: string;
+  cible: CibleTraitement;
+  forme: string;
+  delaiCarenceJours: number;
+  haussesRetirees: boolean;
+  ordonnanceRequise: boolean;
+  mention: string | null;
+}
+
+/**
+ * Ce qu'un point a donné sur une période.
+ *
+ * <p>`releves` compte les fois où le point a été REGARDÉ, jamais les visites de
+ * la période : rapporter les présences à toutes les visites donnerait un taux
+ * systématiquement sous-estimé, et rassurant à tort.
+ */
+export interface StatistiquePoint {
+  code: string;
+  libelle: string;
+  categorie: CategoriePoint;
+  typeValeur: TypePointObservation;
+  releves: number;
+  presents: number;
+  moyenneEchelle: number | null;
+}
+
+/**
+ * Taux d'eau d'un miel, lu au réfractomètre (SPRINT-28).
+ *
+ * <p>Au-delà de 18 % le miel fermente en pot ; au-delà de 20 % il sort de la
+ * norme de commercialisation. D'où un verdict, et pas seulement un nombre.
+ */
+export interface Refractometre {
+  indice: number;
+  temperatureC: number;
+  /** Indice ramené à 20 °C — rendu pour que le calcul soit vérifiable. */
+  indiceCorrige: number;
+  humiditePct: number;
+  verdict: 'stable' | 'risque_fermentation' | 'hors_norme';
+  conformeNorme: boolean;
 }
 
 /** Tâche ou rappel de l'apiculteur (US-031). */
@@ -871,6 +1024,8 @@ export interface Recolte {
   typeMiel: string | null;
   typeProduit: TypeProduit;
   unite: UniteProduit;
+  /** Taux d'eau du miel, au réfractomètre (SPRINT-28). Réservé au miel. */
+  humiditePct: number | null;
   lot: string;
   note: string | null;
   /** Récolte enregistrée malgré une carence, avec son motif (SPRINT-22). */
@@ -889,6 +1044,8 @@ export interface RecolteCorps {
   /** Absents, c'est du MIEL en kilogrammes : le défaut d'avant le SPRINT-27. */
   typeProduit?: TypeProduit | null;
   unite?: UniteProduit | null;
+  /** Taux d'eau, entre 10 et 30 %. Réservé au miel : la base refuse le reste. */
+  humiditePct?: number | null;
   note: string | null;
   /**
    * Enregistrer malgré une carence en cours (SPRINT-22).
@@ -1117,6 +1274,9 @@ export interface Traitement {
   dateRetrait: string | null;
   sousCarence: boolean;
   ordonnance: string | null;
+  /** Vétérinaire signataire et date (SPRINT-28) : sans eux, rien n'est vérifiable. */
+  ordonnanceVeterinaire: string | null;
+  ordonnanceDate: string | null;
   note: string | null;
   creeLe: string;
   majLe: string;
@@ -1135,6 +1295,8 @@ export interface TraitementCorps {
   dateFin: string | null;
   delaiCarenceJours: number | null;
   ordonnance: string | null;
+  ordonnanceVeterinaire: string | null;
+  ordonnanceDate: string | null;
   note: string | null;
 }
 

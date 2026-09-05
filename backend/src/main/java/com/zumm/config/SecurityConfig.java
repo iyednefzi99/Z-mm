@@ -257,6 +257,18 @@ public class SecurityConfig {
                 .hasAnyRole("responsable", "admin")
                 .requestMatchers(HttpMethod.DELETE, "/api/materiels/**", "/api/consommables/**")
                 .hasAnyRole("responsable", "admin")
+                // Le carnet parametrable (SPRINT-28) : sa FORME est une decision
+                // d'exploitation — quelles cases figurent a la saisie engage
+                // toutes les inspections a venir. Sa LECTURE ne l'est pas :
+                // l'apiculteur doit voir les cases qu'on lui demande de cocher,
+                // et les deux referentiels ne contiennent aucune donnee
+                // d'exploitation.
+                .requestMatchers(HttpMethod.POST, "/api/carnet/**")
+                .hasAnyRole("responsable", "admin")
+                .requestMatchers(HttpMethod.PUT, "/api/carnet/**")
+                .hasAnyRole("responsable", "admin")
+                .requestMatchers(HttpMethod.DELETE, "/api/carnet/**")
+                .hasAnyRole("responsable", "admin")
                 // Le referentiel et la configuration sont geres par le responsable
                 // et l'administrateur ; les autres roles y ont un acces en LECTURE.
                 .requestMatchers(HttpMethod.POST, "/api/fermiers/**", "/api/fermes/**",

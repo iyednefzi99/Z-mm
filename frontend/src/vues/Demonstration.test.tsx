@@ -24,6 +24,13 @@ import type { Seuils } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  recupererPoints: vi.fn(() => Promise.resolve([])),
+  gabarits: {
+    lister: vi.fn(() => Promise.resolve([])),
+    creer: vi.fn(),
+    mettreAJour: vi.fn(),
+    supprimer: vi.fn(),
+  },
   recupererSeuils: vi.fn(),
   etatDemonstration: vi.fn(),
   chargerDemonstration: vi.fn(),

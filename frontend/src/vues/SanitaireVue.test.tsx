@@ -24,6 +24,7 @@ import type { ComptageVarroa, Traitement } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  recupererProduitsTraitement: vi.fn(() => Promise.resolve([])),
   ruches: { lister: vi.fn() },
   agents: { lister: vi.fn() },
   listerCarencesEnCours: vi.fn(),
@@ -77,6 +78,8 @@ const SOUS_CARENCE: Traitement = {
   dateRetrait: '2026-09-03',
   sousCarence: true,
   ordonnance: null,
+  ordonnanceVeterinaire: null,
+  ordonnanceDate: null,
   note: null,
   creeLe: '2026-08-01T09:00:00Z',
   majLe: '2026-08-01T09:00:00Z',

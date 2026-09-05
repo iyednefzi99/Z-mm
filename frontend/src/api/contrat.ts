@@ -180,6 +180,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/carnet/gabarits/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenirGabarit"];
+        put: operations["mettreAJour_11"];
+        post?: never;
+        delete: operations["supprimer_11"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/brouillons": {
         parameters: {
             query?: never;
@@ -204,9 +220,9 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtenir_9"];
-        put: operations["mettreAJour_11"];
+        put: operations["mettreAJour_12"];
         post?: never;
-        delete: operations["supprimer_11"];
+        delete: operations["supprimer_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -820,6 +836,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/carnet/gabarits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listerGabarits"];
+        put?: never;
+        post: operations["creer_13"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/captures": {
         parameters: {
             query?: never;
@@ -861,7 +893,7 @@ export interface paths {
         };
         get: operations["lister_18"];
         put?: never;
-        post: operations["creer_13"];
+        post: operations["creer_14"];
         delete?: never;
         options?: never;
         head?: never;
@@ -877,7 +909,7 @@ export interface paths {
         };
         get: operations["lister_19"];
         put?: never;
-        post: operations["creer_14"];
+        post: operations["creer_15"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1218,7 +1250,7 @@ export interface paths {
         get: operations["obtenir_10"];
         put?: never;
         post?: never;
-        delete: operations["supprimer_12"];
+        delete: operations["supprimer_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1592,6 +1624,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/carnet/statistiques": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["statistiques"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/carnet/produits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["produits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/carnet/points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["points"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/calendrier/{jeton}.ics": {
         parameters: {
             query?: never;
@@ -1632,6 +1712,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["sirop"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/calculateurs/refractometre": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["refractometre"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1698,7 +1794,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_13"];
+        delete: operations["supprimer_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1714,7 +1810,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_14"];
+        delete: operations["supprimer_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1730,7 +1826,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_15"];
+        delete: operations["supprimer_16"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1746,7 +1842,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_16"];
+        delete: operations["supprimer_17"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1762,7 +1858,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_17"];
+        delete: operations["supprimer_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1794,7 +1890,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_18"];
+        delete: operations["supprimer_19"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1826,7 +1922,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_19"];
+        delete: operations["supprimer_20"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1842,7 +1938,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_20"];
+        delete: operations["supprimer_21"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1913,6 +2009,12 @@ export interface components {
             gravite?: string;
             note?: string;
         };
+        PointReleve: {
+            code: string;
+            coche?: boolean;
+            /** Format: int32 */
+            niveau?: number;
+        };
         VisiteCorps: {
             /** Format: int64 */
             rucheId: number;
@@ -1944,6 +2046,7 @@ export interface components {
             observation?: components["schemas"]["ObservationVisite"];
             meteo?: components["schemas"]["MeteoVisite"];
             pathologies?: components["schemas"]["PathologieCorps"][];
+            points?: components["schemas"]["PointReleve"][];
         };
         PathologieReponse: {
             /** Format: int64 */
@@ -1956,7 +2059,7 @@ export interface components {
             /** Format: int64 */
             id?: number;
             /** @enum {string} */
-            cible?: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+            cible?: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE" | "TRAITEMENT";
             /** Format: int64 */
             cibleId?: number;
             url?: string;
@@ -1999,6 +2102,7 @@ export interface components {
             observation?: components["schemas"]["ObservationVisite"];
             meteo?: components["schemas"]["MeteoVisite"];
             pathologies?: components["schemas"]["PathologieReponse"][];
+            points?: components["schemas"]["PointReleve"][];
             photos?: components["schemas"]["PhotoReponse"][];
             /** Format: date-time */
             creeLe?: string;
@@ -2386,6 +2490,34 @@ export interface components {
             /** Format: date-time */
             majLe?: string;
         };
+        GabaritCorps: {
+            nom: string;
+            description?: string;
+            noyauCouvain?: boolean;
+            noyauReine?: boolean;
+            noyauCadres?: boolean;
+            noyauTemperament?: boolean;
+            parDefaut?: boolean;
+            actif?: boolean;
+            points?: string[];
+        };
+        GabaritReponse: {
+            /** Format: int64 */
+            id?: number;
+            nom?: string;
+            description?: string;
+            noyauCouvain?: boolean;
+            noyauReine?: boolean;
+            noyauCadres?: boolean;
+            noyauTemperament?: boolean;
+            parDefaut?: boolean;
+            actif?: boolean;
+            points?: string[];
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
         BrouillonCorps: {
             /** Format: int64 */
             agentId: number;
@@ -2569,6 +2701,9 @@ export interface components {
             /** Format: int32 */
             delaiCarenceJours?: number;
             ordonnance?: string;
+            ordonnanceVeterinaire?: string;
+            /** Format: date */
+            ordonnanceDate?: string;
             note?: string;
         };
         TraitementReponse: {
@@ -2597,6 +2732,9 @@ export interface components {
             dateRetrait?: string;
             sousCarence?: boolean;
             ordonnance?: string;
+            ordonnanceVeterinaire?: string;
+            /** Format: date */
+            ordonnanceDate?: string;
             note?: string;
             /** Format: date-time */
             creeLe?: string;
@@ -2672,6 +2810,7 @@ export interface components {
             typeMiel?: string;
             typeProduit?: string;
             unite?: string;
+            humiditePct?: number;
             note?: string;
             forcerCarence?: boolean;
             motifForcage?: string;
@@ -2688,6 +2827,7 @@ export interface components {
             typeMiel?: string;
             typeProduit?: string;
             unite?: string;
+            humiditePct?: number;
             lot?: string;
             note?: string;
             qrPayload?: string;
@@ -2713,7 +2853,7 @@ export interface components {
         };
         PhotoCibleCorps: {
             /** @enum {string} */
-            cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+            cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE" | "TRAITEMENT";
             /** Format: int64 */
             cibleId: number;
             url: string;
@@ -3360,6 +3500,38 @@ export interface components {
             prixMielKgEur?: number;
             coutVisiteEur?: number;
         };
+        StatistiquePoint: {
+            code?: string;
+            libelle?: string;
+            categorie?: string;
+            typeValeur?: string;
+            /** Format: int64 */
+            releves?: number;
+            /** Format: int64 */
+            presents?: number;
+            /** Format: double */
+            moyenneEchelle?: number;
+        };
+        ProduitReferentiel: {
+            code?: string;
+            nom?: string;
+            substanceActive?: string;
+            cible?: string;
+            forme?: string;
+            /** Format: int32 */
+            delaiCarenceJours?: number;
+            haussesRetirees?: boolean;
+            ordonnanceRequise?: boolean;
+            mention?: string;
+        };
+        PointReferentiel: {
+            code?: string;
+            categorie?: string;
+            typeValeur?: string;
+            libelle?: string;
+            /** Format: int32 */
+            ordre?: number;
+        };
         Valorisation: {
             kilos?: number;
             prixKgEur?: number;
@@ -3373,6 +3545,14 @@ export interface components {
             sucreKg?: number;
             eauL?: number;
             usage?: string;
+        };
+        Refractometre: {
+            indice?: number;
+            temperatureC?: number;
+            indiceCorrige?: number;
+            humiditePct?: number;
+            verdict?: string;
+            conformeNorme?: boolean;
         };
         AuditEntreeReponse: {
             /** Format: int64 */
@@ -4125,6 +4305,74 @@ export interface operations {
             };
         };
     };
+    obtenirGabarit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GabaritReponse"];
+                };
+            };
+        };
+    };
+    mettreAJour_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GabaritCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GabaritReponse"];
+                };
+            };
+        };
+    };
+    supprimer_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     lister: {
         parameters: {
             query: {
@@ -4193,7 +4441,7 @@ export interface operations {
             };
         };
     };
-    mettreAJour_11: {
+    mettreAJour_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -4219,7 +4467,7 @@ export interface operations {
             };
         };
     };
-    supprimer_11: {
+    supprimer_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -4994,7 +5242,7 @@ export interface operations {
     lister_8: {
         parameters: {
             query: {
-                cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE";
+                cible: "VISITE" | "RUCHE" | "SITE" | "REINE" | "RECOLTE" | "TRAITEMENT";
                 cibleId: number;
             };
             header?: never;
@@ -5695,6 +5943,50 @@ export interface operations {
             };
         };
     };
+    listerGabarits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GabaritReponse"][];
+                };
+            };
+        };
+    };
+    creer_13: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GabaritCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GabaritReponse"];
+                };
+            };
+        };
+    };
     lister_17: {
         parameters: {
             query?: {
@@ -5791,7 +6083,7 @@ export interface operations {
             };
         };
     };
-    creer_13: {
+    creer_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -5837,7 +6129,7 @@ export interface operations {
             };
         };
     };
-    creer_14: {
+    creer_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -6316,7 +6608,7 @@ export interface operations {
             };
         };
     };
-    supprimer_12: {
+    supprimer_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -6849,6 +7141,69 @@ export interface operations {
             };
         };
     };
+    statistiques: {
+        parameters: {
+            query?: {
+                depuis?: string;
+                jusqu?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StatistiquePoint"][];
+                };
+            };
+        };
+    };
+    produits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProduitReferentiel"][];
+                };
+            };
+        };
+    };
+    points: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PointReferentiel"][];
+                };
+            };
+        };
+    };
     flux: {
         parameters: {
             query?: never;
@@ -6917,6 +7272,29 @@ export interface operations {
             };
         };
     };
+    refractometre: {
+        parameters: {
+            query: {
+                indice: number;
+                temperatureC?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Refractometre"];
+                };
+            };
+        };
+    };
     lister_21: {
         parameters: {
             query?: never;
@@ -6967,26 +7345,6 @@ export interface operations {
             path: {
                 id: number;
                 photoId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    supprimer_13: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
             };
             cookie?: never;
         };
@@ -7081,6 +7439,26 @@ export interface operations {
             };
         };
     };
+    supprimer_18: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     revoquer: {
         parameters: {
             query?: never;
@@ -7103,7 +7481,7 @@ export interface operations {
             };
         };
     };
-    supprimer_18: {
+    supprimer_19: {
         parameters: {
             query?: never;
             header?: never;
@@ -7143,7 +7521,7 @@ export interface operations {
             };
         };
     };
-    supprimer_19: {
+    supprimer_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -7163,7 +7541,7 @@ export interface operations {
             };
         };
     };
-    supprimer_20: {
+    supprimer_21: {
         parameters: {
             query?: never;
             header?: never;

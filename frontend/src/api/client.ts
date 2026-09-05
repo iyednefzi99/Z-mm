@@ -61,6 +61,8 @@ import type {
   FermeCorps,
   Fermier,
   FermierCorps,
+  Gabarit,
+  GabaritCorps,
   GrappeSites,
   IndiceColonie,
   Invitation,
@@ -86,12 +88,15 @@ import type {
   PlanningCorps,
   PoidsCompartiment,
   PointJournalier,
+  PointReferentiel,
   PrevisionRecolte,
+  ProduitReferentiel,
   QuantiteMiel,
   RapportLot,
   Recolte,
   RecolteCorps,
   RecolteLotCorps,
+  Refractometre,
   Reine,
   ReineCorps,
   ResultatRecherche,
@@ -100,6 +105,7 @@ import type {
   Seuils,
   Site,
   SiteCorps,
+  StatistiquePoint,
   Synthese,
   SyntheseRucher,
   Tache,
@@ -1017,4 +1023,49 @@ export const calculerValorisation = (kilos: number, prixKgEur?: number) =>
   requete<{ kilos: number; prixKgEur: number; totalEur: number; pots500g: number }>(
     `/api/calculateurs/valorisation?kilos=${kilos}`
       + (prixKgEur === undefined ? '' : `&prixKgEur=${prixKgEur}`),
+  );
+
+// ─── Le carnet paramétrable (SPRINT-28, lot I) ──────────────────────────────
+
+/**
+ * Référentiel **fermé** des points d'observation.
+ *
+ * <p>Il ne change qu'au déploiement d'une migration : le charger une fois par
+ * session suffit, et les vues qui l'utilisent le partagent.
+ */
+export const recupererPoints = () => requete<PointReferentiel[]>('/api/carnet/points');
+
+/** Référentiel indicatif des produits de traitement. La notice fait foi. */
+export const recupererProduitsTraitement = () =>
+  requete<ProduitReferentiel[]>('/api/carnet/produits');
+
+/**
+ * Gabarits d'inspection.
+ *
+ * <p>Le patron `ressource` s'applique tel quel : le carnet est une ressource
+ * ordinaire, seule sa forme est particuliere.
+ */
+export const gabarits = ressource<Gabarit, GabaritCorps>('/api/carnet/gabarits');
+
+/**
+ * Ce que chaque point a donné sur une période.
+ *
+ * <p>Les bornes sont obligatoires côté serveur : sans elles, la requête
+ * balaierait toute l'histoire de l'exploitation à chaque ouverture d'écran.
+ */
+export const recupererStatistiquesPoints = (depuis: string, jusqu: string) =>
+  requete<StatistiquePoint[]>(
+    `/api/carnet/statistiques?depuis=${depuis}&jusqu=${jusqu}`,
+  );
+
+/**
+ * Taux d'eau d'un miel, lu au réfractomètre.
+ *
+ * <p>Hors de la table publiée, le serveur répond 400 plutôt que d'extrapoler :
+ * un chiffre faux sur la mesure qui décide de la conservation serait cru.
+ */
+export const calculerRefractometre = (indice: number, temperatureC?: number) =>
+  requete<Refractometre>(
+    `/api/calculateurs/refractometre?indice=${indice}`
+      + (temperatureC === undefined ? '' : `&temperatureC=${temperatureC}`),
   );

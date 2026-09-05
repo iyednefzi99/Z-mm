@@ -6,6 +6,7 @@ import com.zumm.repository.RecolteRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.SiteRepository;
 import com.zumm.repository.SuiviReineRepository;
+import com.zumm.repository.TraitementRepository;
 import com.zumm.repository.VisiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
@@ -23,6 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
  * qu'une photo de ruche, de reine marquee, de cadre de recolte ou de rucher
  * n'avait aucun endroit ou aller.
  *
+ * <p>Le SPRINT-28 y ajoute une sixieme cible, le {@code TRAITEMENT} : un
+ * registre d'elevage devient verifiable quand le scan de l'ordonnance y est
+ * attache, et non seulement sa reference recopiee a la main.
+ *
  * <p>Les routes de visite ({@code /api/visites/{id}/photos}) restent servies par
  * {@code VisiteService} : elles fonctionnent, elles sont utilisees, et les
  * deplacer ici aurait casse un contrat pour un gain nul.
@@ -37,15 +42,18 @@ public class PhotoService {
     private final SiteRepository sites;
     private final SuiviReineRepository reines;
     private final RecolteRepository recoltes;
+    private final TraitementRepository traitements;
 
     public PhotoService(PhotoRepository photos, VisiteRepository visites, RucheRepository ruches,
-            SiteRepository sites, SuiviReineRepository reines, RecolteRepository recoltes) {
+            SiteRepository sites, SuiviReineRepository reines, RecolteRepository recoltes,
+            TraitementRepository traitements) {
         this.photos = photos;
         this.visites = visites;
         this.ruches = ruches;
         this.sites = sites;
         this.reines = reines;
         this.recoltes = recoltes;
+        this.traitements = traitements;
     }
 
     public PhotoReponse attacher(PhotoCibleCorps corps) {
@@ -63,6 +71,7 @@ public class PhotoService {
             case SITE -> photos.findBySiteIdOrderByIdAsc(cibleId);
             case REINE -> photos.findByReineIdOrderByIdAsc(cibleId);
             case RECOLTE -> photos.findByRecolteIdOrderByIdAsc(cibleId);
+            case TRAITEMENT -> photos.findByTraitementIdOrderByIdAsc(cibleId);
         };
         return trouvees.stream().map(PhotoReponse::de).toList();
     }
@@ -89,6 +98,8 @@ public class PhotoService {
             case REINE -> reines.findById(cibleId).orElseThrow(() -> inconnu("Reine", cibleId));
             case RECOLTE -> recoltes.findById(cibleId)
                     .orElseThrow(() -> inconnu("Recolte", cibleId));
+            case TRAITEMENT -> traitements.findById(cibleId)
+                    .orElseThrow(() -> inconnu("Traitement", cibleId));
         };
     }
 

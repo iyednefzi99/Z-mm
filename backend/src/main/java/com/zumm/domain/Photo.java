@@ -29,7 +29,8 @@ import org.hibernate.annotations.TenantId;
  * <p>L'invariant qui rend le modele sur : <strong>exactement une cible</strong>.
  * Une photo attachee a tout n'est attachee a rien, et une photo attachee a rien
  * est une fuite de stockage. La base le fait respecter
- * ({@code ck_photo_cible_unique}, {@code num_nonnulls(...) = 1}) ; la fabrique
+ * ({@code ck_photo_cible_unique}, {@code num_nonnulls(...) = 1}, etendu a six
+ * cibles au SPRINT-28) ; la fabrique
  * {@link #sur(Cible, Object, String, String)} rend l'erreur impossible plus tot.
  */
 @Entity
@@ -38,7 +39,7 @@ public class Photo {
 
     /** Objets du parc auxquels une photo peut se rattacher. */
     public enum Cible {
-        VISITE, RUCHE, SITE, REINE, RECOLTE
+        VISITE, RUCHE, SITE, REINE, RECOLTE, TRAITEMENT
     }
 
     @Id
@@ -68,6 +69,15 @@ public class Photo {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recolte_id")
     private Recolte recolte;
+
+    /**
+     * Sixieme cible, ajoutee au SPRINT-28 : le scan de l'ordonnance
+     * veterinaire. Le registre d'elevage devient verifiable quand la piece qui
+     * l'autorise y est attachee, et non seulement referencee.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "traitement_id")
+    private Traitement traitement;
 
     @NotBlank
     @Size(max = 500)
@@ -109,6 +119,7 @@ public class Photo {
             case SITE -> photo.site = (Site) porteur;
             case REINE -> photo.reine = (SuiviReine) porteur;
             case RECOLTE -> photo.recolte = (Recolte) porteur;
+            case TRAITEMENT -> photo.traitement = (Traitement) porteur;
         }
         return photo;
     }
@@ -127,7 +138,10 @@ public class Photo {
         if (reine != null) {
             return Cible.REINE;
         }
-        return Cible.RECOLTE;
+        if (recolte != null) {
+            return Cible.RECOLTE;
+        }
+        return Cible.TRAITEMENT;
     }
 
     /** Identifiant de l'objet porteur, quelle que soit sa nature. */
@@ -138,6 +152,7 @@ public class Photo {
             case SITE -> site.getId();
             case REINE -> reine.getId();
             case RECOLTE -> recolte.getId();
+            case TRAITEMENT -> traitement.getId();
         };
     }
 

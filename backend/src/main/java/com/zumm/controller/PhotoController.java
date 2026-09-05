@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Une ressource unique plutot que quatre sous-ressources
  * ({@code /api/ruches/{id}/photos}, {@code /api/sites/{id}/photos}...) : le
- * traitement est identique dans les cinq cas, et quatre controleurs jumeaux
- * auraient quadruple la surface a auditer pour la meme fonction.
+ * traitement est identique dans les six cas, et autant de controleurs jumeaux
+ * auraient multiplie la surface a auditer pour la meme fonction.
  *
  * <p>{@code POST /api/visites/{id}/photos} reste servi par {@code VisiteController} :
  * il fonctionne et il est utilise ; le doubler ici aurait casse un contrat.

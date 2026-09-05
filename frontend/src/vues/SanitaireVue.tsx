@@ -8,6 +8,7 @@ import {
   listerComptagesVarroa,
   listerNourrissements,
   listerTraitements,
+  recupererProduitsTraitement,
   ruches,
   supprimerComptageVarroa,
   supprimerNourrissement,
@@ -21,6 +22,7 @@ import type {
   MethodeVarroa,
   MotifNourrissement,
   Nourrissement,
+  ProduitReferentiel,
   RapportLot,
   Ruche,
   Traitement,
@@ -127,6 +129,13 @@ export function SanitaireVue(): ReactElement {
   const [dateFin, setDateFin] = useState('');
   const [carenceJours, setCarenceJours] = useState('');
   const [ordonnance, setOrdonnance] = useState('');
+  // L'ordonnance devient VÉRIFIABLE (SPRINT-28) : une référence seule disait
+  // qu'une ordonnance existe, jamais qui l'a signée ni quand.
+  const [veterinaire, setVeterinaire] = useState('');
+  const [dateOrdonnance, setDateOrdonnance] = useState('');
+  // Référentiel de produits, indicatif : il pré-remplit, la notice fait foi.
+  const [produitsReferentiel, setProduitsReferentiel] = useState<ProduitReferentiel[]>([]);
+  const [codeProduit, setCodeProduit] = useState('');
   const [noteTraitement, setNoteTraitement] = useState('');
 
   // Nourrissement
@@ -147,6 +156,12 @@ export function SanitaireVue(): ReactElement {
 
   const vide: Option = { valeur: '', libelle: t.champs.aucun };
   const optCible: Option[] = CIBLES_TRAITEMENT.map((c) => ({ valeur: c, libelle: s.cibles[c] }));
+  // « Saisie libre » vient en tête : le référentiel aide, il n'impose pas. Un
+  // produit absent du catalogue doit rester enregistrable.
+  const optProduitReferentiel: Option[] = [
+    { valeur: '', libelle: s.saisieLibre },
+    ...produitsReferentiel.map((p) => ({ valeur: p.code, libelle: p.nom })),
+  ];
   const optDoseUnite: Option[] = [
     vide,
     ...UNITES_DOSE.map((u) => ({ valeur: u, libelle: s.unitesDose[u] })),
@@ -267,6 +282,36 @@ export function SanitaireVue(): ReactElement {
     recharger(id);
   };
 
+  // Le référentiel ne change qu'au déploiement d'une migration : une lecture au
+  // montage suffit, et son échec laisse simplement la saisie libre.
+  useEffect(() => {
+    void recupererProduitsTraitement()
+      .then(setProduitsReferentiel)
+      .catch(() => setProduitsReferentiel([]));
+  }, []);
+
+  /**
+   * Reprend un produit du référentiel dans le formulaire.
+   *
+   * <p>Il PRÉ-REMPLIT, il ne verrouille pas : les champs restent modifiables,
+   * et c'est la copie saisie qui sera enregistrée. Corriger le référentiel
+   * demain ne doit pas réécrire un registre d'élevage d'hier, qui est un
+   * document opposable.
+   */
+  const reprendreProduit = (code: string) => {
+    setCodeProduit(code);
+    const choisi = produitsReferentiel.find((p) => p.code === code);
+    if (choisi === undefined) {
+      return;
+    }
+    setProduit(choisi.nom);
+    setSubstance(choisi.substanceActive);
+    setCible(choisi.cible);
+    setCarenceJours(String(choisi.delaiCarenceJours));
+  };
+
+  const produitChoisi = produitsReferentiel.find((p) => p.code === codeProduit) ?? null;
+
   /** Rafraîchit aussi le bandeau : un traitement saisi peut fermer la récolte. */
   const apresMutation = () => {
     recharger(rucheId);
@@ -307,6 +352,8 @@ export function SanitaireVue(): ReactElement {
             dateFin: dateFin === '' ? null : dateFin,
             delaiCarenceJours: nombre(carenceJours),
             ordonnance: texte(ordonnance),
+            ordonnanceVeterinaire: texte(veterinaire),
+            ordonnanceDate: dateOrdonnance === '' ? null : dateOrdonnance,
             note: texte(noteTraitement),
           },
         }),
@@ -338,6 +385,8 @@ export function SanitaireVue(): ReactElement {
         dateFin: dateFin === '' ? null : dateFin,
         delaiCarenceJours: nombre(carenceJours),
         ordonnance: texte(ordonnance),
+        ordonnanceVeterinaire: texte(veterinaire),
+        ordonnanceDate: dateOrdonnance === '' ? null : dateOrdonnance,
         note: texte(noteTraitement),
       });
       setProduit('');
@@ -347,6 +396,9 @@ export function SanitaireVue(): ReactElement {
       setDateFin('');
       setCarenceJours('');
       setOrdonnance('');
+      setVeterinaire('');
+      setDateOrdonnance('');
+      setCodeProduit('');
       setNoteTraitement('');
       apresMutation();
     } catch (cause) {
@@ -517,6 +569,27 @@ export function SanitaireVue(): ReactElement {
               )}
               <fieldset className="z-composition">
                 <legend className="z-champ__libelle">{s.ajouterTraitement}</legend>
+                {/* Le référentiel pré-remplit ; il ne remplace pas la saisie.
+                    Un produit absent du catalogue reste enregistrable — il en
+                    manquera toujours un, et refuser l'inconnu ferait cesser
+                    d'enregistrer le traitement plutôt que de le nommer. */}
+                {produitsReferentiel.length > 0 && (
+                  <div className="z-form__grille">
+                    <ChampSelect
+                      libelle={s.referentiel}
+                      valeur={codeProduit}
+                      options={optProduitReferentiel}
+                      onChange={reprendreProduit}
+                    />
+                    {produitChoisi !== null && (
+                      <p className="z-info">
+                        {produitChoisi.haussesRetirees ? `⚠ ${s.haussesRetirees}. ` : ''}
+                        {produitChoisi.ordonnanceRequise ? `${s.ordonnanceRequise}. ` : ''}
+                        {produitChoisi.mention ?? ''}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div className="z-form__grille">
                   <ChampTexte libelle={s.produit} valeur={produit} onChange={setProduit} />
                   <ChampTexte
@@ -557,6 +630,24 @@ export function SanitaireVue(): ReactElement {
                     onChange={setOrdonnance}
                   />
                 </div>
+                {/* Vétérinaire et date ne s'affichent qu'une fois la référence
+                    saisie : la base refuse une date sans référence, et proposer
+                    les trois champs de front inviterait à ce refus. */}
+                {ordonnance.trim() !== '' && (
+                  <div className="z-form__grille">
+                    <ChampTexte
+                      libelle={s.ordonnanceVeterinaire}
+                      valeur={veterinaire}
+                      onChange={setVeterinaire}
+                    />
+                    <ChampDate
+                      libelle={s.ordonnanceDate}
+                      valeur={dateOrdonnance}
+                      onChange={setDateOrdonnance}
+                    />
+                    <p className="z-info">{s.ordonnanceAide}</p>
+                  </div>
+                )}
                 <div className="z-form__grille">
                   <ChampZone
                     libelle={s.note}

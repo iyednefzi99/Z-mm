@@ -855,6 +855,86 @@
         }
       }
     },
+    "/api/carnet/gabarits/{id}" : {
+      "get" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "obtenirGabarit",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GabaritReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "mettreAJour_11",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GabaritCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GabaritReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "supprimer_11",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/brouillons" : {
       "get" : {
         "tags" : [ "brouillon-controller" ],
@@ -939,7 +1019,7 @@
       },
       "put" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "mettreAJour_11",
+        "operationId" : "mettreAJour_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -974,7 +1054,7 @@
       },
       "delete" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "supprimer_11",
+        "operationId" : "supprimer_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1978,7 +2058,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE", "TRAITEMENT" ]
           }
         }, {
           "name" : "cibleId",
@@ -2816,6 +2896,53 @@
         }
       }
     },
+    "/api/carnet/gabarits" : {
+      "get" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "listerGabarits",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/GabaritReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "creer_13",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/GabaritCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/GabaritReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/captures" : {
       "get" : {
         "tags" : [ "capture-essaim-controller" ],
@@ -2969,7 +3096,7 @@
       },
       "post" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "creer_13",
+        "operationId" : "creer_14",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3025,7 +3152,7 @@
       },
       "post" : {
         "tags" : [ "abonnement-calendrier-controller" ],
-        "operationId" : "creer_14",
+        "operationId" : "creer_15",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3647,7 +3774,7 @@
       },
       "delete" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "supprimer_12",
+        "operationId" : "supprimer_13",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4381,6 +4508,86 @@
         }
       }
     },
+    "/api/carnet/statistiques" : {
+      "get" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "statistiques",
+        "parameters" : [ {
+          "name" : "depuis",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "jusqu",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/StatistiquePoint"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/carnet/produits" : {
+      "get" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "produits",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProduitReferentiel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/carnet/points" : {
+      "get" : {
+        "tags" : [ "carnet-controller" ],
+        "operationId" : "points",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PointReferentiel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/calendrier/{jeton}.ics" : {
       "get" : {
         "tags" : [ "flux-calendrier-controller" ],
@@ -4467,6 +4674,39 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/Sirop"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calculateurs/refractometre" : {
+      "get" : {
+        "tags" : [ "calculateur-controller" ],
+        "operationId" : "refractometre",
+        "parameters" : [ {
+          "name" : "indice",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "number"
+          }
+        }, {
+          "name" : "temperatureC",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Refractometre"
                 }
               }
             }
@@ -4561,7 +4801,7 @@
     "/api/varroa/{id}" : {
       "delete" : {
         "tags" : [ "comptage-varroa-controller" ],
-        "operationId" : "supprimer_13",
+        "operationId" : "supprimer_14",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4581,7 +4821,7 @@
     "/api/transports/{id}" : {
       "delete" : {
         "tags" : [ "transport-controller" ],
-        "operationId" : "supprimer_14",
+        "operationId" : "supprimer_15",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4601,7 +4841,7 @@
     "/api/traitements/{id}" : {
       "delete" : {
         "tags" : [ "traitement-controller" ],
-        "operationId" : "supprimer_15",
+        "operationId" : "supprimer_16",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4621,7 +4861,7 @@
     "/api/reines/{id}" : {
       "delete" : {
         "tags" : [ "reine-controller" ],
-        "operationId" : "supprimer_16",
+        "operationId" : "supprimer_17",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4641,7 +4881,7 @@
     "/api/photos/{id}" : {
       "delete" : {
         "tags" : [ "photo-controller" ],
-        "operationId" : "supprimer_17",
+        "operationId" : "supprimer_18",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4688,7 +4928,7 @@
     "/api/nourrissements/{id}" : {
       "delete" : {
         "tags" : [ "nourrissement-controller" ],
-        "operationId" : "supprimer_18",
+        "operationId" : "supprimer_19",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4728,7 +4968,7 @@
     "/api/divisions/{id}" : {
       "delete" : {
         "tags" : [ "division-controller" ],
-        "operationId" : "supprimer_19",
+        "operationId" : "supprimer_20",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4748,7 +4988,7 @@
     "/api/captures/{id}" : {
       "delete" : {
         "tags" : [ "capture-essaim-controller" ],
-        "operationId" : "supprimer_20",
+        "operationId" : "supprimer_21",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4905,6 +5145,26 @@
         },
         "required" : [ "pathologie" ]
       },
+      "PointReleve" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "coche" : {
+            "type" : "boolean"
+          },
+          "niveau" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 3,
+            "minimum" : 0
+          }
+        },
+        "required" : [ "code" ]
+      },
       "VisiteCorps" : {
         "type" : "object",
         "properties" : {
@@ -4974,6 +5234,12 @@
             "items" : {
               "$ref" : "#/components/schemas/PathologieCorps"
             }
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointReleve"
+            }
           }
         },
         "required" : [ "agentId", "dateVisite", "rucheId" ]
@@ -5005,7 +5271,7 @@
           },
           "cible" : {
             "type" : "string",
-            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE", "TRAITEMENT" ]
           },
           "cibleId" : {
             "type" : "integer",
@@ -5099,6 +5365,12 @@
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/PathologieReponse"
+            }
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointReleve"
             }
           },
           "photos" : {
@@ -6111,6 +6383,93 @@
           }
         }
       },
+      "GabaritCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "description" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          },
+          "noyauCouvain" : {
+            "type" : "boolean"
+          },
+          "noyauReine" : {
+            "type" : "boolean"
+          },
+          "noyauCadres" : {
+            "type" : "boolean"
+          },
+          "noyauTemperament" : {
+            "type" : "boolean"
+          },
+          "parDefaut" : {
+            "type" : "boolean"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        },
+        "required" : [ "nom" ]
+      },
+      "GabaritReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "noyauCouvain" : {
+            "type" : "boolean"
+          },
+          "noyauReine" : {
+            "type" : "boolean"
+          },
+          "noyauCadres" : {
+            "type" : "boolean"
+          },
+          "noyauTemperament" : {
+            "type" : "boolean"
+          },
+          "parDefaut" : {
+            "type" : "boolean"
+          },
+          "actif" : {
+            "type" : "boolean"
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "BrouillonCorps" : {
         "type" : "object",
         "properties" : {
@@ -6584,6 +6943,15 @@
             "maxLength" : 120,
             "minLength" : 0
           },
+          "ordonnanceVeterinaire" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "ordonnanceDate" : {
+            "type" : "string",
+            "format" : "date"
+          },
           "note" : {
             "type" : "string"
           }
@@ -6651,6 +7019,13 @@
           },
           "ordonnance" : {
             "type" : "string"
+          },
+          "ordonnanceVeterinaire" : {
+            "type" : "string"
+          },
+          "ordonnanceDate" : {
+            "type" : "string",
+            "format" : "date"
           },
           "note" : {
             "type" : "string"
@@ -6868,6 +7243,11 @@
             "type" : "string",
             "pattern" : "kg|unite"
           },
+          "humiditePct" : {
+            "type" : "number",
+            "maximum" : 30.0,
+            "minimum" : 10.0
+          },
           "note" : {
             "type" : "string",
             "maxLength" : 2000,
@@ -6913,6 +7293,9 @@
           },
           "unite" : {
             "type" : "string"
+          },
+          "humiditePct" : {
+            "type" : "number"
           },
           "lot" : {
             "type" : "string"
@@ -6986,7 +7369,7 @@
         "properties" : {
           "cible" : {
             "type" : "string",
-            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE" ]
+            "enum" : [ "VISITE", "RUCHE", "SITE", "REINE", "RECOLTE", "TRAITEMENT" ]
           },
           "cibleId" : {
             "type" : "integer",
@@ -8615,6 +8998,89 @@
           }
         }
       },
+      "StatistiquePoint" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "typeValeur" : {
+            "type" : "string"
+          },
+          "releves" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "presents" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "moyenneEchelle" : {
+            "type" : "number",
+            "format" : "double"
+          }
+        }
+      },
+      "ProduitReferentiel" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "substanceActive" : {
+            "type" : "string"
+          },
+          "cible" : {
+            "type" : "string"
+          },
+          "forme" : {
+            "type" : "string"
+          },
+          "delaiCarenceJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "haussesRetirees" : {
+            "type" : "boolean"
+          },
+          "ordonnanceRequise" : {
+            "type" : "boolean"
+          },
+          "mention" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PointReferentiel" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string"
+          },
+          "typeValeur" : {
+            "type" : "string"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "ordre" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "Valorisation" : {
         "type" : "object",
         "properties" : {
@@ -8650,6 +9116,29 @@
           },
           "usage" : {
             "type" : "string"
+          }
+        }
+      },
+      "Refractometre" : {
+        "type" : "object",
+        "properties" : {
+          "indice" : {
+            "type" : "number"
+          },
+          "temperatureC" : {
+            "type" : "number"
+          },
+          "indiceCorrige" : {
+            "type" : "number"
+          },
+          "humiditePct" : {
+            "type" : "number"
+          },
+          "verdict" : {
+            "type" : "string"
+          },
+          "conformeNorme" : {
+            "type" : "boolean"
           }
         }
       },

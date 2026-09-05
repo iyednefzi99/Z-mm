@@ -45,7 +45,7 @@ class RecolteServiceTest {
 
     /** Corps ordinaire : pas de forcage, pas de motif. */
     private RecolteCorps corps(long rucheId, LocalDate date, BigDecimal kilos, String typeMiel) {
-        return new RecolteCorps(rucheId, date, kilos, typeMiel, null, null, null, false, null);
+        return new RecolteCorps(rucheId, date, kilos, typeMiel, null, null, null, null, false, null);
     }
 
     @Test
@@ -138,7 +138,7 @@ class RecolteServiceTest {
         when(traitements.sousCarenceAu(date)).thenReturn(List.of(bloquant));
 
         assertThatThrownBy(() -> service().creer(
-                new RecolteCorps(5L, date, BigDecimal.ONE, null, null, null, null, true, "   ")))
+                new RecolteCorps(5L, date, BigDecimal.ONE, null, null, null, null, null, true, "   ")))
                 .isInstanceOf(RequeteInvalide.class)
                 .hasMessageContaining("motif");
     }
@@ -156,8 +156,8 @@ class RecolteServiceTest {
         when(recoltes.countByRuche_IdAndDateRecolte(eq(5L), eq(date))).thenReturn(0L);
         when(recoltes.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        RecolteReponse r = service().creer(new RecolteCorps(5L, date, BigDecimal.ONE, null, null, null, null,
-                true, "Hausse posee apres la fin du traitement, miel non expose."));
+        RecolteReponse r = service().creer(new RecolteCorps(5L, date, BigDecimal.ONE, null, null, null,
+                null, null, true, "Hausse posee apres la fin du traitement, miel non expose."));
 
         assertThat(r.lot()).isEqualTo("ZUMM-5-20260715-01");
         // La creation est deja auditee par l'aspect ; ce qu'il ne sait pas dire,

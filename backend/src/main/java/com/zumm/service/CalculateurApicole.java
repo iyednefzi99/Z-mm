@@ -15,12 +15,16 @@ import java.math.RoundingMode;
  * {@code ConversionUnites} qui a donné le patron au SPRINT-01. Elles se testent
  * sans contexte Spring, et c'est ce qui rend légitime d'en écrire beaucoup.
  *
- * <p><strong>Le réfractomètre n'y est pas, et c'est délibéré.</strong> Convertir
- * un indice de réfraction en taux d'humidité demande la table de correspondance
- * de Chataway, propre à chaque appareil et à sa température de calibration.
- * L'implémenter au jugé donnerait un chiffre faux sur une mesure qui décide de
- * la conservation du miel — un miel à plus de 18 % fermente. Mieux vaut ne rien
- * rendre que rendre une valeur qu'on croira exacte.
+ * <p><strong>Le réfractomètre, et une rectification.</strong> Le SPRINT-27
+ * l'avait écarté au motif que « la table de Chataway est propre à chaque
+ * appareil ». C'était confondre deux choses. La correspondance entre indice de
+ * réfraction et taux d'eau est <strong>publiée</strong> et vaut pour tout miel ;
+ * ce qui appartient à l'appareil, c'est son <strong>étalonnage</strong> — le
+ * zéro fait à l'eau distillée ou à l'huile de calibration — et l'échelle qu'il
+ * affiche. La conversion est donc légitime à condition de dire de quoi elle
+ * part : un indice mesuré, une température de mesure, un appareil étalonné. Le
+ * reste du raisonnement tenait : hors de la plage tabulée, cette méthode ne rend
+ * rien plutôt que d'extrapoler.
  */
 public final class CalculateurApicole {
 
@@ -35,6 +39,39 @@ public final class CalculateurApicole {
 
     /** Masse volumique du sirop 2:1, plus dense (environ 1,35 kg/L). */
     private static final BigDecimal DENSITE_2_1 = new BigDecimal("1.35");
+
+    /**
+     * Correspondance indice de réfraction à 20 °C vers taux d'eau, en pourcentage.
+     *
+     * <p>La table de Chataway, telle qu'elle est publiée et reprise par les
+     * manuels apicoles. Les valeurs sont des ancres à un point de pourcentage ;
+     * entre deux ancres, l'interpolation est linéaire, comme l'est la table
+     * elle-même à cette échelle — 2,5 à 2,6 millièmes d'indice par point d'eau.
+     *
+     * <p><strong>Hors de cette plage, rien n'est rendu.</strong> Extrapoler
+     * au-delà de 13 % ou en deçà de 21 % donnerait un chiffre sur une mesure qui
+     * décide de la conservation d'une récolte — et un chiffre faux serait cru.
+     */
+    private static final double[][] TABLE_CHATAWAY = {
+        {1.5044, 13.0}, {1.5018, 14.0}, {1.4992, 15.0}, {1.4966, 16.0}, {1.4940, 17.0},
+        {1.4915, 18.0}, {1.4890, 19.0}, {1.4865, 20.0}, {1.4840, 21.0},
+    };
+
+    /**
+     * Correction de l'indice par degré d'écart à 20 °C.
+     *
+     * <p>L'indice baisse quand la température monte. Une lecture faite au frais
+     * décrit donc un miel plus sec qu'il n'est : négliger la correction ferait
+     * passer pour stable un miel qui fermentera. C'est le sens du signe — on
+     * RAMÈNE la lecture à 20 °C, on ne la corrige pas « vers le haut ».
+     */
+    private static final double CORRECTION_PAR_DEGRE = 0.00023;
+
+    /** Au-delà, le miel fermente en pot. C'est le seuil qui décide d'une récolte. */
+    private static final double SEUIL_FERMENTATION = 18.0;
+
+    /** Plafond de la norme de commercialisation du miel dans l'Union européenne. */
+    private static final double SEUIL_NORME = 20.0;
 
     private CalculateurApicole() {
     }
@@ -90,6 +127,77 @@ public final class CalculateurApicole {
     }
 
     /**
+     * Taux d'eau d'un miel, lu au réfractomètre.
+     *
+     * <p>La mesure décide de la conservation : au-delà de 18 % le miel fermente
+     * en pot, et un lot mis en pot à 20 % se perd en cave sans que rien ne l'ait
+     * signalé. C'est pourquoi le résultat porte un verdict, et pas seulement un
+     * nombre.
+     *
+     * <p>Deux préalables que l'écran doit rappeler, et que le code ne peut pas
+     * vérifier : l'appareil doit être étalonné, et l'indice fourni doit être
+     * celui qu'il affiche sur l'échelle des indices de réfraction. Un appareil
+     * qui affiche directement un pourcentage d'eau n'a pas besoin de cette
+     * conversion.
+     *
+     * @param temperatureC température de la MESURE, et non celle du local. Un
+     *                     appareil thermocompensé se déclare à 20 °C
+     */
+    public static Refractometre humiditeMiel(BigDecimal indice, BigDecimal temperatureC) {
+        if (indice == null) {
+            throw new RequeteInvalide("L'indice de réfraction est obligatoire.");
+        }
+        double temperature = temperatureC == null ? 20.0 : temperatureC.doubleValue();
+        if (temperature < 10 || temperature > 40) {
+            throw new RequeteInvalide(
+                    "La température de mesure doit être comprise entre 10 et 40 °C.");
+        }
+        // Ramener la lecture à 20 °C, température de référence de la table.
+        double corrige = indice.doubleValue() + CORRECTION_PAR_DEGRE * (temperature - 20.0);
+
+        double eau = interpoler(corrige);
+        BigDecimal taux = BigDecimal.valueOf(eau).setScale(1, RoundingMode.HALF_UP);
+        String verdict;
+        if (eau > SEUIL_NORME) {
+            verdict = "hors_norme";
+        } else if (eau > SEUIL_FERMENTATION) {
+            verdict = "risque_fermentation";
+        } else {
+            verdict = "stable";
+        }
+        return new Refractometre(indice, BigDecimal.valueOf(temperature),
+                BigDecimal.valueOf(corrige).setScale(4, RoundingMode.HALF_UP),
+                taux, verdict, eau <= SEUIL_NORME);
+    }
+
+    /**
+     * Taux d'eau correspondant à un indice ramené à 20 °C.
+     *
+     * <p>La table décroît : un indice plus fort signifie un miel plus sec.
+     */
+    private static double interpoler(double indice) {
+        double indiceSec = TABLE_CHATAWAY[0][0];
+        double indiceHumide = TABLE_CHATAWAY[TABLE_CHATAWAY.length - 1][0];
+        if (indice > indiceSec || indice < indiceHumide) {
+            throw new RequeteInvalide("Indice hors de la table de Chataway : elle couvre "
+                    + indiceHumide + " à " + indiceSec + ", soit 13 % à 21 % d'eau. "
+                    + "Rien n'est extrapolé au-delà.");
+        }
+        for (int i = 0; i < TABLE_CHATAWAY.length - 1; i++) {
+            double borneSeche = TABLE_CHATAWAY[i][0];
+            double borneHumide = TABLE_CHATAWAY[i + 1][0];
+            if (indice <= borneSeche && indice >= borneHumide) {
+                double eauSeche = TABLE_CHATAWAY[i][1];
+                double eauHumide = TABLE_CHATAWAY[i + 1][1];
+                double part = (borneSeche - indice) / (borneSeche - borneHumide);
+                return eauSeche + part * (eauHumide - eauSeche);
+            }
+        }
+        // Inatteignable : les deux bornes ont été vérifiées plus haut.
+        throw new RequeteInvalide("Indice hors table.");
+    }
+
+    /**
      * Sucre et eau d'un sirop.
      *
      * @param usage stimulation (1:1, au printemps) ou hivernage (2:1, à l'automne)
@@ -101,5 +209,20 @@ public final class CalculateurApicole {
     /** Valorisation d'une production, et son équivalent en pots de 500 g. */
     public record Valorisation(BigDecimal kilos, BigDecimal prixKgEur, BigDecimal totalEur,
             int pots500g) {
+    }
+
+    /**
+     * Taux d'eau d'un miel, et ce qu'il implique.
+     *
+     * @param indiceCorrige indice ramené à 20 °C — rendu pour que le calcul soit
+     *                      vérifiable, et non pris sur parole
+     * @param verdict       {@code stable}, {@code risque_fermentation} au-delà de
+     *                      18 %, {@code hors_norme} au-delà de 20 %
+     * @param conformeNorme faux au-delà de 20 % d'eau, plafond de la norme de
+     *                      commercialisation du miel dans l'Union européenne
+     */
+    public record Refractometre(BigDecimal indice, BigDecimal temperatureC,
+            BigDecimal indiceCorrige, BigDecimal humiditePct, String verdict,
+            boolean conformeNorme) {
     }
 }

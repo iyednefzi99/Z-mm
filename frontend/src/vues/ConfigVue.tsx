@@ -8,13 +8,24 @@ import {
 import type { EtatDemonstration, Seuils } from '../api/types';
 import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
-import { messageErreur } from '../hooks';
+import { messageErreur, useRoles } from '../hooks';
 import { Bouton } from '../ui/composants';
+import { EditeurCarnet } from '../carnet/EditeurCarnet';
+import { peutEcrire } from '../routage/routes';
 import { useDialogues } from '../ui/dialogues';
 
-/** Affiche, en lecture seule, les seuils metier de ConfigZumm.ini (US-025). */
+/**
+ * Seuils metier de ConfigZumm.ini (US-025), jeu de demonstration (SPRINT-25) et
+ * carnet parametrable (SPRINT-28).
+ *
+ * <p>Les trois cohabitent parce qu'ils repondent a la meme question : comment
+ * cette exploitation-ci est reglee. Le carnet y a sa place plutot que dans
+ * l'ecran des visites — quelles cases figurent a la saisie engage toutes les
+ * inspections a venir, et se decide une fois.
+ */
 export function ConfigVue(): ReactElement {
   const t = useT();
+  const ecritureCarnet = peutEcrire('config', useRoles());
   const indisponible = t.etats.serviceIndisponible;
   const [seuils, setSeuils] = useState<Seuils | null>(null);
   const [chargement, setChargement] = useState(true);
@@ -102,6 +113,8 @@ export function ConfigVue(): ReactElement {
           <Seuil libelle={t.config.langues} valeur={seuils.languesActives.join(' · ')} />
         </div>
       )}
+
+      <EditeurCarnet ecriture={ecritureCarnet} />
 
       {demo && (
         <section className="z-legal__section">

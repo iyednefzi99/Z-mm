@@ -26,6 +26,12 @@
 
 import type { components } from './contrat';
 import type {
+  Gabarit,
+  PointReferentiel,
+  PointReleve,
+  ProduitReferentiel,
+  Refractometre,
+  StatistiquePoint,
   Materiel,
   Consommable,
   Depense,
@@ -319,3 +325,27 @@ export type _BilanExploitation =
   Conforme<BilanExploitation, TolerantAuNull<Schemas['BilanExploitation']>>;
 export type _ComparaisonSaisons =
   Conforme<ComparaisonSaisons, TolerantAuNull<Schemas['ComparaisonSaisons']>>;
+
+/*
+ * Le carnet parametrable (SPRINT-28, lot I).
+ *
+ * <p>Six types dont la derive serait invisible a l'ecran et couteuse ailleurs.
+ * `PointReferentiel.typeValeur` decide de la case a cocher OU du selecteur
+ * d'intensite : le renommer ferait rendre le mauvais champ, et le serveur
+ * refuserait la saisie. `PointReleve` porte la distinction qui fonde tout le
+ * lot — `coche: null` et `niveau: null` ne sont pas des oublis, ils disent quel
+ * type de valeur a ete releve. `StatistiquePoint.moyenneEchelle` est NULLABLE
+ * par construction : un contrat qui le rendrait obligatoire ferait afficher une
+ * moyenne de cases cochees, c'est-a-dire un taux deguise en note. Et
+ * `Refractometre.conformeNorme` est le seul signal qui distingue un miel
+ * commercialisable d'un miel qui ne l'est pas.
+ */
+export type _PointReferentiel =
+  Conforme<PointReferentiel, TolerantAuNull<Schemas['PointReferentiel']>>;
+export type _PointReleve = Conforme<PointReleve, TolerantAuNull<Schemas['PointReleve']>>;
+export type _Gabarit = Conforme<Gabarit, TolerantAuNull<Schemas['GabaritReponse']>>;
+export type _ProduitReferentiel =
+  Conforme<ProduitReferentiel, TolerantAuNull<Schemas['ProduitReferentiel']>>;
+export type _StatistiquePoint =
+  Conforme<StatistiquePoint, TolerantAuNull<Schemas['StatistiquePoint']>>;
+export type _Refractometre = Conforme<Refractometre, TolerantAuNull<Schemas['Refractometre']>>;

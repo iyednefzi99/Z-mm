@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import {
   ErreurApi,
+  calculerRefractometre,
   recolterEnLot,
   recoltes,
   ruches,
@@ -10,6 +11,7 @@ import type {
   RapportLot,
   Recolte,
   RecolteCorps,
+  Refractometre,
   Ruche,
   Trace,
 } from '../api/types';
@@ -42,6 +44,14 @@ export function RecoltesVue(): ReactElement {
   const [dateRecolte, setDateRecolte] = useState('');
   const [quantite, setQuantite] = useState('');
   const [typeMiel, setTypeMiel] = useState('');
+  // Taux d'eau (SPRINT-28). Il décide de la conservation : au-delà de 18 %, le
+  // miel fermente en pot, et un lot mis en pot à 20 % se perd en cave sans que
+  // rien ne l'ait signalé.
+  const [humidite, setHumidite] = useState('');
+  const [indice, setIndice] = useState('');
+  const [temperatureMesure, setTemperatureMesure] = useState('');
+  const [mesure, setMesure] = useState<Refractometre | null>(null);
+  const [erreurRefracto, setErreurRefracto] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
   // Message du refus 409, s'il y en a un : il porte le produit et la date de
@@ -138,6 +148,34 @@ export function RecoltesVue(): ReactElement {
    * cesser de saisir le TRAITEMENT, et le registre deviendrait faux là où il
    * n'était qu'incomplet.
    */
+  /**
+   * Convertit une lecture de réfractomètre en taux d'eau.
+   *
+   * <p>Le résultat REMPLIT le champ plutôt que de s'y substituer : la valeur
+   * enregistrée reste celle que l'apiculteur a sous les yeux et peut corriger,
+   * par exemple s'il lit directement un pourcentage sur son appareil.
+   *
+   * <p>Hors de la table publiée, le serveur répond 400 et rien n'est rempli —
+   * un chiffre extrapolé sur cette mesure-là serait cru.
+   */
+  const convertirIndice = async () => {
+    if (indice === '') return;
+    setErreurRefracto(null);
+    try {
+      const resultat = await calculerRefractometre(
+        Number(indice),
+        temperatureMesure === '' ? undefined : Number(temperatureMesure),
+      );
+      setMesure(resultat);
+      setHumidite(String(resultat.humiditePct));
+    } catch (cause) {
+      setMesure(null);
+      setErreurRefracto(
+        cause instanceof ErreurApi ? cause.detail : t.refractometre.horsTable,
+      );
+    }
+  };
+
   const enregistrer = async (forcer = false) => {
     if (rucheId === '' || quantite === '') return;
     try {
@@ -146,6 +184,7 @@ export function RecoltesVue(): ReactElement {
         dateRecolte,
         quantiteKg: Number(quantite),
         typeMiel: typeMiel.trim() === '' ? null : typeMiel,
+        humiditePct: humidite === '' ? null : Number(humidite),
         note: note.trim() === '' ? null : note.trim(),
         forcerCarence: forcer,
         motifForcage: forcer && motifForcage.trim() !== '' ? motifForcage.trim() : null,
@@ -183,6 +222,49 @@ export function RecoltesVue(): ReactElement {
               <ChampNombre libelle={t.recolte.quantite} valeur={quantite} onChange={setQuantite} requis />
               <ChampTexte libelle={t.recolte.typeMiel} valeur={typeMiel} onChange={setTypeMiel} />
             </div>
+            <fieldset className="z-composition">
+              <legend className="z-champ__libelle">{t.refractometre.titre}</legend>
+              <div className="z-form__grille">
+                <ChampNombre
+                  libelle={t.refractometre.indice}
+                  valeur={indice}
+                  onChange={setIndice}
+                  pas="0.0001"
+                />
+                <ChampNombre
+                  libelle={t.refractometre.temperature}
+                  valeur={temperatureMesure}
+                  onChange={setTemperatureMesure}
+                  pas="0.1"
+                />
+                <div className="z-champ z-champ--aligne-bas">
+                  <Bouton variante="secondaire" onClick={() => void convertirIndice()}>
+                    {t.refractometre.calculer}
+                  </Bouton>
+                </div>
+              </div>
+              <div className="z-form__grille">
+                <ChampNombre
+                  libelle={t.recolte.humidite}
+                  valeur={humidite}
+                  onChange={setHumidite}
+                  pas="0.1"
+                />
+                {mesure !== null && (
+                  <p className={mesure.conformeNorme ? 'z-info' : 'z-erreur'} role="status">
+                    {t.refractometre[mesure.verdict]} · {t.refractometre.indiceCorrige} :{' '}
+                    {mesure.indiceCorrige}
+                  </p>
+                )}
+                {erreurRefracto !== null && (
+                  <p className="z-erreur" role="alert">
+                    {erreurRefracto}
+                  </p>
+                )}
+              </div>
+              <p className="z-info">{t.refractometre.aide}</p>
+              <p className="z-info">{t.recolte.humiditeMielSeul}</p>
+            </fieldset>
             <ChampZone libelle={t.recolte.note} valeur={note} onChange={setNote} />
             {carence !== null && (
               <div className="z-erreur" role="alert">

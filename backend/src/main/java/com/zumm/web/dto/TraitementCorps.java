@@ -19,6 +19,10 @@ import java.time.LocalDate;
  * @param dateFin           {@code null} tant que le traitement court
  * @param delaiCarenceJours duree pendant laquelle le miel ne peut pas etre recolte
  * @param visiteId          visite d'ou provient l'acte, si saisi depuis un rapport
+ * @param ordonnanceVeterinaire veterinaire signataire (SPRINT-28) : sans lui, la
+ *                          reference d'ordonnance n'etait pas verifiable
+ * @param ordonnanceDate    date de l'ordonnance. La base refuse une date sans
+ *                          reference ; l'inverse reste permis
  */
 public record TraitementCorps(
         @NotNull Long rucheId,
@@ -36,5 +40,7 @@ public record TraitementCorps(
         LocalDate dateFin,
         @Min(0) @Max(365) Integer delaiCarenceJours,
         @Size(max = 120) String ordonnance,
+        @Size(max = 120) String ordonnanceVeterinaire,
+        LocalDate ordonnanceDate,
         String note) {
 }

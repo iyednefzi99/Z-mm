@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
  * n'est lu en base. Le patron est celui de {@code ConversionController}, livre
  * au SPRINT-01.
  *
- * <p>Le refractometre n'y figure pas, et c'est deliberé : la conversion d'un
- * indice de refraction en taux d'humidite demande une table propre a chaque
- * appareil. L'implementer au jugé donnerait un chiffre faux sur une mesure qui
- * decide de la conservation du miel.
+ * <p>Le refractometre s'y ajoute au SPRINT-28, apres rectification : la table
+ * de correspondance est publiee et vaut pour tout miel ; ce qui appartient a
+ * l'appareil, c'est son etalonnage. La conversion dit donc de quoi elle part, et
+ * refuse tout ce qui sort de la plage tabulee.
  */
 @RestController
 @RequestMapping("/api/calculateurs")
@@ -55,5 +55,19 @@ public class CalculateurController {
             @RequestParam(required = false) BigDecimal prixKgEur) {
         BigDecimal prix = prixKgEur == null ? configuration.seuils().prixMielKgEur() : prixKgEur;
         return CalculateurApicole.valoriser(kilos, prix);
+    }
+
+    /**
+     * Taux d'eau d'un miel, lu au refractometre (SPRINT-28, lot I).
+     *
+     * <p>Exemple : {@code GET /api/calculateurs/refractometre?indice=1.4930&temperatureC=25}.
+     * La temperature est celle de la MESURE ; un appareil thermocompense se
+     * declare a 20 °C, valeur par defaut.
+     */
+    @GetMapping("/refractometre")
+    public CalculateurApicole.Refractometre refractometre(
+            @RequestParam BigDecimal indice,
+            @RequestParam(required = false) BigDecimal temperatureC) {
+        return CalculateurApicole.humiditeMiel(indice, temperatureC);
     }
 }

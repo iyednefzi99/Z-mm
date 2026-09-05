@@ -5,6 +5,7 @@ import com.zumm.domain.EtatSante;
 import com.zumm.domain.ObservationPathologie;
 import com.zumm.domain.Photo;
 import com.zumm.domain.RaisonVisite;
+import com.zumm.domain.ReleveObservation;
 import com.zumm.domain.Visite;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,7 +16,8 @@ import java.util.List;
  * Vue exposee d'une visite et de son rapport (US-009), photos comprises.
  *
  * <p>Depuis le SPRINT-20 s'y ajoutent la grille d'inspection structuree, la
- * meteo figee et les pathologies constatees. Les trois valent {@code null} ou
+ * meteo figee et les pathologies constatees ; depuis le SPRINT-28, les points
+ * du carnet parametrable. Les trois valent {@code null} ou
  * liste vide quand rien n'a ete saisi : un objet plein de {@code null} et
  * l'absence d'objet ne disent pas la meme chose — le premier ferait croire a
  * une grille remplie de « non ».
@@ -41,6 +43,7 @@ public record VisiteReponse(
         ObservationVisite observation,
         MeteoVisite meteo,
         List<PathologieReponse> pathologies,
+        List<PointReleve> points,
         List<PhotoReponse> photos,
         Instant creeLe,
         Instant majLe) {
@@ -51,6 +54,19 @@ public record VisiteReponse(
 
     public static VisiteReponse de(Visite v, List<Photo> photos,
             List<ObservationPathologie> pathologies) {
+        return de(v, photos, pathologies, List.of());
+    }
+
+    /**
+     * Vue complete, releves du carnet parametrable compris (SPRINT-28).
+     *
+     * <p>{@code points} contient ce qui a ete REGARDE. Un point absent de la
+     * liste n'a pas ete observe ; un point a {@code coche = false} l'a ete et
+     * etait absent. Completer la liste avec les points manquants ferait
+     * disparaitre cette difference, sur laquelle repose toute statistique.
+     */
+    public static VisiteReponse de(Visite v, List<Photo> photos,
+            List<ObservationPathologie> pathologies, List<ReleveObservation> releves) {
         return new VisiteReponse(
                 v.getId(),
                 v.getRuche().getId(),
@@ -72,6 +88,7 @@ public record VisiteReponse(
                 ObservationVisite.de(v),
                 MeteoVisite.de(v),
                 pathologies.stream().map(PathologieReponse::de).toList(),
+                releves.stream().map(PointReleve::de).toList(),
                 photos.stream().map(PhotoReponse::de).toList(),
                 v.getCreeLe(),
                 v.getMajLe());

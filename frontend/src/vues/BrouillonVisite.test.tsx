@@ -24,6 +24,13 @@ import type { Brouillon, Ruche, Visite } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  recupererPoints: vi.fn(() => Promise.resolve([])),
+  gabarits: {
+    lister: vi.fn(() => Promise.resolve([])),
+    creer: vi.fn(),
+    mettreAJour: vi.fn(),
+    supprimer: vi.fn(),
+  },
   visites: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   ruches: { lister: vi.fn() },
   agents: { lister: vi.fn() },
@@ -179,6 +186,7 @@ describe('brouillon de visite (SPRINT-24)', () => {
         observation: null,
         meteo: null,
         pathologies: [],
+    points: [],
         photos: [],
         creeLe: '2026-08-20T08:00:00Z',
         majLe: '2026-08-20T08:00:00Z',
@@ -216,6 +224,7 @@ describe('brouillon de visite (SPRINT-24)', () => {
         observation: null,
         meteo: null,
         pathologies: [],
+    points: [],
         photos: [],
         creeLe: '2026-08-20T08:00:00Z',
         majLe: '2026-08-20T09:15:00Z',

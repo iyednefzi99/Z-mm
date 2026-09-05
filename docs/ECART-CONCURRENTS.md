@@ -121,7 +121,7 @@ existantes et indexées.
 | Inspection datée, horodatée, par ruche | ✅ | `Visite` (date, heure, durée, agent, raison) |
 | Planification et **approbation** des visites | ✅ | `Planning` + `StatutPlanning` (proposé/approuvé/refusé) — **aucun des douze ne l'a** |
 | Rapport de visite PDF | ✅ | `RapportVisitePdfService`, `GET /api/visites/{id}/rapport.pdf` |
-| Saisie par cases à cocher (~50 points analysables) | 🟡 | Onze colonnes d'observation structurées sur `visite` (V19) — les quatre autres colonnes de cette migration portent la météo, comptée à sa propre ligne — plus la table fille `observation_pathologie`, saisies par `VisitesVue.tsx`. Ce ne sont pas les cinquante points de HiveTracks, et les gabarits paramétrables restent absents (voir plus bas) ; mais le texte libre n'est plus la **seule** trace |
+| Saisie par cases à cocher (~50 points analysables) | ✅ | **Quarante-quatre** points dans un référentiel FERMÉ (`point_observation`, `V28`), huit familles, relevés par `releve_observation` et comptés par `GET /api/carnet/statistiques`. « Environ cinquante » est le chiffre annoncé par HiveTracks ; on n'en compte pas cinquante pour l'annoncer aussi. Deux règles portent tout le reste : le référentiel ne s'écrit **que par migration** — le rôle applicatif n'a que le SELECT dessus —, et **l'absence de relevé n'est pas un « non »**. La case a donc trois états à l'écran comme en base |
 | Force de la colonie | ✅ | `EffectifQualitatif` reste l'echelle et `cadresCouvain`/`cadresMiel`/`cadresPollen` le compte ; l'**indice de sante** (`IndiceColonieService`, SPRINT-22) les agrege enfin, avec les reserves et le motif de ponte. Rien n'est stocke : l'indice se calcule a chaque lecture, comme le taux de varroa, pour qu'une formule qui change n'entre jamais en contradiction avec une valeur figee |
 | Tempérament / agressivité | ✅ | `visite.temperament` (V19) : `doux`, `normal`, `agressif`. Six catalogues le demandaient |
 | État du couvain (œufs, operculé, motif de ponte) | ✅ | `couvainOeufs`, `couvainLarves`, `couvainOpercule` — trois booléens **facultatifs** (`null` = non observé, ce qui n'est pas `false`) — et `motifPonte` (`compact`, `lacunaire`, `irregulier`, `absent`), V19 |
@@ -132,15 +132,15 @@ existantes et indexées.
 | Maladies et ravageurs nommés (loque, petit coléoptère…) | ✅ | `observation_pathologie` (V19) : onze valeurs — `varroose`, `loque_americaine`, `loque_europeenne`, `nosemose`, `petit_coleoptere`, `fausse_teigne`, `frelon_asiatique`, `couvain_sacciforme`, `mycose`, `pesticide`, `autre` — et quatre gravités dont `suspectee` **par défaut** : au rucher on constate un symptôme, on ne pose pas un diagnostic de laboratoire |
 | **Suivi du varroa** (méthode, comptage, taux d'infestation calculé) | ✅ | Table `comptage_varroa` (V19), cinq méthodes (`lange`, `sucre_glace`, `alcool`, `co2`, `desoperculation`), **comptages bruts** stockés. Le taux et le verdict sont **calculés au service** (`ComptageVarroaService.taux()` / `verdict()`) et jamais stockés : ils n'ont pas la même unité selon la méthode. Route `/api/varroa`, écran `SanitaireVue.tsx` |
 | **Traitements sanitaires** (produit, dose, cible, durée, délai de carence) | ✅ | Table `traitement` (V19) : produit commercial, **substance active** (pour raisonner l'alternance), cible parmi huit, dose **et son unité** (`ck_traitement_dose_unite` refuse une dose sans unité), période, délai de carence. `/api/traitements`, `TraitementService` |
-| Référentiel de traitements pré-renseigné | ❌ | `traitement.produit` est une saisie libre : rien ne propose les produits courants, rien ne relie deux noms commerciaux par leur substance active. HiveTracks en embarque plus de vingt ; c'est ce qui rend la saisie tenable au rucher |
+| Référentiel de traitements pré-renseigné | ✅ | `produit_traitement` (`V28`) : treize varroacides, leur substance active, leur forme et leur délai. **Il pré-remplit, il ne fait pas autorité** — la notice et l'AMM du pays font foi, et la colonne `mention` le dit à chaque saisie. Le traitement enregistré garde sa PROPRE copie du délai : corriger le référentiel demain ne doit pas réécrire un registre d'élevage d'hier. Ce que le seul délai ne dit pas est porté par une colonne dédiée — sur la plupart de ces produits la contrainte réelle n'est pas une carence mais « hausses retirées », et zéro jour lu seul se comprend comme « on peut récolter » |
 | Délai de carence / date de retrait avant récolte | ✅ | `traitement.date_retrait` est desormais **opposable** : `RecolteService` refuse la recolte d'une ruche sous carence en **409** — la requete est valide, c'est l'etat qui s'y oppose — et le message dit le produit et la date de fin. La porte de sortie est tracee : forcer exige un motif (`recolte.carence_forcee`, `motif_forcage`) et depose une entree d'audit sous l'action **`forcage`**, distincte des creations ordinaires. Sans cette porte, l'apiculteur cesserait d'enregistrer le TRAITEMENT, et le registre deviendrait faux la ou il n'etait qu'incomplet |
 | **Nourrissements** (type, quantité, motif) | ✅ | Table `nourrissement` (V19) : sept types d'aliment (`sirop_1_1` … `eau`), quantité avec unité, six motifs (`stimulation`, `hivernage`, `disette`, `secours`, `transhumance`, `autre`). `/api/nourrissements` |
-| Ordonnances vétérinaires | 🟡 | `traitement.ordonnance` porte la **référence** de l'ordonnance ; aucun document n'est stocké — le dépôt n'héberge encore aucun binaire (voir la dette d'upload dans `STRATEGIE-PRODUIT.md`) |
+| Ordonnances vétérinaires | ✅ | `traitement.ordonnance_veterinaire` et `ordonnance_date` (`V28`) rendent la référence **vérifiable** — elle disait qu'une ordonnance existe, jamais qui l'a signée ni quand —, et le scan s'attache par la **sixième cible** de `Photo`. La base refuse une date sans référence ; l'inverse reste permis, parce qu'une référence notée au rucher se complète le soir. Le fichier lui-même reste hors du dépôt : `photo.url` ne porte qu'une adresse, comme depuis le SPRINT-21 |
 | **Score de santé calculé par colonie** | ✅ | `GET /api/indices` : 100 moins les penalites observees, avec leurs motifs. **`composantes = 0` quand rien n'a pu etre evalue** — une colonie non visitee n'est pas saine, elle est inconnue, et l'ecran affiche « non evalue » plutot qu'une jauge sur du vide |
 | **Score de risque d'essaimage** | ✅ | Meme route. Cellules royales et leur **cause** (60 points pour `essaimage`, 30 sinon), leur nombre, la densite de couvain et un corps plein. Il est distinct de la sante, et c'est le point : une colonie qui va essaimer se porte tres bien — les confondre ferait rater l'essaim |
 | **Recommandations automatiques / tâches générées** | ✅ | `MoteurRegles` (SPRINT-22) et cinq regles : fin de carence a trois jours, controle de ponte a J+7, varroa au-dessus du seuil, reserves au plus bas, visite compromise par la meteo. Chaque tache porte la **cle** de ce qui l'a declenchee (`carence-retrait:42`) et un index unique partiel empeche la regle de la recreer a chaque passage — sans quoi la liste se remplirait de doublons jusqu'a n'etre plus lue |
 | Rappels programmés (retrait de traitement, contrôle de ponte à J+7) | ✅ | Les deux exemples cites par le document sont exactement les deux premieres regles ecrites. Le retrait est propose **trois jours avant** la fin de carence : une tache qui arrive le matin ou elle est due n'est pas un rappel, c'est un constat de retard |
-| Modèles / gabarits d'inspection réutilisables, champs activables | ❌ | Aucun paramétrage |
+| Modèles / gabarits d'inspection réutilisables, champs activables | ✅ | `gabarit_inspection` et `gabarit_point` (`V28`), édités depuis l'écran de configuration. **Le noyau reste des colonnes** : les onze champs de la `V19` ne migrent pas dans le référentiel — ils sont typés, indexés et lus par le moteur de règles. Le gabarit les ALLUME ou les ÉTEINT, section par section ; masquer n'est pas effacer, et une visite déjà saisie garde ce qu'elle portait |
 | Météo attachée à l'observation | ✅ | Quatre colonnes **figées** sur `visite` (V19) : `meteoTemperatureC`, `meteoHumiditePct`, `meteoVentKmh` et leur **source** (`open-meteo`, `simulation`, `saisie`) — une estimation ne se lit pas comme une mesure. La corrélation météo × production est débloquée ; elle n'est pas encore calculée |
 
 ---
@@ -212,7 +212,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Comptabilité : dépenses, recettes, rentabilité par ruche | ✅ | Table `depense` (`V27`) et `GET /api/depenses/bilan`. **Trois refus tiennent le module** : aucune dépense non affectée n'est répartie (une assurance ne se divise pas par le nombre de ruches) ; les recettes sont une *valorisation* au prix paramétré, pas un chiffre d'affaires ; et seul le miel est valorisé. La frontière du §9 est intacte : ni facturation, ni TVA, ni clients |
 | Scan de reçus, rapports fiscaux | ⛔ | HiveBook le fait par IA embarquée ; hors périmètre (voir §9) |
 | Gestion clients, fournisseurs, ventes | ⛔ | BeeKeepPal, APIGO, ApiManager ; hors périmètre |
-| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | 🟡 | `CalculateurApicole` (SPRINT-27) ajoute le **sirop** — en proportions de masse, comme le veut l'usage — et la **valorisation** d'une production, en euros et en pots de 500 g. Le **réfractomètre** reste dehors, et délibérément : la table de Chataway est propre à chaque appareil et à sa température de calibration, et un chiffre faux sur une mesure qui décide de la conservation du miel serait pire que rien |
+| **Calculateurs apicoles** (sirop 1:1 et 2:1, infestation varroa, prix du miel, réfractomètre) | ✅ | Le **réfractomètre** ferme la ligne au SPRINT-28, après rectification du verdict précédent : la table de Chataway est **publiée** et vaut pour tout miel ; ce qui appartient à l'appareil, c'est son **étalonnage**. La conversion dit donc de quoi elle part — un indice, une température de mesure, un appareil étalonné —, corrige à 20 °C, et **refuse tout ce qui sort de la plage tabulée** plutôt que d'extrapoler. Le taux se range sur la récolte (`recolte.humidite_pct`), réservé au miel |
 
 ---
 
@@ -1475,3 +1475,130 @@ exacte.
 La **logistique multi-sites**, reliquat du lot B, n'a pas été reprise : la charge
 d'équipe existe, la chaîne d'approvisionnement — le terrain de HiveOS — reste
 hors du produit.
+
+---
+
+## 24. Note de révision — 05/09/2026, lot I du plan de couverture
+
+Septième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) : cinq lignes
+visées, **cinq fermées**. Le compteur va de **112 à 117 sur 153**.
+
+Le lot est petit, et il porte pourtant la décision la plus risquée du document :
+rendre la grille d'inspection paramétrable **sans détruire la statistique**.
+
+### Le piège, et la sortie retenue
+
+Un formulaire paramétrable qui autorise des champs libres tue exactement ce que
+le SPRINT-20 était venu construire. Dix exploitations inventent dix libellés pour
+la même observation, et plus rien ne se compte ni ne se compare — c'est le défaut
+que la `V19` corrigeait en remplaçant du texte libre par des colonnes, et il
+serait revenu par la porte de derrière.
+
+La sortie est un référentiel **fermé** : quarante-quatre points, huit familles,
+écrits par une migration et par rien d'autre. Ce n'est pas une intention notée
+dans un commentaire — la `V28` retire `INSERT`, `UPDATE` et `DELETE` au rôle
+applicatif sur `point_observation` et `produit_traitement`. L'application ne peut
+pas écrire ces tables, même si quelqu'un ajoutait la route demain. On active des
+cases existantes ; on n'en invente pas.
+
+### Le noyau reste des colonnes
+
+Les onze champs de la `V19` ne migrent **pas** dans le référentiel. Ils sont
+typés, indexés, et lus par le moteur de règles, les indices de colonie et la
+fiche d'inspection : les transformer en lignes clé-valeur aurait cassé tout cela
+pour une uniformité dont personne n'a l'usage.
+
+Le gabarit les **allume ou les éteint**, section par section — quatre booléens,
+pas une table. Masquer n'est pas effacer : la colonne reste, et une visite déjà
+saisie garde ce qu'elle portait. C'est la même distinction qu'au lot J entre les
+rôles, qui décident de ce qui est *permis*, et l'interface progressive, qui
+décide de ce qui est *montré*.
+
+Conséquence tenue dans la migration : un point du référentiel ne redit jamais un
+champ du noyau, et ne redit jamais une pathologie. Le référentiel décrit ce qu'on
+**voit** — ailes déformées, dysenterie, odeur au couvain ; `observation_pathologie`
+nomme ce qu'on **diagnostique**, avec une gravité. Un point « traces de fausse
+teigne » aurait doublonné la pathologie du même nom : il n'y est pas.
+
+### Trois états, et non deux
+
+C'est le point qui décide si tout le reste sert à quelque chose. Une case à
+cocher ordinaire n'a que deux positions, et la position « vide » y sert à deux
+choses incompatibles : « je n'ai pas regardé » et « j'ai regardé, ce n'est pas
+là ». Les confondre ferait compter comme constats négatifs les visites où
+personne n'a ouvert la ruche — et **tous les taux du parc descendraient dans le
+sens rassurant**, qui est le pire des deux.
+
+La distinction est donc portée de bout en bout : l'absence de ligne dans
+`releve_observation` dit « pas regardé », une ligne à `false` dit « regardé,
+absent ». À l'écran, c'est le motif standard de la case indéterminée —
+`role="checkbox"` avec `aria-checked="mixed"` — dont un clic fait tourner
+l'état. Le geste courant reste à un seul tap, celui qu'on fait avec des gants.
+Et `GET /api/carnet/statistiques` rapporte les présences aux **relevés**, jamais
+aux visites de la période.
+
+C'est aussi pourquoi la ligne annonce quarante-quatre points et non cinquante :
+« environ cinquante » est le chiffre de HiveTracks, et on n'en fabrique pas six
+de plus pour l'annoncer aussi.
+
+### Le référentiel de produits pré-remplit, il ne fait pas autorité
+
+Treize varroacides, leur substance active, leur forme et leur délai. Trois
+précautions le rendent défendable :
+
+1. **la notice fait foi**, et la colonne `mention` le dit à chaque saisie. Le
+   référentiel est indicatif — l'autorisation de mise sur le marché varie d'un
+   pays à l'autre, et un chiffre affiché sans réserve serait cru ;
+2. **le traitement enregistré garde sa propre copie du délai.** Corriger le
+   référentiel demain ne doit pas réécrire un registre d'élevage d'hier, qui est
+   un document opposable ;
+3. **une colonne dédiée porte ce que le délai ne dit pas.** Sur la plupart de ces
+   produits, la contrainte réelle n'est pas une carence mais « hausses
+   retirées » : un délai de zéro jour, lu seul, se comprend comme « on peut
+   récolter ». Une phrase dans une note n'aurait pas suffi.
+
+Le catalogue s'arrête au varroa, et ce n'est pas une paresse : c'est la seule
+cible pour laquelle des médicaments sont couramment autorisés en rucher. Les
+antibiotiques contre les loques ne le sont pas dans l'Union européenne, et
+pré-remplir un formulaire avec des produits interdits serait pire qu'un
+formulaire vide.
+
+### Le réfractomètre, et une rectification
+
+Le SPRINT-27 l'avait écarté au motif que « la table de Chataway est propre à
+chaque appareil ». **C'était confondre deux choses.** La correspondance entre
+indice de réfraction et taux d'eau est publiée et vaut pour tout miel ; ce qui
+appartient à l'appareil, c'est son **étalonnage** — le zéro fait à l'eau
+distillée — et l'échelle qu'il affiche.
+
+Le reste du raisonnement tenait, et il est appliqué tel quel : hors de la plage
+tabulée, la conversion ne rend rien plutôt que d'extrapoler, et la réponse porte
+l'indice ramené à 20 °C pour que le calcul soit vérifiable au lieu d'être pris
+sur parole. La correction de température a son sens : l'indice monte quand la
+température baisse, si bien qu'une lecture faite au frais décrit un miel plus
+humide qu'il n'en a l'air — 1,4915 vaut 18,0 % à 20 °C et 18,9 % à 10 °C. Le
+seuil de fermentation est à 18 %, celui de la norme de commercialisation à 20 %.
+
+### Ce que la fiche imprimée a gagné
+
+La fiche d'inspection vierge du SPRINT-24 suit désormais le gabarit par défaut :
+les sections éteintes disparaissent, les points retenus s'ajoutent. Une fiche qui
+demanderait au stylo autre chose que ce que l'écran demande au doigt serait la
+pire des deux — impossible à ressaisir sans traduire.
+
+Une limite l'accompagne, et elle est physique : cinq points supplémentaires au
+plus. Au-delà, sur une A4 paysage, chaque colonne passe sous le centimètre, et
+plus personne n'y écrit debout avec des gants. Le pied de page dit combien de
+points ont été laissés de côté, plutôt que de produire en silence une feuille
+inutilisable.
+
+### Le compte, et la commande qui le donne
+
+La commande inscrite au §6 du plan de couverture **ne reproduisait pas** le
+nombre publié : elle ne lit que la deuxième colonne, ce qui lui fait manquer tout
+le §13 — dont la table a une colonne de plus — et compter les quatre lignes de la
+légende. Elle rendait 131 là où le document en porte 153. Le compte n'était pas
+faux ; la commande censée le vérifier l'était, ce qui est plus grave, puisque
+c'est elle qu'on relance pour ne pas recopier un chiffre. Elle est corrigée dans
+le plan : le verdict se cherche **où qu'il soit dans la ligne**, et l'inventaire
+s'arrête aux §§1 à 8 et 13.

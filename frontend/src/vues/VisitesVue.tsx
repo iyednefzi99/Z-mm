@@ -8,15 +8,18 @@ import {
   listerBrouillons,
   listerPhotos,
   plannings,
+  recupererPoints,
   ruches,
   supprimerPhoto,
   telechargerRapportVisite,
   visites,
 } from '../api/client';
+import { gabarits as apiGabarits } from '../api/client';
 import type {
   Agent,
   Brouillon,
   CauseCellules,
+  Gabarit as GabaritCarnet,
   EffectifQualitatif,
   EtatSante,
   GravitePathologie,
@@ -25,6 +28,7 @@ import type {
   PathologieCorps,
   Photo,
   Planning,
+  PointReferentiel,
   RaisonVisite,
   Ruche,
   SourceMeteo,
@@ -56,6 +60,14 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { GrilleCarnet } from '../carnet/GrilleCarnet';
+import {
+  SAISIE_VIDE,
+  depuisReleves,
+  pointsDuGabarit,
+  versReleves,
+  type SaisieCarnet,
+} from '../carnet/points';
 import { CorpsSection } from './CorpsSection';
 
 /**
@@ -119,6 +131,12 @@ export function VisitesVue(): ReactElement {
   const [humidite, setHumidite] = useState('');
   const [vent, setVent] = useState('');
   const [sourceMeteo, setSourceMeteo] = useState<SourceMeteo | null>(null);
+  // Le carnet paramétrable (SPRINT-28) : le référentiel FERMÉ des points, et
+  // le gabarit que l'exploitation a choisi. Sans gabarit, la grille du
+  // SPRINT-20 s'applique seule — c'est-à-dire exactement l'écran d'avant.
+  const [referentiel, setReferentiel] = useState<PointReferentiel[]>([]);
+  const [gabaritCarnet, setGabaritCarnet] = useState<GabaritCarnet | null>(null);
+  const [saisieCarnet, setSaisieCarnet] = useState<SaisieCarnet>(SAISIE_VIDE);
   const [pathologies, setPathologies] = useState<PathologieCorps[]>([]);
   const [pathologie, setPathologie] = useState<Pathologie>('varroose');
   const [gravite, setGravite] = useState<GravitePathologie>('suspectee');
@@ -215,6 +233,28 @@ export function VisitesVue(): ReactElement {
       .catch(() => setApprouves([]));
   }, [etat.elements]);
 
+  // Le référentiel et le gabarit ne changent qu'au déploiement d'une migration
+  // ou d'un réglage : une lecture au montage suffit, et un échec est sans
+  // conséquence — la grille standard reste affichée.
+  useEffect(() => {
+    void recupererPoints().then(setReferentiel).catch(() => setReferentiel([]));
+    void apiGabarits
+      .lister()
+      .then((liste) => setGabaritCarnet(liste.find((g) => g.parDefaut && g.actif) ?? null))
+      .catch(() => setGabaritCarnet(null));
+  }, []);
+
+  const pointsCarnet = pointsDuGabarit(gabaritCarnet, referentiel);
+  // Sections du noyau à afficher. Un gabarit absent les montre toutes : masquer
+  // par défaut ferait disparaître la grille du SPRINT-20 chez une exploitation
+  // qui n'a rien demandé.
+  const montre = {
+    couvain: gabaritCarnet?.noyauCouvain ?? true,
+    reine: gabaritCarnet?.noyauReine ?? true,
+    cadres: gabaritCarnet?.noyauCadres ?? true,
+    temperament: gabaritCarnet?.noyauTemperament ?? true,
+  };
+
   // Un brouillon existe-t-il pour cette ruche et cet agent ? La question ne se
   // pose qu'a la creation : reprendre un brouillon par-dessus une visite deja
   // enregistree ecraserait le registre avec une saisie abandonnee.
@@ -296,6 +336,7 @@ export function VisitesVue(): ReactElement {
       v?.observation?.cadresPollen != null ? String(v.observation.cadresPollen) : '',
     );
     setTemperament(v?.observation?.temperament ?? '');
+    setSaisieCarnet(v ? depuisReleves(v.points) : SAISIE_VIDE);
     setTemperature(
       v?.meteo?.temperatureCelsius != null ? String(v.meteo.temperatureCelsius) : '',
     );
@@ -399,6 +440,10 @@ export function VisitesVue(): ReactElement {
       observation: renseigne(observation) ? observation : null,
       meteo: renseigne(meteo) ? meteo : null,
       pathologies,
+      // Seuls les points REGARDÉS partent. Compléter la liste avec des « non »
+      // pour les cases non touchées ferait dire à l'inspection ce qu'elle n'a
+      // pas dit — et c'est sur cette différence que reposent les statistiques.
+      points: versReleves(pointsCarnet, saisieCarnet),
     };
   };
 
@@ -564,94 +609,115 @@ export function VisitesVue(): ReactElement {
               <ChampSelect libelle={t.visite.productivite} valeur={productivite} options={optProd} onChange={setProductivite} />
             </div>
 
+            {/* Les quatre sections de la grille du SPRINT-20 suivent le gabarit
+                (SPRINT-28). Éteindre une section la MASQUE ; les colonnes
+                restent, et une visite déjà saisie garde ce qu'elle portait. */}
             <fieldset className="z-composition">
               <legend className="z-champ__libelle">{t.visite.observation}</legend>
-              <div className="z-form__grille">
-                <ChampSelect
-                  libelle={t.visite.couvainOeufs}
-                  valeur={couvainOeufs}
-                  options={optTroisEtats}
-                  onChange={setCouvainOeufs}
-                />
-                <ChampSelect
-                  libelle={t.visite.couvainLarves}
-                  valeur={couvainLarves}
-                  options={optTroisEtats}
-                  onChange={setCouvainLarves}
-                />
-                <ChampSelect
-                  libelle={t.visite.couvainOpercule}
-                  valeur={couvainOpercule}
-                  options={optTroisEtats}
-                  onChange={setCouvainOpercule}
-                />
-              </div>
-              <div className="z-form__grille">
-                <ChampSelect
-                  libelle={t.visite.motifPonte}
-                  valeur={motifPonte}
-                  options={optMotifPonte}
-                  onChange={setMotifPonte}
-                />
-                <ChampSelect
-                  libelle={t.visite.reineVue}
-                  valeur={reineVue}
-                  options={optTroisEtats}
-                  onChange={setReineVue}
-                />
-                <ChampSelect
-                  libelle={t.visite.temperament}
-                  valeur={temperament}
-                  options={optTemperament}
-                  onChange={setTemperament}
-                />
-              </div>
-              <div className="z-form__grille">
-                <ChampNombre
-                  libelle={t.visite.cellulesRoyales}
-                  valeur={cellulesRoyales}
-                  onChange={setCellulesRoyales}
-                  pas="1"
-                  min={0}
-                />
-                {/* La cause n'a de sens qu'avec des cellules — la demander avant
-                    inviterait a une contradiction que la base refuse. */}
-                {Number(cellulesRoyales) > 0 && (
+              {montre.couvain && (
+                <>
+                  <div className="z-form__grille">
+                    <ChampSelect
+                      libelle={t.visite.couvainOeufs}
+                      valeur={couvainOeufs}
+                      options={optTroisEtats}
+                      onChange={setCouvainOeufs}
+                    />
+                    <ChampSelect
+                      libelle={t.visite.couvainLarves}
+                      valeur={couvainLarves}
+                      options={optTroisEtats}
+                      onChange={setCouvainLarves}
+                    />
+                    <ChampSelect
+                      libelle={t.visite.couvainOpercule}
+                      valeur={couvainOpercule}
+                      options={optTroisEtats}
+                      onChange={setCouvainOpercule}
+                    />
+                  </div>
+                  <div className="z-form__grille">
+                    <ChampSelect
+                      libelle={t.visite.motifPonte}
+                      valeur={motifPonte}
+                      options={optMotifPonte}
+                      onChange={setMotifPonte}
+                    />
+                  </div>
+                </>
+              )}
+              {montre.reine && (
+                <div className="z-form__grille">
                   <ChampSelect
-                    libelle={t.visite.cellulesRoyalesCause}
-                    valeur={causeCellules}
-                    options={optCauseCellules}
-                    onChange={setCauseCellules}
+                    libelle={t.visite.reineVue}
+                    valeur={reineVue}
+                    options={optTroisEtats}
+                    onChange={setReineVue}
                   />
-                )}
-              </div>
-              <div className="z-form__grille">
-                <ChampNombre
-                  libelle={t.visite.cadresCouvain}
-                  valeur={cadresCouvain}
-                  onChange={setCadresCouvain}
-                  pas="1"
-                  min={0}
-                  max={40}
-                />
-                <ChampNombre
-                  libelle={t.visite.cadresMiel}
-                  valeur={cadresMiel}
-                  onChange={setCadresMiel}
-                  pas="1"
-                  min={0}
-                  max={40}
-                />
-                <ChampNombre
-                  libelle={t.visite.cadresPollen}
-                  valeur={cadresPollen}
-                  onChange={setCadresPollen}
-                  pas="1"
-                  min={0}
-                  max={40}
-                />
-              </div>
+                  <ChampNombre
+                    libelle={t.visite.cellulesRoyales}
+                    valeur={cellulesRoyales}
+                    onChange={setCellulesRoyales}
+                    pas="1"
+                    min={0}
+                  />
+                  {/* La cause n'a de sens qu'avec des cellules — la demander avant
+                      inviterait a une contradiction que la base refuse. */}
+                  {Number(cellulesRoyales) > 0 && (
+                    <ChampSelect
+                      libelle={t.visite.cellulesRoyalesCause}
+                      valeur={causeCellules}
+                      options={optCauseCellules}
+                      onChange={setCauseCellules}
+                    />
+                  )}
+                </div>
+              )}
+              {montre.cadres && (
+                <div className="z-form__grille">
+                  <ChampNombre
+                    libelle={t.visite.cadresCouvain}
+                    valeur={cadresCouvain}
+                    onChange={setCadresCouvain}
+                    pas="1"
+                    min={0}
+                    max={40}
+                  />
+                  <ChampNombre
+                    libelle={t.visite.cadresMiel}
+                    valeur={cadresMiel}
+                    onChange={setCadresMiel}
+                    pas="1"
+                    min={0}
+                    max={40}
+                  />
+                  <ChampNombre
+                    libelle={t.visite.cadresPollen}
+                    valeur={cadresPollen}
+                    onChange={setCadresPollen}
+                    pas="1"
+                    min={0}
+                    max={40}
+                  />
+                </div>
+              )}
+              {montre.temperament && (
+                <div className="z-form__grille">
+                  <ChampSelect
+                    libelle={t.visite.temperament}
+                    valeur={temperament}
+                    options={optTemperament}
+                    onChange={setTemperament}
+                  />
+                </div>
+              )}
             </fieldset>
+
+            <GrilleCarnet
+              points={pointsCarnet}
+              saisie={saisieCarnet}
+              onChange={setSaisieCarnet}
+            />
 
             <fieldset className="z-composition">
               <legend className="z-champ__libelle">{t.visite.meteo}</legend>

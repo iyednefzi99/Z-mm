@@ -19,6 +19,13 @@ import type { Planning, Visite } from '../api/types';
  * seul un test de vue pouvait l'attraper, et il n'y en avait pas.
  */
 vi.mock('../api/client', () => ({
+  recupererPoints: vi.fn(() => Promise.resolve([])),
+  gabarits: {
+    lister: vi.fn(() => Promise.resolve([])),
+    creer: vi.fn(),
+    mettreAJour: vi.fn(),
+    supprimer: vi.fn(),
+  },
   visites: {
     lister: vi.fn(),
     creer: vi.fn(),
@@ -36,7 +43,8 @@ vi.mock('../api/client', () => ({
   ErreurApi: class ErreurApi extends Error {},
 }));
 
-const { agents, plannings, ruches, visites } = await import('../api/client');
+const { agents, gabarits: apiGabarits, plannings, recupererPoints, ruches, visites } =
+  await import('../api/client');
 
 const PLANNING: Planning = {
   id: 7,
@@ -77,6 +85,7 @@ const VISITE: Visite = {
   observation: null,
   meteo: null,
   pathologies: [],
+  points: [],
   photos: [],
   creeLe: '2026-05-12T14:30:00Z',
   majLe: '2026-05-12T14:30:00Z',
@@ -232,5 +241,117 @@ describe('vue Visites', () => {
     // l'option vide et le seul planning approuvé de la ruche 1.
     const valeurs = [...select.querySelectorAll('option')].map((o) => o.value);
     expect(valeurs).toEqual(['', '7']);
+  });
+
+  describe('carnet paramétrable dans la visite (SPRINT-28)', () => {
+    const POINTS = [
+      {
+        code: 'pop_forte',
+        categorie: 'population',
+        typeValeur: 'booleen',
+        libelle: 'Population forte',
+        ordre: 10,
+      },
+      {
+        code: 'propolisation',
+        categorie: 'batisse',
+        typeValeur: 'echelle',
+        libelle: 'Propolisation',
+        ordre: 43,
+      },
+    ];
+
+    const GABARIT = {
+      id: 4,
+      nom: 'Printemps',
+      description: null,
+      noyauCouvain: true,
+      noyauReine: true,
+      noyauCadres: false,
+      noyauTemperament: true,
+      parDefaut: true,
+      actif: true,
+      points: ['pop_forte', 'propolisation'],
+      creeLe: '2026-09-04T08:00:00Z',
+      majLe: '2026-09-04T08:00:00Z',
+    };
+
+    beforeEach(() => {
+      vi.mocked(recupererPoints).mockResolvedValue(POINTS as never);
+      vi.mocked(apiGabarits.lister).mockResolvedValue([GABARIT] as never);
+    });
+
+    it('masque la section du noyau que le gabarit éteint', async () => {
+      monter();
+      await screen.findByText('Dadant 10');
+      await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+      // `noyauCadres: false` : la section disparaît de la saisie. Les colonnes,
+      // elles, restent en base — masquer n'est pas effacer, et la visite déjà
+      // enregistrée garde ce qu'elle portait.
+      expect(await screen.findByLabelText('Œufs')).toBeInTheDocument();
+      expect(screen.queryByLabelText('Cadres de couvain')).not.toBeInTheDocument();
+    });
+
+    it('n’envoie que les points regardés, et pas les cases laissées telles quelles', async () => {
+      monter();
+      await screen.findByText('Dadant 10');
+      await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+      // Un clic : « pas regardé » devient « oui ». La seconde case du gabarit
+      // n'est pas touchée, et ne doit pas partir à « non ».
+      await userEvent.click(await screen.findByRole('checkbox', { name: /Population forte/ }));
+      await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+      expect(visites.mettreAJour).toHaveBeenCalledWith(
+        42,
+        expect.objectContaining({
+          points: [{ code: 'pop_forte', coche: true, niveau: null }],
+        }),
+        { 'X-Zumm-Version': expect.any(String) },
+      );
+    });
+
+    it('distingue « regardé, absent » d’une case jamais touchée', async () => {
+      monter();
+      await screen.findByText('Dadant 10');
+      await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+      const cas = await screen.findByRole('checkbox', { name: /Population forte/ });
+      // Deux clics : inconnu → oui → non. L'état est annoncé par `aria-checked`,
+      // `mixed` étant la case indéterminée — une case à cocher ordinaire n'aurait
+      // aucun moyen de dire « pas regardé ».
+      expect(cas).toHaveAttribute('aria-checked', 'mixed');
+      await userEvent.click(cas);
+      await userEvent.click(cas);
+      expect(cas).toHaveAttribute('aria-checked', 'false');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+      expect(visites.mettreAJour).toHaveBeenCalledWith(
+        42,
+        expect.objectContaining({
+          points: [{ code: 'pop_forte', coche: false, niveau: null }],
+        }),
+        { 'X-Zumm-Version': expect.any(String) },
+      );
+    });
+
+    it('envoie une intensité pour un point d’échelle', async () => {
+      monter();
+      await screen.findByText('Dadant 10');
+      await userEvent.click(screen.getAllByRole('button', { name: 'Modifier' })[0]);
+
+      await userEvent.selectOptions(await screen.findByLabelText('Propolisation'), '2');
+      await userEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+      expect(visites.mettreAJour).toHaveBeenCalledWith(
+        42,
+        expect.objectContaining({
+          points: [{ code: 'propolisation', coche: null, niveau: 2 }],
+        }),
+        { 'X-Zumm-Version': expect.any(String) },
+      );
+    });
   });
 });

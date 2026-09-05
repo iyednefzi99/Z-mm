@@ -195,6 +195,11 @@ export const ROLES_ECRITURE: Partial<Record<Onglet, readonly string[]>> = {
   // se font avec tout rôle métier — un apiculteur qui prend du candi doit
   // pouvoir le décompter, et l'écran garde donc ces boutons-là.
   materiel: ['responsable', 'admin'],
+  // Le carnet paramétrable (SPRINT-28) vit dans l'écran de configuration :
+  // quelles cases figurent à la saisie engage toutes les inspections à venir.
+  // La LECTURE reste ouverte — un apiculteur doit voir les cases qu'on lui
+  // demande de cocher, et les seuils de `ConfigZumm.ini` le concernent aussi.
+  config: ['responsable', 'admin'],
 };
 
 /** L'écran est-il modifiable avec ces rôles ? */

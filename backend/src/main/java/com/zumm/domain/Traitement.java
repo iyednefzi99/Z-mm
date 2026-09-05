@@ -100,6 +100,25 @@ public class Traitement extends EntiteTenant {
     @Column(name = "ordonnance", length = 120)
     private String ordonnance;
 
+    /**
+     * Veterinaire signataire, et date de l'ordonnance (SPRINT-28).
+     *
+     * <p>La reference seule ne rendait rien verifiable : elle disait qu'une
+     * ordonnance existe, jamais QUI l'a signee ni QUAND. Le document lui-meme
+     * s'attache par {@code Photo.Cible.TRAITEMENT} — un scan est une image, et
+     * le stockage existe depuis le SPRINT-21.
+     *
+     * <p>La base refuse une date sans reference ({@code ck_traitement_ordonnance}) ;
+     * l'inverse reste permis, parce qu'une reference notee au rucher se complete
+     * le soir.
+     */
+    @Size(max = 120)
+    @Column(name = "ordonnance_veterinaire", length = 120)
+    private String ordonnanceVeterinaire;
+
+    @Column(name = "ordonnance_date")
+    private LocalDate ordonnanceDate;
+
     @Column(name = "note", columnDefinition = "text")
     private String note;
 
@@ -223,6 +242,22 @@ public class Traitement extends EntiteTenant {
 
     public void setOrdonnance(String ordonnance) {
         this.ordonnance = ordonnance;
+    }
+
+    public String getOrdonnanceVeterinaire() {
+        return ordonnanceVeterinaire;
+    }
+
+    public void setOrdonnanceVeterinaire(String ordonnanceVeterinaire) {
+        this.ordonnanceVeterinaire = ordonnanceVeterinaire;
+    }
+
+    public LocalDate getOrdonnanceDate() {
+        return ordonnanceDate;
+    }
+
+    public void setOrdonnanceDate(LocalDate ordonnanceDate) {
+        this.ordonnanceDate = ordonnanceDate;
     }
 
     public String getNote() {

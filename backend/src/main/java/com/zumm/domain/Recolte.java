@@ -68,6 +68,20 @@ public class Recolte extends EntiteTenant {
     @Column(name = "unite", nullable = false, length = 10)
     private String unite = "kg";
 
+    /**
+     * Taux d'eau du miel, en pourcentage (SPRINT-28).
+     *
+     * <p>La mesure qui decide de la conservation : au-dela de 18 %, le miel
+     * fermente en pot. Elle se lit au refractometre — {@code CalculateurApicole}
+     * convertit un indice de refraction en taux — et se range ici plutot que sur
+     * le lot, parce qu'elle appartient au miel extrait, avant tout assemblage.
+     *
+     * <p>Reservee au miel : un taux d'humidite sur un essaim ou une reine ne
+     * veut rien dire, et {@code ck_recolte_humidite} le refuse.
+     */
+    @Column(name = "humidite_pct", precision = 4, scale = 1)
+    private BigDecimal humiditePct;
+
     @NotNull
     @Column(name = "lot", nullable = false, length = 40)
     private String lot;
@@ -117,6 +131,14 @@ public class Recolte extends EntiteTenant {
 
     public void setUnite(String unite) {
         this.unite = unite;
+    }
+
+    public BigDecimal getHumiditePct() {
+        return humiditePct;
+    }
+
+    public void setHumiditePct(BigDecimal humiditePct) {
+        this.humiditePct = humiditePct;
     }
 
     /** Le miel est le seul produit qui entre dans les totaux de miellee. */

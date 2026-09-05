@@ -24,9 +24,10 @@ class RapportVisitePdfServiceTest {
                 LocalDate.of(2026, 6, 15), LocalTime.of(9, 30), 25, RaisonVisite.CONTROLE,
                 "Colonie vigoureuse, couvain compact.", "Poser une hausse", "Hausse posée",
                 "Surveiller les réserves", EffectifQualitatif.FORT, EtatSante.BON, 3,
-                // Grille d'inspection, météo figée et pathologies (SPRINT-20) :
-                // laissées vides ici, le rapport PDF doit sortir sans elles.
-                null, null, List.of(),
+                // Grille d'inspection, météo figée et pathologies (SPRINT-20),
+                // points du carnet paramétrable (SPRINT-28) : laissés vides ici,
+                // le rapport PDF doit sortir sans eux.
+                null, null, List.of(), List.of(),
                 photos, Instant.now(), Instant.now());
     }
 

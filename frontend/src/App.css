@@ -707,6 +707,114 @@
   box-shadow: inset 0 -2px 0 var(--z-honey-500);
 }
 
+/* ─── Carnet paramétrable (SPRINT-28, lot I) ──────────────────────────── */
+
+.z-carnet__famille {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.z-carnet__titre {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--z-text-muted);
+}
+
+/* La case a TROIS etats — voir `carnet/GrilleCarnet.tsx`. Le troisieme n'est
+   pas une decoration : « pas regarde » et « regarde, absent » ne disent pas la
+   meme chose, et la couleur seule ne peut pas les distinguer. L'etat est donc
+   ecrit en toutes lettres a cote du libelle, pour un lecteur d'ecran comme pour
+   un daltonien — la bordure ne fait que le repeter. */
+.z-carnet__case {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--z-line);
+  border-inline-start-width: 4px;
+  border-radius: var(--z-radius-sm);
+  background: var(--z-surface);
+  color: var(--z-text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--z-duration-fast) var(--z-ease-out),
+    background var(--z-duration-fast) var(--z-ease-out);
+}
+
+.z-carnet__case:hover {
+  border-color: var(--z-honey-500);
+}
+
+.z-carnet__case--inconnu {
+  border-inline-start-color: var(--z-line);
+}
+
+.z-carnet__case--oui {
+  border-inline-start-color: var(--z-success);
+}
+
+.z-carnet__case--non {
+  border-inline-start-color: var(--z-danger);
+}
+
+.z-carnet__libelle {
+  font-size: 0.9rem;
+}
+
+.z-carnet__etat {
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+  white-space: nowrap;
+}
+
+.z-champ--case {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.z-champ--case .z-champ__libelle {
+  margin: 0;
+}
+
+.z-liste {
+  list-style: none;
+  margin: 0.6rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.z-liste__ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-surface);
+  font-size: 0.9rem;
+}
+
+.z-liste__actions {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .z-carnet__case {
+    transition: none;
+  }
+}
+
 /* ─── Modale ───────────────────────────────────────────────────────────── */
 
 /* Ouverture ET fermeture, pilotees par une classe d'etat plutot que par une

@@ -199,6 +199,12 @@ describe('comptabilité', () => {
   });
 
   it('télécharge une ressource dans le format choisi', async () => {
+    // La vraie fonction rend une promesse, et la vue y accroche un `.catch`.
+    // Sans cette resolution, le mock rend `undefined` : le gestionnaire de clic
+    // leve alors une TypeError qui ne fait echouer AUCUNE assertion, mais qui
+    // fait sortir Vitest en erreur — le test passait, la commande echouait.
+    vi.mocked(client.telechargerRessource).mockResolvedValue(undefined);
+
     monter(<ComptabiliteVue />);
 
     await userEvent.selectOptions(await screen.findByLabelText('Ressource'), 'depenses');

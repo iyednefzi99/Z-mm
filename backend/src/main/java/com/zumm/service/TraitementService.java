@@ -69,6 +69,8 @@ public class TraitementService {
         t.setDateFin(corps.dateFin());
         t.setDelaiCarenceJours(corps.delaiCarenceJours());
         t.setOrdonnance(corps.ordonnance());
+        t.setOrdonnanceVeterinaire(corps.ordonnanceVeterinaire());
+        t.setOrdonnanceDate(corps.ordonnanceDate());
         t.setNote(corps.note());
         t.setVisite(visiteRattachee(corps.visiteId()));
 
@@ -102,7 +104,8 @@ public class TraitementService {
                 ruche.getId(), modele.agentId(), modele.visiteId(), modele.produit(),
                 modele.substanceActive(), modele.cible(), modele.dose(), modele.doseUnite(),
                 modele.dateDebut(), modele.dateFin(), modele.delaiCarenceJours(),
-                modele.ordonnance(), modele.note());
+                modele.ordonnance(), modele.ordonnanceVeterinaire(), modele.ordonnanceDate(),
+                modele.note());
         return enregistrer(pourCetteRuche).id();
     }
 

@@ -1,6 +1,7 @@
 package com.zumm.controller;
 
 import com.zumm.service.EmportRucherService;
+import com.zumm.service.CarnetService;
 import com.zumm.service.FicheInspectionPdfService;
 import com.zumm.service.SyntheseRucherService;
 import com.zumm.web.dto.EmportRucher;
@@ -30,12 +31,14 @@ public class RucherController {
     private final SyntheseRucherService service;
     private final EmportRucherService emports;
     private final FicheInspectionPdfService fiches;
+    private final CarnetService carnet;
 
     public RucherController(SyntheseRucherService service, EmportRucherService emports,
-            FicheInspectionPdfService fiches) {
+            FicheInspectionPdfService fiches, CarnetService carnet) {
         this.service = service;
         this.emports = emports;
         this.fiches = fiches;
+        this.carnet = carnet;
     }
 
     /** Sans {@code siteId}, tous les ruchers, du plus preoccupant au plus calme. */
@@ -72,7 +75,10 @@ public class RucherController {
             produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> ficheInspection(@PathVariable Long siteId) {
         EmportRucher rucher = emports.pourSite(siteId);
-        byte[] pdf = fiches.generer(rucher.site().nom(), rucher.ruches());
+        // La fiche suit le gabarit par defaut (SPRINT-28) : le papier demande ce
+        // que l'ecran demande, faute de quoi la ressaisie exige une traduction.
+        byte[] pdf = fiches.generer(rucher.site().nom(), rucher.ruches(),
+                carnet.gabaritParDefaut(), carnet.points());
         // `inline` et non `attachment` : la fiche se relit a l'ecran avant d'etre
         // imprimee, et forcer un telechargement ajouterait un geste a chaque fois.
         return ResponseEntity.ok()

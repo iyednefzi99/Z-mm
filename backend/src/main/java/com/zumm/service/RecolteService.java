@@ -72,6 +72,7 @@ public class RecolteService {
         if (corps.unite() != null) {
             recolte.setUnite(corps.unite());
         }
+        recolte.setHumiditePct(corps.humiditePct());
         recolte.setNote(corps.note());
 
         if (bloquant != null) {
@@ -121,7 +122,7 @@ public class RecolteService {
         // « la meme recolte sur tout le rucher ». Une cire ou un essaim se
         // saisissent a l'unite, sur la ruche concernee.
         return creer(new RecolteCorps(ruche.getId(), corps.dateRecolte(),
-                corps.quantiteKgParRuche(), corps.typeMiel(), "miel", "kg", corps.note(),
+                corps.quantiteKgParRuche(), corps.typeMiel(), "miel", "kg", null, corps.note(),
                 corps.forcerCarence(), corps.motifForcage())).id();
     }
 

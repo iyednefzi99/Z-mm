@@ -305,18 +305,19 @@ un port : l'ossature est là. Ce qui manque relève de la décision **D4**.
 
 ---
 
-### Lot I — Le carnet paramétrable  ·  4 lignes
+### Lot I — Le carnet paramétrable  ·  5 lignes  ·  ✅ LIVRÉ (5/5)
 
 Ce que le SPRINT-20 a structuré, il l'a figé : onze colonnes d'observation, les
 mêmes pour tout le monde. Les concurrents qui gagnent sur ce terrain laissent
 l'apiculteur **choisir ses cases**.
 
-| Ligne couverte | Section |
-|---|---|
-| Modèles / gabarits d'inspection réutilisables, champs activables | §3 |
-| Saisie par cases à cocher (~50 points analysables) | §3 |
-| Référentiel de traitements pré-renseigné | §3 |
-| Ordonnances vétérinaires | §3 |
+| Ligne couverte | Section | Verdict |
+|---|---|:--:|
+| Modèles / gabarits d'inspection réutilisables, champs activables | §3 | ✅ |
+| Saisie par cases à cocher (~50 points analysables) | §3 | ✅ |
+| Référentiel de traitements pré-renseigné | §3 | ✅ |
+| Ordonnances vétérinaires | §3 | ✅ |
+| Calculateurs apicoles : réfractomètre *(reporté du lot E)* | §6 | ✅ |
 
 | DB | Back | Contrat | Front | i18n |
 |:--:|:--:|:--:|:--:|:--:|
@@ -328,9 +329,32 @@ référentiel **fermé** de points d'observation — les cinquante de HiveTracks
 dont un gabarit choisit un sous-ensemble. On active des cases existantes ; on
 n'en invente pas.
 
-**Ce qui existe déjà** : les onze colonnes de la `V19` deviennent le gabarit par
-défaut, et les ordonnances ont leur colonne (`traitement.ordonnance`) — il leur
-manque le document attaché, que `Photo` sait déjà porter depuis la `V20`.
+**Ce qui existait déjà** : les onze colonnes de la `V19` et la colonne
+`traitement.ordonnance`.
+
+**Livré le 05/09/2026** (migration `V28`, 44 points, 13 produits). Quatre
+décisions le tiennent :
+
+1. **Le référentiel est fermé, et PostgreSQL le tient.** La `V28` retire
+   `INSERT`, `UPDATE` et `DELETE` au rôle applicatif sur `point_observation` et
+   `produit_traitement` : ces tables ne s'écrivent que par migration. Sans ce
+   `REVOKE`, la fermeture ne serait qu'une intention écrite dans un commentaire.
+2. **Le noyau reste des colonnes.** Les onze champs de la `V19` ne migrent pas :
+   ils sont typés, indexés et lus par le moteur de règles. Le gabarit les allume
+   ou les éteint — quatre booléens, pas une table — et masquer n'est pas effacer.
+3. **Trois états, et non deux.** L'absence de relevé dit « pas regardé » ; une
+   ligne à `false` dit « regardé, absent ». Les confondre ferait descendre tous
+   les taux du parc dans le sens rassurant. L'écran emploie la case indéterminée
+   (`aria-checked="mixed"`), un clic faisant tourner l'état.
+4. **Le référentiel de produits pré-remplit, il ne fait pas autorité.** La notice
+   fait foi, le traitement enregistré garde sa propre copie du délai, et une
+   colonne dédiée porte la contrainte que le délai ne dit pas — « hausses
+   retirées », là où zéro jour se lirait « on peut récolter ».
+
+Le **réfractomètre**, reporté du lot E, ferme sa ligne après rectification du
+verdict : la table de Chataway est publiée et vaut pour tout miel ; ce qui
+appartient à l'appareil, c'est son étalonnage. La conversion refuse tout ce qui
+sort de la plage tabulée plutôt que d'extrapoler.
 
 ---
 
@@ -494,7 +518,7 @@ tables. Si c'est l'objectif, il commence par
 | ~~4~~ | ~~**J** — identification et confort~~ ✅ | 6 | **96** | *Livré le 04/09/2026 (V25)* — 6 sur 7 ; la réinitialisation de mot de passe attend un serveur d'envoi | — |
 | ~~5~~ | ~~**F₁** — batteries, poids par hausse, partage~~ ✅ | 4 | **100** | *Livré le 04/09/2026 (V26)* — les quatre lignes annoncées | — |
 | ~~6~~ | ~~**E** — production, stock, matériel~~ ✅ | 12 | **112** | *Livré le 04/09/2026 (V27)* — 12 sur 14 ; le réfractomètre passe au lot I, la logistique multi-sites au lot G | — |
-| 7 | **I** — carnet paramétrable | 5 | 117 | Vient après A : on ne paramètre bien que ce dont on connaît l'usage | — |
+| ~~7~~ | ~~**I** — carnet paramétrable~~ ✅ | 5 | **117** | *Livré le 05/09/2026 (V28)* — les cinq lignes annoncées, réfractomètre compris | — |
 | 8 | **D** — élevage et généalogie | 7 | 124 | Autonome ; la filiation des colonies est déjà là depuis la `V20` | Critères de l'index |
 | 9 | **F₂** — capteurs du commerce | 4 | 128 | Suspendu au matériel, pas au code | **D3** |
 | 10 | **G** — voix et assistance | 8 | 136 | Dépend de l'endroit où tourne le modèle. Reprend la note vocale laissée par C et la réinitialisation laissée par J, qui attendent l'une un stockage de fichiers, l'autre un serveur d'envoi | **D4** |
@@ -505,10 +529,10 @@ le placer si bas : il ne coûtait pas plus cher que J ou F₁, et il portait le
 reproche n° 1 fait à trois des douze concurrents. Ce qui le retenait était la
 décision D2, qu'un ADR d'une page a levée.
 
-Six lots étant livrés, les deux suivants — **124 ✅ sur 153**, soit plus des
-quatre cinquièmes du document — ne demandent toujours **aucune décision
-préalable**. Les quatre derniers valent 27 lignes et dépendent chacun d'un des
-trois arbitrages restants du §3.
+Sept lots étant livrés, il reste **un seul** lot sans décision préalable : le
+lot D (élevage et généalogie), qui porterait le compte à **124 ✅ sur 153**. Les
+quatre derniers valent 22 lignes et dépendent chacun d'un des trois arbitrages
+restants du §3.
 
 Le compte plafonne à **145 ✅**, jamais à 153 : les **8 lignes ⛔** ne sont pas des
 travaux mais des décisions de périmètre (§4). 145 + 8 = 153, et le document est
@@ -521,15 +545,35 @@ alors intégralement statué.
 Le document d'écart est la source ; ce plan n'en est que la vue ordonnée. Le
 compte se relève, il ne se recopie pas :
 
+> ⚠️ **La commande qui suit a été corrigée le 05/09/2026, et c'est instructif.**
+> La précédente ne lisait que la **deuxième colonne** de chaque ligne : elle
+> manquait donc tout le §13, dont la table porte une colonne de plus, et comptait
+> en revanche les quatre lignes de la légende. Elle rendait **131** là où le
+> document en porte **153**. Le compte publié n'était pas faux ; la commande
+> censée le vérifier l'était — ce qui est plus grave, puisque c'est elle qu'on
+> relance pour ne pas recopier un chiffre.
+
 ```bash
-# Verdicts par section, tels qu'ils sont écrits dans le document
+# Verdicts de l'inventaire, tels qu'ils sont écrits dans le document.
+# Le verdict se cherche OU QU'IL SOIT dans la ligne : la table du §13 en a une
+# colonne de plus que celles des §1 a 8. Et l'inventaire s'arrete a ces
+# sections-la : la legende et la ventilation par couche portent les memes
+# symboles sans etre des lignes d'ecart.
 python - <<'PY'
-import io, re
+import io
 from collections import Counter
+SYM = ('✅', '🟡', '❌', '⛔')
+INVENTAIRE = tuple(str(n) + '.' for n in list(range(1, 9)) + [13])
 s = io.open('docs/ECART-CONCURRENTS.md', encoding='utf-8').read()
-v = [c.strip() for l in s.split('\n') if l.startswith('|')
-     for c in [l.strip('|').split('|')[1]] if c.strip() in ('✅', '🟡', '❌', '⛔')]
-print(Counter(v), 'total', len(v))
+dedans, verdicts = False, []
+for ligne in s.split('\n'):
+    if ligne.startswith('## '):
+        dedans = ligne[3:].strip().startswith(INVENTAIRE)
+    if dedans and ligne.startswith('|'):
+        trouves = [c.strip() for c in ligne.strip('|').split('|') if c.strip() in SYM]
+        if trouves:
+            verdicts.append(trouves[0])
+print(Counter(verdicts), 'total', len(verdicts))
 PY
 ```
 

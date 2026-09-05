@@ -32,6 +32,8 @@ public record TraitementReponse(
         LocalDate dateRetrait,
         boolean sousCarence,
         String ordonnance,
+        String ordonnanceVeterinaire,
+        LocalDate ordonnanceDate,
         String note,
         Instant creeLe,
         Instant majLe) {
@@ -55,6 +57,8 @@ public record TraitementReponse(
                 t.getDateRetrait(),
                 t.sousCarence(jour),
                 t.getOrdonnance(),
+                t.getOrdonnanceVeterinaire(),
+                t.getOrdonnanceDate(),
                 t.getNote(),
                 t.getCreeLe(),
                 t.getMajLe());

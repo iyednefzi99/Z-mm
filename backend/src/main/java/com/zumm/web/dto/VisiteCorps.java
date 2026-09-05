@@ -24,6 +24,9 @@ import java.util.List;
  * @param meteo       releve fige au moment de la visite, ou {@code null}
  * @param pathologies maladies et ravageurs nommes ; liste vide ou {@code null}
  *                    si rien n'a ete constate
+ * @param points      releves du carnet parametrable (SPRINT-28) : uniquement
+ *                    les points REGARDES. Ne pas envoyer un point n'est pas
+ *                    l'envoyer a « non »
  */
 public record VisiteCorps(
         @NotNull Long rucheId,
@@ -42,10 +45,16 @@ public record VisiteCorps(
         @Min(1) @Max(3) Integer productivite,
         @Valid ObservationVisite observation,
         @Valid MeteoVisite meteo,
-        @Valid List<PathologieCorps> pathologies) {
+        @Valid List<PathologieCorps> pathologies,
+        @Valid List<PointReleve> points) {
 
     /** Les pathologies, jamais {@code null} : evite une garde a chaque appelant. */
     public List<PathologieCorps> pathologiesOuVide() {
         return pathologies == null ? List.of() : pathologies;
+    }
+
+    /** Les points du carnet, jamais {@code null}. */
+    public List<PointReleve> pointsOuVide() {
+        return points == null ? List.of() : points;
     }
 }

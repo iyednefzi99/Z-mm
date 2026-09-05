@@ -75,6 +75,7 @@ const recolte = (): Recolte => ({
   typeMiel: 'Acacia',
   typeProduit: 'miel',
   unite: 'kg',
+  humiditePct: null,
   lot: 'ZUMM-5-20260715-01',
   note: null,
   carenceForcee: false,

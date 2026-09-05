@@ -164,8 +164,20 @@ describe('écriture réservée sur le référentiel', () => {
    * pilotage, mais les mouvements de stock et les entretiens restent ouverts à
    * tout rôle métier — un apiculteur qui prend du candi doit pouvoir le
    * décompter, et l'écran garde donc ces boutons-là.
+   *
+   * <p>`config` s'y est ajouté au SPRINT-28 avec le carnet paramétrable : la
+   * FORME du carnet engage toutes les inspections à venir, sa lecture non — les
+   * seuils et les cases à cocher se consultent avec tout rôle métier.
    */
-  const REFERENTIEL = ['fermiers', 'fermes', 'sites', 'ruches', 'agents', 'materiel'] as const;
+  const REFERENTIEL = [
+    'fermiers',
+    'fermes',
+    'sites',
+    'ruches',
+    'agents',
+    'materiel',
+    'config',
+  ] as const;
 
   it('couvre exactement les écrans du référentiel', () => {
     expect(Object.keys(ROLES_ECRITURE).sort()).toEqual([...REFERENTIEL].sort());
