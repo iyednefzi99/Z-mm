@@ -26,6 +26,11 @@
 
 import type { components } from './contrat';
 import type {
+  DossierConformite,
+  Genealogie,
+  IndexGenetique,
+  ReineElevage,
+  SerieElevage,
   Gabarit,
   PointReferentiel,
   PointReleve,
@@ -349,3 +354,24 @@ export type _ProduitReferentiel =
 export type _StatistiquePoint =
   Conforme<StatistiquePoint, TolerantAuNull<Schemas['StatistiquePoint']>>;
 export type _Refractometre = Conforme<Refractometre, TolerantAuNull<Schemas['Refractometre']>>;
+
+/*
+ * Elevage, reines et genealogie (SPRINT-29, lot D).
+ *
+ * <p>Cinq types dont la derive serait grave et invisible. `ReineElevage.mereId`
+ * porte la filiation : renomme, l'arbre se viderait sans erreur. `Genealogie`
+ * distingue ascendants et descendants — les fondre cote serveur ferait dessiner
+ * les meres a la place des filles. `IndexGenetique.criteres[].suffisant` decide
+ * si une valeur s'affiche ou si l'ecran dit « pas assez observe » : le perdre
+ * ferait afficher `null` comme un zero, c'est-a-dire comme un mauvais resultat.
+ * `SerieElevage.tauxAcceptation` est NULLABLE tant que le compte n'est pas
+ * releve. Et `DossierConformite.avertissement` est la phrase qui empeche de lire
+ * ce document comme une certification : elle doit arriver, toujours.
+ */
+export type _ReineElevage = Conforme<ReineElevage, TolerantAuNull<Schemas['ReineElevage']>>;
+export type _Genealogie = Conforme<Genealogie, TolerantAuNull<Schemas['Genealogie']>>;
+export type _IndexGenetique =
+  Conforme<IndexGenetique, TolerantAuNull<Schemas['IndexGenetique']>>;
+export type _SerieElevage = Conforme<SerieElevage, TolerantAuNull<Schemas['SerieReponse']>>;
+export type _DossierConformite =
+  Conforme<DossierConformite, TolerantAuNull<Schemas['DossierConformite']>>;

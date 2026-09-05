@@ -17,6 +17,10 @@ public interface RecolteRepository extends JpaRepository<Recolte, Long> {
     /** Toutes les recoltes, les plus recentes d'abord. */
     List<Recolte> findByOrderByDateRecolteDescIdDesc();
 
+    /** Recoltes d'une ruche sur une periode — le regne d'une reine (SPRINT-29). */
+    List<Recolte> findByRuche_IdAndDateRecolteBetweenOrderByDateRecolteAsc(
+            Long rucheId, java.time.LocalDate debut, java.time.LocalDate fin);
+
     /** Recolte portant ce numero de lot (tracabilite). */
     Optional<Recolte> findByLot(String lot);
 

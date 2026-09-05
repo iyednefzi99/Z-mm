@@ -13,6 +13,10 @@ import org.springframework.data.repository.query.Param;
  */
 public interface TraitementRepository extends JpaRepository<Traitement, Long> {
 
+    /** Traitements d'une periode, pour le registre d'elevage (SPRINT-29). */
+    List<Traitement> findByDateDebutBetweenOrderByDateDebutAscRuche_IdAsc(
+            java.time.LocalDate debut, java.time.LocalDate fin);
+
     /** Registre d'une ruche, du traitement le plus recent au plus ancien. */
     List<Traitement> findByRuche_IdOrderByDateDebutDescIdDesc(Long rucheId);
 

@@ -196,7 +196,7 @@ d'un événement que le terrain déclenche au hasard.
 
 ---
 
-### Lot D — Élevage, reines et généalogie  ·  7 lignes
+### Lot D — Élevage, reines et généalogie  ·  7 lignes  ·  ✅ LIVRÉ (7/7)
 
 Trois concurrents en font leur argument central. La filiation des colonies
 existe depuis la `V20` ; celle des **reines** n'existe pas.
@@ -216,10 +216,32 @@ existe depuis la `V20` ; celle des **reines** n'existe pas.
 | ● clé étrangère réflexive + colonnes d'élevage | ● service PDF + index | ● | ● vue d'arbre SVG | ◐ |
 
 **Déjà à moitié acquis** : les photos de reine fonctionnent depuis la `V20`
-(`Photo.Cible.REINE`), et le moteur PDF existe. L'index génétique est le seul
-morceau qui demande une **décision métier** : quels critères, quelle pondération,
-et surtout comment afficher une note dont personne ne doit croire qu'elle est une
-mesure.
+(`Photo.Cible.REINE`) — la ligne du §7 qui les disait absentes était un verdict
+périmé —, et le moteur PDF existe.
+
+**Livré le 05/09/2026** (migration `V29`). Quatre décisions le tiennent, et la
+première corrige ce plan :
+
+1. **Ce plan se trompait.** Il annonçait « une clé étrangère réflexive sur
+   `suivi_reine` » : elle aurait relié des **événements**. `suivi_reine` est le
+   journal d'une RUCHE — une même ruche en porte des dizaines, appartenant à des
+   reines successives —, et « de quelle mère descend cette reine ? » n'y aurait
+   eu aucune réponse stable. La reine devient une **table**.
+2. **`suivi_reine.reine_id` est nullable.** Les événements antérieurs ne
+   désignent aucune reine ; deviner laquelle aurait fabriqué une généalogie, et
+   un arbre faux est pire qu'un arbre absent — on le lit sans le savoir.
+3. **L'index génétique n'a aucune note globale.** Cinq critères, chacun dans son
+   unité, chacun avec son nombre d'observations, et `null` en dessous du
+   minimum. Il est **borné au règne** : sans cela, une reine introduite en
+   juillet hériterait de la récolte de printemps de la précédente.
+4. **Le dossier de conformité ne certifie pas.** Il rassemble les pièces et
+   nomme ce qu'il ne peut pas vérifier — l'origine biologique des sucres, celle
+   de la cire, le statut du foncier sortent en « à justifier ».
+
+Le lot a aussi révélé un défaut ancien : **cinq clés étrangères posées en `V20`
+et `V27` écrivaient `ON DELETE SET NULL` sans liste de colonnes**, ce qui met
+aussi `tenant_id` à `NULL`. Supprimer une ruche portant une dépense échouait en
+500. La `V29` les répare, et un test le prouve.
 
 ---
 
@@ -519,7 +541,7 @@ tables. Si c'est l'objectif, il commence par
 | ~~5~~ | ~~**F₁** — batteries, poids par hausse, partage~~ ✅ | 4 | **100** | *Livré le 04/09/2026 (V26)* — les quatre lignes annoncées | — |
 | ~~6~~ | ~~**E** — production, stock, matériel~~ ✅ | 12 | **112** | *Livré le 04/09/2026 (V27)* — 12 sur 14 ; le réfractomètre passe au lot I, la logistique multi-sites au lot G | — |
 | ~~7~~ | ~~**I** — carnet paramétrable~~ ✅ | 5 | **117** | *Livré le 05/09/2026 (V28)* — les cinq lignes annoncées, réfractomètre compris | — |
-| 8 | **D** — élevage et généalogie | 7 | 124 | Autonome ; la filiation des colonies est déjà là depuis la `V20` | Critères de l'index |
+| ~~8~~ | ~~**D** — élevage et généalogie~~ ✅ | 7 | **124** | *Livré le 05/09/2026 (V29)* — les sept lignes ; le §7 n'a plus de ❌ | ~~Critères de l'index~~ **tranchée** : cinq critères, aucune note globale |
 | 9 | **F₂** — capteurs du commerce | 4 | 128 | Suspendu au matériel, pas au code | **D3** |
 | 10 | **G** — voix et assistance | 8 | 136 | Dépend de l'endroit où tourne le modèle. Reprend la note vocale laissée par C et la réinitialisation laissée par J, qui attendent l'une un stockage de fichiers, l'autre un serveur d'envoi | **D4** |
 | 11 | **H** — SIG environnemental | 9 | 145 | Le plus cher, et bloqué tant que la source de données n'est pas choisie | **D1** |
@@ -529,10 +551,12 @@ le placer si bas : il ne coûtait pas plus cher que J ou F₁, et il portait le
 reproche n° 1 fait à trois des douze concurrents. Ce qui le retenait était la
 décision D2, qu'un ADR d'une page a levée.
 
-Sept lots étant livrés, il reste **un seul** lot sans décision préalable : le
-lot D (élevage et généalogie), qui porterait le compte à **124 ✅ sur 153**. Les
-quatre derniers valent 22 lignes et dépendent chacun d'un des trois arbitrages
-restants du §3.
+Huit lots étant livrés, **124 ✅ sur 153** — quatre cinquièmes du document, et le
+§7, le plus fourni des treize, n'a plus une seule ligne ❌. Tout ce qui restait
+sans décision préalable est fait. Les **trois derniers lots valent 21 lignes**, et
+chacun dépend d'un des trois arbitrages restants du §3 : le matériel à acheter
+(D3), l'endroit où tourne le modèle de langue (D4), la source de données
+environnementales (D1). Aucun ne se débloque en écrivant du code.
 
 Le compte plafonne à **145 ✅**, jamais à 153 : les **8 lignes ⛔** ne sont pas des
 travaux mais des décisions de périmètre (§4). 145 + 8 = 153, et le document est

@@ -20,8 +20,17 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { PanneauElevage } from '../elevage/PanneauElevage';
 
-/** Suivi de la reine par ruche : historique + ajout d'événement (US-032). */
+/**
+ * Élevage et suivi des reines.
+ *
+ * <p>Deux blocs, et la distinction entre eux est tout le SPRINT-29 : en haut les
+ * REINES — des individus, avec leur filiation, leur règne et ce qu'il a montré ;
+ * en dessous le JOURNAL d'une ruche (US-032), c'est-à-dire ce qui est ARRIVÉ à
+ * la reine qui s'y trouvait. Les fondre dans un seul tableau ferait perdre ce
+ * qui rend une généalogie possible.
+ */
 export function ReinesVue(): ReactElement {
   const t = useT();
   const f = useFormats();
@@ -104,6 +113,9 @@ export function ReinesVue(): ReactElement {
         </div>
       )}
 
+      <PanneauElevage />
+
+      <h2 className="z-champ__libelle">{t.elevage.journal}</h2>
       <div className="z-form__grille">
         <ChampSelect libelle={t.reine.choisirRuche} valeur={rucheId} options={optRuches} onChange={charger} />
       </div>

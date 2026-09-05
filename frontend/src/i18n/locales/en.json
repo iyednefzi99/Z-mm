@@ -1841,7 +1841,8 @@
       "cadres_permutes": "Frames rearranged",
       "colonie_deplacee": "Colony moved within apiary",
       "echantillon_preleve": "Sample taken for analysis",
-      "tenue_sur_cadre": "Bees steady on the comb"
+      "tenue_sur_cadre": "Bees steady on the comb",
+      "test_hygienique": "Brood removal tested (hygienic test)"
     },
     "observations": "Logbook observations",
     "nonRegarde": "not checked",
@@ -1867,5 +1868,97 @@
     "hors_norme": "Above the marketing standard",
     "aide": "Above 18 % water, honey ferments in the jar; above 20 %, it falls outside the standard. The instrument must be calibrated, and the value entered must be the index it displays.",
     "horsTable": "Outside the published table: nothing is extrapolated."
+  },
+  "elevage": {
+    "titre": "Breeding and lineages",
+    "journal": "Hive journal",
+    "reines": "Queens",
+    "nouvelle": "New queen",
+    "code": "Code",
+    "mere": "Mother",
+    "fille": "Daughter",
+    "rucheMere": "Source hive",
+    "rucheEnService": "Hive in service",
+    "lignee": "Lineage tree",
+    "ligneeDescription": "Lineage tree: mothers above, daughters below, the selected queen in the centre.",
+    "origine": "Origin",
+    "fournisseur": "Supplier",
+    "race": "Strain",
+    "anneeNaissance": "Year of birth",
+    "marquage": "Marking colour",
+    "ailesClippees": "Clipped wings",
+    "dateGreffage": "Grafting",
+    "dateNaissance": "Birth",
+    "dateFecondation": "Mating",
+    "dateIntroduction": "Introduction",
+    "dateFin": "End of reign",
+    "etat": "State",
+    "aucuneReine": "No queen recorded yet.",
+    "series": "Grafting batches",
+    "nouvelleSerie": "New batch",
+    "nom": "Name",
+    "souche": "Breeder queen",
+    "rucheEleveuse": "Cell builder hive",
+    "methode": "Method",
+    "nbGreffees": "Grafted",
+    "nbAcceptees": "Accepted",
+    "nbNees": "Emerged",
+    "nbFecondees": "Mated",
+    "tauxAcceptation": "Acceptance rate",
+    "tauxReussite": "Success rate",
+    "serieAide": "Counts are entered as the days pass: acceptance at five days, emergence at twelve, mating three weeks later. They are not derived from the recorded queens — only the ones kept get recorded, and the rate would be wrong, always too low.",
+    "index": "What the reign showed",
+    "observations": "observations",
+    "insuffisant": "not enough observations",
+    "pasDeRuche": "This queen is not in a hive: nothing can be observed of her.",
+    "regne": "Reign taken into account",
+    "indexAide": "No overall score is computed, and none should be: gentleness, an infestation rate and kilograms do not add up. Each criterion is in its own unit, with the number of observations behind it.",
+    "documents": "Inspection documents",
+    "registre": "Husbandry register",
+    "dossier": "Inspection file",
+    "periodeDebut": "From",
+    "periodeFin": "to",
+    "conformite": "Check points",
+    "elements": "items",
+    "criteres": {
+      "douceur": "Gentleness",
+      "resistance_varroa": "Varroa infestation",
+      "production": "Honey harvested",
+      "essaimage": "Swarming episodes",
+      "hygiene": "Hygienic test"
+    },
+    "origines": {
+      "elevage": "Home-reared",
+      "achat": "Purchased",
+      "essaimage": "Swarm",
+      "supersedure": "Supersedure",
+      "inconnue": "Unknown"
+    },
+    "etats": {
+      "en_service": "In service",
+      "reserve": "In reserve",
+      "remplacee": "Replaced",
+      "disparue": "Gone",
+      "morte": "Dead",
+      "vendue": "Sold"
+    },
+    "methodes": {
+      "greffage": "Grafting",
+      "picking": "Picking",
+      "cupularve": "Cupularve",
+      "essaim_artificiel": "Artificial swarm",
+      "autre": "Other"
+    },
+    "controles": {
+      "verifie": "Verified",
+      "signale": "Flagged",
+      "a_justifier": "To be evidenced"
+    },
+    "points": {
+      "traitements": "Treatments",
+      "carences": "Withdrawal periods",
+      "nourrissement": "Feeding",
+      "tracabilite": "Batch traceability"
+    }
   }
 }

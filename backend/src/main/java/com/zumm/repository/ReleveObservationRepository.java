@@ -15,6 +15,24 @@ public interface ReleveObservationRepository
     List<ReleveObservation> findByIdVisiteIdOrderByIdPointCodeAsc(Long visiteId);
 
     /**
+     * Intensites relevees pour UN point, sur UNE ruche, pendant une periode.
+     *
+     * <p>Sert l'index genetique (SPRINT-29) : le test hygienique est entre au
+     * referentiel par la V29, et c'est par la que sa mesure remonte.
+     */
+    @Query("""
+            SELECT r.valeurEchelle
+            FROM ReleveObservation r, Visite v
+            WHERE v.id = r.id.visiteId
+              AND r.id.pointCode = :code
+              AND r.valeurEchelle IS NOT NULL
+              AND v.ruche.id = :rucheId
+              AND v.dateVisite BETWEEN :debut AND :fin
+            """)
+    List<Short> intensitesPour(@Param("code") String code, @Param("rucheId") Long rucheId,
+            @Param("debut") LocalDate debut, @Param("fin") LocalDate fin);
+
+    /**
      * Ce que chaque point a donne sur une periode.
      *
      * <p>Une jointure et non trois requetes : le referentiel fournit le libelle

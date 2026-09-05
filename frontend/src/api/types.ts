@@ -2258,3 +2258,223 @@ export interface ComparaisonSaisons {
   nombreRecoltes: number;
   parProduit: { typeProduit: string; unite: string; quantite: number }[];
 }
+
+// ─── Élevage, reines et généalogie (SPRINT-29, lot D) ───────────────────────
+
+/** D'où vient une reine. `inconnue` est le défaut : c'est le cas le plus fréquent. */
+export type OrigineReine = 'elevage' | 'achat' | 'essaimage' | 'supersedure' | 'inconnue';
+
+/**
+ * Nommee `ORIGINES_ELEVAGE` et non `ORIGINES_REINE` : ce nom-la est pris depuis
+ * le SPRINT-21 par l'origine de la reine d'une DIVISION, qui est une autre
+ * question — d'ou vient la reine de la ruche fille, pas d'ou vient la reine.
+ */
+export const ORIGINES_ELEVAGE: readonly OrigineReine[] = [
+  'elevage',
+  'achat',
+  'essaimage',
+  'supersedure',
+  'inconnue',
+];
+
+/** Où en est une reine. À ne pas confondre avec `StatutReine`, qui est un ÉVÉNEMENT. */
+export type EtatReine =
+  | 'en_service'
+  | 'reserve'
+  | 'remplacee'
+  | 'disparue'
+  | 'morte'
+  | 'vendue';
+
+export const ETATS_REINE: readonly EtatReine[] = [
+  'en_service',
+  'reserve',
+  'remplacee',
+  'disparue',
+  'morte',
+  'vendue',
+];
+
+export type MethodeElevage =
+  | 'greffage'
+  | 'picking'
+  | 'cupularve'
+  | 'essaim_artificiel'
+  | 'autre';
+
+export const METHODES_ELEVAGE: readonly MethodeElevage[] = [
+  'greffage',
+  'picking',
+  'cupularve',
+  'essaim_artificiel',
+  'autre',
+];
+
+/**
+ * Une reine, avec sa filiation.
+ *
+ * <p>**À ne pas confondre avec `Reine`**, qui est un ÉVÉNEMENT du journal d'une
+ * ruche depuis le SPRINT-07. Les deux coexistent : l'une porte les individus,
+ * l'autre ce qui leur arrive.
+ */
+export interface ReineElevage {
+  id: number;
+  code: string | null;
+  mereId: number | null;
+  mereCode: string | null;
+  rucheMereId: number | null;
+  serieId: number | null;
+  serieNom: string | null;
+  rucheId: number | null;
+  rucheModele: string | null;
+  origine: OrigineReine;
+  fournisseur: string | null;
+  race: string | null;
+  anneeNaissance: number | null;
+  couleurMarquage: CouleurReine | null;
+  /** `null` = on ne sait pas, ce qui n'est pas « non clippée ». */
+  ailesClippees: boolean | null;
+  dateGreffage: string | null;
+  dateNaissance: string | null;
+  dateFecondation: string | null;
+  dateIntroduction: string | null;
+  /** Fin de règne : elle borne l'index génétique. */
+  dateFin: string | null;
+  statut: EtatReine;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface ReineElevageCorps {
+  code: string | null;
+  mereId: number | null;
+  rucheMereId: number | null;
+  serieId: number | null;
+  rucheId: number | null;
+  origine: OrigineReine;
+  fournisseur: string | null;
+  race: string | null;
+  anneeNaissance: number | null;
+  couleurMarquage: CouleurReine | null;
+  ailesClippees: boolean | null;
+  dateGreffage: string | null;
+  dateNaissance: string | null;
+  dateFecondation: string | null;
+  dateIntroduction: string | null;
+  dateFin: string | null;
+  statut: EtatReine;
+  note: string | null;
+}
+
+/** Un maillon de la lignée. `profondeur` : 1 pour une mère ou une fille directe. */
+export interface NoeudLignee {
+  id: number;
+  code: string;
+  profondeur: number;
+  parentId: number | null;
+  race: string | null;
+  anneeNaissance: number | null;
+  statut: EtatReine;
+}
+
+/**
+ * Arbre de lignée.
+ *
+ * <p>Deux listes plutôt qu'un arbre unique : les mères forment une chaîne, les
+ * filles un arbre. Les fondre aurait forcé l'interface à deviner de quel côté
+ * elle se trouve.
+ */
+export interface Genealogie {
+  reine: ReineElevage;
+  ascendants: NoeudLignee[];
+  descendants: NoeudLignee[];
+}
+
+/**
+ * Un critère observé pendant le règne d'une reine.
+ *
+ * <p>`valeur` est dans son unité propre, jamais ramenée à une échelle commune :
+ * les critères ne se comparent pas entre eux, et une échelle unique le ferait
+ * croire.
+ */
+export interface CritereGenetique {
+  code: string;
+  valeur: number | null;
+  unite: string | null;
+  observations: number;
+  /** Faux quand les observations manquent — la valeur est alors `null`. */
+  suffisant: boolean;
+}
+
+/**
+ * Index génétique multicritère.
+ *
+ * <p>**Il n'y a aucune note globale, et il ne doit jamais y en avoir.** La
+ * douceur, un taux d'infestation et des kilogrammes ne s'additionnent pas.
+ */
+export interface IndexGenetique {
+  reineId: number;
+  code: string;
+  rucheId: number | null;
+  debut: string;
+  fin: string;
+  criteres: CritereGenetique[];
+}
+
+export interface SerieElevage {
+  id: number;
+  nom: string;
+  dateGreffage: string;
+  soucheId: number | null;
+  soucheCode: string | null;
+  rucheEleveuseId: number | null;
+  methode: MethodeElevage | null;
+  nbGreffees: number;
+  nbAcceptees: number | null;
+  nbNees: number | null;
+  nbFecondees: number | null;
+  /** Calculés côté serveur, jamais stockés. */
+  tauxAcceptation: number | null;
+  tauxReussite: number | null;
+  note: string | null;
+  creeLe: string;
+  majLe: string;
+}
+
+export interface SerieCorps {
+  nom: string;
+  dateGreffage: string;
+  soucheId: number | null;
+  rucheEleveuseId: number | null;
+  methode: MethodeElevage | null;
+  nbGreffees: number;
+  nbAcceptees: number | null;
+  nbNees: number | null;
+  nbFecondees: number | null;
+  note: string | null;
+}
+
+/** Ce que le système peut vérifier d'un dossier de contrôle — et pas au-delà. */
+export type StatutControle = 'verifie' | 'signale' | 'a_justifier';
+
+export interface PointControle {
+  code: string;
+  statut: StatutControle;
+  detail: string;
+  nombre: number;
+}
+
+/**
+ * Dossier de contrôle.
+ *
+ * <p>Zümm ne certifie rien : `avertissement` doit être affiché ET imprimé, sans
+ * exception. « À justifier » ne veut pas dire « non conforme » : cela veut dire
+ * que la pièce se trouve ailleurs que dans ce logiciel.
+ */
+export interface DossierConformite {
+  debut: string;
+  fin: string;
+  avertissement: string;
+  points: PointControle[];
+}

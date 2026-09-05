@@ -815,6 +815,84 @@
   }
 }
 
+/* ─── Arbre de lignée (SPRINT-29, lot D) ──────────────────────────────── */
+
+.z-arbre {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* L'arbre defile DANS son cadre, jamais la page : une lignee large ferait
+   sinon deborder tout l'ecran lateralement. */
+.z-arbre__cadre {
+  overflow-x: auto;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-md);
+  background: var(--z-surface);
+  padding: 0.6rem;
+}
+
+.z-arbre__lien {
+  fill: none;
+  stroke: var(--z-line);
+  stroke-width: 1.5;
+}
+
+.z-arbre__boite {
+  fill: var(--z-bg);
+  stroke: var(--z-line);
+  stroke-width: 1;
+}
+
+/* La reine consultee, et elle seule : sans ce repere, on ouvre une fiche et
+   l'on cherche ou l'on est dans l'image. */
+.z-arbre__boite--courante {
+  stroke: var(--z-honey-500);
+  stroke-width: 2;
+}
+
+.z-arbre__code {
+  fill: var(--z-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.z-arbre__detail {
+  fill: var(--z-text-muted);
+  font-size: 10px;
+}
+
+/* Un critere dont les observations manquent : il se dit, il ne se grise pas
+   seulement — la couleur seule ne porte jamais l'information. */
+.z-critere {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--z-line);
+  border-radius: var(--z-radius-sm);
+  background: var(--z-surface);
+}
+
+.z-critere__valeur {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--z-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.z-critere__libelle {
+  font-size: 0.85rem;
+  color: var(--z-text);
+}
+
+.z-critere__fond {
+  font-size: 0.75rem;
+  color: var(--z-text-muted);
+}
+
 /* ─── Modale ───────────────────────────────────────────────────────────── */
 
 /* Ouverture ET fermeture, pilotees par une classe d'etat plutot que par une

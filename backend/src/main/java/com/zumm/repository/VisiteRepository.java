@@ -114,4 +114,8 @@ public interface VisiteRepository extends JpaRepository<Visite, Long> {
      * qu'il ne faut pas afficher.
      */
     Optional<Visite> findFirstByRuche_IdOrderByDateVisiteDescIdDesc(Long rucheId);
+
+    /** Visites d'une ruche sur une periode — le regne d'une reine (SPRINT-29). */
+    List<Visite> findByRuche_IdAndDateVisiteBetweenOrderByDateVisiteAsc(
+            Long rucheId, java.time.LocalDate debut, java.time.LocalDate fin);
 }

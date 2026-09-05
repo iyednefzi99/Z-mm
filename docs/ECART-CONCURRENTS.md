@@ -222,13 +222,13 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 |---|---|---|
 | Fiche reine (race, année, marquage, statut, origine) | ✅ | `SuiviReine` (statut, couleurMarquage, anneeNaissance, race), `ReineController`, `ReinesVue.tsx` |
 | Historique des reines d'une ruche | ✅ | `SuiviReine` est événementiel — l'historique est natif |
-| Ailes clippées, fournisseur, ruche-mère | ❌ | Champs absents |
-| **Généalogie / arbre de lignées** | ❌ | Pas de lien reine → reine mère. BeeKube, APiLOG et HiveBook en font un argument fort |
-| Dates de greffage, suivi d'élevage | ❌ | Absent |
-| **Index génétique multicritère** (hygiène, résistance varroa, douceur) | ❌ | **La dépendance est levée** : les critères d'inspection dont il découle existent depuis le SPRINT-20 (couvain, tempérament, pathologies, comptages de varroa — §3). L'index lui-même n'est calculé nulle part |
-| Photos de reine et de motif de ponte | ❌ | `Photo` ne se rattache qu'à une visite |
-| **Registre d'élevage réglementaire** (PDF / Excel) | ❌ | Seul le rapport de visite est en PDF — mais **sa dépendance est levée** : traitements et nourrissements sont structurés depuis le SPRINT-20 (§3). Il ne reste qu'un service d'édition. **Cinq concurrents le génèrent automatiquement** |
-| Rapports de conformité / certification bio | ❌ | HiveBook et APIGO les produisent |
+| Ailes clippées, fournisseur, ruche-mère | ✅ | Colonnes de `reine` (`V29`). `ailes_clippees` est un booléen **nullable** : « on ne sait pas » n'est pas « non clippée », et une reine achetée arrive souvent sans qu'on l'ait vérifié. `fournisseur` n'est accepté que sur une reine achetée (`ck_reine_fournisseur`) — sans cette contrainte, la colonne se remplirait de noms d'éleveurs sur des reines d'essaimage, et « qu'ai-je acheté cette année ? » n'aurait plus de réponse. `ruche_mere_id` est distinct de `mere_id` : on greffe souvent depuis une colonie dont la reine n'est pas enregistrée |
+| **Généalogie / arbre de lignées** | ✅ | Table `reine` avec clé étrangère réflexive (`V29`), `GET /api/elevage/reines/{id}/genealogie`, arbre SVG dans `ArbreLignee.tsx`. **Le plan de couverture se trompait** en annonçant cette clé sur `suivi_reine` : cette table-là est le JOURNAL d'une ruche, et la clé aurait relié des *événements* — « de quelle mère descend cette reine ? » n'aurait eu aucune réponse stable. Les cycles sont refusés au service ; la base n'en voit qu'un pas |
+| Dates de greffage, suivi d'élevage | ✅ | Quatre dates sur `reine` (greffage, naissance, fécondation, introduction) et la table `serie_elevage` (`V29`). **Un lot, pas une reine à la fois** : ce que l'éleveur note, c'est quarante cupules greffées un lundi, trente et une acceptées, vingt-huit nées. Les comptes sont *saisis*, jamais déduits des reines enregistrées — on n'enregistre que celles qu'on garde, et le taux d'acceptation serait faux, toujours trop bas |
+| **Index génétique multicritère** (hygiène, résistance varroa, douceur) | ✅ | `IndexGenetiqueService` (SPRINT-29) : cinq critères — douceur, infestation varroa, miel récolté, épisodes d'essaimage, test hygiénique —, **bornés au règne** de la reine sur sa ruche. Trois refus le tiennent : **aucune note globale** (des kilos, une douceur et un taux d'infestation ne s'additionnent pas — même refus qu'au §7 de la comparaison d'emplacements) ; **rien n'est stocké**, tout se recalcule ; et un critère sans assez d'observations vaut `null` plutôt qu'un zéro qui se lirait comme un mauvais résultat. Le test hygiénique est entré au référentiel **fermé** du SPRINT-28 par la `V29` — c'est la porte prévue pour cela |
+| Photos de reine et de motif de ponte | ✅ | **Verdict périmé depuis la `V20`**, corrigé le 05/09/2026 : `Photo.Cible.REINE` existe depuis le SPRINT-21, et le motif de ponte se photographie sur la visite (`Cible.VISITE`). La photo se rattache à l'ÉVÉNEMENT du journal, c'est-à-dire au moment où elle a été prise — et non à la reine en tant qu'individu, ce qui obligerait à choisir laquelle de ses photos la représente |
+| **Registre d'élevage réglementaire** (PDF / Excel) | ✅ | `GET /api/elevage/registre.pdf` (`RegistreElevagePdfService`, SPRINT-29) : traitements et nourrissements de la période, dans l'ordre où un contrôle les demande. **Aucune ligne n'y est estimée** — un registre est opposable, et le combler par une moyenne le rendrait faux là où il n'était qu'incomplet. Un registre vide sort tout de même, avec la mention « aucune saisie sur la période » : il se présente devant un contrôle, il ne se refuse pas |
+| Rapports de conformité / certification bio | ✅ | `GET /api/elevage/conformite` et son PDF (SPRINT-29). **Zümm ne certifie rien, et le document le dit en tête** : la certification est prononcée par un organisme agréé, sur pièce et sur place. Trois états, dont le troisième porte tout le sens — `verifie`, `signale`, et surtout `a_justifier` pour ce que le système ignore : l'origine biologique des sucres, celle de la cire, le statut du foncier. Les compter comme conformes serait un mensonge par omission, et le dossier perdrait toute valeur au premier contrôle. La seule non-conformité constatée d'elle-même est la récolte sous carence forcée — et elle n'est visible que parce que le SPRINT-22 a rendu le forçage traçable au lieu de l'interdire |
 | Déclaration NAPI, déclaration annuelle des ruches | ⛔ | Dispositifs nationaux français |
 | Multi-utilisateurs et rôles | ✅ | `Agent` + `RoleAgent` (apiculteur/superviseur/responsable/admin), `InvitationController`, RBAC Keycloak (`SecurityConfig.matriceRbac`). **Plus fin** que les rôles d'ApiManager et sans plafond d'accès, là où BeeKeepPal limite à trois |
 | Lisibilité des droits pour l'utilisateur | ✅ | SPRINT-19 : la navigation masque les écrans fermés au rôle (`routage/routes.ts`, `ROLES_ONGLET`), `InterditVue` explique le refus au lieu d'un 403 nu, et `PermissionsVue` publie la matrice complète — *voici les serrures, voici qui a les clés*. **Aucun des douze ne montre ses règles d'accès à ses utilisateurs** |
@@ -1602,3 +1602,128 @@ faux ; la commande censée le vérifier l'était, ce qui est plus grave, puisque
 c'est elle qu'on relance pour ne pas recopier un chiffre. Elle est corrigée dans
 le plan : le verdict se cherche **où qu'il soit dans la ligne**, et l'inventaire
 s'arrête aux §§1 à 8 et 13.
+
+---
+
+## 25. Note de révision — 05/09/2026, lot D du plan de couverture
+
+Huitième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) : sept lignes
+visées, **sept fermées**. Le compteur va de **117 à 124 sur 153** — quatre
+cinquièmes du document. Le §7, le plus fourni des treize, n'a plus de ❌.
+
+### Le plan se trompait, et c'est le cœur du lot
+
+Le plan annonçait « une clé étrangère réflexive sur `suivi_reine` ». Elle aurait
+été **fausse**, et il vaut mieux le dire que de l'implémenter.
+
+`suivi_reine` (V9) n'est pas une reine : c'est le **journal d'une ruche** —
+introduite, en ponte, remplacée, disparue, essaimée. Une ligne y est un
+événement, et une même ruche en porte des dizaines, appartenant à des reines
+successives. Une clé réflexive sur cette table aurait relié des *événements*
+entre eux : la question « de quelle mère descend cette reine ? » n'aurait eu
+aucune réponse stable — quel événement désigne la mère, celui de son
+introduction ou celui de sa disparition ? L'arbre aurait dépendu de la manière
+dont on l'a construit, et deux écrans auraient dessiné deux généalogies.
+
+La reine devient donc une **table**, `reine`, avec sa filiation. `suivi_reine`
+reste le journal, et gagne un `reine_id` **facultatif** — voir plus bas.
+
+### Le `NULL` qui protège une généalogie
+
+`suivi_reine.reine_id` est nullable, et ce n'est pas un oubli de migration. Les
+événements enregistrés avant ce lot ne désignent aucune reine : la table ne
+portait que la ruche. Deviner laquelle après coup — en regroupant par année de
+naissance, par couleur de marquage — aurait **fabriqué** une généalogie.
+
+Un arbre faux est pire qu'un arbre absent : on le lit sans le savoir. Les
+événements antérieurs restent donc rattachés à la ruche seule, et le disent.
+
+### L'index génétique, et trois refus
+
+C'était le seul morceau du lot qui demandait une décision métier : quels
+critères, quelle pondération, et comment afficher une note dont personne ne doit
+croire qu'elle est une mesure.
+
+**Il n'y a pas de note.** Cinq critères — douceur, infestation varroa, miel
+récolté, épisodes d'essaimage, test hygiénique —, chacun dans son unité propre,
+et rien qui les additionne. Les ramener à un seul nombre demanderait une
+pondération que personne n'a demandée, qui ne se justifie par rien, et qui serait
+pourtant le seul chiffre retenu. C'est le même refus qu'au SPRINT-23 pour la
+comparaison d'emplacements, où « des kilos, des espèces florales et une altitude
+ne s'additionnent pas ».
+
+**Rien n'est stocké** : tout se recalcule à chaque lecture, comme les indices de
+colonie du SPRINT-22 et le taux de varroa du SPRINT-20.
+
+**Chaque critère porte son nombre d'observations**, et vaut `null` en dessous du
+minimum. Une douceur mesurée sur une seule visite n'est pas une douceur : c'est
+un jour de vent, et l'afficher comme une note ferait écarter une reine sur une
+mauvaise journée. L'écran écrit « pas assez observé » plutôt qu'un tiret, qui se
+lirait comme un zéro.
+
+Deux détails d'exécution méritent d'être signalés. Le calcul est **borné au
+règne** : sans cette borne, une reine introduite en juillet hériterait de la
+récolte de printemps de la précédente, et le classement de l'éleveur serait
+exactement inversé. Et les méthodes de comptage du varroa **ne se mélangent
+pas** — un lange donne des varroas par jour, un échantillon un pourcentage ; le
+SPRINT-20 avait déjà refusé de les confondre, et en faire une moyenne unique ici
+aurait défait ce refus. On retient la méthode la plus employée pendant le règne,
+et l'unité le dit.
+
+Enfin, le **test hygiénique** — le seul des critères du §7 dont aucune donnée
+n'existait — entre par la porte prévue à cet effet : une migration ajoute un
+point au référentiel **fermé** du SPRINT-28. C'est exactement pour cela que cette
+porte existe. Il vaut `null` pour tout le monde tant que personne ne l'a relevé,
+et l'index le dit au lieu d'afficher une note bâtie sur rien.
+
+### Le dossier de conformité ne certifie rien
+
+Une application qui déclarerait une exploitation « conforme bio » émettrait une
+affirmation réglementaire qu'elle n'a aucun moyen de tenir — et elle serait crue,
+précisément parce qu'elle sortirait d'un logiciel. La certification est prononcée
+par un organisme agréé, sur pièce et sur place.
+
+Le dossier **rassemble** donc ce qu'un contrôleur demande, et **nomme ce qu'il ne
+peut pas vérifier**. Trois états, et le troisième porte tout le sens :
+`a_justifier` pour l'origine biologique des sucres, celle de la cire gaufrée, le
+statut du foncier — tout ce qui se prouve par facture ou par attestation. Les
+compter comme conformes serait un mensonge par omission, et le dossier perdrait
+sa valeur au premier contrôle. L'avertissement est imprimé **en tête** du PDF,
+parce qu'un document circule sans la page qui l'a produit.
+
+La liste des substances admises est volontairement courte, et comparée sur la
+**substance active** plutôt que sur le nom commercial : un nom change, une
+molécule non. Ce qui n'y figure pas est *signalé*, jamais déclaré interdit — une
+spécialité peut être autorisée là où nous ne la connaissons pas, et c'est au
+contrôleur de trancher.
+
+Un point mérite d'être noté : la seule non-conformité que le système constate de
+lui-même est la **récolte sous carence forcée**. Elle n'est visible que parce que
+le SPRINT-22 a rendu le forçage traçable au lieu de l'interdire — un refus sans
+issue aurait fait disparaître le traitement du registre, et cette vérification
+n'existerait pas.
+
+### Un défaut trouvé en chemin, et prouvé
+
+En écrivant les clés étrangères de la `V29`, cinq clés posées en `V20` et `V27`
+se sont révélées **fausses**. `ON DELETE SET NULL` sans liste de colonnes met à
+`NULL` *toutes* les colonnes référençantes — `tenant_id` compris, qui est
+`NOT NULL` partout dans ce schéma. Supprimer une ruche portant une dépense, une
+division ou une capture d'essaim échouait donc en 500, sur un message parlant de
+`tenant_id` : au dernier endroit où l'on aurait cherché.
+
+Les migrations `V2`, `V4`, `V6`, `V7` et `V19` écrivaient la forme correcte —
+`ON DELETE SET NULL (visite_id)`. Cinq clés l'avaient perdue. La `V29` les
+répare, et `ElevageGenealogieIT.suppressionDUneRucheReferencee` le prouve : le
+correctif retiré, ce test échoue sur *« null value in column "tenant_id" of
+relation "depense" violates not-null constraint »*.
+
+### Un verdict périmé de plus
+
+« Photos de reine et de motif de ponte — `Photo` ne se rattache qu'à une
+visite » : c'était vrai avant la `V20`, et faux depuis. `Photo.Cible.REINE`
+existe depuis le SPRINT-21. La ligne passe à ✅ sans qu'une seule ligne de code
+ait été écrite pour elle. Trois verdicts périmés avaient déjà été corrigés le
+02/09/2026, et la rectification du réfractomètre au lot I en est une cinquième :
+c'est la raison pour laquelle chaque ✅ doit citer le fichier qui le prouve, et
+pourquoi ce document se relit à chaque lot au lieu de s'incrémenter.

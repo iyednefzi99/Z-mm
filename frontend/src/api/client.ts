@@ -52,11 +52,14 @@ import type {
   DemenagementCorps,
   Depense,
   DepenseCorps,
+  DossierConformite,
   Division,
   DivisionCorps,
   Emplacement,
   EmportRucher,
   EtatDemonstration,
+  Genealogie,
+  IndexGenetique,
   Ferme,
   FermeCorps,
   Fermier,
@@ -96,6 +99,8 @@ import type {
   Recolte,
   RecolteCorps,
   RecolteLotCorps,
+  ReineElevage,
+  ReineElevageCorps,
   Refractometre,
   Reine,
   ReineCorps,
@@ -103,6 +108,8 @@ import type {
   Ruche,
   RucheCorps,
   Seuils,
+  SerieCorps,
+  SerieElevage,
   Site,
   SiteCorps,
   StatistiquePoint,
@@ -1069,3 +1076,48 @@ export const calculerRefractometre = (indice: number, temperatureC?: number) =>
     `/api/calculateurs/refractometre?indice=${indice}`
       + (temperatureC === undefined ? '' : `&temperatureC=${temperatureC}`),
   );
+
+// ─── Élevage, reines et généalogie (SPRINT-29, lot D) ───────────────────────
+
+/**
+ * Les reines comme individus.
+ *
+ * <p>Distinct de `listerReines`, qui sert le JOURNAL d'une ruche depuis le
+ * SPRINT-07. Les deux ressources coexistent parce qu'elles ne parlent pas de la
+ * même chose.
+ */
+export const reinesElevage =
+  ressource<ReineElevage, ReineElevageCorps>('/api/elevage/reines');
+
+export const series = ressource<SerieElevage, SerieCorps>('/api/elevage/series');
+
+/** Ascendance et descendance d'une reine. */
+export const chargerGenealogie = (id: number) =>
+  requete<Genealogie>(`/api/elevage/reines/${id}/genealogie`);
+
+/**
+ * Critères observés pendant le règne d'une reine.
+ *
+ * <p>Aucune note globale n'est rendue, et l'écran ne doit pas en fabriquer une.
+ */
+export const chargerIndexGenetique = (id: number) =>
+  requete<IndexGenetique>(`/api/elevage/reines/${id}/index`);
+
+/** Points de contrôle vérifiables. Ce dossier ne certifie rien. */
+export const chargerConformite = (depuis: string, jusqu: string) =>
+  requete<DossierConformite>(
+    `/api/elevage/conformite?depuis=${depuis}&jusqu=${jusqu}`,
+  );
+
+/** Ouvre un document d'élevage dans un onglet : il se relit avant de s'imprimer. */
+export const ouvrirDocumentElevage = (
+  document: 'registre' | 'conformite',
+  depuis: string,
+  jusqu: string,
+): void => {
+  window.open(
+    `/api/elevage/${document}.pdf?depuis=${depuis}&jusqu=${jusqu}`,
+    '_blank',
+    'noopener',
+  );
+};

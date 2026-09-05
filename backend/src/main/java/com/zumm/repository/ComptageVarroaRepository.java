@@ -14,6 +14,10 @@ public interface ComptageVarroaRepository extends JpaRepository<ComptageVarroa, 
     /** Serie d'une ruche, du comptage le plus recent au plus ancien. */
     List<ComptageVarroa> findByRuche_IdOrderByDateComptageDescIdDesc(Long rucheId);
 
+    /** Comptages d'une ruche sur une periode — le regne d'une reine (SPRINT-29). */
+    List<ComptageVarroa> findByRuche_IdAndDateComptageBetweenOrderByDateComptageAsc(
+            Long rucheId, java.time.LocalDate debut, java.time.LocalDate fin);
+
     /**
      * Dernier comptage d'une ruche.
      *

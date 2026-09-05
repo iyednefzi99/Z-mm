@@ -14,6 +14,10 @@ import java.time.LocalDate;
 /**
  * Evenement du journal de la reine d'une ruche (US-032).
  *
+ * <p>Depuis le SPRINT-29, l'evenement peut designer la {@link Reine} qu'il
+ * concerne. Cette table reste le JOURNAL D'UNE RUCHE : elle n'est pas devenue la
+ * reine, et c'est pourquoi la filiation vit ailleurs.
+ *
  * <p>Le statut et la couleur de marquage sont contraints (Bean Validation +
  * CHECK en base). La couleur suit le code international : blanc, jaune, rouge,
  * vert, bleu selon l'annee de naissance de la reine.
@@ -26,6 +30,19 @@ public class SuiviReine extends EntiteTenant {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ruche_id", nullable = false)
     private Ruche ruche;
+
+    /**
+     * Reine concernee (SPRINT-29).
+     *
+     * <p>FACULTATIVE, et ce n'est pas un oubli : les evenements anterieurs au
+     * SPRINT-29 ne designent aucune reine — cette table ne portait que la ruche.
+     * Deviner laquelle apres coup, en regroupant par annee de naissance ou par
+     * couleur de marquage, aurait FABRIQUE une genealogie. Un arbre faux est
+     * pire qu'un arbre absent : on le lit sans le savoir.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reine_id")
+    private Reine reine;
 
     @NotNull
     @Column(name = "date_evenement", nullable = false)
@@ -62,6 +79,14 @@ public class SuiviReine extends EntiteTenant {
 
     public Ruche getRuche() {
         return ruche;
+    }
+
+    public Reine getReine() {
+        return reine;
+    }
+
+    public void setReine(Reine reine) {
+        this.reine = reine;
     }
 
     public LocalDate getDateEvenement() {

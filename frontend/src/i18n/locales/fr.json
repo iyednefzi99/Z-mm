@@ -1841,7 +1841,8 @@
       "cadres_permutes": "Cadres permutés",
       "colonie_deplacee": "Colonie déplacée sur le rucher",
       "echantillon_preleve": "Échantillon prélevé pour analyse",
-      "tenue_sur_cadre": "Tenue des abeilles sur le cadre"
+      "tenue_sur_cadre": "Tenue des abeilles sur le cadre",
+      "test_hygienique": "Nettoyage du couvain testé (test hygiénique)"
     },
     "observations": "Observations du carnet",
     "nonRegarde": "non regardé",
@@ -1867,5 +1868,97 @@
     "hors_norme": "Hors norme de commercialisation",
     "aide": "Au-delà de 18 % d'eau, le miel fermente en pot ; au-delà de 20 %, il sort de la norme. L'appareil doit être étalonné, et la valeur saisie doit être l'indice qu'il affiche.",
     "horsTable": "Hors de la table publiée : rien n'est extrapolé."
+  },
+  "elevage": {
+    "titre": "Élevage et lignées",
+    "journal": "Journal de la ruche",
+    "reines": "Reines",
+    "nouvelle": "Nouvelle reine",
+    "code": "Code",
+    "mere": "Mère",
+    "fille": "Fille",
+    "rucheMere": "Ruche-mère (souche)",
+    "rucheEnService": "Ruche en service",
+    "lignee": "Arbre de lignée",
+    "ligneeDescription": "Arbre de lignée : les mères au-dessus, les filles en dessous, la reine consultée au centre.",
+    "origine": "Origine",
+    "fournisseur": "Fournisseur",
+    "race": "Race",
+    "anneeNaissance": "Année de naissance",
+    "marquage": "Couleur de marquage",
+    "ailesClippees": "Ailes clippées",
+    "dateGreffage": "Greffage",
+    "dateNaissance": "Naissance",
+    "dateFecondation": "Fécondation",
+    "dateIntroduction": "Introduction",
+    "dateFin": "Fin de règne",
+    "etat": "État",
+    "aucuneReine": "Aucune reine enregistrée.",
+    "series": "Séries d'élevage",
+    "nouvelleSerie": "Nouvelle série",
+    "nom": "Nom",
+    "souche": "Souche",
+    "rucheEleveuse": "Ruche éleveuse",
+    "methode": "Méthode",
+    "nbGreffees": "Greffées",
+    "nbAcceptees": "Acceptées",
+    "nbNees": "Nées",
+    "nbFecondees": "Fécondées",
+    "tauxAcceptation": "Taux d'acceptation",
+    "tauxReussite": "Taux de réussite",
+    "serieAide": "Les comptes se saisissent au fil des jours : acceptations à cinq jours, naissances à douze, fécondations trois semaines après. Ils ne se déduisent pas des reines enregistrées — on n'enregistre que celles qu'on garde, et le taux serait faux, toujours trop bas.",
+    "index": "Ce que le règne a montré",
+    "observations": "observations",
+    "insuffisant": "pas assez observé",
+    "pasDeRuche": "Cette reine n'est sur aucune ruche : rien ne peut être observé d'elle.",
+    "regne": "Règne pris en compte",
+    "indexAide": "Aucune note globale n'est calculée, et il ne faut pas en fabriquer une : la douceur, un taux d'infestation et des kilogrammes ne s'additionnent pas. Chaque critère est dans son unité, avec le nombre d'observations qui le fonde.",
+    "documents": "Documents de contrôle",
+    "registre": "Registre d'élevage",
+    "dossier": "Dossier de contrôle",
+    "periodeDebut": "Du",
+    "periodeFin": "au",
+    "conformite": "Points de contrôle",
+    "elements": "éléments",
+    "criteres": {
+      "douceur": "Douceur",
+      "resistance_varroa": "Infestation varroa",
+      "production": "Miel récolté",
+      "essaimage": "Épisodes d'essaimage",
+      "hygiene": "Test hygiénique"
+    },
+    "origines": {
+      "elevage": "Élevage maison",
+      "achat": "Achat",
+      "essaimage": "Essaimage",
+      "supersedure": "Supersédure",
+      "inconnue": "Inconnue"
+    },
+    "etats": {
+      "en_service": "En service",
+      "reserve": "En réserve",
+      "remplacee": "Remplacée",
+      "disparue": "Disparue",
+      "morte": "Morte",
+      "vendue": "Vendue"
+    },
+    "methodes": {
+      "greffage": "Greffage",
+      "picking": "Picking",
+      "cupularve": "Cupularve",
+      "essaim_artificiel": "Essaim artificiel",
+      "autre": "Autre"
+    },
+    "controles": {
+      "verifie": "Vérifié",
+      "signale": "Signalé",
+      "a_justifier": "À justifier"
+    },
+    "points": {
+      "traitements": "Traitements",
+      "carences": "Délais de carence",
+      "nourrissement": "Nourrissement",
+      "tracabilite": "Traçabilité des lots"
+    }
   }
 }

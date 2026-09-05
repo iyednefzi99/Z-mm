@@ -148,7 +148,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/depenses/{id}": {
+    "/api/elevage/series/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -156,6 +156,22 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put: operations["mettreAJourSerie"];
+        post?: never;
+        delete: operations["supprimerSerie"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/reines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["obtenir_9"];
         put: operations["mettreAJour_9"];
         post?: never;
         delete: operations["supprimer_9"];
@@ -164,7 +180,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/consommables/{id}": {
+    "/api/depenses/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -180,6 +196,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/consommables/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["mettreAJour_11"];
+        post?: never;
+        delete: operations["supprimer_11"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/carnet/gabarits/{id}": {
         parameters: {
             query?: never;
@@ -188,9 +220,9 @@ export interface paths {
             cookie?: never;
         };
         get: operations["obtenirGabarit"];
-        put: operations["mettreAJour_11"];
+        put: operations["mettreAJour_12"];
         post?: never;
-        delete: operations["supprimer_11"];
+        delete: operations["supprimer_12"];
         options?: never;
         head?: never;
         patch?: never;
@@ -219,10 +251,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["obtenir_9"];
-        put: operations["mettreAJour_12"];
+        get: operations["obtenir_10"];
+        put: operations["mettreAJour_13"];
         post?: never;
-        delete: operations["supprimer_12"];
+        delete: operations["supprimer_13"];
         options?: never;
         head?: never;
         patch?: never;
@@ -740,6 +772,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/elevage/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["series"];
+        put?: never;
+        post: operations["creerSerie"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/reines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lister_15"];
+        put?: never;
+        post: operations["creer_11"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/divisions": {
         parameters: {
             query?: never;
@@ -763,9 +827,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_15"];
+        get: operations["lister_16"];
         put?: never;
-        post: operations["creer_11"];
+        post: operations["creer_12"];
         delete?: never;
         options?: never;
         head?: never;
@@ -795,9 +859,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_16"];
+        get: operations["lister_17"];
         put?: never;
-        post: operations["creer_12"];
+        post: operations["creer_13"];
         delete?: never;
         options?: never;
         head?: never;
@@ -845,7 +909,7 @@ export interface paths {
         };
         get: operations["listerGabarits"];
         put?: never;
-        post: operations["creer_13"];
+        post: operations["creer_14"];
         delete?: never;
         options?: never;
         head?: never;
@@ -859,7 +923,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_17"];
+        get: operations["lister_18"];
         put?: never;
         post: operations["enregistrer_5"];
         delete?: never;
@@ -891,9 +955,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_18"];
+        get: operations["lister_19"];
         put?: never;
-        post: operations["creer_14"];
+        post: operations["creer_15"];
         delete?: never;
         options?: never;
         head?: never;
@@ -907,9 +971,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_19"];
+        get: operations["lister_20"];
         put?: never;
-        post: operations["creer_15"];
+        post: operations["creer_16"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1247,10 +1311,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["obtenir_10"];
+        get: operations["obtenir_11"];
         put?: never;
         post?: never;
-        delete: operations["supprimer_13"];
+        delete: operations["supprimer_14"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1407,7 +1471,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_20"];
+        get: operations["lister_21"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1504,6 +1568,86 @@ export interface paths {
             cookie?: never;
         };
         get: operations["charge"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/reines/{id}/index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/reines/{id}/genealogie": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["genealogie"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/registre.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registre_3"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/conformite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["conformite"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/elevage/conformite.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["conformitePdf"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1743,7 +1887,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["lister_21"];
+        get: operations["lister_22"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1794,7 +1938,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_14"];
+        delete: operations["supprimer_15"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1810,7 +1954,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_15"];
+        delete: operations["supprimer_16"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1826,7 +1970,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_16"];
+        delete: operations["supprimer_17"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1842,7 +1986,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_17"];
+        delete: operations["supprimer_18"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1858,7 +2002,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_18"];
+        delete: operations["supprimer_19"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1890,7 +2034,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_19"];
+        delete: operations["supprimer_20"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1922,7 +2066,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_20"];
+        delete: operations["supprimer_21"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1938,7 +2082,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["supprimer_21"];
+        delete: operations["supprimer_22"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2430,6 +2574,124 @@ export interface components {
             /** Format: int64 */
             fermierId?: number;
             fermierNom?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        SerieCorps: {
+            nom: string;
+            /** Format: date */
+            dateGreffage: string;
+            /** Format: int64 */
+            soucheId?: number;
+            /** Format: int64 */
+            rucheEleveuseId?: number;
+            methode?: string;
+            /** Format: int32 */
+            nbGreffees: number;
+            /** Format: int32 */
+            nbAcceptees?: number;
+            /** Format: int32 */
+            nbNees?: number;
+            /** Format: int32 */
+            nbFecondees?: number;
+            note?: string;
+        };
+        SerieReponse: {
+            /** Format: int64 */
+            id?: number;
+            nom?: string;
+            /** Format: date */
+            dateGreffage?: string;
+            /** Format: int64 */
+            soucheId?: number;
+            soucheCode?: string;
+            /** Format: int64 */
+            rucheEleveuseId?: number;
+            methode?: string;
+            /** Format: int32 */
+            nbGreffees?: number;
+            /** Format: int32 */
+            nbAcceptees?: number;
+            /** Format: int32 */
+            nbNees?: number;
+            /** Format: int32 */
+            nbFecondees?: number;
+            /** Format: int32 */
+            tauxAcceptation?: number;
+            /** Format: int32 */
+            tauxReussite?: number;
+            note?: string;
+            /** Format: date-time */
+            creeLe?: string;
+            /** Format: date-time */
+            majLe?: string;
+        };
+        ReineElevageCorps: {
+            code?: string;
+            /** Format: int64 */
+            mereId?: number;
+            /** Format: int64 */
+            rucheMereId?: number;
+            /** Format: int64 */
+            serieId?: number;
+            /** Format: int64 */
+            rucheId?: number;
+            origine?: string;
+            fournisseur?: string;
+            race?: string;
+            /** Format: int32 */
+            anneeNaissance?: number;
+            couleurMarquage?: string;
+            ailesClippees?: boolean;
+            /** Format: date */
+            dateGreffage?: string;
+            /** Format: date */
+            dateNaissance?: string;
+            /** Format: date */
+            dateFecondation?: string;
+            /** Format: date */
+            dateIntroduction?: string;
+            /** Format: date */
+            dateFin?: string;
+            statut?: string;
+            note?: string;
+        };
+        ReineElevage: {
+            /** Format: int64 */
+            id?: number;
+            code?: string;
+            /** Format: int64 */
+            mereId?: number;
+            mereCode?: string;
+            /** Format: int64 */
+            rucheMereId?: number;
+            /** Format: int64 */
+            serieId?: number;
+            serieNom?: string;
+            /** Format: int64 */
+            rucheId?: number;
+            rucheModele?: string;
+            origine?: string;
+            fournisseur?: string;
+            race?: string;
+            /** Format: int32 */
+            anneeNaissance?: number;
+            couleurMarquage?: string;
+            ailesClippees?: boolean;
+            /** Format: date */
+            dateGreffage?: string;
+            /** Format: date */
+            dateNaissance?: string;
+            /** Format: date */
+            dateFecondation?: string;
+            /** Format: date */
+            dateIntroduction?: string;
+            /** Format: date */
+            dateFin?: string;
+            statut?: string;
+            note?: string;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -3438,6 +3700,59 @@ export interface components {
             /** Format: int64 */
             visites7Jours?: number;
         };
+        Critere: {
+            code?: string;
+            valeur?: number;
+            unite?: string;
+            /** Format: int32 */
+            observations?: number;
+            suffisant?: boolean;
+        };
+        IndexGenetique: {
+            /** Format: int64 */
+            reineId?: number;
+            code?: string;
+            /** Format: int64 */
+            rucheId?: number;
+            /** Format: date */
+            debut?: string;
+            /** Format: date */
+            fin?: string;
+            criteres?: components["schemas"]["Critere"][];
+        };
+        Genealogie: {
+            reine?: components["schemas"]["ReineElevage"];
+            ascendants?: components["schemas"]["Noeud"][];
+            descendants?: components["schemas"]["Noeud"][];
+        };
+        Noeud: {
+            /** Format: int64 */
+            id?: number;
+            code?: string;
+            /** Format: int32 */
+            profondeur?: number;
+            /** Format: int64 */
+            parentId?: number;
+            race?: string;
+            /** Format: int32 */
+            anneeNaissance?: number;
+            statut?: string;
+        };
+        DossierConformite: {
+            /** Format: date */
+            debut?: string;
+            /** Format: date */
+            fin?: string;
+            avertissement?: string;
+            points?: components["schemas"]["PointControle"][];
+        };
+        PointControle: {
+            code?: string;
+            statut?: string;
+            detail?: string;
+            /** Format: int32 */
+            nombre?: number;
+        };
         BilanExploitation: {
             /** Format: date */
             debut?: string;
@@ -4213,6 +4528,74 @@ export interface operations {
             };
         };
     };
+    mettreAJourSerie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SerieCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SerieReponse"];
+                };
+            };
+        };
+    };
+    supprimerSerie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    obtenir_9: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReineElevage"];
+                };
+            };
+        };
+    };
     mettreAJour_9: {
         parameters: {
             query?: never;
@@ -4224,7 +4607,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DepenseCorps"];
+                "application/json": components["schemas"]["ReineElevageCorps"];
             };
         };
         responses: {
@@ -4234,7 +4617,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["DepenseReponse"];
+                    "*/*": components["schemas"]["ReineElevage"];
                 };
             };
         };
@@ -4270,6 +4653,52 @@ export interface operations {
         };
         requestBody: {
             content: {
+                "application/json": components["schemas"]["DepenseCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DepenseReponse"];
+                };
+            };
+        };
+    };
+    supprimer_10: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    mettreAJour_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
                 "application/json": components["schemas"]["ConsommableCorps"];
             };
         };
@@ -4285,7 +4714,7 @@ export interface operations {
             };
         };
     };
-    supprimer_10: {
+    supprimer_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -4327,7 +4756,7 @@ export interface operations {
             };
         };
     };
-    mettreAJour_11: {
+    mettreAJour_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -4353,7 +4782,7 @@ export interface operations {
             };
         };
     };
-    supprimer_11: {
+    supprimer_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -4419,7 +4848,7 @@ export interface operations {
             };
         };
     };
-    obtenir_9: {
+    obtenir_10: {
         parameters: {
             query?: never;
             header?: never;
@@ -4441,7 +4870,7 @@ export interface operations {
             };
         };
     };
-    mettreAJour_12: {
+    mettreAJour_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -4467,7 +4896,7 @@ export interface operations {
             };
         };
     };
-    supprimer_12: {
+    supprimer_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -5701,6 +6130,94 @@ export interface operations {
             };
         };
     };
+    series: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SerieReponse"][];
+                };
+            };
+        };
+    };
+    creerSerie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SerieCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SerieReponse"];
+                };
+            };
+        };
+    };
+    lister_15: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReineElevage"][];
+                };
+            };
+        };
+    };
+    creer_11: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReineElevageCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReineElevage"];
+                };
+            };
+        };
+    };
     registre_2: {
         parameters: {
             query: {
@@ -5747,7 +6264,7 @@ export interface operations {
             };
         };
     };
-    lister_15: {
+    lister_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -5767,7 +6284,7 @@ export interface operations {
             };
         };
     };
-    creer_11: {
+    creer_12: {
         parameters: {
             query?: never;
             header?: never;
@@ -5851,7 +6368,7 @@ export interface operations {
             };
         };
     };
-    lister_16: {
+    lister_17: {
         parameters: {
             query?: never;
             header?: never;
@@ -5871,7 +6388,7 @@ export interface operations {
             };
         };
     };
-    creer_12: {
+    creer_13: {
         parameters: {
             query?: never;
             header?: never;
@@ -5963,7 +6480,7 @@ export interface operations {
             };
         };
     };
-    creer_13: {
+    creer_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -5987,7 +6504,7 @@ export interface operations {
             };
         };
     };
-    lister_17: {
+    lister_18: {
         parameters: {
             query?: {
                 debut?: string;
@@ -6059,7 +6576,7 @@ export interface operations {
             };
         };
     };
-    lister_18: {
+    lister_19: {
         parameters: {
             query?: {
                 page?: number;
@@ -6083,7 +6600,7 @@ export interface operations {
             };
         };
     };
-    creer_14: {
+    creer_15: {
         parameters: {
             query?: never;
             header?: never;
@@ -6107,7 +6624,7 @@ export interface operations {
             };
         };
     };
-    lister_19: {
+    lister_20: {
         parameters: {
             query: {
                 agentId: number;
@@ -6129,7 +6646,7 @@ export interface operations {
             };
         };
     };
-    creer_15: {
+    creer_16: {
         parameters: {
             query?: never;
             header?: never;
@@ -6586,7 +7103,7 @@ export interface operations {
             };
         };
     };
-    obtenir_10: {
+    obtenir_11: {
         parameters: {
             query?: never;
             header?: never;
@@ -6608,7 +7125,7 @@ export interface operations {
             };
         };
     };
-    supprimer_13: {
+    supprimer_14: {
         parameters: {
             query?: never;
             header?: never;
@@ -6828,7 +7345,7 @@ export interface operations {
             };
         };
     };
-    lister_20: {
+    lister_21: {
         parameters: {
             query?: {
                 rucheId?: number;
@@ -6978,6 +7495,119 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ChargeAgent"][];
+                };
+            };
+        };
+    };
+    index: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IndexGenetique"];
+                };
+            };
+        };
+    };
+    genealogie: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Genealogie"];
+                };
+            };
+        };
+    };
+    registre_3: {
+        parameters: {
+            query?: {
+                depuis?: string;
+                jusqu?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    conformite: {
+        parameters: {
+            query?: {
+                depuis?: string;
+                jusqu?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DossierConformite"];
+                };
+            };
+        };
+    };
+    conformitePdf: {
+        parameters: {
+            query?: {
+                depuis?: string;
+                jusqu?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
                 };
             };
         };
@@ -7295,7 +7925,7 @@ export interface operations {
             };
         };
     };
-    lister_21: {
+    lister_22: {
         parameters: {
             query?: never;
             header?: never;
@@ -7345,26 +7975,6 @@ export interface operations {
             path: {
                 id: number;
                 photoId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    supprimer_14: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
             };
             cookie?: never;
         };
@@ -7459,6 +8069,26 @@ export interface operations {
             };
         };
     };
+    supprimer_19: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     revoquer: {
         parameters: {
             query?: never;
@@ -7481,7 +8111,7 @@ export interface operations {
             };
         };
     };
-    supprimer_19: {
+    supprimer_20: {
         parameters: {
             query?: never;
             header?: never;
@@ -7521,7 +8151,7 @@ export interface operations {
             };
         };
     };
-    supprimer_20: {
+    supprimer_21: {
         parameters: {
             query?: never;
             header?: never;
@@ -7541,7 +8171,7 @@ export interface operations {
             };
         };
     };
-    supprimer_21: {
+    supprimer_22: {
         parameters: {
             query?: never;
             header?: never;

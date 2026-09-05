@@ -745,10 +745,145 @@
         }
       }
     },
+    "/api/elevage/series/{id}" : {
+      "put" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "mettreAJourSerie",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SerieCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SerieReponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "supprimerSerie",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/elevage/reines/{id}" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "obtenir_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReineElevage"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "mettreAJour_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReineElevageCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReineElevage"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "supprimer_9",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/depenses/{id}" : {
       "put" : {
         "tags" : [ "comptabilite-controller" ],
-        "operationId" : "mettreAJour_9",
+        "operationId" : "mettreAJour_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -783,7 +918,7 @@
       },
       "delete" : {
         "tags" : [ "comptabilite-controller" ],
-        "operationId" : "supprimer_9",
+        "operationId" : "supprimer_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -803,7 +938,7 @@
     "/api/consommables/{id}" : {
       "put" : {
         "tags" : [ "consommable-controller" ],
-        "operationId" : "mettreAJour_10",
+        "operationId" : "mettreAJour_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -838,7 +973,7 @@
       },
       "delete" : {
         "tags" : [ "consommable-controller" ],
-        "operationId" : "supprimer_10",
+        "operationId" : "supprimer_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -883,7 +1018,7 @@
       },
       "put" : {
         "tags" : [ "carnet-controller" ],
-        "operationId" : "mettreAJour_11",
+        "operationId" : "mettreAJour_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -918,7 +1053,7 @@
       },
       "delete" : {
         "tags" : [ "carnet-controller" ],
-        "operationId" : "supprimer_11",
+        "operationId" : "supprimer_12",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -994,7 +1129,7 @@
     "/api/agents/{id}" : {
       "get" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "obtenir_9",
+        "operationId" : "obtenir_10",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1019,7 +1154,7 @@
       },
       "put" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "mettreAJour_12",
+        "operationId" : "mettreAJour_13",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1054,7 +1189,7 @@
       },
       "delete" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "supprimer_12",
+        "operationId" : "supprimer_13",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -2634,6 +2769,100 @@
         }
       }
     },
+    "/api/elevage/series" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "series",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SerieReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "creerSerie",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SerieCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SerieReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/reines" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "lister_15",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReineElevage"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "creer_11",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReineElevageCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReineElevage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/divisions" : {
       "get" : {
         "tags" : [ "division-controller" ],
@@ -2693,7 +2922,7 @@
     "/api/depenses" : {
       "get" : {
         "tags" : [ "comptabilite-controller" ],
-        "operationId" : "lister_15",
+        "operationId" : "lister_16",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2712,7 +2941,7 @@
       },
       "post" : {
         "tags" : [ "comptabilite-controller" ],
-        "operationId" : "creer_11",
+        "operationId" : "creer_12",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2790,7 +3019,7 @@
     "/api/consommables" : {
       "get" : {
         "tags" : [ "consommable-controller" ],
-        "operationId" : "lister_16",
+        "operationId" : "lister_17",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -2809,7 +3038,7 @@
       },
       "post" : {
         "tags" : [ "consommable-controller" ],
-        "operationId" : "creer_12",
+        "operationId" : "creer_13",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2918,7 +3147,7 @@
       },
       "post" : {
         "tags" : [ "carnet-controller" ],
-        "operationId" : "creer_13",
+        "operationId" : "creer_14",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -2946,7 +3175,7 @@
     "/api/captures" : {
       "get" : {
         "tags" : [ "capture-essaim-controller" ],
-        "operationId" : "lister_17",
+        "operationId" : "lister_18",
         "parameters" : [ {
           "name" : "debut",
           "in" : "query",
@@ -3053,7 +3282,7 @@
     "/api/agents" : {
       "get" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "lister_18",
+        "operationId" : "lister_19",
         "parameters" : [ {
           "name" : "page",
           "in" : "query",
@@ -3096,7 +3325,7 @@
       },
       "post" : {
         "tags" : [ "agent-controller" ],
-        "operationId" : "creer_14",
+        "operationId" : "creer_15",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3124,7 +3353,7 @@
     "/api/abonnements-calendrier" : {
       "get" : {
         "tags" : [ "abonnement-calendrier-controller" ],
-        "operationId" : "lister_19",
+        "operationId" : "lister_20",
         "parameters" : [ {
           "name" : "agentId",
           "in" : "query",
@@ -3152,7 +3381,7 @@
       },
       "post" : {
         "tags" : [ "abonnement-calendrier-controller" ],
-        "operationId" : "creer_15",
+        "operationId" : "creer_16",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3749,7 +3978,7 @@
     "/api/recoltes/{id}" : {
       "get" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "obtenir_10",
+        "operationId" : "obtenir_11",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -3774,7 +4003,7 @@
       },
       "delete" : {
         "tags" : [ "recolte-controller" ],
-        "operationId" : "supprimer_13",
+        "operationId" : "supprimer_14",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4075,7 +4304,7 @@
     "/api/indices" : {
       "get" : {
         "tags" : [ "indice-controller" ],
-        "operationId" : "lister_20",
+        "operationId" : "lister_21",
         "parameters" : [ {
           "name" : "rucheId",
           "in" : "query",
@@ -4263,6 +4492,167 @@
                   "items" : {
                     "$ref" : "#/components/schemas/ChargeAgent"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/reines/{id}/index" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "index",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/IndexGenetique"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/reines/{id}/genealogie" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "genealogie",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Genealogie"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/registre.pdf" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "registre_3",
+        "parameters" : [ {
+          "name" : "depuis",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "jusqu",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/conformite" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "conformite",
+        "parameters" : [ {
+          "name" : "depuis",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "jusqu",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DossierConformite"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/elevage/conformite.pdf" : {
+      "get" : {
+        "tags" : [ "elevage-controller" ],
+        "operationId" : "conformitePdf",
+        "parameters" : [ {
+          "name" : "depuis",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "jusqu",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/pdf" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             }
@@ -4717,7 +5107,7 @@
     "/api/audit" : {
       "get" : {
         "tags" : [ "audit-controller" ],
-        "operationId" : "lister_21",
+        "operationId" : "lister_22",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -4801,7 +5191,7 @@
     "/api/varroa/{id}" : {
       "delete" : {
         "tags" : [ "comptage-varroa-controller" ],
-        "operationId" : "supprimer_14",
+        "operationId" : "supprimer_15",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4821,7 +5211,7 @@
     "/api/transports/{id}" : {
       "delete" : {
         "tags" : [ "transport-controller" ],
-        "operationId" : "supprimer_15",
+        "operationId" : "supprimer_16",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4841,7 +5231,7 @@
     "/api/traitements/{id}" : {
       "delete" : {
         "tags" : [ "traitement-controller" ],
-        "operationId" : "supprimer_16",
+        "operationId" : "supprimer_17",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4861,7 +5251,7 @@
     "/api/reines/{id}" : {
       "delete" : {
         "tags" : [ "reine-controller" ],
-        "operationId" : "supprimer_17",
+        "operationId" : "supprimer_18",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4881,7 +5271,7 @@
     "/api/photos/{id}" : {
       "delete" : {
         "tags" : [ "photo-controller" ],
-        "operationId" : "supprimer_18",
+        "operationId" : "supprimer_19",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4928,7 +5318,7 @@
     "/api/nourrissements/{id}" : {
       "delete" : {
         "tags" : [ "nourrissement-controller" ],
-        "operationId" : "supprimer_19",
+        "operationId" : "supprimer_20",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4968,7 +5358,7 @@
     "/api/divisions/{id}" : {
       "delete" : {
         "tags" : [ "division-controller" ],
-        "operationId" : "supprimer_20",
+        "operationId" : "supprimer_21",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -4988,7 +5378,7 @@
     "/api/captures/{id}" : {
       "delete" : {
         "tags" : [ "capture-essaim-controller" ],
-        "operationId" : "supprimer_21",
+        "operationId" : "supprimer_22",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -6225,6 +6615,287 @@
             "format" : "int64"
           },
           "fermierNom" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "SerieCorps" : {
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "dateGreffage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "soucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheEleveuseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "methode" : {
+            "type" : "string",
+            "pattern" : "greffage|picking|cupularve|essaim_artificiel|autre"
+          },
+          "nbGreffees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbAcceptees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbNees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbFecondees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "dateGreffage", "nbGreffees", "nom" ]
+      },
+      "SerieReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "dateGreffage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "soucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "soucheCode" : {
+            "type" : "string"
+          },
+          "rucheEleveuseId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "methode" : {
+            "type" : "string"
+          },
+          "nbGreffees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbAcceptees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbNees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "nbFecondees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tauxAcceptation" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "tauxReussite" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "creeLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "majLe" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ReineElevageCorps" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string",
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "mereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheMereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "serieId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "origine" : {
+            "type" : "string",
+            "pattern" : "elevage|achat|essaimage|supersedure|inconnue"
+          },
+          "fournisseur" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "race" : {
+            "type" : "string",
+            "maxLength" : 60,
+            "minLength" : 0
+          },
+          "anneeNaissance" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 2100,
+            "minimum" : 2000
+          },
+          "couleurMarquage" : {
+            "type" : "string",
+            "pattern" : "blanc|jaune|rouge|vert|bleu"
+          },
+          "ailesClippees" : {
+            "type" : "boolean"
+          },
+          "dateGreffage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateNaissance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFecondation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateIntroduction" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "statut" : {
+            "type" : "string",
+            "pattern" : "en_service|reserve|remplacee|disparue|morte|vendue"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ReineElevage" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "mereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "mereCode" : {
+            "type" : "string"
+          },
+          "rucheMereId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "serieId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "serieNom" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "rucheModele" : {
+            "type" : "string"
+          },
+          "origine" : {
+            "type" : "string"
+          },
+          "fournisseur" : {
+            "type" : "string"
+          },
+          "race" : {
+            "type" : "string"
+          },
+          "anneeNaissance" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "couleurMarquage" : {
+            "type" : "string"
+          },
+          "ailesClippees" : {
+            "type" : "boolean"
+          },
+          "dateGreffage" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateNaissance" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFecondation" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateIntroduction" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "note" : {
             "type" : "string"
           },
           "creeLe" : {
@@ -8839,6 +9510,147 @@
           "visites7Jours" : {
             "type" : "integer",
             "format" : "int64"
+          }
+        }
+      },
+      "Critere" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "valeur" : {
+            "type" : "number"
+          },
+          "unite" : {
+            "type" : "string"
+          },
+          "observations" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "suffisant" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "IndexGenetique" : {
+        "type" : "object",
+        "properties" : {
+          "reineId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "criteres" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Critere"
+            }
+          }
+        }
+      },
+      "Genealogie" : {
+        "type" : "object",
+        "properties" : {
+          "reine" : {
+            "$ref" : "#/components/schemas/ReineElevage"
+          },
+          "ascendants" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Noeud"
+            }
+          },
+          "descendants" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Noeud"
+            }
+          }
+        }
+      },
+      "Noeud" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "code" : {
+            "type" : "string"
+          },
+          "profondeur" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "parentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "race" : {
+            "type" : "string"
+          },
+          "anneeNaissance" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "statut" : {
+            "type" : "string"
+          }
+        }
+      },
+      "DossierConformite" : {
+        "type" : "object",
+        "properties" : {
+          "debut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "fin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "avertissement" : {
+            "type" : "string"
+          },
+          "points" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PointControle"
+            }
+          }
+        }
+      },
+      "PointControle" : {
+        "type" : "object",
+        "properties" : {
+          "code" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "nombre" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
