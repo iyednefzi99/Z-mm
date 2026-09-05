@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-B du lot 3, livrés le 05/09/2026** : **89,9 %**
-> d'instructions, **75,9 %** de branches, **90,2 %** de lignes, sur **418** tests
+> **Lots 1, 2 et vagues A-C du lot 3, livrés le 05/09/2026** : **90,4 %**
+> d'instructions, **77,1 %** de branches, **90,7 %** de lignes, sur **471** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,19 +57,19 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | Lot 3 A | Lot 3 B | Plancher |
-|---|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | **89,9 %** | 0,80 → … → **0,89** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | **75,9 %** | 0,60 → … → **0,75** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | **90,2 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | Plancher |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | **90,4 %** | 0,80 → … → **0,90** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | **77,1 %** | 0,60 → … → **0,77** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | **90,7 %** | *aucun* |
 
-**Les branches ont gagné 12,9 points en quatre passes**, après onze sprints où
+**Les branches ont gagné 14,1 points en cinq passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
-jamais faite. Ce sont les moins coûteuses à couvrir et les plus coûteuses à
-ignorer, parce qu'elles ne font pas tomber le système : elles lui font afficher
-un nombre faux.
+jamais faite, une cible qui n'existe pas. Ce sont les moins coûteuses à couvrir
+et les plus coûteuses à ignorer, parce qu'elles ne font pas tomber le système :
+elles lui font afficher un nombre faux.
 
 Le relèvement des branches est **le premier depuis la pose du cliquet** : la
 marge était restée courte du SPRINT-22 au SPRINT-32, entre 2,2 et 3,8 points.
@@ -381,8 +381,52 @@ faute de frappe sur l'année sortirait le matériel du plan de maintenance sans
 bruit, un oubli qui ne se voit qu'à la panne — et **il remet l'état à « bon »,
 jamais à « neuf »**.
 
-**Reste au lot 3** : une quinzaine de services, ~1 800 instructions et
-~190 branches, dont `ElevageService` (179 instructions) est le plus gros.
+#### Vague C — la généalogie et les six cibles  ·  ✅ livrée le 05/09/2026
+
+53 tests sur les deux classes les plus lourdes qui restaient. Couverture globale
+portée à **90,4 %** d'instructions et **77,1 %** de branches (90,7 % de lignes),
+sur **471** tests unitaires et 242 tests d'intégration. Planchers relevés à
+`0,90` et `0,77` — la barre des 90 % est franchie.
+
+| Classe | Avant | Après | Tests |
+|---|--:|--:|--:|
+| `ElevageService` | 72,2 % · 63,8 % br. — 179 instr. manquantes | 87,4 % · 81,0 % br. | 25 |
+| `PhotoService` | **57,3 %** · 41,7 % br. | **100 %** · 100 % br. | 28 |
+
+**Quatre décisions de la généalogie ne tenaient que par la lecture du code :**
+
+1. **Une filiation ne peut pas se refermer sur elle-même.** La base n'en vérifie
+   qu'un pas (`ck_reine_mere`) ; le cycle à trois pas se produit bel et bien —
+   c'est le cas d'une filiation saisie à l'envers qu'on corrige. Un arbre
+   circulaire ne se lit pas, il boucle.
+2. **Les deux sens du parcours n'ont pas la même forme** : les mères font une
+   chaîne, les filles un arbre en largeur. Une reine déjà visitée arrête
+   proprement la remontée — sans quoi une base reprise d'ailleurs rendrait quinze
+   fois la même reine, la garde de profondeur ne protégeant que de l'infini.
+3. **Le fournisseur est effacé, pas refusé**, quand l'origine cesse d'être
+   « achat ». L'utilisateur a changé d'avis après coup ; faire échouer sa saisie
+   ne l'aiderait pas.
+4. **Garder son propre code n'est pas un doublon** — sans cette comparaison,
+   toute mise à jour d'une reine codée serait refusée comme un doublon
+   d'elle-même.
+
+**`PhotoService` a reçu la forme de test que sa structure appelait.** La classe
+est presque entièrement un `switch` sur les **six cibles** de `Photo` : c'est le
+cas où la sous-couverture se voit le moins et coûte le plus, cinq branches
+pouvant marcher et la sixième échouer le jour où quelqu'un attache une photo à
+une ordonnance. Un test **paramétré sur l'énumération elle-même** exerce les six
+dans les deux sens — résolution du porteur et lecture. Ajouter une septième
+cible sans la câbler fera désormais tomber le test, et non la production.
+
+Le même test fixe deux propriétés du dépôt : une cible inexistante sort en
+**400 qui la nomme**, jamais en 500 — la clé étrangère composite la refuserait
+aussi, mais sans dire quoi ; et la résolution passant par les repositories, donc
+par la RLS, attacher une photo à la ruche d'un **autre tenant** échoue
+exactement là où une lecture échouerait.
+
+**Reste au lot 3** : une douzaine de services, ~1 660 instructions et
+~200 branches. Les 81 instructions qui restent à `ElevageService` sont ses
+séries de greffage, non couvertes ici.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -490,7 +534,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A+B)* 🟡 | 2 528 | 299 | **89,9 %** | **75,9 %** |
+| 3 | Services métier *(vagues A-C)* 🟡 | 2 528 | 299 | **90,4 %** | **77,1 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
