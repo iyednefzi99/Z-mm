@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-E du lot 3, livrés le 05/09/2026** : **91,0 %**
-> d'instructions, **78,2 %** de branches, **91,2 %** de lignes, sur **514** tests
+> **Lots 1, 2 et vagues A-F du lot 3, livrés le 05/09/2026** : **91,3 %**
+> d'instructions, **78,5 %** de branches, **91,5 %** de lignes, sur **540** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | Plancher |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | **91,0 %** | 0,80 → … → **0,91** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | **78,2 %** | 0,60 → … → **0,78** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | **91,2 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F | Plancher |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | **91,3 %** | 0,80 → … → **0,91** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | **78,5 %** | 0,60 → … → **0,78** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | **91,5 %** | *aucun* |
 
-**Les branches ont gagné 15,2 points en sept passes**, après onze sprints où
+**Les branches ont gagné 15,5 points en huit passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -494,9 +494,39 @@ publier en clair annulerait le masquage du SPRINT-12 pour toute la durée du
 plan : c'est le seul endroit du dépôt où la position à protéger est une position
 *future*.
 
-**Reste au lot 3** : neuf services, ~1 450 instructions et ~184 branches —
-`SiteService`, `LotConditionnementService`, `RucheService`, `PlanningService`,
-`VisiteService`, `FermeService`, plus les séries de greffage d'`ElevageService`.
+#### Vague F — un texte imprimé sur un pot  ·  ✅ livrée le 05/09/2026
+
+26 tests sur `LotConditionnementService` (73,7 % · 66,7 % de branches →
+**100 %** · 94,4 %). Couverture globale : **91,3 %** d'instructions, **78,5 %**
+de branches, 91,5 % de lignes, sur **540** tests unitaires. Planchers inchangés
+à `0,91` et `0,78` — la marge suffit.
+
+**C'est la sortie du produit dont l'erreur se répare le plus mal** : une
+étiquette fausse est déjà chez le consommateur. Les deux règles que la javadoc
+annonçait n'étaient tenues par rien :
+
+- **La somme des parts fait 100 %**, vérifiée au service et non dans un trigger,
+  avec un message qui dit **de combien on s'écarte** — sans lui, l'utilisateur
+  cherche à l'œil laquelle de ses huit parts est fausse. La tolérance
+  (0,05 point) couvre les arrondis de saisie, pas une part oubliée : les tests
+  l'exercent des deux côtés.
+- **Les parts se consolident par pays avant d'être triées.** Trois récoltes
+  françaises à 20 % s'écrivent « France 60 % », pas trois fois « France 20 % ».
+
+**Et une propriété de stabilité qui n'avait aucune raison d'être découverte
+autrement** : à proportion égale, le tri départage par **code pays**. Sans cela,
+deux lots identiques produiraient deux étiquettes d'ordre différent selon
+l'ordre de lecture en base — un défaut qui ne se voit qu'en comparant deux pots.
+
+Trois autres comportements fixés : un pays unique donne « Origine : France »
+sans pourcentage (le détail n'est dû que pour un mélange) ; les pourcentages
+sont arrondis à l'entier — « 67,00 % » sur un pot se lirait comme une précision
+qu'on n'a pas ; et une mise à jour **reconstitue** la composition au lieu de
+l'ajouter, sans quoi la somme doublerait à chaque enregistrement.
+
+**Reste au lot 3** : huit services, ~1 360 instructions et ~179 branches —
+`SiteService`, `RucheService`, `PlanningService`, `VisiteService`,
+`FermeService`, plus les séries de greffage d'`ElevageService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -604,7 +634,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-E)* 🟡 | 2 528 | 299 | **91,0 %** | **78,2 %** |
+| 3 | Services métier *(vagues A-F)* 🟡 | 2 528 | 299 | **91,3 %** | **78,5 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
