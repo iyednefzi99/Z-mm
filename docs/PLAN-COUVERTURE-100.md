@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vague A du lot 3, livrés le 05/09/2026** : 89,0 %
-> d'instructions, 74,7 % de branches, 89,6 % de lignes, sur 357 tests
+> **Lots 1, 2 et vagues A-B du lot 3, livrés le 05/09/2026** : **89,9 %**
+> d'instructions, **75,9 %** de branches, **90,2 %** de lignes, sur **418** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,11 +57,19 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | Lot 3 A | Plancher |
-|---|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | **89,0 %** | 0,80 → 0,84 → 0,88 → **0,89** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | **74,7 %** | 0,60 → 0,65 → 0,70 → **0,74** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | **89,6 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | Lot 3 A | Lot 3 B | Plancher |
+|---|--:|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | **89,9 %** | 0,80 → … → **0,89** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | **75,9 %** | 0,60 → … → **0,75** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | **90,2 %** | *aucun* |
+
+**Les branches ont gagné 12,9 points en quatre passes**, après onze sprints où
+elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
+classes visées sont celles dont les branches sont presque toutes des chemins
+d'**absence** — un tiers injoignable, une donnée manquante, une observation
+jamais faite. Ce sont les moins coûteuses à couvrir et les plus coûteuses à
+ignorer, parce qu'elles ne font pas tomber le système : elles lui font afficher
+un nombre faux.
 
 Le relèvement des branches est **le premier depuis la pose du cliquet** : la
 marge était restée courte du SPRINT-22 au SPRINT-32, entre 2,2 et 3,8 points.
@@ -335,10 +343,53 @@ laisse le stub inachevé (le piège du lot D) ; et deux accesseurs devinés au l
 d'être lus — `forcerCarence` exige un motif, et c'est ce qui rend le forçage
 opposable.
 
-**Reste au lot 3** : une vingtaine de services CRUD, ~2 400 instructions et
-~230 branches. Le gain par test y est plus faible — ce sont des lectures et des
-écritures, pas des calculs — et c'est la raison pour laquelle ils viennent
-après.
+#### Vague B — quatre services, dont deux mal classés  ·  ✅ livrée le 05/09/2026
+
+61 tests. Couverture globale portée à **89,9 %** d'instructions et **75,9 %** de
+branches (90,2 % de lignes), sur **418** tests unitaires et 242 tests
+d'intégration. Planchers relevés à `0,89` et `0,75`.
+
+| Classe | Avant | Après | Tests |
+|---|--:|--:|--:|
+| `ComptabiliteService` | 81,2 % · 70 % br. | 95,6 % · 95,0 % br. | 17 |
+| `RechercheService` | **52,9 %** · 41,7 % br. | **100 %** · 100 % br. | 18 |
+| `MaterielService` | **60,5 %** · 57,1 % br. | 97,8 % · 92,9 % br. | 14 |
+| `BriefingService` | 71,6 % · 62,5 % br. | **100 %** · 100 % br. | 12 |
+
+**Le plan s'était trompé sur deux d'entre eux.** Il annonçait pour le reste du
+lot 3 « des lectures et des écritures, pas des calculs », et un gain par test
+plus faible. C'est vrai de `MaterielService`. Ce l'est beaucoup moins de
+`RechercheService` et de `BriefingService`, qui portent chacun une décision de
+sécurité ou d'architecture :
+
+- **La recherche transverse est bornée par sécurité, pas par confort.** Deux
+  caractères minimum — « une recherche sur *a* n'est pas une recherche, c'est un
+  export » —, cinq résultats par famille pour qu'une famille prolifique n'évince
+  pas les six autres, et surtout **aucune position, aucune adresse, aucun
+  courriel**. Chercher par rue rendrait interrogeable ce que
+  `PolitiquePositions` masque à l'affichage ; chercher par adresse ferait de la
+  palette un annuaire exportable, un caractère à la fois.
+- **Le briefing ne passe par aucun modèle de langue** (D4, ADR-013), et les
+  tests vérifient ce que cette contrainte implique concrètement : chaque ligne
+  cite sa **source** — une valeur de déclenchement, une date de retrait, un nom
+  de produit — et non une formulation. Le jour où un détail cesserait d'être
+  vérifiable, le briefing redeviendrait ce qu'il refuse d'être.
+
+Deux gestes de `MaterielService` portaient aussi une décision que rien ne
+tenait : **un entretien ne se date pas dans l'avenir** — sans ce refus, une
+faute de frappe sur l'année sortirait le matériel du plan de maintenance sans
+bruit, un oubli qui ne se voit qu'à la panne — et **il remet l'état à « bon »,
+jamais à « neuf »**.
+
+**Reste au lot 3** : une quinzaine de services, ~1 800 instructions et
+~190 branches, dont `ElevageService` (179 instructions) est le plus gros.
+
+**Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
+les arguments d'un `when()` laisse le premier stub inachevé
+(`UnfinishedStubbingException`) : Mockito construit le stub extérieur avant
+d'évaluer ses arguments. C'est le coût de fabriquer des entités JPA dont
+l'identifiant n'est pas assignable autrement — et la parade est toujours la
+même, construire les mocks d'abord.
 
 > Plancher après le lot : **94,7 %** d'instructions · **86,3 %** de branches.
 
@@ -439,7 +490,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vague A)* 🟡 | 2 528 | 299 | **89,0 %** | **74,7 %** |
+| 3 | Services métier *(vagues A+B)* 🟡 | 2 528 | 299 | **89,9 %** | **75,9 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
