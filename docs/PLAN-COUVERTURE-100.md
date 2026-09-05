@@ -8,9 +8,10 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lot 1 livré le 05/09/2026** : 84,4 % d'instructions, 66,0 % de
-> branches, 86,3 % de lignes, sur 200 tests unitaires et 242 tests
-> d'intégration. Les planchers du `pom.xml` ont été relevés d'autant.
+> **Lots 1 et 2 livrés le 05/09/2026** : 88,1 % d'instructions, 70,8 %
+> de branches, 88,9 % de lignes, sur 290 tests unitaires et 242 tests
+> d'intégration — contre 82,1 %, 63,0 % et 83,9 % au départ. Les planchers du
+> `pom.xml` sont relevés d'autant à chaque lot.
 >
 > Source : `backend/target/site/jacoco/jacoco.csv`, produit par `./mvnw -B verify`.
 > Aucun chiffre de ce document n'est recopié d'un autre.
@@ -56,11 +57,11 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Après le lot 1 | Plancher |
-|---|--:|--:|--:|
-| Instructions | 82,1 % | **84,4 %** | 0,80 → **0,84** |
-| Branches | 63,0 % | **66,0 %** | 0,60 → **0,65** |
-| Lignes | 83,9 % | **86,3 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | Plancher |
+|---|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | **88,1 %** | 0,80 → 0,84 → **0,88** |
+| Branches | 63,0 % | 66,0 % | **70,8 %** | 0,60 → 0,65 → **0,70** |
+| Lignes | 83,9 % | 86,3 % | **88,9 %** | *aucun* |
 
 Le relèvement des branches est **le premier depuis la pose du cliquet** : la
 marge était restée courte du SPRINT-22 au SPRINT-32, entre 2,2 et 3,8 points.
@@ -215,7 +216,7 @@ configuration qui manquait ailleurs**.
 
 > Plancher après le lot : **84,2 %** d'instructions · **66,5 %** de branches.
 
-### Lot 2 — Les producteurs de fichiers  ·  1 391 instructions · 106 branches
+### Lot 2 — Les producteurs de fichiers  ·  1 391 instructions · 106 branches  ·  ✅ LIVRÉ
 
 `ExportService` (772 !) · `RegistreElevagePdfService` · `BilanAnnuelPdfService` ·
 `FicheInspectionPdfService` · `RapportVisitePdfService` · `ClasseurXlsx` ·
@@ -240,6 +241,38 @@ produisent un fichier lisible ; l'échappement CSV tient sur un nom de rucher
 contenant une virgule, un guillemet ou un retour à la ligne ; le XLSX reste
 ouvrable au-delà de la colonne Z ; un PDF de registre d'élevage sans aucune reine
 sort vide plutôt qu'en erreur.
+
+**Livré le 05/09/2026** — 87 tests ajoutés, couverture globale portée à
+**88,1 %** d'instructions, **70,8 %** de branches, 88,9 % de lignes, sur
+290 tests unitaires et 242 tests d'intégration.
+
+| Classe | Avant | Tests |
+|---|--:|--:|
+| `ExportService` | 48,4 % | 62 (2 → 62) |
+| `RegistreElevagePdfService` | 48,6 % · **12,9 %** de branches | 9 |
+| `BilanAnnuelPdfService` | 79,3 % · 40 % de branches | 8 |
+| `FicheInspectionPdfService` | 80,7 % · 50 % de branches | 8 |
+| `RapportVisitePdfService` | 96,7 % · 61,5 % de branches | 4 (2 → 4) |
+
+**Les tests PDF lisent le TEXTE du document, pas sa signature.** Le repère qui
+existait vérifiait que les octets commencent par `%PDF` — un test qui resterait
+vert si toutes les cellules sortaient vides. `PdfTextExtractor` est fourni par
+OpenPDF, sans dépendance à ajouter ; le registre d'élevage est désormais vérifié
+sur ce qu'un contrôleur y lirait, et c'est bien le sujet : c'est un document
+réglementaire.
+
+**Un défaut trouvé, et corrigé.** La légende de la fiche d'inspection était un
+texte constant. Une fiche dont le gabarit avait éteint « Reine vue » **expliquait
+quand même comment la remplir**. Au bureau cela se devine ; au rucher, debout,
+cela se lit comme une colonne qu'on a oublié d'imprimer — et la fiche vierge
+existe précisément pour les gens qui n'ont pas l'écran sous les yeux. La légende
+est maintenant adossée aux colonnes réellement imprimées et disparaît avec elles.
+
+**Le diagnostic du plan tenait, à une nuance près.** Le lot était annoncé comme
+« le plus facile » : il l'a été pour `ExportService`, fonction pure sur quatorze
+dépôts simulés. Il l'a moins été pour les PDF, où la question n'était pas
+d'exécuter le code mais de décider **ce qu'un test doit affirmer** sur un
+document binaire. La réponse — extraire le texte — vaut pour les quatre.
 
 > Plancher après le lot : **87,9 %** d'instructions · **71,7 %** de branches.
 
@@ -363,7 +396,7 @@ d'écrire — et devient une affirmation qui a un sens.
 |---|---|--:|--:|--:|--:|
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
-| 2 | Producteurs de fichiers | 1 391 | 106 | **87,9 %** | **71,7 %** |
+| ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
 | 3 | Services métier | 2 528 | 299 | **94,7 %** | **86,3 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |

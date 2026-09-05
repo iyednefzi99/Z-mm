@@ -80,6 +80,23 @@ public class FicheInspectionPdfService {
     private static final List<String> TEMPERAMENT = List.of("Tempér.");
 
     /**
+     * Ce que chaque colonne du noyau demande, pour la légende.
+     *
+     * <p><strong>Adossé aux colonnes, et non figé</strong> (corrigé au lot 2 du
+     * plan de couverture). La légende était un texte constant : une fiche dont
+     * le gabarit avait éteint « Reine vue » expliquait quand même comment la
+     * remplir. Au bureau cela se devine ; au rucher, debout, cela se lit comme
+     * une colonne qu'on a oublié d'imprimer.
+     */
+    private static final List<Map.Entry<String, String>> LEGENDE = List.of(
+            Map.entry("Œufs", "Œufs : cocher"),
+            Map.entry("Reine vue", "Reine vue : cocher"),
+            Map.entry("Couvain", "Couvain : compter les cadres"),
+            Map.entry("Réserves", "Réserves : compter les cadres"),
+            Map.entry("Cell. roy.", "Cellules royales : nombre"),
+            Map.entry("Tempér.", "Tempérament : calme, nerveux, agressif"));
+
+    /**
      * Points du gabarit ajoutés à la fiche, au plus.
      *
      * <p>Une A4 paysage tient une douzaine de colonnes lisibles. Au-delà, elles
@@ -128,12 +145,16 @@ public class FicheInspectionPdfService {
 
         doc.add(grille(ruches, colonnes));
 
-        Paragraph legende = new Paragraph(
-                "Œufs / Reine vue : cocher. Couvain, réserves : compter les cadres. "
-                        + "Cellules royales : nombre. Tempérament : calme, nerveux, agressif.",
-                FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8, Color.GRAY));
-        legende.setSpacingBefore(10);
-        doc.add(legende);
+        String texteLegende = LEGENDE.stream()
+                .filter(entree -> colonnes.contains(entree.getKey()))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.joining(". "));
+        if (!texteLegende.isEmpty()) {
+            Paragraph legende = new Paragraph(texteLegende + ".",
+                    FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 8, Color.GRAY));
+            legende.setSpacingBefore(10);
+            doc.add(legende);
+        }
 
         String reste = ignores == 0 ? ""
                 : " — %d point(s) du gabarit non imprimé(s), faute de largeur.".formatted(ignores);

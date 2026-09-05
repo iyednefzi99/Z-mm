@@ -153,6 +153,72 @@ class AgendaIcsServiceTest {
     }
 
     @Test
+    @DisplayName("une ruche sans rucher sort sans ligne LOCATION, pas avec une ligne vide")
+    void rucheSansRucher() {
+        Ruche ruche = mock(Ruche.class);
+        when(ruche.getId()).thenReturn(42L);
+        when(ruche.getModele()).thenReturn("Dadant 10 cadres");
+        when(ruche.getSite()).thenReturn(null);
+        Agent agent = mock(Agent.class);
+        when(agent.getNom()).thenReturn("Amel");
+        Planning planning = mock(Planning.class);
+        when(planning.getId()).thenReturn(7L);
+        when(planning.getRuche()).thenReturn(ruche);
+        when(planning.getAgent()).thenReturn(agent);
+        when(planning.getDatePrevue()).thenReturn(LUNDI);
+        when(planning.getHeurePrevue()).thenReturn(LocalTime.of(9, 0));
+        when(planning.getDureeMin()).thenReturn(30);
+        when(planning.getRaison()).thenReturn(RaisonVisite.CONTROLE);
+        when(planning.getStatut()).thenReturn(StatutPlanning.APPROUVE);
+
+        String ics = calendrier(planning);
+
+        // `LOCATION:` suivi de rien est une ligne que certains clients de
+        // calendrier refusent, et qui n'apporte rien : mieux vaut l'absence.
+        assertThat(ics).contains("BEGIN:VEVENT").doesNotContain("LOCATION:");
+    }
+
+    @Test
+    @DisplayName("une commune vide ne laisse pas de virgule pendante derriere le rucher")
+    void communeVide() {
+        String ics = calendrier(
+                planning(8L, LocalTime.of(8, 0), "Rucher du haut", "   ",
+                        StatutPlanning.APPROUVE));
+
+        // « Rucher du haut, » se lit comme une commune qu'on aurait oublie de
+        // saisir ; l'absence de virgule dit qu'il n'y en a pas.
+        assertThat(ics).contains("LOCATION:Rucher du haut")
+                .doesNotContain("Rucher du haut\\,");
+    }
+
+    @Test
+    @DisplayName("une visite sans duree prend la duree par defaut")
+    void dureeParDefaut() {
+        Ruche ruche = mock(Ruche.class);
+        when(ruche.getId()).thenReturn(42L);
+        when(ruche.getModele()).thenReturn("Dadant");
+        when(ruche.getSite()).thenReturn(null);
+        Agent agent = mock(Agent.class);
+        when(agent.getNom()).thenReturn("Amel");
+        Planning planning = mock(Planning.class);
+        when(planning.getId()).thenReturn(9L);
+        when(planning.getRuche()).thenReturn(ruche);
+        when(planning.getAgent()).thenReturn(agent);
+        when(planning.getDatePrevue()).thenReturn(LUNDI);
+        when(planning.getHeurePrevue()).thenReturn(LocalTime.of(10, 0));
+        when(planning.getDureeMin()).thenReturn(null);
+        when(planning.getRaison()).thenReturn(RaisonVisite.CONTROLE);
+        when(planning.getStatut()).thenReturn(StatutPlanning.APPROUVE);
+
+        String ics = calendrier(planning);
+
+        // Un creneau de duree nulle s'affiche comme un point sur l'agenda de
+        // l'agent : le defaut vaut mieux qu'un rendez-vous invisible.
+        assertThat(ics).contains("DTSTART").contains("DTEND");
+        assertThat(ics).doesNotContain("DTEND;TZID=UTC:20260907T100000");
+    }
+
+    @Test
     @DisplayName("un calendrier vide reste un calendrier valide")
     void aucunPlanning() {
         String ics = calendrier();
