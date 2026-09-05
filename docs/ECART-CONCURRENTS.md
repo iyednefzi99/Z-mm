@@ -181,17 +181,17 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Balances connectées, poids en continu | ✅ | `Mesure` + TimescaleDB (hypertable, migration V5), `TypeIndicateur.POIDS`, `CapteursVue.tsx` — les carnets purs saisissent le poids à la main |
 | Température / humidité en série temporelle | ✅ | `TypeIndicateur` couvre poids, température, humidité, activité |
 | **API ouverte d'ingestion** (balances et stations DIY) | ✅ | `POST /api/mesures` (`MesureController.ingerer`), contrat publié en OpenAPI 3. C'est ce que BeeKube revendique comme différenciateur |
-| **Connexion Bluetooth directe** aux capteurs du commerce (BroodMinder, BEEP, SensorPush, Inkbird…) | ❌ | Aucun appel Web Bluetooth. Zümm suppose une passerelle qui pousse vers l'API ; HiveSense supprime la passerelle |
-| Intégrations nommées de capteurs du commerce | ❌ | Le point d'entrée est générique, l'adaptation reste à la charge du fabricant |
+| **Connexion Bluetooth directe** aux capteurs du commerce (BroodMinder, BEEP, SensorPush, Inkbird…) | ✅ | `capteurs/bluetooth.ts` (SPRINT-31) lit un capteur sans passerelle, sur le **profil Bluetooth SIG** : *Environmental Sensing* (`0x181A`) et *Battery* (`0x180F`). Ces identifiants sont **normalisés, pas devinés** — tout capteur qui les implémente fonctionne. [ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) refuse d'aller plus loin : écrire un décodeur pour la trame propriétaire d'un fabricant dont personne n'a l'appareil reviendrait à deviner une structure de données, et le résultat aurait l'apparence du support sans en avoir la fiabilité. **Web Bluetooth est absent d'iOS Safari**, et l'écran l'écrit au lieu d'afficher un bouton inerte |
+| Intégrations nommées de capteurs du commerce | 🟡 | `POST /api/mesures/lot` (SPRINT-31) sert **toutes** les intégrations sans en privilégier aucune : quarante ruches et quatre indicateurs relevés au quart d'heure faisaient cent soixante requêtes, elles en font une. Les adaptateurs nommés, eux, restent dehors — et [ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) l'assume : **personne n'a vérifié une seule trame BroodMinder ici**, et un adaptateur écrit contre un format supposé se présenterait comme du support. C'est un partenariat, pas un développement |
 | Poids **par hausse** | ✅ | Table `mesure_compartiment` (`V26`), hypertable distincte, FK composite vers `compartiment`. **Distincte de `mesure`, et c'est le choix** : celle-là porte ce qu'une balance pèse sous la ruche entière, celle-ci ce qu'on attribue à un étage. Les fondre aurait demandé de rendre nullable une colonne de la clé primaire de l'hypertable la plus critique du système — ou un sentinel, qui aurait fait perdre la clé étrangère. Une hausse jamais pesée rend `null`, jamais 0 |
 | Alertes à seuils sur capteurs | ✅ | `SeuilAlerteService` (hystérésis anti-rebond), `Alerte`, `NotificationAlerteService` |
 | Notification e-mail à l'ouverture d'une alerte | ✅ | `NotificationAlerteService` — **un seul destinataire par message** (`setTo`), jamais de liste. Voir la leçon n°1 du §10 |
 | Prévision de récolte | ✅ | `PrevisionRecolteService` — régression linéaire sur la série de poids, projection 7 j |
 | Détection d'anomalie par IA | ✅ | `MoteurAnomalie` (port) + `ClientAnomalieIA` → microservice Python. HiveBook fait la même chose sur l'appareil |
 | Partage d'un flux de télémétrie entre utilisateurs | ✅ | `partage_telemetrie` (`V26`) + `GET /api/flux/{jeton}`, **sans session** : la courbe d'UNE ruche, montrée à un mentor, un technicien sanitaire ou un groupement. Même forme que l'abonnement iCalendar du SPRINT-21 — jeton de 256 bits jamais stocké en clair, expiration obligatoire, révocation, usage horodaté — et le destinataire ne reçoit ni identifiant, ni rucher, ni position |
-| **Analyse vidéo / acoustique à l'entrée** (comptage de trafic, perte de reine) | ❌ | Onibi seul. Le port `MoteurAnomalie` est prêt à recevoir un second moteur — l'architecture ne s'y oppose pas, la donnée manque |
+| **Analyse vidéo / acoustique à l'entrée** (comptage de trafic, perte de reine) | ❌ | Onibi seul, et **refusé explicitement** au SPRINT-31 ([ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md)). Il faudrait un flux audio ou vidéo — donc un stockage binaire que le dépôt n'a pas — et un modèle que l'[ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md) interdit de faire tourner ailleurs que sur l'appareil. Le détail qui tranche : sortir « colonie orpheline » d'un pic de fréquence sans donnée de validation produirait un verdict inventé sur une question que l'apiculteur ne peut vérifier qu'en ouvrant la ruche — c'est-à-dire le geste qu'on prétendait lui épargner. Le port `MoteurAnomalie` reste prêt ; c'est la donnée, et la preuve, qui manquent |
 | **Actionneurs à distance** (portes robotisées, protection anti-frelon) | ⛔ | Zümm observe, il ne commande pas. Piloter un actionneur engage la sécurité de la colonie et suppose du matériel propriétaire |
-| **Alarme anti-vol / détection de basculement** | ❌ | Le vol de ruches est pourtant la menace qui justifie `PolitiquePositions` (voir sa javadoc). Zümm **cache** la position pour protéger du vol ; Onibi **alerte** quand il survient. Les deux réponses sont complémentaires, Zümm n'a que la première |
+| **Alarme anti-vol / détection de basculement** | ✅ | `AlerteAntivolService` (SPRINT-31) : une chute de poids au-delà de `chute_vol_kg` entre deux mesures espacées de moins de deux heures ouvre une alerte **critique**. Aucun capteur nouveau n'était requis — une ruche emportée se voit dans la série de poids que l'API ingère déjà ; ce qui manquait était une règle. **Et la règle tient en une phrase** : une chute de vingt kilogrammes est une *récolte* si une récolte a été enregistrée ce jour-là, et un *vol* sinon. Sans cette vérification, la première miellée réveillerait l'alarme sur tout le rucher, et l'apiculteur la couperait. L'`inclinaison` s'ajoute comme sixième indicateur (`V30`), sur le patron de l'alimentation du SPRINT-26. L'alerte **ne se referme jamais toute seule** : une ruche volée ne revient pas |
 | Supervision de l'état des batteries des capteurs | ✅ | `TypeIndicateur.ALIMENTATION` (`V26`), en pourcent, avec son seuil dans `ConfigZumm.ini` (`batterie_min_pourcent`, 20 % par défaut). Le reproche fait à BeeLog et Onibi ne porte pas sur l'absence de mesure mais sur la panne **silencieuse** : l'indicateur passe donc par `SeuilAlerteService` comme les autres — même hystérésis, même table d'alertes, même notification |
 
 ---
@@ -1852,3 +1852,113 @@ Zümm n'aura pas de conversation en langage naturel tant que l'ADR-013 tient.
 C'est un renoncement réel, et il vaut mieux l'écrire que le laisser découvrir :
 le produit préfère une liste qui cite ses sources à une phrase qu'on ne peut pas
 vérifier.
+
+---
+
+## 27. Note de révision — 05/09/2026, lot F₂ du plan de couverture
+
+Dixième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) : quatre lignes
+visées, **deux fermées, une passée à 🟡, une refusée**. Le compteur va de **130 à
+132 sur 153**.
+
+C'est le premier lot dont le résultat est inférieur à l'annonce, et il faut le
+dire ainsi plutôt que de l'arrondir. La décision **D3** est tranchée par
+[ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) :
+**on n'achète pas de matériel ; on livre ce qui se vérifie sans en avoir, et on
+refuse le reste en le disant.**
+
+Les quatre lignes ne se traitaient pas de la même façon, et les avoir groupées
+était l'erreur du plan.
+
+### L'anti-vol ne demandait aucun capteur — et c'était le plus cinglant
+
+Le constat du §5 était le plus dur du document : « Zümm **cache** la position
+pour protéger du vol ; Onibi **alerte** quand il survient. Les deux réponses sont
+complémentaires, Zümm n'a que la première. »
+
+Une ruche emportée ou renversée se voit dans la série de **poids** que l'API
+ingère déjà. Ce qui manquait n'était pas une donnée, c'était une règle — et tout
+le lot tient dans la phrase qui la rend utilisable :
+
+> Une chute de vingt kilogrammes est une **récolte** si une récolte a été
+> enregistrée ce jour-là sur cette ruche, et un **vol** sinon.
+
+Sans cette vérification, la première miellée de l'année réveillerait l'alarme sur
+tout le rucher. L'apiculteur la couperait — et une alarme qu'on coupe ne protège
+plus de rien. C'est le même raisonnement qu'au SPRINT-22 sur le forçage de
+carence : un mécanisme qu'on contourne vaut moins qu'un mécanisme qui prévoit le
+cas normal.
+
+Deux bornes accompagnent la règle, et elles sont honnêtes. La comparaison porte
+sur **deux heures** : une passerelle qui pousse une fois par jour ne déclenchera
+jamais cette alarme, parce qu'à cette cadence elle ne peut pas voir un vol. Et
+l'alerte **ne se referme jamais toute seule** : une ruche volée ne revient pas, et
+une alerte qui disparaîtrait parce que la balance repose sur le sol serait pire
+que pas d'alerte du tout.
+
+### Le Bluetooth : le profil standard, et rien d'inventé
+
+Ce qui est vendeur, c'est « BroodMinder ». Ce qui est **vérifiable sans
+matériel**, c'est le profil Bluetooth SIG : *Environmental Sensing* (`0x181A`) et
+*Battery Service* (`0x180F`), dont les identifiants et les unités sont
+normalisés. Tout capteur qui les implémente fonctionne, et l'écran le dit.
+
+Le refus est aussi important que la livraison : écrire un décodeur pour la trame
+propriétaire d'un fabricant dont personne n'a l'appareil reviendrait à **deviner
+une structure de données**. Le résultat aurait l'apparence du support sans en
+avoir la fiabilité — c'est le refus du réfractomètre au SPRINT-27, appliqué à un
+autre sujet.
+
+Ce qui se teste sans matériel, c'est justement ce qui peut se tromper sans se
+voir : le **décodage**. Une température lue à l'envers donne des milliers de
+degrés et se remarque ; une humidité inversée passerait pour plausible et
+fausserait une série entière. D'où six tests sur les unités, le signe, la
+caractéristique absente et la fermeture du GATT.
+
+Web Bluetooth est **absent d'iOS Safari** et de Firefox. L'écran l'écrit au lieu
+d'afficher un bouton inerte : la passerelle reste le chemin de tout le monde, le
+Bluetooth direct est un raccourci pour ceux qui l'ont.
+
+### Les intégrations nommées passent à 🟡, pas à ✅
+
+Ce qui est livré sert **toutes** les intégrations sans en privilégier aucune :
+`POST /api/mesures/lot`. Quarante ruches et quatre indicateurs relevés au quart
+d'heure faisaient cent soixante requêtes, chacune avec sa poignée de main TLS et
+sa clé d'idempotence ; elles en font une.
+
+La ligne ne passe pas à ✅, et il ne faut pas qu'elle y passe : **personne n'a
+vérifié une seule trame BroodMinder ici**. Le plan le recommandait déjà — un
+partenariat, pas un développement — et le lot le confirme.
+
+### L'analyse vidéo et acoustique est refusée
+
+Elle demanderait un flux audio ou vidéo, donc un stockage binaire que le dépôt
+n'a pas, et un modèle que l'[ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md)
+interdit de faire tourner ailleurs que sur l'appareil.
+
+Le détail qui tranche : détecter une colonie orpheline au son suppose de savoir
+ce qu'on écoute. Sortir un verdict d'un pic de fréquence sans donnée de
+validation produirait un chiffre inventé sur une question que l'apiculteur ne
+peut pas vérifier autrement qu'en ouvrant la ruche — c'est-à-dire exactement le
+geste qu'on prétendait lui épargner.
+
+### Deux défauts trouvés par le test, dont un antérieur au lot
+
+Le test d'intégration écrit pour l'anti-vol en a révélé deux.
+
+1. **`uq_alerte_ouverte` était à moitié corrigé** — le mien. La `V30` ajoutait
+   une colonne `categorie` et un finder qui la lit, mais laissait l'index unique
+   de la `V8` sur `(ruche, indicateur)`. L'insertion de l'alerte de vol échouait
+   donc en 409 sur une ruche portant déjà une alerte de poids : précisément le
+   cas qu'on venait d'ouvrir. Le finder et l'index disent désormais la même
+   chose, ce qui est la règle du dépôt depuis l'ADR-001 — les deux couches
+   doivent converger.
+2. **`GET /api/mesures/alertes` ne pouvait réussir que sur une liste vide**, et
+   ce depuis le SPRINT-06. La lecture vivait dans le contrôleur, hors de toute
+   transaction ; `Alerte.ruche` étant `LAZY`, la sérialisation levait une
+   `LazyInitializationException` dès qu'une alerte existait. **Aucun test n'avait
+   jamais appelé cette route avec une alerte ouverte** — c'est le premier qui l'a
+   fait qui l'a trouvée. La lecture est passée au service, comme partout ailleurs.
+
+Le second est le plus instructif : une route couverte par un test qui ne la met
+jamais dans l'état intéressant est une route non couverte.

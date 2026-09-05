@@ -10,7 +10,8 @@ import java.time.Instant;
  * au pont MQTT. {@code instant} est optionnel : par defaut l'instant de reception.
  *
  * @param rucheId        ruche mesuree, obligatoire ; doit exister dans le tenant
- * @param typeIndicateur poids / temperature / humidite / activite
+ * @param typeIndicateur poids / temperature / humidite / activite / alimentation
+ *                       / inclinaison
  * @param valeur         valeur mesuree (unite de reference de l'indicateur)
  * @param instant        horodatage de la mesure ; defaut = maintenant
  */

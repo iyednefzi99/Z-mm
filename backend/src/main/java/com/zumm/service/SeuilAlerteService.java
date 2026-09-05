@@ -56,7 +56,13 @@ public class SeuilAlerteService {
      */
     public List<AlerteReponse> evaluer(Ruche ruche, TypeIndicateur type, BigDecimal valeur) {
         Depassement d = analyser(type, valeur, configuration.seuils());
-        Optional<Alerte> ouverte = alertes.findByRuche_IdAndTypeIndicateurAndOuverteTrue(ruche.getId(), type);
+        // La categorie est passee explicitement depuis le SPRINT-31 : ce service
+        // ne s'occupe QUE des depassements de seuil. Une alerte de vol ouverte
+        // sur le meme indicateur ne doit ni le bloquer, ni etre fermee par un
+        // poids revenu dans la bande — la ruche volee ne revient pas toute seule.
+        Optional<Alerte> ouverte = alertes
+                .findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+                        ruche.getId(), type, Alerte.SEUIL);
 
         return switch (d.zone()) {
             case ALERTE -> ouverte.isPresent() ? List.of()
@@ -97,6 +103,12 @@ public class SeuilAlerteService {
             case ALIMENTATION -> bas(v, s.batterieMinPourcent(), Alerte.ATTENTION,
                     "Batterie du capteur a %.0f%%, sous le seuil de %d%%"
                             .formatted(v, s.batterieMinPourcent()));
+            // Une ruche hors de la verticale a bouge (SPRINT-31). Seuil HAUT,
+            // et niveau CRITIQUE : contrairement a une batterie faible, cela ne
+            // s'arrange pas tout seul et ne peut pas attendre la tournee.
+            case INCLINAISON -> haut(v, s.inclinaisonMaxDegres(), Alerte.CRITIQUE,
+                    "Inclinaison de %.0f°, au-dela du seuil de %d°"
+                            .formatted(v, s.inclinaisonMaxDegres()));
             // Aucun seuil parametre pour l'activite : jamais d'alerte.
             case ACTIVITE -> Depassement.neutre();
         };

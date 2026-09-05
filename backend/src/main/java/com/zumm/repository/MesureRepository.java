@@ -10,6 +10,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MesureRepository extends JpaRepository<Mesure, MesureId> {
 
     /**
+     * Mesure immediatement anterieure d'une ruche pour un indicateur (SPRINT-31).
+     *
+     * <p>Sert l'alarme anti-vol : une chute ne se voit qu'en comparant DEUX
+     * points. Le tri descendant plus `findFirst` rend une seule ligne — remonter
+     * la serie entiere pour en prendre l'avant-derniere serait la meme erreur
+     * que celle deja evitee pour le comptage des alertes.
+     */
+    java.util.Optional<Mesure>
+            findFirstByIdRucheIdAndIdTypeIndicateurAndIdInstantLessThanOrderByIdInstantDesc(
+                    Long rucheId, com.zumm.domain.TypeIndicateur type, java.time.Instant instant);
+
+    /**
      * Toutes les mesures d'un indicateur, triees par ruche puis instant croissant.
      * Le tri par instant croissant fait de la derniere valeur vue, pour une ruche
      * donnee, la mesure la plus recente (agregation en memoire, US-013/US-034).

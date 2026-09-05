@@ -687,7 +687,8 @@
       "temperature": "Température",
       "humidite": "Humidité",
       "activite": "Activité",
-      "alimentation": "Batterie du capteur"
+      "alimentation": "Batterie du capteur",
+      "inclinaison": "Inclinaison"
     },
     "niveaux": {
       "attention": "Attention",
@@ -1994,5 +1995,22 @@
     "inactif": "appels sortants autorisés",
     "aide": "Deux moitiés distinctes, et il faut les régler séparément : le serveur coupe la météo et le microservice d'anomalie ; cet appareil coupe les fonds de carte, qui partent de votre navigateur et révèlent où sont vos ruchers. La détection d'anomalie continue de fonctionner : elle s'exécute alors ici même.",
     "carteCoupee": "Fond de carte désactivé par le mode local."
+  },
+  "bluetooth": {
+    "titre": "Lecture directe (Bluetooth)",
+    "lire": "Lire un capteur",
+    "lecture": "Lecture en cours…",
+    "absent": "Ce navigateur n'expose pas le Bluetooth (c'est le cas de Safari sur iPhone et de Firefox). La passerelle reste le chemin de tout le monde.",
+    "profil": "Zümm parle le profil Bluetooth standard — température, humidité, batterie. Un capteur qui s'en écarte demande son propre adaptateur, que nous n'écrirons pas sans l'appareil sous la main.",
+    "rien": "Ce capteur n'expose aucune des mesures attendues.",
+    "enregistre": "{nombre} mesure(s) enregistrée(s) sur la ruche.",
+    "choisirRuche": "Ruche à alimenter",
+    "erreur": "Lecture interrompue."
+  },
+  "antivol": {
+    "titre": "Alarme anti-vol",
+    "categorie": "Vol probable",
+    "seuil": "Dépassement de seuil",
+    "aide": "Une chute brutale de poids qu'aucune récolte n'explique ouvre une alerte. Elle ne se referme pas toute seule : une ruche volée ne revient pas, et une alerte qui disparaîtrait parce que la balance repose sur le sol serait pire que pas d'alerte."
   }
 }

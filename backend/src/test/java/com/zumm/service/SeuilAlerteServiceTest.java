@@ -53,7 +53,8 @@ class SeuilAlerteServiceTest {
     @Test
     @DisplayName("ouvre une alerte critique quand le poids passe sous le seuil")
     void ouvreAlerteSousLeSeuil() {
-        when(alertes.findByRuche_IdAndTypeIndicateurAndOuverteTrue(any(), eq(TypeIndicateur.POIDS)))
+        when(alertes.findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+                any(), eq(TypeIndicateur.POIDS), eq(Alerte.SEUIL)))
                 .thenReturn(Optional.empty());
         when(alertes.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -70,7 +71,8 @@ class SeuilAlerteServiceTest {
     @DisplayName("n'ouvre pas de doublon quand une alerte est déjà ouverte")
     void pasDeDoublonSiDejaOuverte() {
         Alerte existante = new Alerte(ruche, TypeIndicateur.POIDS, Alerte.CRITIQUE, "msg", BigDecimal.valueOf(9));
-        when(alertes.findByRuche_IdAndTypeIndicateurAndOuverteTrue(any(), eq(TypeIndicateur.POIDS)))
+        when(alertes.findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+                any(), eq(TypeIndicateur.POIDS), eq(Alerte.SEUIL)))
                 .thenReturn(Optional.of(existante));
 
         List<AlerteReponse> resultat = service.evaluer(ruche, TypeIndicateur.POIDS, BigDecimal.valueOf(11));
@@ -83,7 +85,8 @@ class SeuilAlerteServiceTest {
     @DisplayName("ferme l'alerte quand le poids revient au-delà de la bande d'hystérésis")
     void fermeAlerteEnZoneSure() {
         Alerte existante = new Alerte(ruche, TypeIndicateur.POIDS, Alerte.CRITIQUE, "msg", BigDecimal.valueOf(9));
-        when(alertes.findByRuche_IdAndTypeIndicateurAndOuverteTrue(any(), eq(TypeIndicateur.POIDS)))
+        when(alertes.findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+                any(), eq(TypeIndicateur.POIDS), eq(Alerte.SEUIL)))
                 .thenReturn(Optional.of(existante));
 
         // 16 kg >= 15 + 0,75 : zone sûre → fermeture.
@@ -97,7 +100,8 @@ class SeuilAlerteServiceTest {
     @Test
     @DisplayName("zone neutre (entre seuil et bande) : aucun changement d'état")
     void zoneNeutreNeChangeRien() {
-        when(alertes.findByRuche_IdAndTypeIndicateurAndOuverteTrue(any(), eq(TypeIndicateur.POIDS)))
+        when(alertes.findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+                any(), eq(TypeIndicateur.POIDS), eq(Alerte.SEUIL)))
                 .thenReturn(Optional.empty());
 
         // 15,2 kg est dans [15 ; 15,75) : ni alerte, ni fermeture.

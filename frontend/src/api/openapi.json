@@ -2405,7 +2405,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           }
         } ],
         "responses" : {
@@ -2444,6 +2444,40 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/MesureReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesures/lot" : {
+      "post" : {
+        "tags" : [ "mesure-controller" ],
+        "operationId" : "ingererLot",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "array",
+                "items" : {
+                  "$ref" : "#/components/schemas/MesureCorps"
+                }
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/MesureReponse"
+                  }
                 }
               }
             }
@@ -4215,7 +4249,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           }
         } ],
         "responses" : {
@@ -4349,7 +4383,7 @@
           "schema" : {
             "type" : "string",
             "default" : "POIDS",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           }
         } ],
         "responses" : {
@@ -5170,7 +5204,7 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           }
         } ],
         "responses" : {
@@ -8261,7 +8295,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           },
           "valeur" : {
             "type" : "number"
@@ -8289,7 +8323,10 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
+          },
+          "categorie" : {
+            "type" : "string"
           },
           "niveau" : {
             "type" : "string"
@@ -8322,7 +8359,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           },
           "instant" : {
             "type" : "string",
@@ -9820,6 +9857,14 @@
             "type" : "integer",
             "format" : "int32"
           },
+          "inclinaisonMaxDegres" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "chuteVolKg" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "delaiAlerteJours" : {
             "type" : "integer",
             "format" : "int32"
@@ -10059,7 +10104,7 @@
           },
           "typeIndicateur" : {
             "type" : "string",
-            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation" ]
+            "enum" : [ "poids", "temperature", "humidite", "activite", "alimentation", "inclinaison" ]
           },
           "alpha" : {
             "type" : "number",

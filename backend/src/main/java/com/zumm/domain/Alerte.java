@@ -25,6 +25,19 @@ public class Alerte extends EntiteTenant {
     public static final String ATTENTION = "attention";
     public static final String CRITIQUE = "critique";
 
+    /** Depassement d'un seuil parametre : le cas d'origine (US-018). */
+    public static final String SEUIL = "seuil";
+
+    /**
+     * Chute brutale sans recolte enregistree (SPRINT-31, lot F2).
+     *
+     * <p>Une categorie a part, et non un niveau de plus : une ruche peut etre
+     * A LA FOIS legere et volee. Sans cette distinction, l'alerte de seuil deja
+     * ouverte sur le poids empechait l'alerte de vol de s'ouvrir — au moment
+     * precis ou elle sert.
+     */
+    public static final String ANTIVOL = "antivol";
+
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ruche_id", nullable = false)
@@ -55,17 +68,31 @@ public class Alerte extends EntiteTenant {
     @Column(name = "fermee_le")
     private Instant fermeeLe;
 
+    @Column(name = "categorie", nullable = false, length = 20)
+    private String categorie = SEUIL;
+
     protected Alerte() {
         // Requis par JPA.
     }
 
     public Alerte(Ruche ruche, TypeIndicateur typeIndicateur, String niveau, String message,
             BigDecimal valeurDeclenchement) {
+        this(ruche, typeIndicateur, niveau, message, valeurDeclenchement, SEUIL);
+    }
+
+    /** Alerte d'une categorie donnee : {@link #SEUIL} ou {@link #ANTIVOL}. */
+    public Alerte(Ruche ruche, TypeIndicateur typeIndicateur, String niveau, String message,
+            BigDecimal valeurDeclenchement, String categorie) {
         this.ruche = ruche;
         this.typeIndicateur = typeIndicateur;
         this.niveau = niveau;
         this.message = message;
         this.valeurDeclenchement = valeurDeclenchement;
+        this.categorie = categorie;
+    }
+
+    public String getCategorie() {
+        return categorie;
     }
 
     /** Ferme l'alerte : l'indicateur est revenu dans la bande normale (US-018). */

@@ -27,12 +27,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/mesures")
 public class MesureController {
 
+    /**
+     * Plafond d'un lot d'ingestion.
+     *
+     * <p>Cinq cents mesures couvrent un rucher entier sur plusieurs releves ;
+     * au-dela, la requete devient un import, et un import se fait autrement.
+     * Sans plafond, une passerelle en boucle peut immobiliser une transaction
+     * sur l'hypertable la plus ecrite du systeme.
+     */
+    private static final int TAILLE_LOT_MAX = 500;
+
     private final MesureService service;
     private final AlerteRepository alertes;
 
     public MesureController(MesureService service, AlerteRepository alertes) {
         this.service = service;
         this.alertes = alertes;
+    }
+
+    /**
+     * Ingestion par lot, pour une passerelle (SPRINT-31, lot F2).
+     *
+     * <p>Le meme traitement que l'unitaire, applique en une transaction : tout
+     * passe ou rien ne passe. C'est ce qui permet a une passerelle de rejouer
+     * un lot entier apres une coupure sans avoir a deviner ce qui est arrive.
+     */
+    @PostMapping("/lot")
+    public List<MesureReponse> ingererLot(
+            @Valid @RequestBody @jakarta.validation.constraints.NotEmpty
+            @jakarta.validation.constraints.Size(max = TAILLE_LOT_MAX)
+            List<@jakarta.validation.Valid MesureCorps> corps) {
+        return service.ingererLot(corps);
     }
 
     @PostMapping
@@ -66,6 +91,9 @@ public class MesureController {
     /** Alertes de seuils actuellement ouvertes (US-018). */
     @GetMapping("/alertes")
     public List<AlerteReponse> alertesOuvertes() {
-        return alertes.findByOuverteTrueOrderByOuverteLeDesc().stream().map(AlerteReponse::de).toList();
+        // Delegue au service : la lecture doit etre TRANSACTIONNELLE, `Alerte.ruche`
+        // etant LAZY. Faite ici, elle levait une `LazyInitializationException` des
+        // qu'une alerte existait — voir `MesureService.alertesOuvertes`.
+        return service.alertesOuvertes();
     }
 }

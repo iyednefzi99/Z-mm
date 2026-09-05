@@ -44,12 +44,17 @@ class PolitiquePositionsSelonRoleTest {
 
     private void seuilArrondi(int decimales) {
         SeuilsMetier defauts = SeuilsMetier.defauts();
-        when(configuration.seuils()).thenReturn(new SeuilsMetier(
+        // Les seuils se construisent AVANT le `when` : les fabriquer dans les
+        // arguments de `thenReturn` stube pendant qu'on stube, et Mockito le
+        // refuse. Le piege est deja note dans `RecolteServiceTest`.
+        SeuilsMetier seuils = new SeuilsMetier(
                 defauts.langueParDefaut(), defauts.languesActives(), defauts.poidsRucheAlerteKg(),
                 defauts.temperatureMinCelsius(), defauts.temperatureMaxCelsius(),
                 defauts.humiditeMaxPourcent(), defauts.batterieMinPourcent(),
+                defauts.inclinaisonMaxDegres(), defauts.chuteVolKg(),
                 defauts.delaiAlerteJours(), decimales,
-                defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur()));
+                defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur());
+        when(configuration.seuils()).thenReturn(seuils);
     }
 
     @AfterEach

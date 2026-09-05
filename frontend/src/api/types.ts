@@ -889,21 +889,38 @@ export type TypeIndicateur =
    * reproche fait à BeeLog et Onibi n'est pas l'absence de mesure, c'est la
    * panne silencieuse — d'où une valeur de plus, et le même mécanisme d'alerte.
    */
-  | 'alimentation';
+  | 'alimentation'
+  /**
+   * Inclinaison de la ruche, en degrés (SPRINT-31).
+   *
+   * <p>Ne dit rien de la colonie non plus : c'est la POSITION de la caisse. Une
+   * ruche renversée par le vent, un sanglier ou un voleur sort de la verticale.
+   */
+  | 'inclinaison';
 export const TYPES_INDICATEUR: readonly TypeIndicateur[] = [
   'poids',
   'temperature',
   'humidite',
   'activite',
   'alimentation',
+  'inclinaison',
 ];
 
 /** Alerte de seuil déclenchée par une mesure (US-018). */
+/**
+ * Famille d'une alerte (SPRINT-31).
+ *
+ * <p>Un dépassement de seuil se surveille ; une chute brutale sans récolte fait
+ * prendre la voiture. L'écran doit pouvoir les distinguer sans lire le message.
+ */
+export type CategorieAlerte = 'seuil' | 'antivol';
+
 export interface AlerteMesure {
   id: number;
   rucheId: number;
   rucheModele: string;
   typeIndicateur: TypeIndicateur;
+  categorie: CategorieAlerte;
   niveau: 'attention' | 'critique';
   message: string;
   valeurDeclenchement: number;

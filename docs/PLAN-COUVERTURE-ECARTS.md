@@ -293,8 +293,30 @@ apicole, pas un ERP, et ce bloc a le poids d'un produit à lui seul.
 
 **Le lot F₁ — les quatre premières lignes — est ✅ LIVRÉ** le 04/09/2026
 (migration `V26`) : indicateur d'alimentation et son seuil, poids par hausse dans
-une table distincte, partage d'un flux hors de l'exploitation. Les quatre
-suivantes forment le **lot F₂**, d'une autre nature — voir la décision **D3**.
+une table distincte, partage d'un flux hors de l'exploitation.
+
+**Le lot F₂ — les quatre suivantes — est ✅ LIVRÉ le 05/09/2026** (migration
+`V30`), et c'est **le premier lot dont le résultat est inférieur à l'annonce** :
+deux lignes fermées, une passée à 🟡, une **refusée**. La décision D3 est tranchée
+par [ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) —
+on n'achète pas de matériel, on livre ce qui se vérifie sans en avoir, et on
+refuse le reste en le disant.
+
+| Ligne | Verdict | Pourquoi |
+|---|:--:|---|
+| Alarme anti-vol / basculement | ✅ | Aucun capteur nouveau n'était requis : une ruche emportée se voit dans la série de poids. Toute la règle tient dans une phrase — une chute est une *récolte* si une récolte est enregistrée ce jour-là, un *vol* sinon |
+| Connexion Bluetooth directe | ✅ | Le **profil SIG** seulement, dont les identifiants sont normalisés. Absent d'iOS Safari, et l'écran l'écrit |
+| Intégrations nommées | 🟡 | `POST /api/mesures/lot` sert toutes les intégrations. Les adaptateurs nommés restent dehors : **personne n'a vérifié une trame BroodMinder ici** |
+| Analyse vidéo / acoustique | ❌ | **Refusée.** Il faudrait un stockage binaire que le dépôt n'a pas et un modèle que l'ADR-013 interdit d'exécuter ailleurs que sur l'appareil |
+
+> Ce que la mise en œuvre a **ajouté**, une fois de plus par un test : `V8`
+> garantissait « au plus une alerte ouverte par (ruche, indicateur) ». Une ruche
+> peut être **à la fois légère et volée** — l'index unique a dû apprendre la
+> catégorie, faute de quoi l'alerte de vol échouait en 409 au moment précis où
+> elle sert. Et `GET /api/mesures/alertes` ne pouvait réussir que sur une liste
+> **vide** depuis le SPRINT-06 : la lecture vivait hors transaction, et
+> `Alerte.ruche` est `LAZY`. Aucun test ne l'avait jamais appelée avec une alerte
+> ouverte.
 
 > Ce que la mise en œuvre a **ajouté** au plan : « `SeuilAlerteService` sait déjà
 > alerter, il suffit d'ajouter un indicateur » était juste — mais `alerte` porte
@@ -489,10 +511,10 @@ configurable, lui, est une exception : c'est un curseur d'interface, `rayonsKm`
 Aucune ne se tranche en écrivant du code, et trois d'entre elles bloquaient un
 lot entier. Les laisser implicites, c'est écrire du code qu'il faudra jeter.
 
-**Deux sont tranchées** — D2 le 04/09/2026 (ADR-012), D4 le 05/09/2026
-(ADR-013) — et chacune a débloqué son lot dans la journée qui a suivi. Les deux
-restantes, D1 et D3, ne dépendent pas du code : l'une du choix d'un référentiel
-de données, l'autre d'un achat de matériel.
+**Trois sont tranchées** — D2 le 04/09/2026 (ADR-012), D4 et D3 le 05/09/2026
+(ADR-013, ADR-014) — et chacune a débloqué son lot dans la journée qui a suivi.
+La dernière, **D1**, ne dépend pas du code : elle demande de choisir un
+référentiel de données, et ce choix décide du marché que le produit peut servir.
 
 ### D1 — Quel référentiel d'occupation du sol ? *(bloque le lot H)*
 
@@ -522,15 +544,21 @@ C'est [ADR-012](../roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif
 accepté. Le `navigateFallbackDenylist` n'a pas bougé ; mesures de capteurs, météo
 et positions exactes restent hors de l'emport, ce qui était l'objection réelle.
 
-### D3 — Achète-t-on du matériel ? *(borne le lot F)*
+### ~~D3 — Achète-t-on du matériel ?~~ ✅ *tranchée le 05/09/2026*
 
 Les intégrations nommées (BroodMinder, BEEP, Sensorii) supposent de posséder le
 matériel pour l'éprouver, et le Bluetooth direct est **absent d'iOS Safari** —
 donc inaccessible à la PWA sur iPhone, qui est la moitié du parc. L'API
 d'ingestion ouverte, elle, fonctionne déjà avec n'importe quelle passerelle.
 
-**Recommandation** : livrer les trois lignes bon marché du lot F, et traiter les
-intégrations nommées comme un partenariat, pas comme un développement.
+**Recommandation suivie**, et étendue par
+[ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) :
+non, on n'achète pas de matériel. L'anti-vol n'en demandait aucun — la donnée
+était déjà là, il manquait une règle. Le Bluetooth se livre sur le **profil
+standard**, dont les identifiants sont normalisés et non devinés. Les
+intégrations nommées restent un partenariat. Et l'analyse vidéo/acoustique est
+**refusée** : elle produirait un verdict inventé sur une question que
+l'apiculteur ne peut vérifier qu'en ouvrant la ruche.
 
 ### ~~D4 — Où tourne l'IA ?~~ ✅ *tranchée le 05/09/2026*
 
@@ -581,7 +609,7 @@ tables. Si c'est l'objectif, il commence par
 | ~~6~~ | ~~**E** — production, stock, matériel~~ ✅ | 12 | **112** | *Livré le 04/09/2026 (V27)* — 12 sur 14 ; le réfractomètre passe au lot I, la logistique multi-sites au lot G | — |
 | ~~7~~ | ~~**I** — carnet paramétrable~~ ✅ | 5 | **117** | *Livré le 05/09/2026 (V28)* — les cinq lignes annoncées, réfractomètre compris | — |
 | ~~8~~ | ~~**D** — élevage et généalogie~~ ✅ | 7 | **124** | *Livré le 05/09/2026 (V29)* — les sept lignes ; le §7 n'a plus de ❌ | ~~Critères de l'index~~ **tranchée** : cinq critères, aucune note globale |
-| 9 | **F₂** — capteurs du commerce | 4 | 128 | Suspendu au matériel, pas au code | **D3** |
+| ~~9~~ | ~~**F₂** — capteurs du commerce~~ ✅ | 2 | **132** | *Livré le 05/09/2026 (V30, ADR-014)* — 2 lignes sur 4 : les intégrations nommées passent à 🟡, l'analyse vidéo/acoustique est refusée | ~~D3~~ **tranchée** : on n'achète pas de matériel |
 | ~~10~~ | ~~**G** — voix et assistance~~ ✅ | 6 | **130** | *Livré le 05/09/2026 (ADR-013)* — 6 lignes au lieu des 5 annoncées : la note vocale laissée par C tombe avec la transcription. La réinitialisation laissée par J attend toujours un serveur d'envoi | ~~D4~~ **tranchée** : sur l'appareil, ou pas du tout |
 | 11 | **H** — SIG environnemental | 9 | 145 | Le plus cher, et bloqué tant que la source de données n'est pas choisie | **D1** |
 
@@ -590,11 +618,15 @@ le placer si bas : il ne coûtait pas plus cher que J ou F₁, et il portait le
 reproche n° 1 fait à trois des douze concurrents. Ce qui le retenait était la
 décision D2, qu'un ADR d'une page a levée.
 
-Neuf lots étant livrés, **130 ✅ sur 153** — plus de six septièmes des lignes
-statuables. Il ne reste que **deux lots**, valant 13 lignes, et chacun dépend
-d'un arbitrage qui ne se tranche pas en écrivant du code : le matériel à acheter
-(**D3**, lot F₂) et la source de données d'occupation du sol (**D1**, lot H).
-D4 est tranchée ; D2 l'était déjà.
+Dix lots étant livrés, **132 ✅ sur 153**. Il ne reste qu'**un seul lot** — le
+lot H, SIG environnemental, 9 lignes — et une seule décision, **D1** : quel
+référentiel d'occupation du sol. Trois des quatre décisions du départ sont
+tranchées.
+
+Le plafond reste **145 ✅**, jamais 153 : les 8 lignes ⛔ sont des décisions de
+périmètre. À quoi s'ajoutent désormais **4 lignes 🟡 et 9 ❌** dont une partie ne
+franchira pas la barre sans matériel, sans données de validation ou sans un
+produit à part entière — le document les nomme une par une.
 
 Le compte plafonne à **145 ✅**, jamais à 153 : les **8 lignes ⛔** ne sont pas des
 travaux mais des décisions de périmètre (§4). 145 + 8 = 153, et le document est

@@ -687,7 +687,8 @@
       "temperature": "Temperature",
       "humidite": "Humidity",
       "activite": "Activity",
-      "alimentation": "Sensor battery"
+      "alimentation": "Sensor battery",
+      "inclinaison": "Tilt"
     },
     "niveaux": {
       "attention": "Warning",
@@ -1994,5 +1995,22 @@
     "inactif": "outbound calls allowed",
     "aide": "Two separate halves, each set on its own: the server cuts weather and the anomaly microservice; this device cuts map tiles, which are fetched by your browser and reveal where your apiaries are. Anomaly detection keeps working — it then runs right here.",
     "carteCoupee": "Map tiles disabled by local mode."
+  },
+  "bluetooth": {
+    "titre": "Direct reading (Bluetooth)",
+    "lire": "Read a sensor",
+    "lecture": "Reading…",
+    "absent": "This browser does not expose Bluetooth (Safari on iPhone and Firefox do not). The gateway remains everyone's path.",
+    "profil": "Zümm speaks the standard Bluetooth profile — temperature, humidity, battery. A sensor that departs from it needs its own adapter, which we will not write without the device at hand.",
+    "rien": "This sensor exposes none of the expected readings.",
+    "enregistre": "{nombre} reading(s) recorded on the hive.",
+    "choisirRuche": "Hive to feed",
+    "erreur": "Reading interrupted."
+  },
+  "antivol": {
+    "titre": "Theft alarm",
+    "categorie": "Probable theft",
+    "seuil": "Threshold exceeded",
+    "aide": "A sudden weight drop that no harvest explains raises an alert. It does not close by itself: a stolen hive does not come back, and an alert that vanished because the scale is lying on the ground would be worse than no alert."
   }
 }

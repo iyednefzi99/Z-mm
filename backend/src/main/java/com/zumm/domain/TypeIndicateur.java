@@ -21,7 +21,22 @@ public enum TypeIndicateur {
      * sur l'absence de mesure : d'ou une valeur d'enumeration de plus, et
      * {@code SeuilAlerteService} qui s'en occupe comme des autres.
      */
-    ALIMENTATION("alimentation");
+    ALIMENTATION("alimentation"),
+
+    /**
+     * Inclinaison de la ruche, en degres (SPRINT-31, lot F2).
+     *
+     * <p>Ne dit rien de la colonie non plus : c'est la POSITION de la caisse.
+     * Une ruche renversee par le vent, un sanglier ou un voleur sort de la
+     * verticale, et c'est le signal le plus direct qu'un capteur puisse donner.
+     *
+     * <p>Peu de materiel en pousse aujourd'hui, et ce n'est pas la question :
+     * l'API d'ingestion est generique, et le point est de ne pas obliger celui
+     * qui en a a detourner un autre indicateur. Meme raisonnement qu'a
+     * l'alimentation au SPRINT-26 — une valeur d'enumeration, un seuil, et
+     * {@code SeuilAlerteService} s'en occupe comme des autres.
+     */
+    INCLINAISON("inclinaison");
 
     private final String enBase;
 

@@ -32,6 +32,7 @@ import { useFormats, useLangue, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampNombre, ChampSelect, ChampTexte, Option } from '../ui/composants';
 import { Courbe, type Serie } from '../ui/graphiques';
+import { PanneauBluetooth } from '../capteurs/PanneauBluetooth';
 
 const UNITES = ['kg', 'g', 'lb', 't'];
 
@@ -297,6 +298,10 @@ export function CapteursVue(): ReactElement {
           </div>
         </div>
       </fieldset>
+
+      {/* La lecture directe (SPRINT-31) est posée SOUS la saisie manuelle : elle
+          alimente les mêmes séries, et c'est un raccourci, pas un canal à part. */}
+      <PanneauBluetooth optRuches={optRuches} onIngere={rafraichirAlertes} />
 
       <fieldset className="z-composition">
         <legend className="z-champ__libelle">{t.capteur.alertes}</legend>

@@ -34,6 +34,21 @@ public record SeuilsMetier(
          * ce qui reste quand la balance s'est deja tue.
          */
         int batterieMinPourcent,
+        /**
+         * Inclinaison au-dela de laquelle une ruche est signalee, en degres.
+         *
+         * <p>20° par defaut : une ruche posee de travers sur un terrain en pente
+         * n'en est pas la. Au-dela, elle a bouge.
+         */
+        int inclinaisonMaxDegres,
+        /**
+         * Chute de poids qui declenche l'alarme anti-vol, en kilogrammes.
+         *
+         * <p>10 kg par defaut, entre deux mesures consecutives. C'est plus
+         * qu'une hausse pleine retiree a la main sans que rien ne soit
+         * enregistre, et moins qu'une ruche emportee.
+         */
+        int chuteVolKg,
         int delaiAlerteJours,
         int arrondiDegresPublic,
         int taillePageParDefaut,
@@ -50,6 +65,8 @@ public record SeuilsMetier(
                 36,
                 70,
                 20,
+                20,
+                10,
                 21,
                 2,
                 25,

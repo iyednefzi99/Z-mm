@@ -12,8 +12,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface AlerteRepository extends JpaRepository<Alerte, Long> {
 
-    /** Alerte actuellement ouverte pour une ruche et un indicateur, s'il y en a une. */
-    Optional<Alerte> findByRuche_IdAndTypeIndicateurAndOuverteTrue(Long rucheId, TypeIndicateur type);
+    /**
+     * Alerte de SEUIL actuellement ouverte pour une ruche et un indicateur.
+     *
+     * <p>La categorie est dans la signature depuis le SPRINT-31 : sans elle,
+     * une alerte de vol deja ouverte sur le poids aurait empeche l'alerte de
+     * seuil de s'ouvrir, et reciproquement. Une ruche peut etre legere ET volee.
+     */
+    Optional<Alerte> findByRuche_IdAndTypeIndicateurAndCategorieAndOuverteTrue(
+            Long rucheId, TypeIndicateur type, String categorie);
 
     /** Alertes ouvertes, les plus recentes d'abord (tableau de bord / synthese). */
     List<Alerte> findByOuverteTrueOrderByOuverteLeDesc();

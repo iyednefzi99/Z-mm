@@ -676,6 +676,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mesures/lot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ingererLot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/materiels": {
         parameters: {
             query?: never;
@@ -3207,7 +3223,7 @@ export interface components {
             /** Format: int64 */
             rucheId: number;
             /** @enum {string} */
-            typeIndicateur: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+            typeIndicateur: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             valeur: number;
             /** Format: date-time */
             instant?: string;
@@ -3219,7 +3235,8 @@ export interface components {
             rucheId?: number;
             rucheModele?: string;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
+            categorie?: string;
             niveau?: string;
             message?: string;
             valeurDeclenchement?: number;
@@ -3233,7 +3250,7 @@ export interface components {
             /** Format: int64 */
             rucheId?: number;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             /** Format: date-time */
             instant?: string;
             valeur?: number;
@@ -3824,6 +3841,10 @@ export interface components {
             /** Format: int32 */
             batterieMinPourcent?: number;
             /** Format: int32 */
+            inclinaisonMaxDegres?: number;
+            /** Format: int32 */
+            chuteVolKg?: number;
+            /** Format: int32 */
             delaiAlerteJours?: number;
             /** Format: int32 */
             arrondiDegresPublic?: number;
@@ -3916,7 +3937,7 @@ export interface components {
             /** Format: int64 */
             rucheId?: number;
             /** @enum {string} */
-            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+            typeIndicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             /** Format: double */
             alpha?: number;
             /** Format: double */
@@ -5866,7 +5887,7 @@ export interface operations {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             };
             header?: never;
             path?: never;
@@ -5905,6 +5926,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MesureReponse"];
+                };
+            };
+        };
+    };
+    ingererLot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MesureCorps"][];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MesureReponse"][];
                 };
             };
         };
@@ -7295,7 +7340,7 @@ export interface operations {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             };
             header?: never;
             path?: never;
@@ -7401,7 +7446,7 @@ export interface operations {
     consulter: {
         parameters: {
             query?: {
-                indicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+                indicateur?: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             };
             header?: never;
             path: {
@@ -8002,7 +8047,7 @@ export interface operations {
         parameters: {
             query: {
                 rucheId: number;
-                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation";
+                type: "poids" | "temperature" | "humidite" | "activite" | "alimentation" | "inclinaison";
             };
             header?: never;
             path?: never;

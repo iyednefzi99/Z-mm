@@ -365,6 +365,17 @@ export const chargerAudit = () => requete<AuditEntree[]>('/api/audit');
 export const ingererMesure = (corps: MesureCorps) =>
   requete<MesureReponse>('/api/mesures', { method: 'POST', ...corpsJson(corps) });
 
+/**
+ * Pousse plusieurs mesures en une requête (SPRINT-31, lot F₂).
+ *
+ * <p>Ce que toute passerelle demande, et ce dont se sert la lecture Bluetooth :
+ * un capteur rend trois valeurs d'un coup, et trois requêtes pour un seul geste
+ * feraient trois occasions d'échouer à moitié. Le serveur traite le lot en une
+ * transaction — tout passe ou rien ne passe.
+ */
+export const ingererMesures = (corps: MesureCorps[]) =>
+  requete<MesureReponse[]>('/api/mesures/lot', { method: 'POST', ...corpsJson(corps) });
+
 /** US-018 : alertes de seuils actuellement ouvertes. */
 export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesures/alertes');
 
