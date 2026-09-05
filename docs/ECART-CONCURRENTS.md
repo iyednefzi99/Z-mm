@@ -79,16 +79,16 @@ La brique spatiale de Zümm est en place ; la donnée d'entrée manque.
 | Fonctionnalité concurrente | Zümm | Preuve / manque |
 |---|---|---|
 | Rayon de butinage tracé sur la carte | ✅ | `CarteFond.tsx` : polygones **géodésiques** (`cercle()`, correction en cos(lat)), `rayonsKm = [1, 2, 3]` ; repli SVG équivalent dans `CarteVue.tsx` |
-| Rayon de butinage **configurable** par l'utilisateur | 🟡 | `rayonsKm` est une propriété figée à `[1, 2, 3]`. Le curseur de `CarteVue` (`rayonKm`) pilote le **regroupement DBSCAN**, pas le butinage — les deux se confondent visuellement |
-| Couches d'occupation du sol (cultures, forêt, hydrographie, urbanisation) | ❌ | Le fond est **une seule tuile raster** (`VITE_TUILES_URL`). Aucune couche vectorielle thématique, aucun WMS |
-| Calcul des surfaces par type de couvert dans le rayon | ❌ | **L'outil existe, la donnée non** : PostGIS sert déjà à `ST_ClusterDBSCAN` et au voisinage. Une intersection avec une couche de couvert en serait la suite |
-| Historique et rotation des cultures sur plusieurs années | ❌ | Aucune donnée agricole n'entre dans le système |
+| Rayon de butinage **configurable** par l'utilisateur | ✅ | `site.rayon_butinage_km` (`V31`), saisi sur la fiche du rucher, borné à 15 km — au-delà, une abeille ne rentre pas. Sur le SITE et non dans la configuration globale : deux ruchers d'une même exploitation n'ont pas le même terrain, et c'est exactement ce que les surfaces mesurent. Vide, le défaut de `ConfigZumm.ini` s'applique. C'est un **réglage et non un lieu** — il traverse le masquage de `PolitiquePositions`, et un test le vérifie |
+| Couches d'occupation du sol (cultures, forêt, hydrographie, urbanisation) | ✅ | Table `couvert_sol` (`V31`, index GiST), versée par `POST /api/environnement/couvert` en GeoJSON. **La donnée est accueillie, jamais interrogée** ([ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)) : demander à un service tiers ce qu'il y a autour d'un rucher lui apprendrait où sont les ruches — ce que `PolitiquePositions` protège depuis le SPRINT-12 et ce que le mode local du SPRINT-30 vient de couper pour les tuiles. La **taxonomie est fermée** (dix classes) : chaque source nomme les siennes autrement, et les laisser entrer telles quelles rendrait deux exploitations incomparables. L'ingesteur traduit ; une classe inconnue fait échouer le versement **entier** |
+| Calcul des surfaces par type de couvert dans le rayon | ✅ | `GET /api/environnement/sites/{id}/couvert` : `ST_Intersection` sur des `geography`, donc des surfaces **géodésiques réelles** — une projection plane dériverait de plusieurs pourcents, et le produit vise aussi le Maghreb. L'intersection est **bornée au tampon avant** d'être mesurée : sans cela, une parcelle qui déborde compterait en entier, et « 60 % de cultures » désignerait un département. La réponse porte aussi `couverte`, la part du cercle que la couche décrit **réellement** : 30 % de couverture et 70 % de silence ne disent pas « 70 % de sol nu » |
+| Historique et rotation des cultures sur plusieurs années | ✅ | `GET /api/environnement/sites/{id}/rotation` rend les mêmes surfaces millésime par millésime. **La rotation ne se déduit pas d'une couche, elle se lit** en comparant deux années — c'est pour cela que `couvert_sol.millesime` est `NOT NULL` dès la première ligne versée, et qu'un versement REMPLACE son millésime au lieu de s'y ajouter |
 | Comparaison de plusieurs emplacements candidats (transhumance) | ✅ | `GET /api/sites/comparaison?ids=` (`ComparaisonSitesService`, SPRINT-23) aligne rendement **par ruche** sur deux saisons, flore déclarée et en fleur, altitude, exposition et densité de voisinage à 3 km. **Aucune note globale** : mélanger des kilos, des espèces et une altitude donnerait un chiffre qui a l'autorité d'une mesure sans en avoir la matière. Et **aucune coordonnée** en sortie |
-| **Calendrier de floraison / suivi des miellées** (*bloom calendar*, *nectar flow*) | ❌ | HiveBook et HiveTracks en font un module. Zümm n'a aucune notion de saison mellifère |
-| **Comptage / prévision de pollen** | ❌ | HiveSense et APiLOG le géolocalisent par rucher |
-| Croisement santé du rucher × flore environnante (biodiversité) | ❌ | HiveTracks en fait un produit à part entière (*DaaS*, module RSE) |
+| **Calendrier de floraison / suivi des miellées** (*bloom calendar*, *nectar flow*) | ✅ | Table `floraison_observee` (`V31`) et `/api/environnement/floraisons`. **L'observé ne remplace pas le déclaratif de la `V21`, il le confronte** : le déclaratif prévoit — « le colza fleurit en avril » — et se trompe trois années sur dix, une gelée tardive décalant tout d'une quinzaine ; l'observé constate. La réponse rend les deux et leur **écart en jours**, seule chose qui permette de dire « cette année, c'était en avance ». Une ressource ne fleurit qu'une fois par an : une seconde saisie COMPLÈTE la première au lieu d'échouer, parce qu'on note le début en avril et le pic en mai |
+| **Comptage / prévision de pollen** | ❌ | HiveSense et APiLOG le géolocalisent par rucher. **Refusé explicitement au SPRINT-32** ([ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)) : un comptage de pollen vient de réseaux d'aérobiologie nationaux, pas d'un capteur de rucher, et l'estimer à partir du couvert produirait un chiffre inventé sur une donnée que l'apiculteur ne peut pas vérifier. C'est le même refus que l'acoustique au SPRINT-31 et le réfractomètre au SPRINT-27 |
+| Croisement santé du rucher × flore environnante (biodiversité) | 🟡 | Les deux moitiés existent et se lisent côte à côte depuis le SPRINT-32 — surfaces par classe autour du rucher, indices de colonie du SPRINT-22, comparaison d'emplacements du SPRINT-23. **Aucun coefficient de corrélation n'est calculé**, et c'est délibéré : sur la dizaine de ruchers d'une exploitation, il serait du bruit présenté comme un résultat. Même refus qu'au SPRINT-23 pour la note globale de comparaison. Le produit à part entière de HiveTracks (*DaaS*, module RSE) reste hors périmètre |
 | Vérification du taux de cultures bio dans le rayon réglementaire | ⛔ | Dépend de CartoBio (Agence Bio) — voir la note ci-dessous |
-| Évaluation de l'exposition aux zones traitées | ❌ | Même dépendance à une couche agricole |
+| Évaluation de l'exposition aux zones traitées | 🟡 | `distanceCultureM` (SPRINT-32) rend la distance à la parcelle cultivée la plus proche, et les surfaces de cultures dans le rayon. **Ce n'est pas une distance à une zone traitée**, et l'écran l'écrit : aucune couche ouverte ne dit ce qui a été épandu ni quand. Présenter l'une pour l'autre serait une affirmation que rien ne fonde — la ligne reste donc partielle, et le restera tant qu'une source de traitements réels n'existera pas |
 
 > **Note de portabilité, à trancher avant tout développement.** Les référentiels
 > qui font la valeur de BeeGIS — RPG, CartoBio, BD Forêt, BD TOPO — sont des
@@ -614,7 +614,7 @@ manœuvre, c'est une fonctionnalité manquante, pas une bonne pratique.**
 | Contournement conseillé | Qui | Exigence pour Zümm | Verdict | Couche |
 |---|---|---|:--:|---|
 | « Vérifiez sur le terrain au printemps la culture réellement semée » (*ground truthing*) | BeeGIS | Toute donnée environnementale porte son **millésime** et peut être marquée « à confirmer », ce qui engendre une tâche de vérification | ❌ | DB + back + front |
-| « Servez-vous de l'historique de rotation sur 3 à 5 ans » | BeeGIS | **Comparaison saison contre saison** | ✅ | `GET /api/saisons` (SPRINT-27) : années civiles, rendement par ruche productive, ventilation par produit. Tous les autres agrégats du produit glissent — douze mois qui reculent chaque jour ne permettent pas de dire « 2026 a mieux donné que 2025 » |
+| « Servez-vous de l'historique de rotation sur 3 à 5 ans » | BeeGIS | **Comparaison saison contre saison** et **millésime des données environnementales** | ✅ | `GET /api/saisons` (SPRINT-27) : années civiles, rendement par ruche productive, ventilation par produit. Tous les autres agrégats du produit glissent — douze mois qui reculent chaque jour ne permettent pas de dire « 2026 a mieux donné que 2025 ». Et depuis le SPRINT-32, `couvert_sol.millesime` est **obligatoire** : une occupation du sol de 2019 présentée comme l'état du jour n'est pas une approximation, c'est une affirmation fausse. La source et le millésime accompagnent chaque réponse |
 | « Vérifiez la couverture réseau du site **avant** d'installer » | Onibi | Champ **couverture réseau** sur le `Site`, au même titre que l'exposition | ✅ | `site.couverture_reseau` (`V24`), quatre niveaux, index partiel sur ce qui manque. NULLE = inconnue : un défaut à « correcte » ferait partir un apiculteur sans emport sur un rucher en zone blanche |
 | « Vérifiez le niveau de charge des capteurs via le tableau de bord » | BeeLog Digital, Onibi | `TypeIndicateur.ALIMENTATION` + seuil d'alerte | ✅ | `V26`, une valeur d'énumération et un seuil. Inventer une table « état des capteurs » aurait créé un second mécanisme d'alerte à maintenir en parallèle du premier, pour dire la même chose. Un test d'intégration a d'ailleurs montré que `alerte` portait **sa propre** liste d'indicateurs : les deux contraintes disaient la même chose à deux endroits |
 | « Nettoyez les optiques, grattez la propolis sur les glissières » | Onibi | **Plan de maintenance du matériel** : tâches récurrentes attachées à un équipement, pas à une ruche | ✅ | `tache.materiel_id` (`V27`) et `RegleMaintenanceMateriel`, dans le moteur du SPRINT-22 — même clé d'idempotence, même anti-doublon. La clé **porte l'échéance** : une fois l'entretien fait, la date recule et la règle repropose au terme suivant, sans jamais dupliquer celle du terme courant |
@@ -1962,3 +1962,114 @@ Le test d'intégration écrit pour l'anti-vol en a révélé deux.
 
 Le second est le plus instructif : une route couverte par un test qui ne la met
 jamais dans l'état intéressant est une route non couverte.
+
+---
+
+## 28. Note de révision — 05/09/2026, lot H du plan de couverture
+
+**Dernier lot** du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) : neuf lignes
+visées, **cinq fermées, deux passées à 🟡, une refusée** — la neuvième, le
+millésime, était déjà ✅ et a été précisée. Le compteur va de **132 à 137 sur
+153**, et le plan est clos.
+
+Le §2 était le paragraphe le plus gênant du document, parce qu'il portait sur le
+seul terrain que Zümm revendique par son nom : le SIG. BeeGIS y proposait des
+couches d'occupation du sol, des surfaces par type de couvert et un historique de
+rotation ; Zümm affichait **une tuile raster**. Six lignes ❌ d'affilée dans le
+domaine annoncé comme le nôtre.
+
+La décision **D1** est tranchée par
+[ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md), et
+elle tient en une phrase :
+
+> **La donnée d'occupation du sol est accueillie, jamais interrogée.**
+
+### Pourquoi le connecteur WMS était le mauvais réflexe
+
+C'était la solution évidente, et elle était incompatible avec tout le reste du
+produit. Demander en direct à un service tiers ce qu'il y a autour d'un rucher,
+c'est lui envoyer les coordonnées du rucher — c'est-à-dire publier à un
+prestataire exactement ce que `PolitiquePositions` masque depuis le SPRINT-12,
+et ce que le mode local du SPRINT-30 vient tout juste de couper pour les tuiles.
+Deux sprints à fermer une porte, un connecteur pour la rouvrir.
+
+Le versement explicite coûte plus cher à l'utilisateur : rien n'arrive tout seul,
+il faut aller chercher la couche et la déposer. L'écran l'écrit au lieu de faire
+comme si la donnée manquante n'existait pas.
+
+### La taxonomie est fermée, et c'est le vrai travail du lot
+
+Dix classes, pas une de plus. Chaque source d'occupation du sol nomme les
+siennes autrement — le registre parcellaire français, un cadastre communal et un
+export CORINE ne parlent pas la même langue. Les laisser entrer telles quelles
+aurait rendu deux exploitations incomparables et le mot « culture » ambigu dans
+la même table.
+
+L'ingesteur traduit donc vers le vocabulaire du produit, et une classe inconnue
+fait échouer le versement **entier**. Accepter les polygones reconnus et jeter
+silencieusement les autres aurait produit des surfaces fausses présentées comme
+justes : le pire des deux mondes, puisque le total aurait quand même fait 100 %.
+
+### Trois précautions de mesure, et elles changent le chiffre
+
+1. **L'intersection est bornée au tampon avant d'être mesurée.** Une parcelle de
+   colza qui déborde du rayon compterait sinon en entier, et « 60 % de cultures »
+   finirait par désigner un département.
+2. **Les surfaces sont géodésiques** (`geography`, pas `geometry`) : une
+   projection plane dériverait de plusieurs pourcents, et le produit vise aussi
+   le Maghreb.
+3. **La réponse dit quelle part du cercle la couche décrit réellement.** Trente
+   pour cent de couverture et soixante-dix pour cent de silence ne se lisent pas
+   « 70 % de sol nu ». Sans ce champ, la table de surfaces serait une affirmation
+   sur une zone dont on ne sait rien.
+
+Le millésime obéit à la même exigence : `couvert_sol.millesime` est `NOT NULL`
+dès la première ligne versée. Une occupation du sol de 2019 présentée comme
+l'état du jour n'est pas une approximation, c'est une affirmation fausse — et
+les parcelles tournent, c'est précisément l'objet du §13.
+
+### La floraison observée ne remplace pas le calendrier déclaré
+
+La `V21` portait déjà des périodes de floraison sur les ressources : du
+déclaratif, qui prévoit. « Le colza fleurit en avril » se trompe trois années sur
+dix, une gelée tardive décalant tout d'une quinzaine.
+
+`floraison_observee` constate, et la réponse rend **les deux avec leur écart en
+jours**. C'est la seule forme qui permette de dire « cette année, c'était en
+avance de dix-sept jours » — un observé seul ne serait qu'une date de plus, et un
+déclaratif seul reste ce qu'il était : une moyenne.
+
+Une ressource ne fleurit qu'une fois par an, d'où `uq_floraison_annee`. Mais une
+seconde saisie **complète** la première au lieu d'échouer : on note le début en
+avril, le pic en mai, et refuser la seconde saisie obligerait à supprimer pour
+corriger.
+
+### Deux lignes restent partielles, et le disent à l'écran
+
+- **Exposition aux zones traitées** — `distanceCultureM` rend la distance à la
+  parcelle cultivée la plus proche. **Ce n'est pas une distance à une zone
+  traitée** : aucune couche ouverte ne dit ce qui a été épandu ni quand.
+  Présenter l'une pour l'autre serait une affirmation que rien ne fonde, et
+  l'écran porte la phrase qui l'empêche.
+- **Croisement santé × flore** — les deux moitiés se lisent désormais côte à
+  côte, mais **aucun coefficient n'est calculé**. Sur la dizaine de ruchers d'une
+  exploitation, une corrélation serait du bruit présenté comme un résultat. Même
+  refus qu'au SPRINT-23 pour la note globale de comparaison d'emplacements.
+
+### Et une refusée
+
+Le **comptage de pollen** vient de réseaux d'aérobiologie nationaux, pas d'un
+capteur de rucher. L'estimer à partir du couvert produirait un chiffre inventé
+sur une donnée que l'apiculteur ne peut pas vérifier — le même refus que
+l'acoustique au SPRINT-31 et que le réfractomètre au SPRINT-27.
+
+Le *ground truthing* du §13 reste ❌ pour la raison inverse : il ne demande pas
+un modèle mais un mécanisme de correction terrain — marquer une parcelle « à
+confirmer » et engendrer la tâche de vérification. C'est du travail identifié,
+pas un refus.
+
+### Ce que le plan laisse derrière lui
+
+Onze lots, du **A** au **J**, onze sprints applicatifs — du SPRINT-22 au
+SPRINT-32 — et le compteur passé de **66 à 137 sur 153**. Restent **cinq 🟡**, **trois ❌** et **huit ⛔** — et sur les
+trois ❌, deux sont des refus argumentés, un seul est du travail restant.

@@ -121,6 +121,14 @@ export interface Site {
   latitude: number;
   longitude: number;
   altitude: number | null;
+  /**
+   * Rayon de butinage de CE rucher, en kilomètres (SPRINT-32).
+   *
+   * <p>`null` = le défaut de `ConfigZumm.ini`. Le rayon réel dépend du terrain :
+   * trois kilomètres en plaine, davantage en montagne, moins en ville. C'est un
+   * RÉGLAGE et non un lieu — il traverse le masquage des positions.
+   */
+  rayonButinageKm: number | null;
   dateMiseEnOeuvre: string;
   dateDemenagement: string | null;
   dateCloture: string | null;
@@ -158,6 +166,13 @@ export interface SiteCorps {
   latitude: number;
   longitude: number;
   altitude: number | null;
+  /**
+   * Rayon de butinage de CE rucher, en kilomètres (SPRINT-32).
+   *
+   * <p>`null` = le défaut de `ConfigZumm.ini`. Deux ruchers d'une même
+   * exploitation n'ont pas le même terrain, et c'est ce que le lot mesure.
+   */
+  rayonButinageKm: number | null;
   dateMiseEnOeuvre: string;
   dateDemenagement: string | null;
   dateCloture: string | null;
@@ -2518,4 +2533,98 @@ export interface LigneBriefing {
 export interface Briefing {
   genereLe: string;
   lignes: LigneBriefing[];
+}
+
+// ─── Environnement : couvert du sol et floraison (SPRINT-32, lot H) ─────────
+
+/**
+ * Taxonomie **fermée** du couvert du sol.
+ *
+ * <p>Chaque source nomme ses classes autrement — « prairie permanente »,
+ * *grassland*, `landuse=meadow`. Les laisser entrer telles quelles rendrait deux
+ * exploitations incomparables : l'ingesteur traduit vers ces dix classes, et
+ * refuse ce qu'il ne sait pas traduire.
+ */
+export type ClasseCouvert =
+  | 'culture'
+  | 'prairie'
+  | 'foret'
+  | 'lande'
+  | 'verger'
+  | 'vigne'
+  | 'eau'
+  | 'urbain'
+  | 'sol_nu'
+  | 'autre';
+
+export interface SurfaceCouvert {
+  classe: ClasseCouvert;
+  surfaceHa: number;
+  /** Part du cercle de butinage, en pourcent. */
+  part: number | null;
+}
+
+/**
+ * Ce qu'il y a autour d'un rucher.
+ *
+ * <p>`source` et `millesime` accompagnent les surfaces **sans exception** :
+ * « 42 % de cultures » n'engage personne tant qu'on ne sait pas de quelle année
+ * et de quel jeu de données cela vient (§13). `millesime` à `null` signifie
+ * qu'aucune couche n'a été versée — ce n'est pas un environnement vide.
+ */
+export interface CouvertRucher {
+  siteId: number;
+  siteNom: string;
+  rayonKm: number;
+  millesime: number | null;
+  source: string | null;
+  surfaceCercleHa: number;
+  /**
+   * Part du cercle effectivement DÉCRITE par la couche.
+   *
+   * <p>Trente pour cent de couverture et soixante-dix pour cent de silence ne
+   * disent pas « 70 % de sol nu ».
+   */
+  couverte: number | null;
+  /**
+   * Distance à la parcelle cultivée la plus proche, en mètres.
+   *
+   * <p>Ce n'est **pas** une distance à une zone traitée : aucune couche ouverte
+   * ne dit ce qui a été épandu ni quand.
+   */
+  distanceCultureM: number | null;
+  surfaces: SurfaceCouvert[];
+}
+
+/**
+ * Floraison OBSERVÉE, à ne pas confondre avec la floraison déclarée de la `V21`.
+ *
+ * <p>Le déclaratif prévoit — « le colza fleurit en avril » —, l'observé
+ * constate. `ecartJours` est ce que la confrontation des deux apprend : positif,
+ * la floraison est en retard sur la prévision.
+ */
+export interface FloraisonObservee {
+  id: number;
+  ressourceId: number;
+  ressource: string;
+  siteId: number | null;
+  annee: number;
+  dateDebut: string;
+  datePic: string | null;
+  dateFin: string | null;
+  /** 0 (nulle) à 3 (exceptionnelle). Une échelle perçue, jamais une mesure. */
+  abondance: number | null;
+  moisDeclare: number | null;
+  ecartJours: number | null;
+  note: string | null;
+}
+
+export interface FloraisonCorps {
+  ressourceId: number;
+  annee: number;
+  dateDebut: string;
+  datePic: string | null;
+  dateFin: string | null;
+  abondance: number | null;
+  note: string | null;
 }

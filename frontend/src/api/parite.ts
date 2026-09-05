@@ -27,6 +27,8 @@
 import type { components } from './contrat';
 import type {
   Briefing,
+  CouvertRucher,
+  FloraisonObservee,
   DossierConformite,
   Genealogie,
   IndexGenetique,
@@ -386,3 +388,18 @@ export type _DossierConformite =
  * modele de langue.
  */
 export type _Briefing = Conforme<Briefing, TolerantAuNull<Schemas['Briefing']>>;
+
+/*
+ * Environnement : couvert du sol et floraison (SPRINT-32, lot H).
+ *
+ * <p>Deux types, et trois champs qu'il ne faut surtout pas perdre.
+ * `CouvertRucher.millesime` et `source` sont ce qui rend une surface citable :
+ * un pourcentage sans provenance n'engage personne (§13). `couverte` distingue
+ * « la couche ne decrit que 30 % du cercle » de « 70 % du cercle est nu » — le
+ * renommer ferait lire le second a la place du premier. Et
+ * `FloraisonObservee.ecartJours` porte tout l'interet d'avoir garde le
+ * declaratif A COTE de l'observe.
+ */
+export type _CouvertRucher = Conforme<CouvertRucher, TolerantAuNull<Schemas['CouvertRucher']>>;
+export type _FloraisonObservee =
+  Conforme<FloraisonObservee, TolerantAuNull<Schemas['FloraisonReponse']>>;

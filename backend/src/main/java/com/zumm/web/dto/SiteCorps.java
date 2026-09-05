@@ -48,6 +48,13 @@ public record SiteCorps(
         @NotNull @DecimalMin("-90.0") @DecimalMax("90.0") BigDecimal latitude,
         @NotNull @DecimalMin("-180.0") @DecimalMax("180.0") BigDecimal longitude,
         @DecimalMin("-500.0") @DecimalMax("9000.0") BigDecimal altitude,
+        /**
+         * Rayon de butinage de CE rucher, en kilometres (SPRINT-32).
+         *
+         * <p>Facultatif : absent, le defaut de `ConfigZumm.ini` s'applique.
+         * Borne a 15 km — au-dela, une abeille ne rentre pas.
+         */
+        @DecimalMin("0.5") @DecimalMax("15.0") BigDecimal rayonButinageKm,
         @NotNull LocalDate dateMiseEnOeuvre,
         LocalDate dateDemenagement,
         LocalDate dateCloture,

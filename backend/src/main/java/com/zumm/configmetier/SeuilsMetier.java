@@ -49,6 +49,16 @@ public record SeuilsMetier(
          * enregistre, et moins qu'une ruche emportee.
          */
         int chuteVolKg,
+        /**
+         * Rayon de butinage par defaut, en kilometres (SPRINT-32).
+         *
+         * <p>3 km : la distance ou une colonie fait l'essentiel de sa recolte.
+         * Elle va plus loin — jusqu'a une dizaine de kilometres en terrain
+         * pauvre —, mais le rendement d'un vol decroit vite, et dessiner d'emblee
+         * un cercle de dix kilometres ferait compter comme environnement des
+         * parcelles ou aucune abeille ne va deux fois.
+         */
+        int rayonButinageKm,
         int delaiAlerteJours,
         int arrondiDegresPublic,
         int taillePageParDefaut,
@@ -67,6 +77,7 @@ public record SeuilsMetier(
                 20,
                 20,
                 10,
+                3,
                 21,
                 2,
                 25,

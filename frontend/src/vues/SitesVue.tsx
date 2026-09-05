@@ -53,6 +53,7 @@ import {
   Pastille,
   Table,
 } from '../ui/composants';
+import { PanneauEnvironnement } from '../environnement/PanneauEnvironnement';
 import { CorpsSection } from './CorpsSection';
 
 const ouNull = (valeur: string): string | null => (valeur.trim() === '' ? null : valeur);
@@ -79,6 +80,7 @@ export function SitesVue(): ReactElement {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [altitude, setAltitude] = useState('');
+  const [rayonButinage, setRayonButinage] = useState('');
   const [miseEnOeuvre, setMiseEnOeuvre] = useState('');
   const [demenagement, setDemenagement] = useState('');
   const [cloture, setCloture] = useState('');
@@ -244,6 +246,7 @@ export function SitesVue(): ReactElement {
     setLatitude(s ? String(s.latitude) : '');
     setLongitude(s ? String(s.longitude) : '');
     setAltitude(s?.altitude != null ? String(s.altitude) : '');
+    setRayonButinage(s?.rayonButinageKm != null ? String(s.rayonButinageKm) : '');
     setMiseEnOeuvre(s?.dateMiseEnOeuvre ?? '');
     setDemenagement(s?.dateDemenagement ?? '');
     setCloture(s?.dateCloture ?? '');
@@ -280,6 +283,7 @@ export function SitesVue(): ReactElement {
       latitude: Number(latitude),
       longitude: Number(longitude),
       altitude: altitude.trim() === '' ? null : Number(altitude),
+      rayonButinageKm: rayonButinage.trim() === '' ? null : Number(rayonButinage),
       dateMiseEnOeuvre: miseEnOeuvre,
       dateDemenagement: ouNull(demenagement),
       dateCloture: ouNull(cloture),
@@ -619,6 +623,11 @@ export function SitesVue(): ReactElement {
               ))}
             </ul>
           )}
+          {/* L'environnement (SPRINT-32) se lit dans la fiche du LIEU : ce qu'il
+              y a autour d'un rucher est une propriété de l'emplacement, pas de
+              la colonie — et cela change quand le rucher déménage. */}
+          <PanneauEnvironnement siteId={siteHistorique.id} />
+
           <fieldset className="z-composition">
             <legend className="z-champ__libelle">{t.terrain.transports.titre}</legend>
             <p className="z-info">{t.terrain.transports.aide}</p>
@@ -836,6 +845,17 @@ export function SitesVue(): ReactElement {
               <ChampNombre libelle={t.champs.latitude} valeur={latitude} onChange={setLatitude} requis />
               <ChampNombre libelle={t.champs.longitude} valeur={longitude} onChange={setLongitude} requis />
               <ChampNombre libelle={t.champs.altitude} valeur={altitude} onChange={setAltitude} />
+              {/* Le rayon de butinage (SPRINT-32) : vide, le défaut de
+                  `ConfigZumm.ini` s'applique. Le figer reviendrait à dessiner le
+                  même cercle partout — et à calculer les surfaces dessus. */}
+              <ChampNombre
+                libelle={t.champs.rayonButinage}
+                valeur={rayonButinage}
+                onChange={setRayonButinage}
+                pas="0.5"
+                min={0.5}
+                max={15}
+              />
             </div>
             <fieldset className="z-composition">
               <legend className="z-champ__libelle">{t.champs.adresseRue}</legend>

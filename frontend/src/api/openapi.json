@@ -2803,6 +2803,138 @@
         }
       }
     },
+    "/api/environnement/floraisons" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "floraisons",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/FloraisonReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "enregistrer_4",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/FloraisonCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FloraisonReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/environnement/couvert" : {
+      "post" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "verser",
+        "parameters" : [ {
+          "name" : "source",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/JsonNode"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "purger",
+        "parameters" : [ {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "object",
+                  "additionalProperties" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/elevage/series" : {
       "get" : {
         "tags" : [ "elevage-controller" ],
@@ -2928,7 +3060,7 @@
       },
       "post" : {
         "tags" : [ "division-controller" ],
-        "operationId" : "enregistrer_4",
+        "operationId" : "enregistrer_5",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -3035,7 +3167,7 @@
       },
       "delete" : {
         "tags" : [ "demonstration-controller" ],
-        "operationId" : "purger",
+        "operationId" : "purger_1",
         "responses" : {
           "200" : {
             "description" : "OK",
@@ -3253,7 +3385,7 @@
       },
       "post" : {
         "tags" : [ "capture-essaim-controller" ],
-        "operationId" : "enregistrer_5",
+        "operationId" : "enregistrer_6",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -4533,6 +4665,93 @@
         }
       }
     },
+    "/api/environnement/sites/{siteId}/rotation" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "rotation",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CouvertRucher"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/environnement/sites/{siteId}/couvert" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "autour",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CouvertRucher"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/environnement/couvert/millesimes" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "millesimes",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "integer",
+                    "format" : "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/elevage/reines/{id}/index" : {
       "get" : {
         "tags" : [ "elevage-controller" ],
@@ -5416,10 +5635,30 @@
         }
       }
     },
+    "/api/environnement/floraisons/{id}" : {
+      "delete" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "supprimer_21",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/divisions/{id}" : {
       "delete" : {
         "tags" : [ "division-controller" ],
-        "operationId" : "supprimer_21",
+        "operationId" : "supprimer_22",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -5439,7 +5678,7 @@
     "/api/captures/{id}" : {
       "delete" : {
         "tags" : [ "capture-essaim-controller" ],
-        "operationId" : "supprimer_22",
+        "operationId" : "supprimer_23",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -5987,6 +6226,11 @@
             "maximum" : 9000.0,
             "minimum" : -500.0
           },
+          "rayonButinageKm" : {
+            "type" : "number",
+            "maximum" : 15.0,
+            "minimum" : 0.5
+          },
           "dateMiseEnOeuvre" : {
             "type" : "string",
             "format" : "date"
@@ -6094,6 +6338,9 @@
             "type" : "number"
           },
           "altitude" : {
+            "type" : "number"
+          },
+          "rayonButinageKm" : {
             "type" : "number"
           },
           "dateMiseEnOeuvre" : {
@@ -8425,6 +8672,97 @@
           }
         }
       },
+      "FloraisonCorps" : {
+        "type" : "object",
+        "properties" : {
+          "ressourceId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "annee" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 2100,
+            "minimum" : 1990
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "datePic" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "abondance" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 3,
+            "minimum" : 0
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "annee", "dateDebut", "ressourceId" ]
+      },
+      "FloraisonReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ressourceId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "ressource" : {
+            "type" : "string"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "annee" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "datePic" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "abondance" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "moisDeclare" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "ecartJours" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        }
+      },
+      "JsonNode" : {
+        "type" : "object"
+      },
       "DivisionCorps" : {
         "type" : "object",
         "properties" : {
@@ -9580,6 +9918,58 @@
           }
         }
       },
+      "CouvertRucher" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "rayonKm" : {
+            "type" : "number"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "surfaceCercleHa" : {
+            "type" : "number"
+          },
+          "couverte" : {
+            "type" : "number"
+          },
+          "distanceCultureM" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "surfaces" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SurfaceCouvert"
+            }
+          }
+        }
+      },
+      "SurfaceCouvert" : {
+        "type" : "object",
+        "properties" : {
+          "classe" : {
+            "type" : "string"
+          },
+          "surfaceHa" : {
+            "type" : "number"
+          },
+          "part" : {
+            "type" : "number"
+          }
+        }
+      },
       "Critere" : {
         "type" : "object",
         "properties" : {
@@ -9862,6 +10252,10 @@
             "format" : "int32"
           },
           "chuteVolKg" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "rayonButinageKm" : {
             "type" : "integer",
             "format" : "int32"
           },

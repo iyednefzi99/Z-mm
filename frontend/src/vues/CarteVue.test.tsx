@@ -28,6 +28,7 @@ const site = (id: number, nom: string, latitude: number, longitude: number): Sit
   latitude,
   longitude,
   altitude: null,
+  rayonButinageKm: null,
   dateMiseEnOeuvre: '2026-04-01',
   dateDemenagement: null,
   dateCloture: null,

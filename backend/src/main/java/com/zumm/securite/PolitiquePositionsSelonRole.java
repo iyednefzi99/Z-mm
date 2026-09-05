@@ -66,6 +66,11 @@ public class PolitiquePositionsSelonRole implements PolitiquePositions {
                 // L'altitude trahit elle aussi l'emplacement en terrain accidente :
                 // elle disparait avec la position exacte.
                 null,
+                // Le rayon de butinage, lui, RESTE : c'est un reglage, pas un
+                // lieu. Le masquer priverait d'une information utile sans rien
+                // proteger — on ne trouve pas un rucher en sachant qu'on y
+                // compte trois kilometres.
+                site.rayonButinageKm(),
                 site.dateMiseEnOeuvre(),
                 site.dateDemenagement(),
                 site.dateCloture(),

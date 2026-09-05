@@ -313,7 +313,8 @@
     "prioriteTerrain": "Priorité",
     "couvertureReseau": "Couverture réseau",
     "notificationsEmail": "Notifications par courriel",
-    "quantite": "Quantité"
+    "quantite": "Quantité",
+    "rayonButinage": "Rayon de butinage (km)"
   },
   "roles": {
     "apiculteur": "Apiculteur",
@@ -2012,5 +2013,49 @@
     "categorie": "Vol probable",
     "seuil": "Dépassement de seuil",
     "aide": "Une chute brutale de poids qu'aucune récolte n'explique ouvre une alerte. Elle ne se referme pas toute seule : une ruche volée ne revient pas, et une alerte qui disparaîtrait parce que la balance repose sur le sol serait pire que pas d'alerte."
+  },
+  "environnement": {
+    "titre": "Environnement du rucher",
+    "couvert": "Occupation du sol",
+    "classe": "Couvert",
+    "surface": "Surface",
+    "part": "Part du cercle",
+    "rayon": "Rayon de butinage",
+    "millesime": "Millésime",
+    "source": "Source",
+    "couverte": "Part décrite par la couche",
+    "distanceCulture": "Culture la plus proche",
+    "rotation": "D'un millésime à l'autre",
+    "aucuneCouche": "Aucune couche d'occupation du sol n'a été versée. Zümm ne va pas la chercher : demander à un service tiers ce qu'il y a autour d'un rucher lui apprendrait où sont vos ruches.",
+    "aideCouverte": "La part décrite dit ce que la couche connaît réellement du cercle. Trente pour cent de couverture et soixante-dix pour cent de silence ne veulent pas dire soixante-dix pour cent de sol nu.",
+    "aideCulture": "Distance à une parcelle cultivée — pas à une zone traitée. Aucune couche ouverte ne dit ce qui a été épandu, ni quand.",
+    "verser": "Verser une couche",
+    "verseAide": "Un fichier GeoJSON dont chaque entité porte une propriété « classe » de la taxonomie. Le versement remplace le millésime : verser deux fois sans purger doublerait toutes les surfaces.",
+    "verse": "{nombre} polygone(s) versé(s).",
+    "floraisons": "Floraisons observées",
+    "floraisonAide": "Le déclaratif prévoit — « le colza fleurit en avril » — et se trompe trois années sur dix : une gelée tardive décale tout d'une quinzaine. L'observé constate. Garder les deux est la seule façon de dire « cette année, c'était en avance ».",
+    "ressource": "Ressource",
+    "annee": "Année",
+    "debut": "Début",
+    "pic": "Pic",
+    "fin": "Fin",
+    "abondance": "Abondance",
+    "ecart": "Écart au déclaratif",
+    "enAvance": "en avance",
+    "enRetard": "en retard",
+    "aucuneFloraison": "Aucune floraison observée.",
+    "jours": "jours",
+    "classes": {
+      "culture": "Cultures",
+      "prairie": "Prairies",
+      "foret": "Forêt",
+      "lande": "Landes",
+      "verger": "Vergers",
+      "vigne": "Vignes",
+      "eau": "Eau",
+      "urbain": "Urbain",
+      "sol_nu": "Sol nu",
+      "autre": "Autre"
+    }
   }
 }

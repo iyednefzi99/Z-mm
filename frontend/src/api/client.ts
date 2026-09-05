@@ -45,6 +45,7 @@ import type {
   CiblePhoto,
   ComparaisonSaisons,
   ComparaisonSite,
+  CouvertRucher,
   ComptageVarroa,
   ComptageVarroaCorps,
   Consommable,
@@ -63,6 +64,8 @@ import type {
   IndexGenetique,
   Ferme,
   FermeCorps,
+  FloraisonCorps,
+  FloraisonObservee,
   Fermier,
   FermierCorps,
   Gabarit,
@@ -1151,3 +1154,54 @@ export const ouvrirDocumentElevage = (
  * cite ce qui la fonde (ADR-013).
  */
 export const chargerBriefing = () => requete<Briefing>('/api/briefing');
+
+// ─── Environnement : couvert du sol et floraison (SPRINT-32, lot H) ─────────
+
+/**
+ * Ce qu'il y a autour d'un rucher, au millésime demandé.
+ *
+ * <p>Rien n'est allé chercher la donnée dehors : l'exploitation l'a versée, et
+ * tout le calcul s'est fait chez elle (ADR-015). Interroger un service tiers
+ * avec les coordonnées d'un rucher lui apprendrait où sont les ruches.
+ */
+export const chargerCouvert = (siteId: number, millesime?: number) =>
+  requete<CouvertRucher>(
+    `/api/environnement/sites/${siteId}/couvert`
+      + (millesime === undefined ? '' : `?millesime=${millesime}`),
+  );
+
+/** Les mêmes surfaces, millésime par millésime : la rotation se LIT. */
+export const chargerRotation = (siteId: number) =>
+  requete<CouvertRucher[]>(`/api/environnement/sites/${siteId}/rotation`);
+
+export const chargerMillesimes = () =>
+  requete<number[]>('/api/environnement/couvert/millesimes');
+
+/**
+ * Verse une couche d'occupation du sol.
+ *
+ * <p>Une `FeatureCollection` GeoJSON dont chaque entité porte une propriété
+ * `classe` de la taxonomie fermée. Le versement **remplace** son millésime.
+ */
+export const verserCouvert = (source: string, millesime: number, collection: unknown) =>
+  requete<{ polygones: number; millesime: number; source: string }>(
+    `/api/environnement/couvert?source=${encodeURIComponent(source)}&millesime=${millesime}`,
+    { method: 'POST', ...corpsJson(collection) },
+  );
+
+export const purgerCouvert = (millesime: number) =>
+  requete<{ supprimes: number }>(`/api/environnement/couvert?millesime=${millesime}`, {
+    method: 'DELETE',
+  });
+
+export const chargerFloraisons = (siteId?: number) =>
+  requete<FloraisonObservee[]>(
+    '/api/environnement/floraisons' + (siteId === undefined ? '' : `?siteId=${siteId}`),
+  );
+
+/** Enregistre ou COMPLÈTE l'observation de l'année : une ressource fleurit une fois. */
+export const enregistrerFloraison = (corps: FloraisonCorps) =>
+  requete<FloraisonObservee>('/api/environnement/floraisons', {
+    method: 'POST',
+    ...corpsJson(corps),
+  });

@@ -31,6 +31,9 @@ class PolitiquePositionsSelonRoleTest {
     private static final SiteReponse RUCHER = new SiteReponse(
             1L, "Rucher des tilleuls", 2L, "Ferme du causse",
             new BigDecimal("44.123456"), new BigDecimal("1.987654"), new BigDecimal("312.50"),
+            // Rayon de butinage (SPRINT-32) : un REGLAGE, pas un lieu — il
+            // traverse le masquage, et un test le verifie plus bas.
+            new BigDecimal("3.0"),
             LocalDate.of(2026, 3, 1), null, null,
             "12 chemin des Vignes", "46100", "Figeac", "FR", "sedentaire", "sud_est",
             java.util.List.<com.zumm.web.dto.RessourceFloraleReponse>of(), "haute", "aucune",
@@ -52,9 +55,23 @@ class PolitiquePositionsSelonRoleTest {
                 defauts.temperatureMinCelsius(), defauts.temperatureMaxCelsius(),
                 defauts.humiditeMaxPourcent(), defauts.batterieMinPourcent(),
                 defauts.inclinaisonMaxDegres(), defauts.chuteVolKg(),
+                defauts.rayonButinageKm(),
                 defauts.delaiAlerteJours(), decimales,
                 defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur());
         when(configuration.seuils()).thenReturn(seuils);
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName(
+            "le rayon de butinage traverse le masquage : c'est un reglage, pas un lieu")
+    void rayonConserve() {
+        seuilArrondi(2);
+        authentifier("ROLE_apiculteur");
+
+        // Le masquer priverait d'une information utile sans rien proteger : on
+        // ne trouve pas un rucher en sachant qu'on y compte trois kilometres.
+        assertThat(politique.masquer(RUCHER).rayonButinageKm())
+                .isEqualByComparingTo(new java.math.BigDecimal("3.0"));
     }
 
     @AfterEach

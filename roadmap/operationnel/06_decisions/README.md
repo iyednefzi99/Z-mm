@@ -38,6 +38,7 @@ de savoir plus tard si la décision reste valable.
 | [ADR-012](ADR-012-hors-ligne-selectif.md) | Consultation hors ligne : emport déclenché, jamais cache automatique | 🟢 Accepté | — (lève D2 du plan de couverture) |
 | [ADR-013](ADR-013-ou-tourne-l-ia.md) | Où tourne l'IA : sur l'appareil, ou pas du tout | 🟢 Accepté | — (tranche D4 du plan de couverture) |
 | [ADR-014](ADR-014-capteurs-du-commerce.md) | Capteurs du commerce : le profil standard, et rien d'inventé | 🟢 Accepté | — (tranche D3 du plan de couverture) |
+| [ADR-015](ADR-015-occupation-du-sol.md) | Occupation du sol : la donnée est accueillie, jamais interrogée | 🟢 Accepté | — (tranche D1 du plan de couverture) |
 
 > ✅ **Les quatre premiers ADR sont arbitrés (2026-07-22), sur hypothèses par défaut.**
 > Faute d'arbitrage client dans les délais du Sprint 0 (escalade J+5 échue),

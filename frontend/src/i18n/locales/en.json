@@ -313,7 +313,8 @@
     "prioriteTerrain": "Priority",
     "couvertureReseau": "Network coverage",
     "notificationsEmail": "Email notifications",
-    "quantite": "Quantity"
+    "quantite": "Quantity",
+    "rayonButinage": "Foraging radius (km)"
   },
   "roles": {
     "apiculteur": "Beekeeper",
@@ -2012,5 +2013,49 @@
     "categorie": "Probable theft",
     "seuil": "Threshold exceeded",
     "aide": "A sudden weight drop that no harvest explains raises an alert. It does not close by itself: a stolen hive does not come back, and an alert that vanished because the scale is lying on the ground would be worse than no alert."
+  },
+  "environnement": {
+    "titre": "Apiary surroundings",
+    "couvert": "Land cover",
+    "classe": "Cover",
+    "surface": "Area",
+    "part": "Share of the circle",
+    "rayon": "Foraging radius",
+    "millesime": "Vintage",
+    "source": "Source",
+    "couverte": "Share described by the layer",
+    "distanceCulture": "Nearest cropland",
+    "rotation": "From one vintage to the next",
+    "aucuneCouche": "No land-cover layer has been loaded. Zümm does not go and fetch one: asking a third-party service what surrounds an apiary would tell it where your hives are.",
+    "aideCouverte": "The described share says what the layer actually knows of the circle. Thirty per cent coverage and seventy per cent silence do not mean seventy per cent bare ground.",
+    "aideCulture": "Distance to a cropland parcel — not to a treated area. No open layer says what was sprayed, or when.",
+    "verser": "Load a layer",
+    "verseAide": "A GeoJSON file whose every feature carries a “classe” property from the taxonomy. Loading replaces the vintage: loading twice without purging would double every area.",
+    "verse": "{nombre} polygon(s) loaded.",
+    "floraisons": "Observed blooms",
+    "floraisonAide": "The declared calendar predicts — “rape blooms in April” — and is wrong three years in ten: a late frost shifts everything by a fortnight. The observed one records. Keeping both is the only way to say “this year it was early”.",
+    "ressource": "Resource",
+    "annee": "Year",
+    "debut": "Start",
+    "pic": "Peak",
+    "fin": "End",
+    "abondance": "Abundance",
+    "ecart": "Gap to the declared calendar",
+    "enAvance": "early",
+    "enRetard": "late",
+    "aucuneFloraison": "No observed bloom yet.",
+    "jours": "days",
+    "classes": {
+      "culture": "Cropland",
+      "prairie": "Grassland",
+      "foret": "Forest",
+      "lande": "Heath",
+      "verger": "Orchards",
+      "vigne": "Vineyards",
+      "eau": "Water",
+      "urbain": "Built-up",
+      "sol_nu": "Bare ground",
+      "autre": "Other"
+    }
   }
 }

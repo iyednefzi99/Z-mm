@@ -371,6 +371,7 @@ public class SiteService {
 
     private void appliquerOptionnels(Site site, SiteCorps corps) {
         site.setAltitude(corps.altitude());
+        site.setRayonButinageKm(corps.rayonButinageKm());
         site.setDateDemenagement(corps.dateDemenagement());
         site.setDateCloture(corps.dateCloture());
         site.setAdresseRue(vide(corps.adresseRue()));

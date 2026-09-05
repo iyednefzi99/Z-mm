@@ -14,6 +14,11 @@ import type { Site } from '../api/types';
  * d'intégration `CartographieTourneeIT`.
  */
 vi.mock('../api/client', () => ({
+  chargerCouvert: vi.fn(() =>
+    Promise.resolve({ siteId: 1, siteNom: 'S', rayonKm: 3, millesime: null, source: null,
+      surfaceCercleHa: 2827, couverte: null, distanceCultureM: null, surfaces: [] })),
+  chargerRotation: vi.fn(() => Promise.resolve([])),
+  chargerFloraisons: vi.fn(() => Promise.resolve([])),
   sites: {
     lister: vi.fn(),
     creer: vi.fn(),
@@ -53,6 +58,7 @@ const site = (id: number, nom: string, latitude: number, longitude: number): Sit
   latitude,
   longitude,
   altitude: null,
+  rayonButinageKm: null,
   dateMiseEnOeuvre: '2026-04-01',
   dateDemenagement: null,
   dateCloture: null,

@@ -88,6 +88,7 @@ describe('client d’API', () => {
         latitude: 44.447,
         longitude: 1.441,
         altitude: null,
+        rayonButinageKm: null,
         dateMiseEnOeuvre: '2026-04-01',
         dateDemenagement: null,
         dateCloture: null,

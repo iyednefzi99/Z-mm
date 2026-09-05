@@ -100,6 +100,7 @@ const site = (over: Partial<Site> = {}): Site => ({
   latitude: 44.8,
   longitude: 1.8,
   altitude: null,
+  rayonButinageKm: null,
   dateMiseEnOeuvre: '2026-03-01',
   dateDemenagement: null,
   dateCloture: null,

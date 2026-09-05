@@ -788,6 +788,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/floraisons": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["floraisons"];
+        put?: never;
+        post: operations["enregistrer_4"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/couvert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verser"];
+        delete: operations["purger"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/elevage/series": {
         parameters: {
             query?: never;
@@ -829,7 +861,7 @@ export interface paths {
         };
         get: operations["registre_2"];
         put?: never;
-        post: operations["enregistrer_4"];
+        post: operations["enregistrer_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -862,7 +894,7 @@ export interface paths {
         get: operations["etat"];
         put?: never;
         post: operations["charger"];
-        delete: operations["purger"];
+        delete: operations["purger_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -941,7 +973,7 @@ export interface paths {
         };
         get: operations["lister_18"];
         put?: never;
-        post: operations["enregistrer_5"];
+        post: operations["enregistrer_6"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1592,6 +1624,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/sites/{siteId}/rotation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rotation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/sites/{siteId}/couvert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["autour"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/couvert/millesimes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["millesimes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/elevage/reines/{id}/index": {
         parameters: {
             query?: never;
@@ -2088,7 +2168,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/divisions/{id}": {
+    "/api/environnement/floraisons/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2104,7 +2184,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/captures/{id}": {
+    "/api/divisions/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2115,6 +2195,22 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["supprimer_22"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/captures/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimer_23"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2336,6 +2432,7 @@ export interface components {
             latitude: number;
             longitude: number;
             altitude?: number;
+            rayonButinageKm?: number;
             /** Format: date */
             dateMiseEnOeuvre: string;
             /** Format: date */
@@ -2374,6 +2471,7 @@ export interface components {
             latitude?: number;
             longitude?: number;
             altitude?: number;
+            rayonButinageKm?: number;
             /** Format: date */
             dateMiseEnOeuvre?: string;
             /** Format: date */
@@ -3277,6 +3375,46 @@ export interface components {
             creePar?: string;
             epuise?: boolean;
         };
+        FloraisonCorps: {
+            /** Format: int64 */
+            ressourceId: number;
+            /** Format: int32 */
+            annee: number;
+            /** Format: date */
+            dateDebut: string;
+            /** Format: date */
+            datePic?: string;
+            /** Format: date */
+            dateFin?: string;
+            /** Format: int32 */
+            abondance?: number;
+            note?: string;
+        };
+        FloraisonReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: int64 */
+            ressourceId?: number;
+            ressource?: string;
+            /** Format: int64 */
+            siteId?: number;
+            /** Format: int32 */
+            annee?: number;
+            /** Format: date */
+            dateDebut?: string;
+            /** Format: date */
+            datePic?: string;
+            /** Format: date */
+            dateFin?: string;
+            /** Format: int32 */
+            abondance?: number;
+            /** Format: int32 */
+            moisDeclare?: number;
+            /** Format: int32 */
+            ecartJours?: number;
+            note?: string;
+        };
+        JsonNode: Record<string, never>;
         DivisionCorps: {
             /** Format: int64 */
             rucheMereId: number;
@@ -3734,6 +3872,25 @@ export interface components {
             /** Format: int64 */
             visites7Jours?: number;
         };
+        CouvertRucher: {
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            rayonKm?: number;
+            /** Format: int32 */
+            millesime?: number;
+            source?: string;
+            surfaceCercleHa?: number;
+            couverte?: number;
+            /** Format: double */
+            distanceCultureM?: number;
+            surfaces?: components["schemas"]["SurfaceCouvert"][];
+        };
+        SurfaceCouvert: {
+            classe?: string;
+            surfaceHa?: number;
+            part?: number;
+        };
         Critere: {
             code?: string;
             valeur?: number;
@@ -3844,6 +4001,8 @@ export interface components {
             inclinaisonMaxDegres?: number;
             /** Format: int32 */
             chuteVolKg?: number;
+            /** Format: int32 */
+            rayonButinageKm?: number;
             /** Format: int32 */
             delaiAlerteJours?: number;
             /** Format: int32 */
@@ -6206,6 +6365,105 @@ export interface operations {
             };
         };
     };
+    floraisons: {
+        parameters: {
+            query?: {
+                siteId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FloraisonReponse"][];
+                };
+            };
+        };
+    };
+    enregistrer_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FloraisonCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FloraisonReponse"];
+                };
+            };
+        };
+    };
+    verser: {
+        parameters: {
+            query: {
+                source: string;
+                millesime: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JsonNode"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: Record<string, never>;
+                    };
+                };
+            };
+        };
+    };
+    purger: {
+        parameters: {
+            query: {
+                millesime: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+    };
     series: {
         parameters: {
             query?: never;
@@ -6316,7 +6574,7 @@ export interface operations {
             };
         };
     };
-    enregistrer_4: {
+    enregistrer_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -6424,7 +6682,7 @@ export interface operations {
             };
         };
     };
-    purger: {
+    purger_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -6604,7 +6862,7 @@ export interface operations {
             };
         };
     };
-    enregistrer_5: {
+    enregistrer_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -7575,6 +7833,72 @@ export interface operations {
             };
         };
     };
+    rotation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CouvertRucher"][];
+                };
+            };
+        };
+    };
+    autour: {
+        parameters: {
+            query?: {
+                millesime?: number;
+            };
+            header?: never;
+            path: {
+                siteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CouvertRucher"];
+                };
+            };
+        };
+    };
+    millesimes: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": number[];
+                };
+            };
+        };
+    };
     index: {
         parameters: {
             query?: never;
@@ -8270,6 +8594,26 @@ export interface operations {
         };
     };
     supprimer_22: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimer_23: {
         parameters: {
             query?: never;
             header?: never;

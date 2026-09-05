@@ -74,6 +74,7 @@ describe('vue Capteurs — prévisions météo', () => {
         latitude: 36.8,
         longitude: 10.2,
         altitude: null,
+        rayonButinageKm: null,
         dateMiseEnOeuvre: '2026-04-01',
         dateDemenagement: null,
         dateCloture: null,

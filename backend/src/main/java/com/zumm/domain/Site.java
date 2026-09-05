@@ -57,6 +57,23 @@ public class Site extends EntiteTenant {
     @Column(name = "altitude", precision = 7, scale = 2)
     private BigDecimal altitude;
 
+    /**
+     * Rayon de butinage de CE rucher, en kilometres (SPRINT-32, lot H).
+     *
+     * <p>« `rayonsKm` est une propriete figee a [1, 2, 3] » disait le §2. Le
+     * rayon reel depend du terrain : trois kilometres en plaine, davantage en
+     * montagne ou en zone pauvre, moins en ville. Le figer revient a dessiner le
+     * meme cercle partout, et a calculer des surfaces sur ce cercle-la.
+     *
+     * <p>NULL = le defaut de {@code ConfigZumm.ini}. Sur le SITE et non dans la
+     * configuration globale : deux ruchers d'une meme exploitation n'ont pas le
+     * meme environnement, et c'est justement ce que ce lot mesure.
+     */
+    @DecimalMin("0.5")
+    @DecimalMax("15.0")
+    @Column(name = "rayon_butinage_km", precision = 4, scale = 1)
+    private BigDecimal rayonButinageKm;
+
     @NotNull
     @Column(name = "date_mise_en_oeuvre", nullable = false)
     private LocalDate dateMiseEnOeuvre;
@@ -209,6 +226,14 @@ public String getPriorite() {
 
     public void setAltitude(BigDecimal altitude) {
         this.altitude = altitude;
+    }
+
+    public BigDecimal getRayonButinageKm() {
+        return rayonButinageKm;
+    }
+
+    public void setRayonButinageKm(BigDecimal rayonButinageKm) {
+        this.rayonButinageKm = rayonButinageKm;
     }
 
     public LocalDate getDateMiseEnOeuvre() {

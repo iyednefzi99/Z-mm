@@ -1,21 +1,34 @@
 # Plan de couverture intégrale de l'écart fonctionnel
 
-> État mesuré le 04/09/2026, après les migrations `V19` à `V26` :
-> **100 ✅ · 9 🟡 · 36 ❌ · 8 ⛔** sur 153 lignes de
+> État mesuré le 05/09/2026, après la migration `V31` — **le plan est clos** :
+> **137 ✅ · 5 🟡 · 3 ❌ · 8 ⛔** sur 153 lignes de
 > [`ECART-CONCURRENTS.md`](ECART-CONCURRENTS.md).
 >
-> **Les lots A, B, C, J et F₁ sont livrés** (migrations `V22` à `V26`, notes §18 à §22
-> du document d'écart). A a fermé ses onze lignes, exactement celles annoncées
-> ici ; B en a fermé **cinq sur six**, la coordination d'équipes restant 🟡 — sa
-> part logistique est reportée au lot E ; C **huit sur neuf**, la note vocale
-> restant 🟡 faute de stockage binaire ; J **six sur sept**, la réinitialisation
-> de mot de passe restant 🟡 tant qu'aucun serveur d'envoi n'est configuré ; et
-> **F₁** ses quatre lignes, exactement celles annoncées. Restent **45 lignes**
-> ouvertes.
+> Il s'ouvrait à **66 ✅** avant le lot A. Onze lots, onze sprints, quatre
+> décisions tranchées par ADR. Ce qui suit est conservé tel qu'écrit — y compris
+> là où le plan s'est trompé, chaque lot livré disant en quoi.
 >
-> Ce plan dit comment les amener à ✅, dans quel ordre, et à quelle condition. Il ne dit pas qu'il faut le faire : trois des
-> dix lots coûtent plus cher que tout ce qui a été livré depuis le SPRINT-00, et
-> le §3 nomme les quatre décisions à prendre avant d'écrire la première ligne.
+> **Les onze lots sont livrés**, migrations `V22` à `V31`, notes §18 à §28 du
+> document d'écart :
+>
+> | Lot | Migration | Fermé | Note |
+> |---|---|--:|---|
+> | **A** — règles | `V22` | 11/11 | — |
+> | **B** — lot par rucher | `V23` | 5/6 | logistique multi-sites reportée |
+> | **C** — hors ligne | `V24` | 8/9 | note vocale : pas de stockage binaire |
+> | **J** — identification | `V25` | 6/7 | mot de passe : pas de serveur d'envoi |
+> | **F₁** — poids, partage | `V26` | 4/4 | — |
+> | **E** — production, stock | `V27` | 12/14 | réfractomètre → I, logistique → G |
+> | **I** — carnet paramétrable | `V28` | 5/5 | réfractomètre compris |
+> | **D** — élevage | `V29` | 7/7 | le §7 n'a plus de ❌ |
+> | **G** — voix, assistance | *(ADR-013)* | 6/5 | la note vocale de C tombe avec |
+> | **F₂** — capteurs | `V30` | 2/4 | acoustique refusée |
+> | **H** — SIG environnemental | `V31` | 6/9 | pollen refusé |
+>
+> Ce plan disait comment les amener à ✅, dans quel ordre, et à quelle condition.
+> **Il ne disait pas qu'il fallait le faire** — et sur les seize lignes qui n'y
+> sont pas arrivées, trois ont été refusées pour la même raison : elles
+> produiraient un chiffre que l'apiculteur ne peut pas vérifier.
 
 ## Comment lire ce plan
 
@@ -477,7 +490,7 @@ dépend d'un autre lot. C'est le lot qu'on glisse entre deux autres.
 
 ---
 
-### Lot H — Le SIG environnemental  ·  9 lignes
+### Lot H — Le SIG environnemental  ·  9 lignes  ·  ✅ LIVRÉ (6/9)
 
 **Le seul lot où un concurrent joue sur le terrain que Zümm revendique** —
 BeeGIS — et le plus cher des huit.
@@ -498,11 +511,31 @@ BeeGIS — et le plus cher des huit.
 |:--:|:--:|:--:|:--:|:--:|:--:|
 | ● table + index GiST | ● intersections PostGIS | ● | ● couches MapLibre + légende | ◐ | ● ingestion et volume |
 
-**L'outil existe, la donnée non.** PostGIS sert déjà au voisinage et aux
-grappes ; une intersection avec une couche de couvert en est la suite naturelle.
-Tout le coût est dans la donnée d'entrée — voir la décision **D1**. Le rayon
-configurable, lui, est une exception : c'est un curseur d'interface, `rayonsKm`
-étant déjà une propriété de `CarteFond`.
+**Livré le 05/09/2026** (`V31`, [ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md),
+note §28 du document d'écart) — **six lignes fermées sur neuf** : deux passent à
+🟡 et une est refusée.
+
+Le plan avait raison sur le diagnostic (« l'outil existe, la donnée non ») et
+tort sur l'issue de **D1**. Aucune des trois options du §3 n'a été choisie,
+parce que **la question n'était pas laquelle mais comment** : un connecteur en
+direct, quel que soit le référentiel, envoie les coordonnées du rucher à un
+tiers. La couche générique que le plan jugeait « plus chère que de trancher »
+est devenue la seule architecture compatible avec `PolitiquePositions` — et elle
+a coûté une table, pas un projet.
+
+Le **rayon configurable** est bien l'exception annoncée, mais pas où le plan le
+croyait : ce n'était pas un curseur d'interface. `rayonsKm` pilote le
+regroupement DBSCAN de la carte, pas le butinage ; les confondre aurait laissé la
+ligne ouverte en la croyant fermée. Le réglage vit désormais sur le **site**
+(`site.rayon_butinage_km`), parce que deux ruchers d'une même exploitation n'ont
+pas le même terrain.
+
+**Trois lignes n'ont pas franchi la barre**, et le document d'écart dit pourquoi :
+le comptage de pollen est **refusé** (il vient de réseaux d'aérobiologie, pas
+d'un capteur de rucher) ; l'exposition aux zones traitées reste 🟡 (une distance
+à une culture n'est pas une distance à une zone traitée) ; le croisement santé ×
+flore reste 🟡 (les deux moitiés se lisent côte à côte, aucun coefficient n'est
+calculé sur dix ruchers).
 
 ---
 
@@ -516,7 +549,7 @@ lot entier. Les laisser implicites, c'est écrire du code qu'il faudra jeter.
 La dernière, **D1**, ne dépend pas du code : elle demande de choisir un
 référentiel de données, et ce choix décide du marché que le produit peut servir.
 
-### D1 — Quel référentiel d'occupation du sol ? *(bloque le lot H)*
+### ~~D1 — Quel référentiel d'occupation du sol ?~~ ✅ *tranchée le 05/09/2026*
 
 Les référentiels qui font la valeur de BeeGIS — RPG, CartoBio, BD Forêt, BD TOPO
 — sont des produits de l'administration **française**. Ils ne couvrent ni le
@@ -529,9 +562,20 @@ trilinguisme FR/EN/AR vise.
 | Copernicus / ESA WorldCover (10 m, mondial) | Couverture mondiale, gratuit | Classes grossières : « cultures », pas « colza » |
 | OpenStreetMap `landuse` | Mondial, gratuit, déjà en fond de carte | Complétude très inégale selon les régions |
 
-**Sans ce choix, le lot H ne commence pas.** Une architecture qui accepterait les
-trois sources est possible — une couche générique `couvert_sol` alimentée par des
-ingesteurs interchangeables — mais elle coûte plus cher que de trancher.
+**Tranchée par [ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md) — et aucune des
+trois options n'a été retenue.** La question posée ici était « laquelle » ; la
+bonne était « comment ». Interroger en direct un service tiers, quel qu'il soit,
+revient à lui envoyer la position du rucher — ce que `PolitiquePositions` masque
+depuis le SPRINT-12 et que le mode local du SPRINT-30 venait de couper pour les
+tuiles.
+
+> **La donnée est accueillie, jamais interrogée.**
+
+C'est donc bien la couche générique `couvert_sol` à ingesteurs interchangeables
+que ce paragraphe jugeait « plus chère que de trancher ». Elle ne l'était pas :
+une table, un index GiST et un ingesteur qui **traduit** vers une taxonomie
+fermée de dix classes. Les trois référentiels du tableau restent utilisables,
+chacun par versement explicite, et le millésime accompagne chaque réponse.
 
 ### ~~D2 — Le hors-ligne sélectif amende-t-il l'ADR existant ?~~ ✅ *tranchée le 04/09/2026*
 
@@ -611,26 +655,32 @@ tables. Si c'est l'objectif, il commence par
 | ~~8~~ | ~~**D** — élevage et généalogie~~ ✅ | 7 | **124** | *Livré le 05/09/2026 (V29)* — les sept lignes ; le §7 n'a plus de ❌ | ~~Critères de l'index~~ **tranchée** : cinq critères, aucune note globale |
 | ~~9~~ | ~~**F₂** — capteurs du commerce~~ ✅ | 2 | **132** | *Livré le 05/09/2026 (V30, ADR-014)* — 2 lignes sur 4 : les intégrations nommées passent à 🟡, l'analyse vidéo/acoustique est refusée | ~~D3~~ **tranchée** : on n'achète pas de matériel |
 | ~~10~~ | ~~**G** — voix et assistance~~ ✅ | 6 | **130** | *Livré le 05/09/2026 (ADR-013)* — 6 lignes au lieu des 5 annoncées : la note vocale laissée par C tombe avec la transcription. La réinitialisation laissée par J attend toujours un serveur d'envoi | ~~D4~~ **tranchée** : sur l'appareil, ou pas du tout |
-| 11 | **H** — SIG environnemental | 9 | 145 | Le plus cher, et bloqué tant que la source de données n'est pas choisie | **D1** |
+| ~~11~~ | ~~**H** — SIG environnemental~~ ✅ | 9 | **137** | *Livré le 05/09/2026 (V31, ADR-015)* — 6 lignes sur 9 : le pollen est refusé, l'exposition aux zones traitées et le croisement santé × flore passent à 🟡 | ~~D1~~ **tranchée** : la donnée est accueillie, jamais interrogée |
 
 **Le lot C est remonté du huitième au troisième rang**, et le plan avait tort de
 le placer si bas : il ne coûtait pas plus cher que J ou F₁, et il portait le
 reproche n° 1 fait à trois des douze concurrents. Ce qui le retenait était la
 décision D2, qu'un ADR d'une page a levée.
 
-Dix lots étant livrés, **132 ✅ sur 153**. Il ne reste qu'**un seul lot** — le
-lot H, SIG environnemental, 9 lignes — et une seule décision, **D1** : quel
-référentiel d'occupation du sol. Trois des quatre décisions du départ sont
-tranchées.
+**Le plan est clos.** Onze lots livrés, onze sprints applicatifs — du SPRINT-22
+au SPRINT-32 — et **137 ✅ sur 153**. Les quatre décisions du §3 sont tranchées,
+chacune par un ADR : D2 (hors-ligne sélectif), D4 (où tourne l'IA), D3 (capteurs
+du commerce), D1 (occupation du sol).
 
-Le plafond reste **145 ✅**, jamais 153 : les 8 lignes ⛔ sont des décisions de
-périmètre. À quoi s'ajoutent désormais **4 lignes 🟡 et 9 ❌** dont une partie ne
-franchira pas la barre sans matériel, sans données de validation ou sans un
-produit à part entière — le document les nomme une par une.
+**Le plafond annoncé était 145 ✅ ; l'atterrissage est à 137**, et l'écart de huit
+lignes est la partie honnête de ce bilan. Il se ventile ainsi :
 
-Le compte plafonne à **145 ✅**, jamais à 153 : les **8 lignes ⛔** ne sont pas des
-travaux mais des décisions de périmètre (§4). 145 + 8 = 153, et le document est
-alors intégralement statué.
+| Reste | Nombre | Ce que c'est |
+|---|--:|---|
+| 🟡 partiel | 5 | Une moitié livrée, l'autre nommée : note vocale sans stockage binaire, réinitialisation de mot de passe sans serveur d'envoi, intégrations de capteurs jamais testées sur matériel réel, exposition aux zones traitées, croisement santé × flore |
+| ❌ refus argumenté | 2 | Analyse vidéo/acoustique (SPRINT-31), comptage de pollen (SPRINT-32) — chacun tranché par un ADR |
+| ❌ travail restant | 1 | Le *ground truthing* du §13 : marquer une parcelle « à confirmer » et engendrer la tâche de vérification |
+| ⛔ hors périmètre | 8 | Des décisions de périmètre, pas des travaux (§4) |
+
+137 + 5 + 3 + 8 = 153, et le document est intégralement statué : **plus une seule
+ligne dont on ne sache pas quoi dire**. Trois lignes seulement ont été refusées
+au fil des onze lots, et toujours pour la même raison — elles produiraient un
+chiffre que l'apiculteur ne peut pas vérifier.
 
 ---
 

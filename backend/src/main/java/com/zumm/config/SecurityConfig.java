@@ -269,6 +269,16 @@ public class SecurityConfig {
                 .hasAnyRole("responsable", "admin")
                 .requestMatchers(HttpMethod.DELETE, "/api/carnet/**")
                 .hasAnyRole("responsable", "admin")
+                // L'ENVIRONNEMENT (SPRINT-32) se lit avec tout role metier : ce
+                // qu'il y a autour d'un rucher interesse d'abord celui qui y
+                // monte. Verser une couche d'occupation du sol, en revanche,
+                // engage toutes les surfaces calculees ensuite — et purger un
+                // millesime efface une donnee que personne ne reversera de
+                // memoire.
+                .requestMatchers(HttpMethod.POST, "/api/environnement/couvert")
+                .hasAnyRole("responsable", "admin")
+                .requestMatchers(HttpMethod.DELETE, "/api/environnement/couvert")
+                .hasAnyRole("responsable", "admin")
                 // Le referentiel et la configuration sont geres par le responsable
                 // et l'administrateur ; les autres roles y ont un acces en LECTURE.
                 .requestMatchers(HttpMethod.POST, "/api/fermiers/**", "/api/fermes/**",

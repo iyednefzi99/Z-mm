@@ -106,6 +106,7 @@ public class ConfigurationMetier {
                 entier(seuilsIni.get("batterie_min_pourcent"), defauts.batterieMinPourcent()),
                 entier(seuilsIni.get("inclinaison_max_degres"), defauts.inclinaisonMaxDegres()),
                 entier(seuilsIni.get("chute_vol_kg"), defauts.chuteVolKg()),
+                entier(carte.get("rayon_butinage_km"), defauts.rayonButinageKm()),
                 entier(visites.get("delai_alerte_jours"), defauts.delaiAlerteJours()),
                 entier(carte.get("arrondi_degres_public"), defauts.arrondiDegresPublic()),
                 entier(listes.get("taille_page_defaut"), defauts.taillePageParDefaut()),
