@@ -30,16 +30,16 @@
          constatee, arrondie a l'inferieur : c'est un cliquet anti-regression, pas
          une cible. Le relever se fait en meme temps qu'on ajoute des tests ; le
          baisser demande un geste explicite et visible en revue. -->
-    <!-- Mesure du 05/09/2026, apres le lot 2 du plan de couverture :
-         88,1 % (32 891 / 37 338 instructions), campagnes unitaire et integration
-         fusionnees. Le plancher passe de 0,84 a 0,88 (0,80 avant le lot 1).
+    <!-- Mesure du 05/09/2026, apres la vague A du lot 3 du plan de couverture :
+         89,0 % (33 217 / 37 338 instructions), campagnes unitaire et integration
+         fusionnees. Le plancher passe a 0,89 ; il valait 0,80 avant le lot 1.
 
          Il reste POSE SOUS LA MESURE, pour tolerer le bruit d'un test — c'est la
          convention du depot depuis le 26/07/2026 (82,5 % mesures, plancher a
          0,80). Un plancher cale au dixieme pres ferait echouer le build sur une
          variation qui n'apprend rien a personne, et la premiere reponse serait
          de le baisser : exactement ce qu'il sert a empecher. -->
-    <couverture.minimale>0.88</couverture.minimale>
+    <couverture.minimale>0.89</couverture.minimale>
 
     <!-- Second cliquet, sur les BRANCHES. Le plancher d'instructions ne dit rien
          des chemins d'erreur : un `if` dont seule la voie nominale est exercee
@@ -48,15 +48,18 @@
          retomber sans que le build s'en apercoive. Le plancher est pose sous la
          mesure, pour la meme raison que l'autre : figer l'acquis, pas viser.
 
-         Mesure du 05/09/2026, apres le lot 2 : 70,8 % (1 449 / 2 048 branches).
-         Le plancher passe de 0,65 a 0,70 ; il valait 0,60 avant le lot 1.
+         Mesure du 05/09/2026, apres la vague A du lot 3 : 74,7 %
+         (1 530 / 2 048 branches). Le plancher passe a 0,74 ; il valait 0,60
+         avant le lot 1.
 
-         Deux relevements en une journee, apres onze sprints sans aucun. La
-         raison est la meme dans les deux cas : les classes visees etaient celles
-         dont les branches sont presque TOUTES des chemins d'echec — un tiers
-         injoignable au lot 1, une donnee absente au lot 2. Ce sont les branches
-         les moins couteuses a couvrir et les plus couteuses a ignorer. -->
-    <couverture.branches.minimale>0.70</couverture.branches.minimale>
+         Trois relevements en une journee, apres onze sprints sans aucun. La
+         raison est la meme a chaque fois : les classes visees etaient celles
+         dont les branches sont presque TOUTES des chemins d'echec ou d'absence
+         — un tiers injoignable au lot 1, une donnee manquante au lot 2, une
+         observation jamais faite a la vague A du lot 3. Ce sont les branches les
+         moins couteuses a couvrir et les plus couteuses a ignorer : elles ne
+         font pas tomber le systeme, elles lui font afficher un nombre faux. -->
+    <couverture.branches.minimale>0.74</couverture.branches.minimale>
 
     <!-- ─── Correctifs de securite au-dessus du BOM Spring Boot ───
          Quatre versions relevees au-dessus de ce que gere le BOM de Boot 3.5.16,

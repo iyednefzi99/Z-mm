@@ -8,10 +8,10 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1 et 2 livrés le 05/09/2026** : 88,1 % d'instructions, 70,8 %
-> de branches, 88,9 % de lignes, sur 290 tests unitaires et 242 tests
-> d'intégration — contre 82,1 %, 63,0 % et 83,9 % au départ. Les planchers du
-> `pom.xml` sont relevés d'autant à chaque lot.
+> **Lots 1, 2 et vague A du lot 3, livrés le 05/09/2026** : 89,0 %
+> d'instructions, 74,7 % de branches, 89,6 % de lignes, sur 357 tests
+> unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
+> départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
 > Source : `backend/target/site/jacoco/jacoco.csv`, produit par `./mvnw -B verify`.
 > Aucun chiffre de ce document n'est recopié d'un autre.
@@ -57,11 +57,11 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | Plancher |
-|---|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | **88,1 %** | 0,80 → 0,84 → **0,88** |
-| Branches | 63,0 % | 66,0 % | **70,8 %** | 0,60 → 0,65 → **0,70** |
-| Lignes | 83,9 % | 86,3 % | **88,9 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | Lot 3 A | Plancher |
+|---|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | **89,0 %** | 0,80 → 0,84 → 0,88 → **0,89** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | **74,7 %** | 0,60 → 0,65 → 0,70 → **0,74** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | **89,6 %** | *aucun* |
 
 Le relèvement des branches est **le premier depuis la pose du cliquet** : la
 marge était restée courte du SPRINT-22 au SPRINT-32, entre 2,2 et 3,8 points.
@@ -276,7 +276,7 @@ document binaire. La réponse — extraire le texte — vaut pour les quatre.
 
 > Plancher après le lot : **87,9 %** d'instructions · **71,7 %** de branches.
 
-### Lot 3 — Le reste des services métier  ·  2 528 instructions · 299 branches
+### Lot 3 — Le reste des services métier  ·  2 528 instructions · 299 branches  ·  🟡 VAGUE A
 
 Vingt-cinq classes, de `ElevageService` (179) à `MaterielService` (73).
 
@@ -297,6 +297,48 @@ plan : un indice qui se calcule à chaque lecture, avec des seuils, des `null`
 possibles partout et aucune donnée stockée pour se rattraper. Chaque branche non
 couverte y est une valeur d'indice potentiellement fausse affichée à
 l'apiculteur.
+
+#### Vague A — les quatre pires ratios de branches  ·  ✅ livrée le 05/09/2026
+
+67 tests, **84 branches** prises sur les 318 du paquet. Couverture globale portée
+à **89,0 %** d'instructions et **74,7 %** de branches (89,6 % de
+lignes), sur 357 tests unitaires et 242 tests d'intégration.
+
+| Classe | Branches avant | Tests |
+|---|--:|--:|
+| `IndiceColonieService` | **38,9 %** — 44 manquantes, *aucun test* | 28 |
+| `SyntheseRucherService` | **35,7 %** — 18 manquantes | 13 |
+| `ConformiteBioService` | **42,3 %** — 15 manquantes | 15 |
+| `AlerteSanitaireService` | **46,2 %** — 7 manquantes | 11 |
+
+Le choix des quatre suit la règle du §0 : ce sont les classes où **une branche
+fausse ne casse rien** — elle affiche un nombre, l'apiculteur le lit, et rien ne
+le contredit. Cinq décisions de conception y étaient tenues par la seule lecture
+du code :
+
+1. **Une composante n'est comptée que si elle a été observée.** Sans
+   observation, l'indice vaut 0 et non 100 : l'ignorance ne se lit pas comme de
+   la santé. Même règle au rucher, où `santeMoyenne` vaut `null`.
+2. **Le risque d'essaimage remonté est le maximum, jamais la moyenne.** Sur
+   trois colonies à 0/0/90, la moyenne dirait 30 et personne ne se déplacerait.
+3. **Une pathologie seulement *suspectée* ne fait pas chuter l'indice** — au
+   rucher on constate un symptôme, on ne pose pas un diagnostic.
+4. **L'origine des sucres reste « à justifier » même quand tout est tracé.** Le
+   système enregistre ce qui a été donné, jamais d'où cela vient.
+5. **L'ordre des `else if` d'`AlerteSanitaireService` EST la règle métier** — sa
+   propre javadoc le dit. Rien ne le tenait ; un refactor bien intentionné
+   l'aurait défait sans bruit.
+
+**Ce que la vague a coûté en pièges de test**, tous connus du dépôt : `anyLong()`
+ne filtre pas un `null` ; un `mock()` créé *dans* les arguments d'un `when()`
+laisse le stub inachevé (le piège du lot D) ; et deux accesseurs devinés au lieu
+d'être lus — `forcerCarence` exige un motif, et c'est ce qui rend le forçage
+opposable.
+
+**Reste au lot 3** : une vingtaine de services CRUD, ~2 400 instructions et
+~230 branches. Le gain par test y est plus faible — ce sont des lectures et des
+écritures, pas des calculs — et c'est la raison pour laquelle ils viennent
+après.
 
 > Plancher après le lot : **94,7 %** d'instructions · **86,3 %** de branches.
 
@@ -397,7 +439,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier | 2 528 | 299 | **94,7 %** | **86,3 %** |
+| 3 | Services métier *(vague A)* 🟡 | 2 528 | 299 | **89,0 %** | **74,7 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
