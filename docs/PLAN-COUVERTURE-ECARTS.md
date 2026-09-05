@@ -308,7 +308,7 @@ suivantes forment le **lot F₂**, d'une autre nature — voir la décision **D3
 
 ---
 
-### Lot G — Saisie vocale et assistance  ·  5 lignes
+### Lot G — Saisie vocale et assistance  ·  5 lignes  ·  ✅ LIVRÉ (6/5)
 
 | Ligne couverte | Section |
 |---|---|
@@ -323,7 +323,35 @@ suivantes forment le **lot F₂**, d'une autre nature — voir la décision **D3
 | — | ● si transcription serveur, — si locale | ◐ | ● Web Speech / `MediaRecorder` | ● 3 langues de reconnaissance |
 
 Le microservice `ia-service` existe et sert déjà la détection d'anomalie derrière
-un port : l'ossature est là. Ce qui manque relève de la décision **D4**.
+un port : l'ossature est là. Ce qui manquait relevait de la décision **D4**.
+
+**Livré le 05/09/2026**, et la décision D4 est tranchée par
+[ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md) : **rien
+de ce qui est personnel ne quitte l'appareil, et rien n'est envoyé à un tiers**.
+Six lignes fermées au lieu de cinq — le 🟡 des notes vocales tombe avec la
+transcription. Trois conséquences, qui doivent tenir ensemble :
+
+1. **La transcription se fait sur l'appareil, ou pas du tout.** La dictée
+   n'utilise `SpeechRecognition` que si le navigateur expose un réglage de
+   traitement local ; ailleurs, elle refuse et l'écrit. Whisper WASM est écarté —
+   quarante mégaoctets contredisent la raison d'être d'une PWA qui monte au
+   rucher — mais le point d'entrée est unique.
+2. **L'assistance ne passe par aucun modèle de langue.** Le briefing lit quatre
+   registres et **cite ce qui le fonde**. Une phrase agréable qu'on ne peut pas
+   remonter à sa source vaut moins qu'une liste sèche — et il faudrait envoyer
+   l'historique dehors, ce que le point 1 interdit.
+3. **Le mode local est une bascule, pas une promesse en prose** — et il y en a
+   **deux**, parce qu'il y a deux trafics : le serveur coupe la météo et le
+   microservice, le navigateur coupe les tuiles de carte. Les confondre ferait
+   croire à l'exploitant que son poste est muet alors qu'il ne l'est qu'à moitié.
+
+La ligne « IA embarquée sur l'appareil » se ferme en portant l'EWMA dans le
+navigateur. Le risque n'y est pas l'erreur mais la **dérive** : `ewma.test.ts` et
+`AnomalieEmbarqueeTest` fixent les mêmes nombres sur la même série.
+
+**Ce que le lot ne ferme pas** : la réinitialisation de mot de passe (laissée par
+J) attend un serveur d'envoi, pièce d'infrastructure et non ligne de code ; la
+logistique multi-sites (laissée par B) reste un produit à elle seule.
 
 ---
 
@@ -458,8 +486,13 @@ configurable, lui, est une exception : c'est un curseur d'interface, `rayonsKm`
 
 ## 3. Les quatre décisions à prendre avant d'écrire
 
-Aucune ne se tranche en écrivant du code, et trois d'entre elles bloquent un lot
-entier. Les laisser implicites, c'est écrire du code qu'il faudra jeter.
+Aucune ne se tranche en écrivant du code, et trois d'entre elles bloquaient un
+lot entier. Les laisser implicites, c'est écrire du code qu'il faudra jeter.
+
+**Deux sont tranchées** — D2 le 04/09/2026 (ADR-012), D4 le 05/09/2026
+(ADR-013) — et chacune a débloqué son lot dans la journée qui a suivi. Les deux
+restantes, D1 et D3, ne dépendent pas du code : l'une du choix d'un référentiel
+de données, l'autre d'un achat de matériel.
 
 ### D1 — Quel référentiel d'occupation du sol ? *(bloque le lot H)*
 
@@ -499,13 +532,19 @@ d'ingestion ouverte, elle, fonctionne déjà avec n'importe quelle passerelle.
 **Recommandation** : livrer les trois lignes bon marché du lot F, et traiter les
 intégrations nommées comme un partenariat, pas comme un développement.
 
-### D4 — Où tourne l'IA ? *(bloque le lot G, et la ligne §8)*
+### ~~D4 — Où tourne l'IA ?~~ ✅ *tranchée le 05/09/2026*
 
 « Traitement local, sans aucun trafic sortant » et « assistant IA » se
-contredisent tant qu'on n'a pas dit **où** le modèle s'exécute. Trois voies :
-transcription dans le navigateur (Whisper WASM, ~40 Mo à télécharger),
-transcription sur le serveur d'exploitation (`ia-service`, mais il faut la
-puissance), ou service tiers (et alors la ligne §8 reste ❌ pour toujours).
+contredisaient tant qu'on n'avait pas dit **où** le modèle s'exécute.
+
+C'est [ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md),
+accepté : **sur l'appareil, ou pas du tout**. La transcription n'a lieu que si le
+navigateur la traite localement ; l'assistance ne passe par aucun modèle de
+langue, parce qu'il faudrait lui envoyer l'historique de l'exploitation dehors —
+et le briefing cite ses sources, ce qu'une phrase générée ne fait pas.
+
+Le renoncement est réel et il est écrit dans l'ADR : Zümm n'aura pas de
+conversation en langage naturel tant que cette décision tient.
 
 ---
 
@@ -543,7 +582,7 @@ tables. Si c'est l'objectif, il commence par
 | ~~7~~ | ~~**I** — carnet paramétrable~~ ✅ | 5 | **117** | *Livré le 05/09/2026 (V28)* — les cinq lignes annoncées, réfractomètre compris | — |
 | ~~8~~ | ~~**D** — élevage et généalogie~~ ✅ | 7 | **124** | *Livré le 05/09/2026 (V29)* — les sept lignes ; le §7 n'a plus de ❌ | ~~Critères de l'index~~ **tranchée** : cinq critères, aucune note globale |
 | 9 | **F₂** — capteurs du commerce | 4 | 128 | Suspendu au matériel, pas au code | **D3** |
-| 10 | **G** — voix et assistance | 8 | 136 | Dépend de l'endroit où tourne le modèle. Reprend la note vocale laissée par C et la réinitialisation laissée par J, qui attendent l'une un stockage de fichiers, l'autre un serveur d'envoi | **D4** |
+| ~~10~~ | ~~**G** — voix et assistance~~ ✅ | 6 | **130** | *Livré le 05/09/2026 (ADR-013)* — 6 lignes au lieu des 5 annoncées : la note vocale laissée par C tombe avec la transcription. La réinitialisation laissée par J attend toujours un serveur d'envoi | ~~D4~~ **tranchée** : sur l'appareil, ou pas du tout |
 | 11 | **H** — SIG environnemental | 9 | 145 | Le plus cher, et bloqué tant que la source de données n'est pas choisie | **D1** |
 
 **Le lot C est remonté du huitième au troisième rang**, et le plan avait tort de
@@ -551,12 +590,11 @@ le placer si bas : il ne coûtait pas plus cher que J ou F₁, et il portait le
 reproche n° 1 fait à trois des douze concurrents. Ce qui le retenait était la
 décision D2, qu'un ADR d'une page a levée.
 
-Huit lots étant livrés, **124 ✅ sur 153** — quatre cinquièmes du document, et le
-§7, le plus fourni des treize, n'a plus une seule ligne ❌. Tout ce qui restait
-sans décision préalable est fait. Les **trois derniers lots valent 21 lignes**, et
-chacun dépend d'un des trois arbitrages restants du §3 : le matériel à acheter
-(D3), l'endroit où tourne le modèle de langue (D4), la source de données
-environnementales (D1). Aucun ne se débloque en écrivant du code.
+Neuf lots étant livrés, **130 ✅ sur 153** — plus de six septièmes des lignes
+statuables. Il ne reste que **deux lots**, valant 13 lignes, et chacun dépend
+d'un arbitrage qui ne se tranche pas en écrivant du code : le matériel à acheter
+(**D3**, lot F₂) et la source de données d'occupation du sol (**D1**, lot H).
+D4 est tranchée ; D2 l'était déjà.
 
 Le compte plafonne à **145 ✅**, jamais à 153 : les **8 lignes ⛔** ne sont pas des
 travaux mais des décisions de périmètre (§4). 145 + 8 = 153, et le document est

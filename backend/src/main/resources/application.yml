@@ -179,6 +179,18 @@ zumm:
   # La pile docker-compose, elle, renseigne ZUMM_IA_URL sur le service interne.
   ia:
     url: ${ZUMM_IA_URL:}
+  reseau:
+    # Bascule « aucun appel sortant » (SPRINT-30, lot G). VRAI par defaut : la
+    # meteo et le microservice IA rendent le produit meilleur, et les couper
+    # sans le dire serait une regression silencieuse.
+    #
+    # A FAUX, le serveur ne joint plus AUCUN service hors de l'exploitation :
+    # ni api.open-meteo.com, ni le microservice IA. La detection d'anomalie
+    # retombe sur l'EWMA locale, qui existait deja pour l'indisponibilite.
+    #
+    # Ce que ce reglage ne fait pas : couper les tuiles de carte, qui partent du
+    # NAVIGATEUR. Ce trafic-la se coupe dans la PWA, et l'ecran le dit.
+    sortant: ${ZUMM_RESEAU_SORTANT:true}
   # Notifications e-mail des alertes (SPRINT-09, US-041). Désactivées par défaut :
   # aucune dépendance SMTP en local ni en test. En production, activer et fournir
   # spring.mail.* (host/port/credentials) via l'environnement.

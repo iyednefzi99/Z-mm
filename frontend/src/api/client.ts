@@ -34,6 +34,7 @@ import type {
   Anomalie,
   AuditEntree,
   BilanExploitation,
+  Briefing,
   Brouillon,
   BrouillonCorps,
   CalendrierCellule,
@@ -406,6 +407,16 @@ export interface InfoApplication {
    * ne partira jamais est pire que ne rien afficher.
    */
   reinitialisationUrl: string;
+  /**
+   * Le SERVEUR s'autorise-t-il des appels sortants (SPRINT-30, lot G) ?
+   *
+   * <p>À ne pas confondre avec le mode local de CET appareil (`modeLocal()`) :
+   * le premier coupe la météo et le microservice d'anomalie, le second les
+   * tuiles de carte. Les deux moitiés se règlent séparément, et l'écran doit le
+   * dire — sans quoi l'exploitant croirait son poste muet alors qu'il continue
+   * de télécharger des fonds de carte chez un tiers.
+   */
+  reseauSortant: boolean;
 }
 
 /**
@@ -1121,3 +1132,11 @@ export const ouvrirDocumentElevage = (
     'noopener',
   );
 };
+
+/**
+ * Ce qui mérite l'attention aujourd'hui (SPRINT-30, lot G).
+ *
+ * <p>Aucun modèle de langue derrière : quatre registres relus, et chaque ligne
+ * cite ce qui la fonde (ADR-013).
+ */
+export const chargerBriefing = () => requete<Briefing>('/api/briefing');

@@ -1960,5 +1960,39 @@
       "nourrissement": "Feeding",
       "tracabilite": "Batch traceability"
     }
+  },
+  "dictee": {
+    "titre": "Dictation",
+    "dicter": "Dictate",
+    "arreter": "Stop",
+    "ecoute": "listening…",
+    "relecture": "Dictated text is reviewed before it is saved.",
+    "refusDistante": "This browser would send your voice to a recognition service, so dictation is disabled. It works where transcription happens on the device.",
+    "microRefuse": "Microphone denied or unavailable.",
+    "erreur": "Dictation stopped."
+  },
+  "briefing": {
+    "titre": "Today's briefing",
+    "vide": "Nothing needs your attention today.",
+    "aide": "This briefing is computed from your own records — alerts, tasks, withdrawal periods, last visits. No language model is involved: every line cites what it rests on, and can be checked in one click.",
+    "urgence1": "Today",
+    "urgence2": "This week",
+    "urgence3": "Worth knowing",
+    "categories": {
+      "alerte": "Alert",
+      "tache": "Task",
+      "carence": "Withdrawal",
+      "visite": "Visit",
+      "meteo": "Weather"
+    }
+  },
+  "modeLocal": {
+    "titre": "Local mode",
+    "appareil": "On this device",
+    "serveur": "On the server",
+    "actif": "no outbound calls",
+    "inactif": "outbound calls allowed",
+    "aide": "Two separate halves, each set on its own: the server cuts weather and the anomaly microservice; this device cuts map tiles, which are fetched by your browser and reveal where your apiaries are. Anomaly detection keeps working — it then runs right here.",
+    "carteCoupee": "Map tiles disabled by local mode."
   }
 }

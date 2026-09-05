@@ -22,6 +22,7 @@ import { ConfigVue } from './ConfigVue';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  chargerInfo: vi.fn(() => Promise.resolve({ reseauSortant: true })),
   recupererPoints: vi.fn(),
   gabarits: {
     lister: vi.fn(),

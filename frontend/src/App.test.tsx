@@ -27,6 +27,7 @@ vi.mock('./api/client', async () => {
     chargerAlertesSanitaires: () => Promise.resolve([]),
     chargerSynthese: () => Promise.resolve(null),
     chargerPrevisions: () => Promise.resolve([]),
+    chargerBriefing: () => Promise.resolve({ genereLe: '2026-09-05', lignes: [] }),
     telechargerExport: () => Promise.resolve(),
     fermiers: vide,
     fermes: vide,

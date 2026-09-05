@@ -5104,6 +5104,33 @@
         }
       }
     },
+    "/api/briefing" : {
+      "get" : {
+        "tags" : [ "briefing-controller" ],
+        "operationId" : "duJour",
+        "parameters" : [ {
+          "name" : "jour",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Briefing"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/audit" : {
       "get" : {
         "tags" : [ "audit-controller" ],
@@ -9423,6 +9450,9 @@
           },
           "reinitialisationUrl" : {
             "type" : "string"
+          },
+          "reseauSortant" : {
+            "type" : "boolean"
           }
         }
       },
@@ -9951,6 +9981,43 @@
           },
           "conformeNorme" : {
             "type" : "boolean"
+          }
+        }
+      },
+      "Briefing" : {
+        "type" : "object",
+        "properties" : {
+          "genereLe" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "lignes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Ligne"
+            }
+          }
+        }
+      },
+      "Ligne" : {
+        "type" : "object",
+        "properties" : {
+          "categorie" : {
+            "type" : "string"
+          },
+          "urgence" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "titre" : {
+            "type" : "string"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "rucheId" : {
+            "type" : "integer",
+            "format" : "int64"
           }
         }
       },

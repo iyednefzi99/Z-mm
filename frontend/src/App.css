@@ -893,6 +893,118 @@
   color: var(--z-text-muted);
 }
 
+/* ─── Briefing du jour et dictée (SPRINT-30, lot G) ───────────────────── */
+
+.z-briefing {
+  border: 1px solid var(--z-line);
+  border-inline-start: 3px solid var(--z-honey-500);
+  border-radius: var(--z-radius-md);
+  background: var(--z-surface);
+  padding: 0.9rem 1.1rem;
+  margin-block: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.z-briefing__entete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.z-briefing__titre {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--z-text);
+}
+
+.z-briefing__date {
+  font-size: 0.8rem;
+  color: var(--z-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.z-briefing__urgence {
+  margin: 0.4rem 0 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--z-text-muted);
+}
+
+.z-briefing__lignes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.z-briefing__ligne {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* La categorie est ECRITE, jamais portee par la seule couleur : la moitie des
+   lignes du briefing sont sanitaires, et un daltonien doit les distinguer. */
+.z-briefing__categorie {
+  flex: none;
+  min-width: 5.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--z-radius-pill);
+  background: var(--z-surface-2, var(--z-bg));
+  border: 1px solid var(--z-line);
+  font-size: 0.72rem;
+  text-align: center;
+  color: var(--z-text-muted);
+}
+
+.z-briefing__ligne--alerte .z-briefing__categorie {
+  border-color: var(--z-danger);
+  color: var(--z-danger);
+}
+
+.z-briefing__ligne--carence .z-briefing__categorie {
+  border-color: var(--z-warning);
+  color: var(--z-warning);
+}
+
+.z-briefing__aide {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+}
+
+.z-dictee {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-block-start: -0.3rem;
+}
+
+.z-dictee__etat {
+  font-size: 0.82rem;
+  color: var(--z-honey-600);
+}
+
+.z-dictee__erreur {
+  font-size: 0.82rem;
+  color: var(--z-danger);
+}
+
+.z-dictee__aide,
+.z-dictee__refus {
+  font-size: 0.78rem;
+  color: var(--z-text-muted);
+}
+
 /* ─── Modale ───────────────────────────────────────────────────────────── */
 
 /* Ouverture ET fermeture, pilotees par une classe d'etat plutot que par une

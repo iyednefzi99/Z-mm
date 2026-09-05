@@ -1880,6 +1880,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/briefing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["duJour"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audit": {
         parameters: {
             query?: never;
@@ -3663,6 +3679,7 @@ export interface components {
             accueil?: string;
             langues?: string[];
             reinitialisationUrl?: string;
+            reseauSortant?: boolean;
         };
         IndiceColonie: {
             /** Format: int64 */
@@ -3868,6 +3885,20 @@ export interface components {
             humiditePct?: number;
             verdict?: string;
             conformeNorme?: boolean;
+        };
+        Briefing: {
+            /** Format: date */
+            genereLe?: string;
+            lignes?: components["schemas"]["Ligne"][];
+        };
+        Ligne: {
+            categorie?: string;
+            /** Format: int32 */
+            urgence?: number;
+            titre?: string;
+            detail?: string;
+            /** Format: int64 */
+            rucheId?: number;
         };
         AuditEntreeReponse: {
             /** Format: int64 */
@@ -7921,6 +7952,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["Refractometre"];
+                };
+            };
+        };
+    };
+    duJour: {
+        parameters: {
+            query?: {
+                jour?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["Briefing"];
                 };
             };
         };

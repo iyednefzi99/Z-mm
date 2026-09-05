@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.zumm.config.PolitiqueReseau;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -34,8 +35,10 @@ public class OpenMeteoFournisseur implements FournisseurMeteo {
     static final int JOURS_MAX = 16;
 
     private final RestClient client;
+    private final PolitiqueReseau reseau;
 
-    public OpenMeteoFournisseur() {
+    public OpenMeteoFournisseur(PolitiqueReseau reseau) {
+        this.reseau = reseau;
         SimpleClientHttpRequestFactory fabrique = new SimpleClientHttpRequestFactory();
         fabrique.setConnectTimeout(Duration.ofSeconds(2));
         fabrique.setReadTimeout(Duration.ofSeconds(2));
@@ -47,6 +50,12 @@ public class OpenMeteoFournisseur implements FournisseurMeteo {
 
     @Override
     public Optional<Releve> releve(double latitude, double longitude, int joursPrevision) {
+        // Mode local (SPRINT-30) : aucun appel sortant. Le vide qui en resulte
+        // suit exactement le chemin d'une panne reseau, deja traite partout —
+        // la meteo est un CONTEXTE, jamais une donnee dont depend une saisie.
+        if (!reseau.sortantAutorise()) {
+            return Optional.empty();
+        }
         int jours = Math.max(0, Math.min(joursPrevision, JOURS_MAX));
         try {
             ReponseOpenMeteo r = client.get()

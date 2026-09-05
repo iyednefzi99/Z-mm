@@ -26,6 +26,7 @@
 
 import type { components } from './contrat';
 import type {
+  Briefing,
   DossierConformite,
   Genealogie,
   IndexGenetique,
@@ -375,3 +376,13 @@ export type _IndexGenetique =
 export type _SerieElevage = Conforme<SerieElevage, TolerantAuNull<Schemas['SerieReponse']>>;
 export type _DossierConformite =
   Conforme<DossierConformite, TolerantAuNull<Schemas['DossierConformite']>>;
+
+/*
+ * Briefing du jour (SPRINT-30, lot G).
+ *
+ * <p>Un seul type, et une seule chose a proteger : `LigneBriefing.detail`. C'est
+ * lui qui rend la ligne verifiable, et le perdre transformerait le briefing en
+ * suite d'affirmations — exactement ce que l'ADR-013 refuse en ecartant un
+ * modele de langue.
+ */
+export type _Briefing = Conforme<Briefing, TolerantAuNull<Schemas['Briefing']>>;

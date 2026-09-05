@@ -1960,5 +1960,39 @@
       "nourrissement": "Nourrissement",
       "tracabilite": "Traçabilité des lots"
     }
+  },
+  "dictee": {
+    "titre": "Dictée",
+    "dicter": "Dicter",
+    "arreter": "Arrêter",
+    "ecoute": "à l'écoute…",
+    "relecture": "Le texte dicté se relit avant d'être enregistré.",
+    "refusDistante": "Ce navigateur enverrait votre voix à un service de reconnaissance : la dictée est désactivée. Elle fonctionne là où la transcription se fait sur l'appareil.",
+    "microRefuse": "Micro refusé ou indisponible.",
+    "erreur": "La dictée s'est arrêtée."
+  },
+  "briefing": {
+    "titre": "Le point du jour",
+    "vide": "Rien ne réclame votre attention aujourd'hui.",
+    "aide": "Ce point est calculé à partir de vos registres — alertes, tâches, carences, dernières visites. Aucun modèle de langue n'intervient : chaque ligne cite ce qui la fonde, et se vérifie d'un clic.",
+    "urgence1": "Aujourd'hui",
+    "urgence2": "Cette semaine",
+    "urgence3": "À savoir",
+    "categories": {
+      "alerte": "Alerte",
+      "tache": "Tâche",
+      "carence": "Carence",
+      "visite": "Visite",
+      "meteo": "Météo"
+    }
+  },
+  "modeLocal": {
+    "titre": "Mode local",
+    "appareil": "Sur cet appareil",
+    "serveur": "Sur le serveur",
+    "actif": "aucun appel sortant",
+    "inactif": "appels sortants autorisés",
+    "aide": "Deux moitiés distinctes, et il faut les régler séparément : le serveur coupe la météo et le microservice d'anomalie ; cet appareil coupe les fonds de carte, qui partent de votre navigateur et révèlent où sont vos ruchers. La détection d'anomalie continue de fonctionner : elle s'exécute alors ici même.",
+    "carteCoupee": "Fond de carte désactivé par le mode local."
   }
 }

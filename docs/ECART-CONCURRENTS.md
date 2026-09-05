@@ -154,9 +154,9 @@ produit entier ; HiveTracks y répond par du papier.
 
 | Fonctionnalité concurrente | Zümm | Preuve / manque |
 |---|---|---|
-| **Saisie vocale** des observations | ❌ | Aucune API vocale dans le front : ni `SpeechRecognition`, ni `MediaRecorder`, ni `getUserMedia`. Le seul geste qui fonctionne avec des gants |
-| **Transcription IA embarquée, hors ligne** (Whisper sur l'appareil) | ❌ | HiveSense, HiveBook et HivePal transcrivent sans réseau ni serveur. Le microservice IA de Zümm (`ia-service/scoring.py`) fait de la **détection d'anomalie EWMA sur séries de capteurs** — rien à voir avec du langage |
-| Notes vocales simplement enregistrées, sans transcription | 🟡 | `VisitesVue` enregistre (`MediaRecorder`) et rejoue une note pendant la saisie (SPRINT-24) — mais **elle ne quitte pas l'appareil**. Le dépôt n'a aucun stockage binaire : `photo.url` ne porte qu'une adresse, `traitement.ordonnance` qu'une référence. Encoder de l'audio en base64 dans un champ texte aurait fabriqué un stockage de fichiers clandestin, invisible en revue et impossible à purger |
+| **Saisie vocale** des observations | ✅ | `voix/dictee.ts` et `BoutonDictee`, posés sur les constatations de visite (SPRINT-30). Le texte **s'ajoute** au champ et ne le remplace pas — une dictée qui écrase la saisie au premier appui malheureux est inutilisable avec des gants, et l'appui malheureux est la règle. Trois langues de reconnaissance, l'arabe compris |
+| **Transcription IA embarquée, hors ligne** (Whisper sur l'appareil) | ✅ | [ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md) tranche la décision D4 : **sur l'appareil, ou pas du tout**. La dictée n'utilise `SpeechRecognition` que si le navigateur expose un réglage de traitement local ; là où il route l'audio vers un service de reconnaissance, l'interface **refuse et l'écrit**. Whisper WASM est écarté — quarante mégaoctets à télécharger contredisent la raison d'être d'une PWA qui monte au rucher — mais le point d'entrée est unique, et lui donner un second moteur ne touchera aucun écran |
+| Notes vocales simplement enregistrées, sans transcription | ✅ | La note enregistrée du SPRINT-24 est **doublée d'une transcription** au SPRINT-30, et l'audio ne quitte toujours pas l'appareil — il n'est même plus le seul support, puisque le texte, lui, se ressaisit. La décision de 2026-09-02 (« encoder de l'audio en base64 aurait fabriqué un stockage de fichiers clandestin ») est généralisée au transport par l'ADR-013 |
 | **Fiches d'inspection imprimables** (saisie au stylo, saisie différée) | ✅ | `GET /api/ruchers/{id}/fiche-inspection.pdf` (`FicheInspectionPdfService`, SPRINT-24) : une ligne par ruche, les colonnes de la grille structurée du SPRINT-20, et **une ligne vide de plus** — au rucher, on trouve toujours une colonie qui n'est pas encore au fichier |
 | Identification par **QR code** sur la ruche | ✅ | `ui/etiquettes.tsx` (SPRINT-25) : QR par ruche (`zumm:ruche:42`), **code court** `R-42` lisible à l'œil nu quand le QR est sale ou propolisé, et planche imprimable par rucher. Le code court n'est pas un second identifiant — c'est celui de la ruche, préfixé : en inventer un opaque aurait créé deux façons de nommer la même colonie |
 | Identification par **NFC** | ✅ | `terrain/nfc.ts` (SPRINT-25) écrit sur la puce **la charge du QR**, à l'identique — deux charges pour le même objet donneraient un jour deux réponses. Le bouton n'apparaît que là où `NDEFReader` existe : absent d'iOS et de Firefox, il reste un **complément** du QR, jamais un remplacement, et l'écran le dit ailleurs |
@@ -242,7 +242,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | **Vision à trois niveaux** (ruche → rucher → exploitation) | ✅ | `GET /api/ruchers/synthese` (`SyntheseRucherService`, SPRINT-23) + volet « Par rucher » : santé moyenne, risque d'essaimage **maximal** (et non moyen — une colonie prête à essaimer ne se dilue pas), colonies sous carence, alertes, tâches et production, triés du plus préoccupant au plus calme. La moyenne ne porte que sur les colonies **réellement évaluées**, et un rucher jamais visité rend `null` : « inconnu » n'est pas « en mauvaise santé » |
 | Tournée optimisée du jour | ✅ | `OptimiseurTournee` (plus proche voisin + 2-opt), `GET /api/plannings/tournee` — **APIGO l'annonce, Zümm l'a** |
 | Coordination d'équipes terrain, logistique multi-sites | 🟡 | `GET /api/equipe/charge` (SPRINT-23) ajoute la charge par agent — ruches, **ruchers concernés** (trois ruches sur trois ruchers font trois déplacements), tâches ouvertes, en retard, critiques, visites à sept jours — assortie de la phrase qui dit qu'elle ne sert **pas** à comparer des personnes. Restent la logistique et la chaîne d'approvisionnement, le terrain de HiveOS |
-| Assistant / mentor IA, briefing quotidien | ❌ | L'IA de Zümm surveille des séries de capteurs ; elle ne lit pas l'historique d'une colonie et ne propose rien |
+| Assistant / mentor IA, briefing quotidien | ✅ | `GET /api/briefing` (`BriefingService`, SPRINT-30), en tête du tableau de bord : alertes ouvertes, tâches échues **groupées en une ligne**, carences qui se terminent dans la semaine, colonies non ouvertes depuis trois semaines. **Aucun modèle de langue n'intervient, et l'écran le dit.** Chaque ligne cite ce qui la fonde — un compte, une date, un nom de ruche — et se vérifie d'un clic. Une phrase du genre « votre colonie 12 semble affaiblie » serait plus agréable et moins vérifiable ; le jour où elle serait fausse, personne ne saurait d'où elle vient. Et il faudrait envoyer l'historique de l'exploitation dehors, ce que la ligne §8 ci-dessous vient d'interdire |
 | **Météo prévisionnelle** | ✅ | `OpenMeteoFournisseur` : `current=` + `daily=` dans **un seul appel**, `timezone=auto`, horizon borné à 16 j, `GET /api/meteo?siteId=&jours=`. Repli simulation déterministe hors ligne |
 | Tâches programmées selon la météo | ✅ | `RegleMeteoDefavorable` croise les plannings des cinq prochains jours avec la prevision du site — une seule interrogation par RUCHER, pas par ruche — et propose de replanifier sous 5 mm de pluie, 40 km/h de vent ou 12 °C. Elle ne **deplace rien** : decider a la place d'un agent peut-etre deja en route, sur la foi d'une prevision a cinq jours, serait pire que le probleme. Fournisseur indisponible = pas d'avis, jamais « beau temps » |
 | Graphiques | ✅ | `ui/graphiques.tsx` (SVG maison, ADR-007) |
@@ -267,8 +267,8 @@ argument de vente — c'est une tendance, pas une exception.
 | Auto-hébergement complet | ✅ | `infra/docker-compose.yml` (API, PostGIS/TimescaleDB, Keycloak, Nginx, Prometheus, Grafana) + `sauvegarde.sh` / `restauration.sh`. Onze des douze sont des SaaS |
 | Sauvegarde **et restauration éprouvée** | ✅ | `infra/tester-restauration.sh` : le scénario détruit la donnée avant de la restaurer — « une sauvegarde jamais restaurée n'est pas une sauvegarde ». HiveBook se fait reprocher la perte définitive des données sans iCloud |
 | Cloisonnement fort entre exploitations | ✅ | RLS PostgreSQL, pas seulement un filtre applicatif |
-| Traitement local, sans aucun trafic sortant | ❌ | Zümm appelle `api.open-meteo.com` et `tile.openstreetmap.org`, et délègue l'anomalie à un microservice. Les deux premiers ont un repli hors ligne ; il n'existe pas de **bascule explicite** « aucun appel sortant » comme le mode local de HiveSense |
-| IA embarquée sur l'appareil | ❌ | L'inférence est serveur (`ia-service`). C'est un choix d'architecture, pas un oubli — mais il coûte le mode 100 % local |
+| Traitement local, sans aucun trafic sortant | ✅ | **Deux bascules, parce qu'il y a deux trafics.** Côté serveur, `PolitiqueReseau` (`zumm.reseau.sortant=false`) coupe `api.open-meteo.com` et le microservice ; la météo retombe sur la simulation déterministe, et la réponse **dit** que la valeur est simulée. Côté navigateur, le mode local coupe les tuiles `tile.openstreetmap.org`, dont la seule séquence révèle où sont les ruchers. `GET /api/info` publie l'état du serveur pour que l'écran l'affiche : les confondre en un seul interrupteur ferait croire à l'exploitant que son poste est muet alors qu'il ne l'est qu'à moitié |
+| IA embarquée sur l'appareil | ✅ | `local/ewma.ts` : la détection d'anomalie s'exécute **dans le navigateur** en mode local, sur les mesures déjà chargées. Ce n'est pas un modèle et il ne faut pas l'appeler ainsi — c'est une moyenne mobile exponentielle, dont le mérite est justement de tenir dans un navigateur sans rien télécharger. **Le risque réel n'est pas l'erreur, c'est la dérive** : deux implémentations de la même formule s'écartent en silence. `ewma.test.ts` et `AnomalieEmbarqueeTest` fixent les **mêmes trois nombres sur la même série** ; toucher l'un sans l'autre fait échouer une des deux campagnes |
 | Licence ouverte, code réutilisable | ⛔ | **Aucun fichier `LICENSE`, tous droits réservés** — décision assumée du cadre académique (`README.md` §Licence). HivePal est open source ; Zümm est auto-hébergeable **sans** être libre. Ne pas confondre les deux |
 
 ---
@@ -1727,3 +1727,128 @@ ait été écrite pour elle. Trois verdicts périmés avaient déjà été corri
 02/09/2026, et la rectification du réfractomètre au lot I en est une cinquième :
 c'est la raison pour laquelle chaque ✅ doit citer le fichier qui le prouve, et
 pourquoi ce document se relit à chaque lot au lieu de s'incrémenter.
+
+---
+
+## 26. Note de révision — 05/09/2026, lot G du plan de couverture
+
+Neuvième lot du [plan de couverture](PLAN-COUVERTURE-ECARTS.md) : cinq lignes
+visées, **six fermées** — la sixième étant le 🟡 des notes vocales, que la
+transcription achève. Le compteur va de **124 à 130 sur 153**.
+
+Ce lot était bloqué par la décision **D4**, la seule des quatre à porter sur une
+question de principe plutôt que de coût. Elle est tranchée par
+[ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md).
+
+### La décision, en une phrase
+
+**Rien de ce qui est personnel ne quitte l'appareil, et rien n'est envoyé à un
+tiers.** Trois conséquences, et elles doivent tenir ensemble — c'est ce qui rend
+la décision autre chose qu'un slogan.
+
+### 1. La transcription se fait sur l'appareil, ou pas du tout
+
+La dictée n'utilise `SpeechRecognition` que si le navigateur expose un réglage de
+traitement local. Là où il route l'audio vers un service de reconnaissance —
+c'est le cas de Chrome de bureau —, l'interface **refuse et l'écrit**, plutôt que
+d'envoyer la voix de l'apiculteur à un fournisseur sans le lui dire.
+
+La détection est volontairement conservatrice : rien ne permet de vérifier qu'un
+navigateur honore le réglage qu'il expose, et à défaut de preuve, la position
+prudente est celle qui n'envoie rien.
+
+C'est la généralisation d'une décision déjà prise. Au SPRINT-24, la note vocale
+était restée sur l'appareil parce qu'encoder de l'audio en base64 dans un champ
+texte aurait fabriqué un stockage de fichiers clandestin. Le raisonnement valait
+aussi pour le **transport**, et il est maintenant écrit.
+
+**Whisper WASM est écarté**, et ce n'est pas une paresse : quarante mégaoctets à
+télécharger sur le téléphone qui monte au rucher contredisent la raison d'être de
+la PWA. La porte reste ouverte — la transcription tient derrière une seule
+fonction, et lui donner un second moteur ne touchera aucun écran.
+
+Deux détails d'exécution méritent d'être notés. Le texte **s'ajoute** au champ et
+ne le remplace pas : une dictée qui écrase la saisie au premier appui malheureux
+est inutilisable avec des gants, et l'appui malheureux est la règle. Et seuls les
+segments **finaux** sont transmis — les résultats intermédiaires changent à
+chaque syllabe, et les écrire donnerait un texte qui se réécrit sous les doigts.
+
+### 2. L'assistance ne passe par aucun modèle de langue
+
+Le briefing quotidien lit quatre registres qui existent : alertes ouvertes,
+tâches échues, carences qui se terminent dans la semaine, colonies non ouvertes
+depuis trois semaines. Chaque ligne **cite ce qui la fonde**.
+
+Un modèle qui rédigerait « votre colonie 12 semble affaiblie » produirait une
+phrase plus agréable et moins vérifiable ; le jour où elle serait fausse,
+personne ne saurait dire d'où elle vient. Et il faudrait lui envoyer l'historique
+de l'exploitation, ce que le point 1 vient d'interdire. C'est le même arbitrage
+qu'au SPRINT-22, où les règles sont du code plutôt qu'une table paramétrable.
+
+Deux choix de présentation portent le reste. Les tâches en retard tiennent en
+**une** ligne : une exploitation qui en a quarante n'a pas quarante choses à
+savoir, elle en a une. Et une colonie **jamais** visitée n'y figure pas — elle
+vient peut-être d'être enregistrée, et la signaler le jour de sa création ferait
+passer le briefing pour un reproche.
+
+### 3. Le mode local est une bascule, pas une promesse en prose
+
+Le reproche du §8 était précis : il n'existait **aucune bascule explicite**. Il y
+en a maintenant deux, parce qu'il y a deux trafics, et l'écran refuse de les
+confondre.
+
+- **Le serveur** : `zumm.reseau.sortant=false` coupe `api.open-meteo.com` et le
+  microservice d'anomalie. La météo retombe sur la simulation déterministe — et
+  la réponse **dit** que la valeur est simulée, ce qui est le point : une météo
+  simulée présentée comme relevée serait pire qu'une météo absente. C'est
+  exactement le grief que `vite.config.ts` formule contre le cache d'API depuis
+  le SPRINT-13.
+- **Le navigateur** : le mode local coupe les tuiles de carte, dont la seule
+  séquence révèle où sont les ruchers — ce que `PolitiquePositions` protège côté
+  serveur depuis le SPRINT-12. La carte garde ses marqueurs et ses rayons de
+  butinage, et perd son fond ; les positions relatives et les distances se
+  lisent encore, ce qui rend le mode acceptable au lieu d'en faire un
+  interrupteur que personne n'actionne.
+
+Un seul interrupteur pour les deux aurait fait croire à l'exploitant que son
+poste est muet alors qu'il ne l'est qu'à moitié. **Promettre plus qu'on ne tient
+est pire que ne rien promettre.**
+
+### Deux implémentations d'une même formule
+
+La ligne « IA embarquée sur l'appareil » se ferme en portant la détection EWMA
+dans le navigateur. Ce n'est pas un modèle et il ne faut pas l'appeler ainsi :
+c'est une moyenne mobile exponentielle, dont le mérite est justement de tenir
+dans un navigateur sans rien télécharger.
+
+**Le risque de ce portage n'est pas l'erreur, c'est la dérive.** Deux
+implémentations de la même formule, dans deux langages, s'écartent en silence —
+et l'écart ne se verrait que sur un écran : un point signalé côté serveur et pas
+côté appareil, ou l'inverse. `ewma.test.ts` et `AnomalieEmbarqueeTest` fixent
+donc les **mêmes trois nombres sur la même série** ; toucher l'un sans l'autre
+fait échouer une des deux campagnes.
+
+Le portage a d'ailleurs révélé une propriété du détecteur qui n'était écrite
+nulle part : sur une série dont les premiers points sont presque identiques, la
+variance connue est minuscule, et un écart de deux dixièmes dépasse trois
+écarts-types. Le serveur se comporte ainsi depuis le SPRINT-06. Le noter dans le
+test évite qu'on « corrige » un jour le portage pour un écart qui n'en est pas un.
+
+### Ce que le lot ne ferme pas, et pourquoi
+
+Le plan comptait huit lignes pour ce lot ; il en ferme six.
+
+- **La réinitialisation de mot de passe**, laissée par le lot J, attend un
+  serveur d'envoi — une pièce d'infrastructure, pas une ligne de code. Le realm
+  livré n'en configure aucun, et afficher le lien quand même ferait attendre à
+  l'utilisateur un message qui n'arrive jamais.
+- **La logistique multi-sites**, reliquat du lot B, reste hors du produit : la
+  charge d'équipe existe, la chaîne d'approvisionnement — le terrain de HiveOS —
+  est un produit à elle seule.
+
+### Le renoncement, écrit
+
+Zümm n'aura pas de conversation en langage naturel tant que l'ADR-013 tient.
+C'est un renoncement réel, et il vaut mieux l'écrire que le laisser découvrir :
+le produit préfère une liste qui cite ses sources à une phrase qu'on ne peut pas
+vérifier.

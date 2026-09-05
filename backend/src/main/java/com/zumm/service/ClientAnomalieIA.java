@@ -1,5 +1,6 @@
 package com.zumm.service;
 
+import com.zumm.config.PolitiqueReseau;
 import com.zumm.domain.TypeIndicateur;
 import com.zumm.web.dto.AnomalieReponse;
 import com.zumm.web.dto.AnomalieReponse.PointAnomalie;
@@ -30,19 +31,27 @@ public class ClientAnomalieIA implements MoteurAnomalie {
 
     private final String url;
     private final RestClient client;
+    private final PolitiqueReseau reseau;
 
-    public ClientAnomalieIA(@Value("${zumm.ia.url:}") String url) {
+    public ClientAnomalieIA(@Value("${zumm.ia.url:}") String url, PolitiqueReseau reseau) {
         this.url = url;
+        this.reseau = reseau;
         SimpleClientHttpRequestFactory fabrique = new SimpleClientHttpRequestFactory();
         fabrique.setConnectTimeout(Duration.ofSeconds(2));
         fabrique.setReadTimeout(Duration.ofSeconds(3));
         this.client = RestClient.builder().requestFactory(fabrique).build();
     }
 
-    /** Vrai si un microservice IA est configuré. */
+    /**
+     * Vrai si un microservice IA est configuré <strong>et</strong> joignable.
+     *
+     * <p>En mode local (SPRINT-30), ce client se declare inactif : le repli sur
+     * l'EWMA de {@link AnomalieService} etait deja ecrit pour l'indisponibilite,
+     * et la bascule emprunte le meme chemin plutot que d'en creer un second.
+     */
     @Override
     public boolean actif() {
-        return url != null && !url.isBlank();
+        return reseau.sortantAutorise() && url != null && !url.isBlank();
     }
 
     /** Score la série via le microservice ; {@link Optional#empty()} si indisponible. */

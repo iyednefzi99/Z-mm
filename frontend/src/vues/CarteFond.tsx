@@ -29,6 +29,7 @@ import {
 } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { GrappeSites, Site } from '../api/types';
+import { modeLocal } from '../local/modeLocal';
 
 const TUILES =
   import.meta.env.VITE_TUILES_URL ?? 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -47,6 +48,24 @@ const STYLE: StyleSpecification = {
     },
   },
   layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
+};
+
+/**
+ * Carte SANS fond, pour le mode local (SPRINT-30, lot G).
+ *
+ * <p>Les tuiles partent du navigateur vers un tiers, et leur seule séquence
+ * révèle où sont les ruchers — c'est-à-dire précisément ce que
+ * `PolitiquePositions` protège côté serveur depuis le SPRINT-12. En mode local,
+ * la carte garde donc ses marqueurs et ses rayons de butinage, et perd son fond.
+ *
+ * <p>Une carte sans fond reste utile : les positions relatives, les distances et
+ * les rayons se lisent. C'est ce qui rend le mode local acceptable au lieu de le
+ * réduire à un interrupteur que personne n'actionne.
+ */
+const STYLE_LOCAL: StyleSpecification = {
+  version: 8,
+  sources: {},
+  layers: [],
 };
 
 export interface CarteFondProps {
@@ -106,7 +125,11 @@ export default function CarteFond({
     if (!conteneur.current || carte.current) return;
     carte.current = new CarteMapLibre({
       container: conteneur.current,
-      style: STYLE,
+      // Le mode local se lit A LA CREATION, et la carte n'est creee qu'une
+      // fois : changer le reglage demande de recharger l'ecran. C'est le
+      // comportement voulu — une carte dont le fond apparait et disparait au
+      // fil d'un interrupteur ferait douter de ce qui est reellement coupe.
+      style: modeLocal() ? STYLE_LOCAL : STYLE,
       center: [1.44, 44],
       zoom: 8,
       attributionControl: { compact: true },

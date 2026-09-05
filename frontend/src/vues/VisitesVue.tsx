@@ -60,6 +60,7 @@ import {
   Option,
   Table,
 } from '../ui/composants';
+import { BoutonDictee } from '../voix/BoutonDictee';
 import { GrilleCarnet } from '../carnet/GrilleCarnet';
 import {
   SAISIE_VIDE,
@@ -600,6 +601,15 @@ export function VisitesVue(): ReactElement {
             </div>
             <ChampSelect libelle={t.visite.raison} valeur={raison} options={optRaison} onChange={(v) => setRaison(v as RaisonVisite)} />
             <ChampZone libelle={t.visite.constatations} valeur={constatations} onChange={setConstatations} />
+            {/* La dictée (SPRINT-30) là où le texte est long et où l'on porte des
+                gants. Le texte s'AJOUTE au champ et se relit avant validation :
+                une transcription approximative validée sans relecture vaut moins
+                qu'une case cochée. */}
+            <BoutonDictee
+              valeur={constatations}
+              onChange={setConstatations}
+              libelle={t.dictee.dicter}
+            />
             <ChampZone libelle={t.visite.actionsPrevues} valeur={actionsPrevues} onChange={setActionsPrevues} />
             <ChampZone libelle={t.visite.actionsEffectuees} valeur={actionsEffectuees} onChange={setActionsEffectuees} />
             <ChampZone libelle={t.visite.recommandations} valeur={recommandations} onChange={setRecommandations} />

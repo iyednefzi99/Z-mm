@@ -29,6 +29,7 @@ import type { ChargeAgent, ComparaisonSite, Ruche, Site, SyntheseRucher } from '
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  chargerBriefing: vi.fn(() => Promise.resolve({ genereLe: '2026-09-05', lignes: [] })),
   recoltes: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   sites: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   ruches: { lister: vi.fn() },

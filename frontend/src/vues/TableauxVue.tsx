@@ -25,6 +25,7 @@ import { useFormats, useT } from '../i18n/langue';
 import { messageErreur } from '../hooks';
 import { Bouton, ChampDate, Pastille, type TonPastille } from '../ui/composants';
 import { Barres, Tuile } from '../ui/graphiques';
+import { BriefingPanneau } from './BriefingPanneau';
 import { useLangue } from '../i18n/langue';
 
 type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese' | 'ruchers' | 'equipe';
@@ -122,6 +123,11 @@ export function TableauxVue(): ReactElement {
           </Bouton>
         </div>
       </header>
+
+      {/* Le point du jour (SPRINT-30) vient AVANT les onglets : c'est ce qu'on
+          ouvre le matin, et le mettre sous une navigation en ferait un écran de
+          plus à penser à visiter. */}
+      <BriefingPanneau />
 
       <nav className="z-nav" aria-label={t.onglets.tableaux}>
         {sousOnglets.map((cle) => (

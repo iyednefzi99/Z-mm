@@ -2478,3 +2478,27 @@ export interface DossierConformite {
   avertissement: string;
   points: PointControle[];
 }
+
+// ─── Briefing du jour (SPRINT-30, lot G) ────────────────────────────────────
+
+/**
+ * Une ligne du briefing.
+ *
+ * <p>`urgence` : 1 à faire aujourd'hui, 3 à savoir. `detail` porte ce qui fonde
+ * la ligne — un compte, une date, un nom de ruche : c'est ce qui rend le
+ * briefing vérifiable, et c'est pourquoi il n'y a pas de modèle de langue
+ * derrière (voir ADR-013).
+ */
+export interface LigneBriefing {
+  categorie: 'alerte' | 'tache' | 'carence' | 'visite' | 'meteo';
+  urgence: number;
+  titre: string;
+  detail: string;
+  rucheId: number | null;
+}
+
+/** Ce qui mérite l'attention aujourd'hui. Recalculé, jamais stocké. */
+export interface Briefing {
+  genereLe: string;
+  lignes: LigneBriefing[];
+}

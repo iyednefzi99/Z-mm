@@ -1,5 +1,6 @@
 package com.zumm.controller;
 
+import com.zumm.config.PolitiqueReseau;
 import com.zumm.config.ZummProperties;
 import java.util.List;
 import java.util.Locale;
@@ -21,10 +22,13 @@ public class InfoController {
 
     private final ZummProperties proprietes;
     private final MessageSource messages;
+    private final PolitiqueReseau reseau;
 
-    public InfoController(ZummProperties proprietes, MessageSource messages) {
+    public InfoController(ZummProperties proprietes, MessageSource messages,
+            PolitiqueReseau reseau) {
         this.proprietes = proprietes;
         this.messages = messages;
+        this.reseau = reseau;
     }
 
     /**
@@ -38,7 +42,8 @@ public class InfoController {
                 proprietes.version(),
                 messages.getMessage("app.accueil", null, locale),
                 proprietes.languesActives(),
-                proprietes.auth().reinitialisationUrl());
+                proprietes.auth().reinitialisationUrl(),
+                reseau.sortantAutorise());
     }
 
     /** Reponse de l'endpoint d'identite. */
@@ -51,6 +56,16 @@ public class InfoController {
              * oublie son mot de passe n'est, par construction, pas connecte.
              * Ce n'est pas un secret — c'est l'adresse d'une page de connexion.
              */
-            String reinitialisationUrl) {
+            String reinitialisationUrl,
+            /**
+             * Le serveur s'autorise-t-il des appels sortants (SPRINT-30) ?
+             *
+             * <p>Rendue par la meme route publique que le reste : ce n'est pas
+             * un secret, c'est une PROMESSE que l'interface doit pouvoir
+             * afficher. Un exploitant qui a coupe le reseau sortant veut le voir
+             * ecrit, et celui qui ne l'a pas coupe ne doit pas croire l'avoir
+             * fait.
+             */
+            boolean reseauSortant) {
     }
 }

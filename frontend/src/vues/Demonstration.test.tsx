@@ -24,6 +24,7 @@ import type { Seuils } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  chargerInfo: vi.fn(() => Promise.resolve({ reseauSortant: true })),
   recupererPoints: vi.fn(() => Promise.resolve([])),
   gabarits: {
     lister: vi.fn(() => Promise.resolve([])),

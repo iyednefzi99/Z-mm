@@ -121,6 +121,7 @@ describe('page mot de passe oublié', () => {
       accueil: '',
       langues: ['fr'],
       reinitialisationUrl: 'https://identite.zumm.test/reset',
+    reseauSortant: true,
     });
 
     monter(<RecuperationVue />);

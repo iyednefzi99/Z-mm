@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.zumm.config.PolitiqueReseau;
 import com.zumm.config.ZummProperties;
 import com.zumm.controller.InfoController;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -24,6 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
  */
 @WebMvcTest(controllers = InfoController.class)
 @EnableConfigurationProperties(ZummProperties.class)
+// `PolitiqueReseau` est un composant, pas une propriete : la tranche web ne le
+// balaie pas, et le controleur ne se construirait pas sans lui (SPRINT-30).
+@Import(PolitiqueReseau.class)
 // Filtres de securite desactives : ce test verifie le contrat de l'API et
 // l'internationalisation. Les regles d'acces sont couvertes par SecuriteApiIT.
 @AutoConfigureMockMvc(addFilters = false)
@@ -33,10 +38,13 @@ class InfoControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("expose l'identite de l'application et ses trois langues")
+    @DisplayName("expose l'identite, ses trois langues et l'etat du reseau sortant")
     void exposeIdentiteEtLangues() throws Exception {
         mockMvc.perform(get("/api/info"))
                 .andExpect(status().isOk())
+                // Vrai par defaut (SPRINT-30) : couper la meteo et le
+                // microservice sans le dire serait une regression silencieuse.
+                .andExpect(jsonPath("$.reseauSortant").value(true))
                 .andExpect(jsonPath("$.nom").value("Zumm"))
                 .andExpect(jsonPath("$.langues").isArray())
                 .andExpect(jsonPath("$.langues.length()").value(3));

@@ -11,6 +11,7 @@ import { useT } from '../i18n/langue';
 import { messageErreur, useRoles } from '../hooks';
 import { Bouton } from '../ui/composants';
 import { EditeurCarnet } from '../carnet/EditeurCarnet';
+import { PanneauModeLocal } from '../local/PanneauModeLocal';
 import { peutEcrire } from '../routage/routes';
 import { useDialogues } from '../ui/dialogues';
 
@@ -113,6 +114,8 @@ export function ConfigVue(): ReactElement {
           <Seuil libelle={t.config.langues} valeur={seuils.languesActives.join(' · ')} />
         </div>
       )}
+
+      <PanneauModeLocal />
 
       <EditeurCarnet ecriture={ecritureCarnet} />
 
