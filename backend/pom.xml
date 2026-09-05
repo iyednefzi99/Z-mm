@@ -30,8 +30,8 @@
          constatee, arrondie a l'inferieur : c'est un cliquet anti-regression, pas
          une cible. Le relever se fait en meme temps qu'on ajoute des tests ; le
          baisser demande un geste explicite et visible en revue. -->
-    <!-- Mesure du 05/09/2026, apres les vagues A a C du lot 3 du plan de couverture :
-         90,4 % (33 767 / 37 338 instructions), campagnes unitaire et integration
+    <!-- Mesure du 05/09/2026, apres les vagues A a D du lot 3 du plan de couverture :
+         90,8 % (33 908 / 37 338 instructions), campagnes unitaire et integration
          fusionnees. Le plancher passe a 0,90 ; il valait 0,80 avant le lot 1.
 
          Il reste POSE SOUS LA MESURE, pour tolerer le bruit d'un test — c'est la
@@ -48,8 +48,8 @@
          retomber sans que le build s'en apercoive. Le plancher est pose sous la
          mesure, pour la meme raison que l'autre : figer l'acquis, pas viser.
 
-         Mesure du 05/09/2026, apres les vagues A a C du lot 3 : 77,1 %
-         (1 580 / 2 048 branches). Le plancher passe a 0,77 ; il valait 0,60
+         Mesure du 05/09/2026, apres les vagues A a D du lot 3 : 77,8 %
+         (1 593 / 2 048 branches). Le plancher passe a 0,77 ; il valait 0,60
          avant le lot 1.
 
          Trois relevements en une journee, apres onze sprints sans aucun. La

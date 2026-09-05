@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-C du lot 3, livrés le 05/09/2026** : **90,4 %**
-> d'instructions, **77,1 %** de branches, **90,7 %** de lignes, sur **471** tests
+> **Lots 1, 2 et vagues A-D du lot 3, livrés le 05/09/2026** : **90,8 %**
+> d'instructions, **77,8 %** de branches, **91,0 %** de lignes, sur **498** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | Plancher |
-|---|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | **90,4 %** | 0,80 → … → **0,90** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | **77,1 %** | 0,60 → … → **0,77** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | **90,7 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | Plancher |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | **90,8 %** | 0,80 → … → **0,90** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | **77,8 %** | 0,60 → … → **0,77** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | **91,0 %** | *aucun* |
 
-**Les branches ont gagné 14,1 points en cinq passes**, après onze sprints où
+**Les branches ont gagné 14,8 points en six passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -424,9 +424,48 @@ aussi, mais sans dire quoi ; et la résolution passant par les repositories, don
 par la RLS, attacher une photo à la ruche d'un **autre tenant** échoue
 exactement là où une lecture échouerait.
 
-**Reste au lot 3** : une douzaine de services, ~1 660 instructions et
-~200 branches. Les 81 instructions qui restent à `ElevageService` sont ses
-séries de greffage, non couvertes ici.
+#### Vague D — l'origine alignée, et deux refus rendus lisibles  ·  ✅ livrée le 05/09/2026
+
+27 tests. Couverture globale portée à **90,8 %** d'instructions et **77,8 %** de
+branches (91,0 % de lignes), sur **498** tests unitaires et 242 tests
+d'intégration. Les planchers restent à `0,90` et `0,77` — la marge suffit, et
+les relever au dixième près serait la faute que le §0 corrige déjà.
+
+| Classe | Avant | Après | Tests |
+|---|--:|--:|--:|
+| `CaptureEssaimService` | **55,1 %** · 40 % br. | 89,9 % · **100 %** br. | 14 |
+| `DivisionService` | 70,8 % · 60 % br. | **100 %** · 100 % br. | 13 |
+
+**Les deux services partagent la même décision**, et c'est ce qui justifiait de
+les prendre ensemble : **l'origine de la ruche est alignée sur l'événement qui
+l'explique** — `essaim_capture` pour une capture logée, `division` pour une
+fille de division — et seulement quand elle n'est pas déjà renseignée. Deux
+endroits qui disent la même chose ne doivent pas pouvoir la dire différemment ;
+les laisser diverger ferait mentir la statistique par origine que le SPRINT-20
+venait de rendre possible.
+
+**Et une décision qui explique la forme entière d'une API.** Loger une capture
+est une opération à part, parce qu'elle arrive plus tard : on capture un jour,
+on loge quand la colonie a pris. Forcer la ruche à la saisie initiale
+reviendrait à n'enregistrer que les captures **réussies** — c'est-à-dire à
+perdre la seule statistique qui ait de la valeur.
+
+**Deux refus traduits en 400 plutôt qu'en violation de contrainte.**
+`uq_division_fille` garantit déjà en base qu'une ruche n'a qu'une mère, mais une
+erreur SQL en 500 n'apprend rien à l'apiculteur qui vient de se tromper de
+ruche : le message nomme la division existante.
+
+> **Le piège de test s'est reproduit à un cran de plus, et c'est instructif.**
+> La parade posée à la vague A — « construire les mocks avant le `when` » — ne
+> suffisait pas : la fabrique `capture()` appelait `agent()`, qui fabrique
+> elle-même un mock, **à l'intérieur** de son propre `thenReturn`. Le piège est
+> récursif ; il faut hisser à chaque niveau, y compris dans les fabriques
+> partagées.
+
+**Reste au lot 3** : une dizaine de services, ~1 530 instructions et
+~190 branches — `SiteService`, `LotConditionnementService`, `RucheService`,
+`PlanningService`, `TransportService` en tête, plus les séries de greffage
+d'`ElevageService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -534,7 +573,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-C)* 🟡 | 2 528 | 299 | **90,4 %** | **77,1 %** |
+| 3 | Services métier *(vagues A-D)* 🟡 | 2 528 | 299 | **90,8 %** | **77,8 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
