@@ -1,6 +1,5 @@
 package com.zumm.service;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.zumm.config.PolitiqueReseau;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -19,6 +17,12 @@ import org.springframework.web.client.RestClient;
  * {@link Optional#empty()} : le service appelant retombe alors sur une estimation
  * hors-ligne. On ne fait donc jamais echouer une requete utilisateur pour un alea
  * reseau.
+ *
+ * <p><strong>Le constructeur recoit son {@link RestClient.Builder}</strong>, il ne
+ * le fabrique pas. Tant qu'il le fabriquait, rien ne pouvait s'interposer entre
+ * cette classe et le reseau : elle etait couverte a 14,8 %, et le repli qu'elle
+ * promet n'etait verifie par aucun test. Les delais sont passes en configuration
+ * ({@code spring.http.client.*}), ou ils sont visibles et surchargeables.
  *
  * <p>Conditions courantes et previsions journalieres partent dans la MEME requete
  * ({@code current=} et {@code daily=}) : l'API les sert ensemble, et le
@@ -34,18 +38,15 @@ public class OpenMeteoFournisseur implements FournisseurMeteo {
     /** Plafond de l'API publique Open-Meteo pour {@code forecast_days}. */
     static final int JOURS_MAX = 16;
 
+    /** Racine de l'API publique, sans cle. */
+    static final String BASE_OPEN_METEO = "https://api.open-meteo.com/v1";
+
     private final RestClient client;
     private final PolitiqueReseau reseau;
 
-    public OpenMeteoFournisseur(PolitiqueReseau reseau) {
+    public OpenMeteoFournisseur(RestClient.Builder constructeur, PolitiqueReseau reseau) {
         this.reseau = reseau;
-        SimpleClientHttpRequestFactory fabrique = new SimpleClientHttpRequestFactory();
-        fabrique.setConnectTimeout(Duration.ofSeconds(2));
-        fabrique.setReadTimeout(Duration.ofSeconds(2));
-        this.client = RestClient.builder()
-                .baseUrl("https://api.open-meteo.com/v1")
-                .requestFactory(fabrique)
-                .build();
+        this.client = constructeur.baseUrl(BASE_OPEN_METEO).build();
     }
 
     @Override

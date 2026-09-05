@@ -5,14 +5,12 @@ import com.zumm.domain.TypeIndicateur;
 import com.zumm.web.dto.AnomalieReponse;
 import com.zumm.web.dto.AnomalieReponse.PointAnomalie;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -23,6 +21,11 @@ import org.springframework.web.client.RestClient;
  * Python quand il est configuré, et retombe silencieusement sur la détection EWMA
  * locale ({@link AnomalieService}) sinon ou en cas d'indisponibilité — jamais
  * d'échec de requête pour un aléa réseau, comme pour le contexte météo.
+ *
+ * <p><strong>Le constructeur reçoit son {@link RestClient.Builder}</strong>, il ne
+ * le fabrique pas. Tant qu'il le fabriquait, aucun test ne pouvait vérifier le
+ * repli qu'il promet — d'où 30,3 % de couverture. Les délais sont passés en
+ * configuration ({@code spring.http.client.*}).
  */
 @Component
 public class ClientAnomalieIA implements MoteurAnomalie {
@@ -33,13 +36,11 @@ public class ClientAnomalieIA implements MoteurAnomalie {
     private final RestClient client;
     private final PolitiqueReseau reseau;
 
-    public ClientAnomalieIA(@Value("${zumm.ia.url:}") String url, PolitiqueReseau reseau) {
+    public ClientAnomalieIA(RestClient.Builder constructeur,
+            @Value("${zumm.ia.url:}") String url, PolitiqueReseau reseau) {
         this.url = url;
         this.reseau = reseau;
-        SimpleClientHttpRequestFactory fabrique = new SimpleClientHttpRequestFactory();
-        fabrique.setConnectTimeout(Duration.ofSeconds(2));
-        fabrique.setReadTimeout(Duration.ofSeconds(3));
-        this.client = RestClient.builder().requestFactory(fabrique).build();
+        this.client = constructeur.build();
     }
 
     /**

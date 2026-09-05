@@ -1,6 +1,20 @@
 spring:
   application:
     name: zumm-backend
+  # Delais des clients HTTP SORTANTS (Keycloak, Open-Meteo, microservice IA).
+  #
+  # Ils vivaient dans deux constructeurs et manquaient au troisieme : un
+  # Keycloak qui accepte la connexion sans jamais repondre bloquait donc le fil
+  # de la requete de connexion sans limite. Les poser ici les rend visibles,
+  # egaux pour les trois clients, et surchargeables par environnement.
+  #
+  # Courts a dessein : la meteo et le microservice sont du CONTEXTE, dont
+  # l'absence est deja traitee partout par un repli. Mieux vaut un repli en trois
+  # secondes qu'un ecran qui attend.
+  http:
+    client:
+      connect-timeout: ${ZUMM_HTTP_CONNECT_TIMEOUT:2s}
+      read-timeout: ${ZUMM_HTTP_READ_TIMEOUT:3s}
   datasource:
     # Le rôle APPLICATIF `zumm_app` — non-superutilisateur — est le défaut, en
     # local comme ailleurs. Un superutilisateur contourne toujours la RLS (V3,

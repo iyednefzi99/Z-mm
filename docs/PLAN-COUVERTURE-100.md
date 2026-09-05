@@ -5,8 +5,12 @@
 > **82,1 %** d'instructions (30 651 / 37 325) · **63,0 %** de branches
 > (1 288 / 2 046) · **83,9 %** de lignes (6 310 / 7 518).
 >
-> Il manque donc **6 674 instructions** et **758 branches**. Ce document dit où
-> elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
+> Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
+> où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
+>
+> **Lot 1 livré le 05/09/2026** : 84,4 % d'instructions, 66,0 % de
+> branches, 86,3 % de lignes, sur 200 tests unitaires et 242 tests
+> d'intégration. Les planchers du `pom.xml` ont été relevés d'autant.
 >
 > Source : `backend/target/site/jacoco/jacoco.csv`, produit par `./mvnw -B verify`.
 > Aucun chiffre de ce document n'est recopié d'un autre.
@@ -40,10 +44,28 @@ Le corollaire est que **le pourcentage n'est pas la cible ; c'est le révélateu
 Chacun des sept lots ci-dessous est donc défini par *ce qu'il fait vérifier*, et
 le gain de couverture n'en est que la conséquence chiffrée.
 
-**Et une règle qui ne bouge pas** : les planchers JaCoCo (`0,80` en instructions,
-`0,60` en branches) montent avec l'acquis, ils ne descendent jamais. Chaque lot
-livré relève le plancher au chiffre atteint, arrondi au dixième inférieur. C'est
-ce qui distingue un plan d'une intention.
+**Et une règle qui ne bouge pas** : les planchers JaCoCo montent avec l'acquis,
+ils ne descendent jamais. Chaque lot livré les relève. C'est ce qui distingue un
+plan d'une intention.
+
+> ⚠️ **Correction apportée à la livraison du lot 1.** Ce paragraphe disait d'abord
+> « au chiffre atteint, arrondi au dixième inférieur ». C'était plus strict que
+> la convention du dépôt, et à tort : un plancher calé au dixième près fait
+> échouer le build sur une variation qui n'apprend rien, et la première réponse
+> serait de le baisser — exactement ce qu'il sert à empêcher. Le `pom.xml` le
+> pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
+> 0,80), et le plan s'aligne dessus.
+
+| | Départ | Après le lot 1 | Plancher |
+|---|--:|--:|--:|
+| Instructions | 82,1 % | **84,4 %** | 0,80 → **0,84** |
+| Branches | 63,0 % | **66,0 %** | 0,60 → **0,65** |
+| Lignes | 83,9 % | **86,3 %** | *aucun* |
+
+Le relèvement des branches est **le premier depuis la pose du cliquet** : la
+marge était restée courte du SPRINT-22 au SPRINT-32, entre 2,2 et 3,8 points.
+Trois points d'un coup viennent des cinq classes qui parlent à un tiers — leurs
+branches sont presque toutes des chemins d'échec.
 
 ---
 
@@ -119,7 +141,7 @@ L'ordre n'est pas celui du gain. Il est celui du **risque non couvert** : ce qui
 peut faire tomber la production en premier passe en premier, et il se trouve que
 c'est aussi ce qui rapporte le plus.
 
-### Lot 1 — Les frontières externes  ·  783 instructions · 72 branches
+### Lot 1 — Les frontières externes  ·  783 instructions · 72 branches  ·  ✅ LIVRÉ
 
 `IdentiteService` · `OpenMeteoFournisseur` · `ClientAnomalieIA` ·
 `MeteoService` · `NotificationAlerteService`
@@ -147,18 +169,44 @@ un paramètre de plus, aucun changement de comportement. **La sous-couverture
 n'est pas ici un oubli de test : c'est un défaut de conception qui rendait le
 test impossible.**
 
-**Ce que ça fait vérifier**, et c'est le vrai motif du lot :
+**Livré le 05/09/2026** — 41 tests ajoutés, couverture globale portée à
+**84,4 %** d'instructions, **66,0 %** de branches, 86,3 % de lignes, sur
+200 tests unitaires et 242 tests d'intégration.
+
+| Classe | Avant | Tests ajoutés |
+|---|--:|--:|
+| `IdentiteService` | 6,3 % | 18 |
+| `OpenMeteoFournisseur` | 14,8 % | 8 |
+| `ClientAnomalieIA` | 30,3 % | 6 |
+| `NotificationAlerteService` | 59,8 % | 9 |
+| `MeteoService` | déjà couvert (4 instructions manquantes) | — |
+
+**Un défaut que ce plan n'avait pas vu, et que le premier geste a sorti.**
+`IdentiteService` n'avait **aucun délai d'attente**. Les deux autres fabriquaient
+le leur — c'est même la seule chose que cette fabrication apportait — mais
+`IdentiteService`, qui recevait déjà son constructeur du conteneur, héritait des
+défauts, c'est-à-dire d'aucun. Un Keycloak qui accepte la connexion sans jamais
+répondre bloquait donc le fil de la requête de connexion sans limite. Les délais
+sont passés en configuration (`spring.http.client.*`, 2 s et 3 s) : ils
+deviennent visibles, égaux pour les trois clients, surchargeables par
+environnement — et les deux classes n'ont plus qu'à recevoir leur constructeur.
+
+Le diagnostic du plan était donc juste et incomplet : la fabrication interne du
+`RestClient` n'empêchait pas seulement de tester, elle **cachait une
+configuration qui manquait ailleurs**.
+
+**Ce que ça fait vérifier**, et c'était le vrai motif du lot :
 
 1. **Chaque code de statut de Keycloak tombe sur le bon motif.** Un 401 qui
    sortirait en 503 ferait croire à une panne là où le mot de passe est faux.
-2. **`PolitiqueReseau` coupe réellement — et c'est le trou le plus subtil du
-   dépôt.** Deux tests la touchent déjà (`AssistanceLocaleIT`,
-   `InfoControllerTest`), mais tous deux vérifient que le serveur **annonce**
-   l'état de son réseau sortant sur `/api/info`. Aucun ne vérifie qu'avec
-   `zumm.reseau.sortant=false` la météo et le microservice ne sont **pas
-   appelés**. Le mode local est donc aujourd'hui testé sur sa promesse, pas sur
-   son effet — exactement le défaut que le SPRINT-30 s'interdisait en refusant de
-   fusionner les deux bascules.
+2. **`PolitiqueReseau` coupe réellement — c'était le trou le plus subtil du
+   dépôt, et il est fermé.** Deux tests la touchaient déjà
+   (`AssistanceLocaleIT`, `InfoControllerTest`), mais tous deux vérifiaient que
+   le serveur **annonce** l'état de son réseau sortant sur `/api/info`. Aucun ne
+   vérifiait qu'avec `zumm.reseau.sortant=false` la météo et le microservice ne
+   sont **pas appelés** : le mode local était testé sur sa promesse, pas sur son
+   effet. La forme qui le prouve est `serveur.verify()` sur un serveur
+   d'attentes **vide** — il échoue si un appel est parti.
 3. **Une réponse malformée ne fait pas tomber la requête de l'utilisateur.**
    `OpenMeteoFournisseur.valeur(colonne, index)` lit un tableau par index — un
    jour où la source rendra une colonne plus courte, on saura ce qui se passe.
@@ -314,7 +362,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | Ordre | Lot | Instr. | Branches | Instr. cumulées | Branches cumulées |
 |---|---|--:|--:|--:|--:|
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
-| 1 | Frontières externes | 783 | 72 | **84,2 %** | **66,5 %** |
+| ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | 2 | Producteurs de fichiers | 1 391 | 106 | **87,9 %** | **71,7 %** |
 | 3 | Services métier | 2 528 | 299 | **94,7 %** | **86,3 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
