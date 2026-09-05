@@ -238,11 +238,16 @@ Zümm/
 │       └── resources/db/migration/  31 Flyway migrations (V1 → V31)
 ├── frontend/                 React 19 + TypeScript PWA (Vite)
 │   └── src/
-│       ├── vues/                 business screens (hives, sites, visits, batches, map…)
+│       ├── vues/                 42 screens: 23 console, 10 public pages, sign-in, account, errors
 │       ├── ui/                   cross-cutting components (modal, toasts, SVG charts)
 │       ├── api/                  openapi.json + generated types + parity guard
 │       ├── auth/  routage/       BFF session and in-house router (ADR-005)
-│       ├── offline/              offline replay queue
+│       ├── offline/              offline replay queue and quarantine
+│       ├── terrain/  carnet/     offline take-along, configurable inspection sheet
+│       ├── elevage/              queen lineage tree (SVG)
+│       ├── environnement/        cover areas and observed bloom
+│       ├── capteurs/  voix/      SIG Bluetooth reading, on-device dictation
+│       ├── local/                embedded EWMA, exact mirror of the backend service
 │       └── i18n/locales/         FR / EN / AR resources
 ├── ia-service/               Python anomaly-detection microservice
 ├── infra/                    docker-compose, Nginx, Keycloak, Prometheus, Grafana
@@ -440,6 +445,14 @@ position**. Neither has rate limiting: to be addressed before any wide opening.
 | `GET` | `/api/audit` | `responsable`, `admin` | filters | Audit log |
 | `POST` | `/api/invitations` | `responsable`, `admin` | — | Farm invitation code |
 | `GET` | `/api/export/visites` | any business role | filters | CSV export |
+| `POST` | `/api/traitements/lot` | any business role | hives + treatment | **One transaction per hive**: refusals are named with their reason, the other writes hold |
+| `GET` | `/api/ruchers/{id}/emport` | any business role | — | Offline snapshot of an apiary, **timestamped by the server**, expiring after 14 days |
+| `GET` | `/api/reines/{id}/lignee` | any business role | — | A queen's ancestry and descent |
+| `GET` | `/api/environnement/sites/{id}/couvert` | any business role | `millesime` | Areas by cover class within the foraging radius, with the share of the circle actually described |
+| `GET` | `/api/environnement/sites/{id}/rotation` | any business role | — | The same areas, year by year |
+| `GET` | `/api/briefing` | any business role | — | The day's briefing, **with no language model**: four records read, each line citing what it rests on |
+| `GET` | `/api/calendrier/{jeton}.ics` | **none** (token) | — | One agent's calendar, no position |
+| `GET` | `/api/flux/{jeton}` | **none** (token) | — | Telemetry feed for **one** hive, no position |
 
 `POST`, `PUT` and `DELETE` on `fermiers`, `fermes`, `sites`, `agents` and
 `ruches` are restricted to `responsable` and `admin` — reading stays open to any
