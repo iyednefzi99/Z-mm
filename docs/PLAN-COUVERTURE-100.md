@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-D du lot 3, livrés le 05/09/2026** : **90,8 %**
-> d'instructions, **77,8 %** de branches, **91,0 %** de lignes, sur **498** tests
+> **Lots 1, 2 et vagues A-E du lot 3, livrés le 05/09/2026** : **91,0 %**
+> d'instructions, **78,2 %** de branches, **91,2 %** de lignes, sur **514** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | Plancher |
-|---|--:|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | **90,8 %** | 0,80 → … → **0,90** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | **77,8 %** | 0,60 → … → **0,77** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | **91,0 %** | *aucun* |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | Plancher |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | **91,0 %** | 0,80 → … → **0,91** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | **78,2 %** | 0,60 → … → **0,78** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | **91,2 %** | *aucun* |
 
-**Les branches ont gagné 14,8 points en six passes**, après onze sprints où
+**Les branches ont gagné 15,2 points en sept passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -462,10 +462,41 @@ ruche : le message nomme la division existante.
 > récursif ; il faut hisser à chaque niveau, y compris dans les fabriques
 > partagées.
 
-**Reste au lot 3** : une dizaine de services, ~1 530 instructions et
-~190 branches — `SiteService`, `LotConditionnementService`, `RucheService`,
-`PlanningService`, `TransportService` en tête, plus les séries de greffage
-d'`ElevageService`.
+#### Vague E — la transhumance, et une position future  ·  ✅ livrée le 05/09/2026
+
+16 tests sur `TransportService` (72,6 % · 60 % de branches → **100 %** · 100 %).
+Couverture globale portée à **91,0 %** d'instructions et **78,2 %** de branches
+(91,2 % de lignes), sur **514** tests unitaires. Planchers relevés à `0,91` et
+`0,78`.
+
+**La décision qu'il fallait verrouiller en premier est celle qui se défait le
+plus facilement par inadvertance** : réaliser un transport **ne duplique pas** le
+déménagement, il l'appelle. `SiteService.demenager` reste le seul endroit qui
+clôt un emplacement et en ouvre un autre ; deux implémentations de cette règle
+finiraient par diverger, et c'est l'historique du parc qui en porterait la trace.
+Le test capture l'appel et vérifie les coordonnées, la date **et** le motif
+`transhumance` transmis.
+
+**Trois refus que rien ne tenait :**
+
+- **Sans coordonnées, le plan reste un plan.** Ouvrir un emplacement sans
+  position ferait un trou dans l'historique — et un trou dans un historique ne se
+  voit pas.
+- **Un transport déjà réalisé ne se réalise pas deux fois.** Déménager deux fois
+  vers le même point créerait deux emplacements identiques, dont le second serait
+  faux.
+- **Un transport réalisé ne s'annule pas** : annuler un fait accompli laisserait
+  un rucher déplacé et un plan qui dit qu'il ne l'est pas.
+
+**Et le masquage, qui vaut ici pour une raison particulière.** Une destination de
+transhumance **est** une position de rucher, avec une semaine d'avance. La
+publier en clair annulerait le masquage du SPRINT-12 pour toute la durée du
+plan : c'est le seul endroit du dépôt où la position à protéger est une position
+*future*.
+
+**Reste au lot 3** : neuf services, ~1 450 instructions et ~184 branches —
+`SiteService`, `LotConditionnementService`, `RucheService`, `PlanningService`,
+`VisiteService`, `FermeService`, plus les séries de greffage d'`ElevageService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -573,7 +604,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-D)* 🟡 | 2 528 | 299 | **90,8 %** | **77,8 %** |
+| 3 | Services métier *(vagues A-E)* 🟡 | 2 528 | 299 | **91,0 %** | **78,2 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
