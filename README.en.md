@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml/badge.svg" alt="Application CI"></a>
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml/badge.svg" alt="PDF build"></a>
-  <img src="https://img.shields.io/badge/backend%20coverage-81.2%25-2E9E3F" alt="Backend coverage 81.2%">
+  <img src="https://img.shields.io/badge/backend%20coverage-82.1%25-2E9E3F" alt="Backend coverage 82.1%">
   <img src="https://img.shields.io/badge/languages-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="Trilingual FR EN AR">
 </p>
 
@@ -46,9 +46,25 @@ design system, and an architecture decision log.
   sheet is **structured** — brood, stores, queen cells, temperament — and keeps
   "not observed" distinct from "no".
 - Plan rounds, assign field agents, and have a manager approve or reject a
-  schedule.
+  schedule. Planned visits export as iCalendar, and an agent can subscribe to
+  their own calendar from a phone.
+- Track an apiary's postal address and forage resources, its location history
+  (migratory beekeeping), splits and swarm captures.
 - Work **offline**: the PWA keeps what was entered and replays it when the
-  network returns.
+  network returns. An apiary is **taken along** explicitly before heading out —
+  a snapshot **timestamped by the server**, expiring after fourteen days — and
+  an entry rejected on replay goes to **quarantine** with the reason, instead of
+  vanishing.
+- Resume a visit draft from another device: its content stays opaque to the
+  server and enters no record until it is submitted.
+- Build your own inspection sheet from a **closed** catalogue of forty-four
+  observation points — you switch on existing boxes, you do not invent new ones,
+  otherwise nothing can be counted across farms any more.
+- Dictate an observation: transcription happens **on the device**, and the
+  interface refuses to start where the browser would send the audio to a
+  third-party service.
+- Open a hive's record by scanning its **QR** code or **NFC** tag, with a
+  printable label sheet.
 
 **Health record**
 
@@ -63,6 +79,20 @@ design system, and an architecture decision log.
   unit and its verdict — where it can be explained.
 - Name the diseases observed during a visit, with their severity, instead of
   leaving them in a free-text field.
+- Make the veterinary prescription **verifiable**: its scan is attached to the
+  treatment, and the treatment keeps its **own** copy of the withdrawal period —
+  the leaflet is authoritative, not the catalogue.
+- Assemble the paperwork for an organic audit while **naming what Zümm cannot
+  verify**: the origin of sugars, of wax, and land tenure come out as "to be
+  substantiated", never as "compliant".
+
+**Breeding and genetics**
+
+- Keep queen genealogy — a queen, her mother, her line — and read it as a tree.
+- Track grafting series and the regulatory breeding register as a PDF.
+- Compare stocks on five criteria, each in its own unit and with its own
+  observation count. **No overall score**: adding up temperament and yield means
+  nothing.
 
 **Mapping**
 
@@ -73,9 +103,18 @@ design system, and an architecture decision log.
 
 **Production and traceability**
 
-- Record harvests, build packaging batches, and trace a batch back to the hives
-  it came from.
+- Record harvests — honey, but also pollen, propolis, royal jelly, wax, swarms
+  and queens, each in its own unit —, build packaging batches, and trace a batch
+  back to the hives it came from.
 - Generate a batch's legal label text and a traceability QR code.
+- Compare one season against the previous one over **calendar years**, where
+  every other aggregate in the product slides over a rolling twelve months.
+- Keep an equipment inventory and its maintenance plan, a stock with reorder
+  thresholds, and accounts that give profitability **per hive**. Unallocated
+  expenses stay whole and separate: an invented allocation key would give a
+  prettier and less truthful figure.
+- Export every record — fourteen resources, as CSV, TXT and XLSX — and produce
+  the annual report as a PDF.
 
 **Monitoring and alerts**
 
@@ -85,6 +124,27 @@ design system, and an architecture decision log.
   detection when the service is absent.
 - Health alerts, task reminders, and dashboards for summary, production and
   forecasts.
+- **Theft alarm** built on the weight series already ingested: a drop is a
+  harvest if a harvest was recorded that day, and a theft otherwise. Without that
+  check, the first honey flow would set off the alarm across the whole apiary.
+- Read a sensor **directly over Bluetooth** from the browser, on the standard SIG
+  profile — no proprietary frame decoder guessed at.
+- Weigh super by super, and share a telemetry feed outside the farm through a
+  token bound to a single hive, carrying no position.
+- A rule engine produces the tasks to do; colony health and swarming-risk indices
+  are **computed on read**, never stored.
+
+**Apiary environment**
+
+- Load your own **land-cover** layer and read the areas by cover type within the
+  foraging radius, their rotation year on year, and the distance to the nearest
+  cultivated parcel. The data is **received, never queried**: asking a third-party
+  service would mean sending it the apiary's position.
+- Record **observed** bloom and set it against the declared calendar, with the
+  gap in days — the declared one predicts, the observed one records.
+- Cut the server's outbound traffic and the map tiles separately: **two**
+  switches, because there are two kinds of traffic, and a single one would
+  suggest a silent network where it is only half silent.
 
 **Multi-tenant operation**
 
@@ -130,7 +190,7 @@ flowchart TB
         subgraph api["Spring Boot 3 — :8080"]
             BFF["BFF layer<br/>/bff/connexion · /bff/session<br/>keeps the tokens server-side"]
             SEC["Security chain<br/>TenantFilter · ValidateurAudience<br/>PolitiquePositions"]
-            REST["25 REST controllers<br/>/api/**"]
+            REST["51 REST controllers<br/>/api/**"]
             METIER["Business services<br/>+ Spring Data JPA"]
         end
 
@@ -168,14 +228,14 @@ database**, under a non-superuser role that cannot bypass it.
 Zümm/
 ├── backend/                  Spring Boot API (Maven, wrapper included)
 │   └── src/main/
-│       ├── java/…/controller/    25 REST controllers + 2 BFF controllers
-│       ├── java/…/domain/        23 JPA entities + enums
+│       ├── java/…/controller/    51 REST controllers + 2 BFF controllers
+│       ├── java/…/domain/        44 JPA entities + enums
 │       ├── java/…/service/       business services
 │       ├── java/…/tenant/        TenantFilter, multi-tenant context and resolver
 │       ├── java/…/securite/      PolitiquePositions, agent scoping
 │       ├── java/…/config/        SecurityConfig, ValidateurAudience, OpenAPI
 │       ├── java/…/web/           DTOs, pagination, idempotency, error handling
-│       └── resources/db/migration/  19 Flyway migrations (V1 → V19)
+│       └── resources/db/migration/  31 Flyway migrations (V1 → V31)
 ├── frontend/                 React 19 + TypeScript PWA (Vite)
 │   └── src/
 │       ├── vues/                 business screens (hives, sites, visits, batches, map…)
@@ -268,7 +328,7 @@ cd frontend && npm install && npm run dev
 
 ### Database
 
-No manual step: **Flyway applies the 19 migrations at startup**, creating the
+No manual step: **Flyway applies the 31 migrations at startup**, creating the
 application role, the RLS policies, the PostGIS extension and the TimescaleDB
 hypertable. To start over:
 
@@ -327,7 +387,7 @@ apiary map.
 
 ## 9. API documentation
 
-The API exposes **63 paths / 99 operations** under OpenAPI 3.1. The contract is
+The API exposes **140 paths / 202 operations** under OpenAPI 3.1. The contract is
 **generated from the code** and versioned in
 [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json); CI fails if the
 code and the contract diverge.
@@ -345,6 +405,12 @@ not a production surface.
 (`HttpOnly` cookie) and **at least one business role**. The underlying token must
 carry a `tenant_id` claim, failing which the filter answers `403`. The `/bff/**`
 routes are the public identity entry point.
+
+**Two exceptions, and no more.** `GET /api/calendrier/{jeton}.ics` (subscribing
+to one's own calendar) and `GET /api/flux/{jeton}` (sharing a telemetry feed)
+answer without a session. Both carry a 256-bit token stored only as a
+**SHA-256 digest**, expire, can be revoked, show their last use, and return **no
+position**. Neither has rate limiting: to be addressed before any wide opening.
 
 ### Identity routes
 
@@ -437,25 +503,65 @@ differs.
 **jOOQ dropped.** The specification called for it; it was never needed.
 Analytical queries go through JPQL and native SQL.
 
+**Offline means taking data along, not caching it** ([ADR-012](roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif.md)).
+The service worker caches **no** API response. An apiary is taken along on
+request — bounded, timestamped by the server, and perishable; measurements,
+weather and exact positions stay out. Adding `/api` to `runtimeCaching` would be
+a step backwards, not a shortcut.
+
+**AI runs on the device, or not at all** ([ADR-013](roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md)).
+Dictation only starts if the browser declares it transcribes locally. The daily
+briefing goes through **no** language model: it reads four records and cites what
+each line rests on. A generated sentence would read better and verify worse — and
+it would mean sending the farm's history outside.
+
+**We do not buy hardware** ([ADR-014](roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md)).
+Bluetooth is limited to the standard SIG profile, whose identifiers and units are
+public. Writing a decoder for a manufacturer's proprietary frame that nobody here
+owns a device for would mean guessing at a data structure: the appearance of
+support without its reliability.
+
+**Environmental data is received, never queried** ([ADR-015](roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)).
+Querying a land-cover service directly would mean sending it the apiary's
+position — what `PolitiquePositions` masks and what local mode cuts for map
+tiles. The farm loads its own layer; the ingester translates it into a **closed**
+taxonomy of ten classes, and an unknown class fails the **whole** load rather
+than producing wrong areas that would still add up to 100%.
+
+**Refusing what cannot be verified.** Three expected features were turned down
+with their reasons written out: in-hive acoustic analysis, pollen counts, and a
+proprietary frame adapter. Each would produce a number the beekeeper cannot check
+other than by opening the hive. The same reasoning rules out an overall genetic
+score and a health × flora correlation computed over ten apiaries.
+
 SOLID mapping and identified debt:
 [`docs/ARCHITECTURE-SOLID.md`](docs/ARCHITECTURE-SOLID.md).
 Security invariants not to undo: [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ## 11. Testing
 
-Figures read from the suites' own output on 2026-08-29, not copied over:
+Figures read from the suites' own output on 2026-09-05, not copied over:
 
 | Suite | Volume | Tooling |
 |---|---|---|
-| Backend — unit | **92** tests across 20 classes, 0 failures, 0 skipped | JUnit 5, Mockito |
-| Backend — integration | **133** tests across 22 classes, 0 failures, **0 skipped** | Testcontainers on a real PostgreSQL/PostGIS/TimescaleDB |
-| Backend — coverage | **81.9%** instructions, 82.3% lines, **65.3%** branches | JaCoCo, merged campaigns, **blocking** floors at 80% (instructions) and 60% (branches) |
-| Frontend | **238** tests, 26 files | Vitest, Testing Library, jsdom |
+| Backend — unit | **159** tests across 29 classes, 0 failures, 0 skipped | JUnit 5, Mockito |
+| Backend — integration | **242** tests across 34 classes, 0 failures, **0 skipped** | Testcontainers on a real PostgreSQL/PostGIS/TimescaleDB |
+| Backend — coverage | **82.1%** instructions, 83.9% lines, **63.0%** branches | JaCoCo, merged campaigns, **blocking** floors at 80% (instructions) and 60% (branches) |
+| Frontend | **413** tests, 52 files | Vitest, Testing Library, jsdom |
 
 What is covered: the security chain (missing tenant, invalid audience, token
 without a role), RLS isolation between farms, PostGIS spatial queries, idempotent
 measurement ingestion, PDF generation, OpenAPI contract conformance, and on the
 front end the business views, the dialogs, the charts and the sign-in journey.
+
+**Two tests written for one feature found another one broken.** Five foreign
+keys added between migrations `V20` and `V27` used `ON DELETE SET NULL` without
+naming their column: PostgreSQL also nulled `tenant_id`, so deleting a hive that
+carried an expense failed with a `500`. And `GET /api/mesures/alertes` could only
+succeed **on an empty list** ever since SPRINT-06 — the read lived outside a
+transaction and the association was `LAZY`. No test had ever called it with an
+open alert. A route covered by a test that never puts it in the interesting state
+is an uncovered route.
 
 ```bash
 # Backend — unit only (Docker not required)
@@ -487,15 +593,27 @@ version.
 
 **What does not work perfectly yet**
 
-- **Branch coverage at 65.3%**, against 81.9% for instructions: error paths
+- **Branch coverage at 63.0%**, against 82.1% for instructions: error paths
   remain less covered than nominal ones. The blocking floor sits at 60% — an
   anti-regression ratchet, not a target.
 - **Uncompressed measurements**: an accepted consequence of ADR-008. At a much
   larger volume, another trade-off will be needed (partitioning, cold archival).
 - **`Ping`** survives as the end-to-end probe from SPRINT-00. That is a decision
   documented in its javadoc, not an oversight.
-- **Anomaly detection**: the AI microservice remains statistical scoring. The
-  local EWMA fallback is cruder still.
+- **Anomaly detection**: the AI microservice remains a statistical score.
+  local EWMA fallback is cruder still, and it is now **implemented twice** —
+  in Java on the server and in TypeScript in the browser, for on-device
+  detection. Both are pinned by tests fixing the same numbers on the same series:
+  touching one without the other breaks a campaign.
+- **No rate limiting** on the two public token routes. They are bounded,
+  expirable and carry no position, but nothing throttles repeated calls — to be
+  handled before any wide opening.
+- **Local mode cuts one kind of traffic at a time**: the server setting can do
+  nothing about a map tile requested by the browser, and vice versa. Both
+  switches exist, and the interface says so rather than promising a silence it
+  could not deliver.
+- **The land-cover reference is not shipped**: the farm loads its own layer.
+  That is the accepted cost of never reaching outside on its own.
 - **No public deployment**: the stack is designed for a single Docker host.
   Running it in production assumes a real certificate, a regenerated BFF secret,
   and `ZUMM_OIDC_ISSUER_URI` set to Keycloak's public URL.

@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml/badge.svg" alt="التكامل المستمر للتطبيق"></a>
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml/badge.svg" alt="بناء ملفات PDF"></a>
-  <img src="https://img.shields.io/badge/%D8%AA%D8%BA%D8%B7%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AE%D8%A7%D8%AF%D9%85-81.2%25-2E9E3F" alt="تغطية الخادم 81.2%">
+  <img src="https://img.shields.io/badge/%D8%AA%D8%BA%D8%B7%D9%8A%D8%A9%20%D8%A7%D9%84%D8%AE%D8%A7%D8%AF%D9%85-82.1%25-2E9E3F" alt="تغطية الخادم 82.1%">
   <img src="https://img.shields.io/badge/languages-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="ثلاثي اللغة">
 </p>
 
@@ -91,7 +91,7 @@
 |---|---|
 | **Spring Boot 3.5** (JDK 17) | واجهة REST، الطبقة الوظيفية، الأمان. Spring MVC + Spring Data JPA. |
 | **PostgreSQL 16 + PostGIS + TimescaleDB** | نسخة واحدة. يحمل PostGIS الاستعلامات المكانية (القرب، التجمّعات، الجوار)؛ ويحمل TimescaleDB جدول القياسات الزمني (hypertable). |
-| **Flyway** | 19 ترحيلة مُرقَّمة — يُعاد بناء المخطّط مطابقًا من الصفر. |
+| **Flyway** | 31 ترحيلة مُرقَّمة — يُعاد بناء المخطّط مطابقًا من الصفر. |
 | **Keycloak** | مزوّد هوية OIDC. يُصدر الرموز، ويحمل الأدوار ومطالبة `tenant_id`. |
 | **Spring Session JDBC** | جلسات BFF على الخادم: لا يتلقّى المتصفّح سوى كعكة `HttpOnly`، ولا يتلقّى رمزًا أبدًا. |
 | **React 19 + TypeScript + Vite** | تطبيق PWA للعميل. موجّه داخلي (ADR-005)، بلا `react-router`. |
@@ -121,7 +121,7 @@ flowchart TB
         subgraph api["Spring Boot 3 — :8080"]
             BFF["طبقة BFF<br/>/bff/connexion · /bff/session<br/>تحفظ الرموز في الخادم"]
             SEC["سلسلة الأمان<br/>TenantFilter · ValidateurAudience<br/>PolitiquePositions"]
-            REST["25 متحكّم REST<br/>/api/**"]
+            REST["51 متحكّم REST<br/>/api/**"]
             METIER["الخدمات الوظيفية<br/>Spring Data JPA"]
         end
 
@@ -162,14 +162,14 @@ flowchart TB
 Zümm/
 ├── backend/                  Spring Boot API (Maven)
 │   └── src/main/
-│       ├── java/…/controller/    25 REST + 2 BFF
-│       ├── java/…/domain/        23 JPA entities
+│       ├── java/…/controller/    51 REST + 2 BFF
+│       ├── java/…/domain/        44 JPA entities
 │       ├── java/…/service/
 │       ├── java/…/tenant/        TenantFilter
 │       ├── java/…/securite/      PolitiquePositions
 │       ├── java/…/config/        SecurityConfig, ValidateurAudience
 │       ├── java/…/web/           DTO, pagination, idempotence
-│       └── resources/db/migration/  19 Flyway (V1 → V19)
+│       └── resources/db/migration/  31 Flyway (V1 → V31)
 ├── frontend/                 React 19 + TypeScript PWA (Vite)
 │   └── src/
 │       ├── vues/                 business screens
@@ -344,7 +344,7 @@ docker compose --env-file .env -f infra/docker-compose.yml down -v
 
 ## ٩. توثيق الواجهة البرمجية
 
-تعرض الواجهة **63 مسارًا / 99 عملية** وفق OpenAPI 3.1. العقد **مولَّد من الشيفرة**
+تعرض الواجهة **140 مسارًا / 202 عملية** وفق OpenAPI 3.1. العقد **مولَّد من الشيفرة**
 ومُدرَج في [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json)؛ ويفشل
 التكامل المستمر إذا تباعدت الشيفرة والعقد.
 
@@ -452,14 +452,14 @@ PostgreSQL/PostGIS/TimescaleDB أصيلة: فـ RLS والفهارس المكا�
 
 ## ١١. الاختبارات
 
-أرقام مقروءة من مخرجات المجموعات نفسها يوم 2026-08-29، لا منقولة:
+أرقام مقروءة من مخرجات المجموعات نفسها يوم 2026-09-05، لا منقولة:
 
 | المجموعة | الحجم | الأدوات |
 |---|---|---|
-| الخادم — وحدات | **92** اختبارًا في 20 صنفًا، 0 إخفاق، 0 متجاوَز | JUnit 5، Mockito |
-| الخادم — تكامل | **133** اختبارًا في 22 صنفًا، 0 إخفاق، **0 متجاوَز** | Testcontainers على PostgreSQL/PostGIS/TimescaleDB حقيقي |
-| الخادم — التغطية | **81.9٪** تعليمات، 82.3٪ أسطر، **65.3٪** فروع | JaCoCo، حملات مدمجة، حدّان **مانعان** عند 80٪ (تعليمات) و60٪ (فروع) |
-| الواجهة | **238** اختبارًا، 26 ملفًا | Vitest، Testing Library، jsdom |
+| الخادم — وحدات | **159** اختبارًا في 29 صنفًا، 0 إخفاق، 0 متجاوَز | JUnit 5، Mockito |
+| الخادم — تكامل | **242** اختبارًا في 34 صنفًا، 0 إخفاق، **0 متجاوَز** | Testcontainers على PostgreSQL/PostGIS/TimescaleDB حقيقي |
+| الخادم — التغطية | **82.1٪** تعليمات، 83.9٪ أسطر، **63.0٪** فروع | JaCoCo، حملات مدمجة، حدّان **مانعان** عند 80٪ (تعليمات) و60٪ (فروع) |
+| الواجهة | **413** اختبارًا، 52 ملفًا | Vitest، Testing Library، jsdom |
 
 ما هو مُغطّى: سلسلة الأمان (مستأجر مفقود، جمهور غير صالح، رمز بلا دور)، عزل RLS بين
 الضيعات، الاستعلامات المكانية في PostGIS، الاستيعاب المتماثل للقياسات، توليد PDF،
@@ -498,7 +498,7 @@ npm run test:couverture
 
 **ما لا يعمل بعدُ على أتمّ وجه**
 
-- **تغطية الفروع عند 65.3٪**، مقابل 81.9٪ للتعليمات: مسارات الخطأ تبقى أقلّ تغطيةً
+- **تغطية الفروع عند 63.0٪**، مقابل 82.1٪ للتعليمات: مسارات الخطأ تبقى أقلّ تغطيةً
   من الاسمية. الحدّ المانع عند 60٪ — سقّاطة ضدّ التراجع، لا هدف.
 - **قياسات غير مضغوطة**: نتيجة مقبولة لـ ADR-008. وعند حجم أكبر بكثير سيلزم حسمٌ آخر
   (تقسيم، أرشفة باردة).

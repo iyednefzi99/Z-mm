@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml/badge.svg" alt="CI applicative"></a>
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml/badge.svg" alt="Compilation des PDF"></a>
-  <img src="https://img.shields.io/badge/couverture%20backend-81.2%25-2E9E3F" alt="Couverture backend 81,2 %">
+  <img src="https://img.shields.io/badge/couverture%20backend-82.1%25-2E9E3F" alt="Couverture backend 82,1 %">
   <img src="https://img.shields.io/badge/langues-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="Trilingue FR EN AR">
 </p>
 
@@ -47,9 +47,25 @@ décisions d'architecture.
   d'inspection est **structurée** — couvain, réserves, cellules royales,
   tempérament — et distingue « non observé » de « non ».
 - Planifier les tournées, affecter les agents, faire approuver ou refuser un
-  planning par un responsable.
+  planning par un responsable. Les visites planifiées s'exportent en iCalendar,
+  et un agent peut s'abonner à son propre agenda depuis son téléphone.
+- Suivre l'adresse et les ressources florales d'un rucher, son historique
+  d'emplacement (transhumance), les divisions et les captures d'essaim.
 - Travailler **hors connexion** : la PWA garde la saisie et la rejoue au retour
-  du réseau.
+  du réseau. Un rucher s'**emporte** explicitement avant de monter — instantané
+  daté par le serveur, périmé à quatorze jours — et une saisie refusée au rejeu
+  passe en **quarantaine** avec le motif, au lieu de disparaître.
+- Reprendre un brouillon de visite d'un appareil à l'autre : son contenu reste
+  opaque au serveur et n'entre dans aucun registre tant qu'il n'est pas validé.
+- Composer sa propre grille d'inspection sur un référentiel **fermé** de
+  quarante-quatre points d'observation — on active des cases existantes, on
+  n'en invente pas, sans quoi plus rien ne se compte d'une exploitation à
+  l'autre.
+- Dicter une observation : la transcription se fait **sur l'appareil**, et
+  l'interface refuse de démarrer là où le navigateur enverrait la voix à un
+  service tiers.
+- Ouvrir la fiche d'une ruche en scannant son **QR** ou sa puce **NFC**, avec
+  une planche d'étiquettes imprimable.
 
 **Registre sanitaire**
 
@@ -64,6 +80,21 @@ décisions d'architecture.
   et son verdict — là où on peut l'expliquer.
 - Nommer les pathologies constatées lors d'une visite, avec leur gravité, plutôt
   que de les laisser dans un champ de texte libre.
+- Rendre l'ordonnance vétérinaire **vérifiable** : son scan est attaché au
+  traitement, et le traitement garde sa propre copie du délai de carence — la
+  notice fait foi, pas le référentiel.
+- Rassembler les pièces d'un contrôle bio, en **nommant ce que Zümm ne peut pas
+  vérifier** : l'origine des sucres, celle de la cire et le statut du foncier
+  sortent « à justifier », jamais « conforme ».
+
+**Élevage et génétique**
+
+- Tenir la généalogie des reines — une reine, sa mère, sa lignée — et la lire
+  comme un arbre.
+- Suivre les séries de greffage et le registre d'élevage réglementaire en PDF.
+- Comparer les souches sur cinq critères, chacun dans son unité et avec son
+  nombre d'observations. **Aucune note globale** : additionner une douceur et un
+  rendement ne veut rien dire.
 
 **Cartographie**
 
@@ -74,9 +105,18 @@ décisions d'architecture.
 
 **Production et traçabilité**
 
-- Enregistrer les récoltes, constituer des lots de conditionnement, remonter la
-  traçabilité d'un lot jusqu'aux ruches d'origine.
+- Enregistrer les récoltes — miel, mais aussi pollen, propolis, gelée, cire,
+  essaims et reines, chacun dans son unité —, constituer des lots de
+  conditionnement, remonter la traçabilité d'un lot jusqu'aux ruches d'origine.
 - Générer la mention légale d'un lot et un QR code de traçabilité.
+- Comparer une saison à la précédente sur des **années civiles**, là où tous les
+  autres agrégats glissent sur douze mois.
+- Tenir l'inventaire du matériel et son plan de maintenance, un stock à seuils,
+  et une comptabilité qui donne la rentabilité **par ruche**. Les dépenses non
+  affectées restent entières et à part : une clé de répartition inventée
+  donnerait un chiffre plus joli et moins vrai.
+- Exporter l'intégralité des registres — quatorze ressources, en CSV, TXT et
+  XLSX — et sortir le bilan annuel en PDF.
 
 **Supervision et alertes**
 
@@ -86,6 +126,28 @@ décisions d'architecture.
   détection EWMA locale si le service est absent.
 - Alertes sanitaires, rappels de tâches, tableau de bord de synthèse, de
   production et de prévisions.
+- **Alarme anti-vol** sur la série de poids déjà ingérée : une chute est une
+  récolte si une récolte est enregistrée ce jour-là, un vol sinon. Sans cette
+  vérification, la première miellée réveillerait l'alarme sur tout le rucher.
+- Lire un capteur **directement en Bluetooth** depuis le navigateur, sur le
+  profil normalisé SIG — aucun décodeur propriétaire deviné.
+- Peser hausse par hausse, et partager un flux de télémétrie hors de
+  l'exploitation par un jeton borné à une ruche, sans aucune position.
+- Un moteur de règles engendre les tâches à faire ; les indices de santé et de
+  risque d'essaimage sont **calculés à la lecture**, jamais stockés.
+
+**Environnement du rucher**
+
+- Verser sa propre couche d'**occupation du sol** et lire les surfaces par type
+  de couvert dans le rayon de butinage, leur rotation d'une année à l'autre, et
+  la distance à la parcelle cultivée la plus proche. La donnée est **accueillie,
+  jamais interrogée** : interroger un service tiers reviendrait à lui envoyer la
+  position du rucher.
+- Noter la floraison **observée** et la confronter au calendrier déclaré, avec
+  l'écart en jours — le déclaratif prévoit, l'observé constate.
+- Couper le trafic sortant du serveur et celui des tuiles de carte : **deux**
+  bascules, parce qu'il y a deux trafics et qu'un seul interrupteur ferait
+  croire à un réseau muet là où il ne l'est qu'à moitié.
 
 **Exploitation multi-clients**
 
@@ -102,7 +164,7 @@ décisions d'architecture.
 |---|---|
 | **Spring Boot 3.5** (JDK 17) | API REST, couche métier, sécurité. Spring MVC + Spring Data JPA. |
 | **PostgreSQL 16 + PostGIS + TimescaleDB** | Instance unique. PostGIS porte les requêtes spatiales (proximité, grappes, voisins) ; TimescaleDB l'hypertable des mesures capteurs. |
-| **Flyway** | 19 migrations versionnées — le schéma se reconstruit à l'identique depuis zéro. |
+| **Flyway** | 31 migrations versionnées — le schéma se reconstruit à l'identique depuis zéro. |
 | **Keycloak** | Fournisseur d'identité OIDC. Émet les jetons, porte les rôles et le claim `tenant_id`. |
 | **Spring Session JDBC** | Sessions serveur du BFF : le navigateur ne reçoit qu'un cookie `HttpOnly`, jamais un jeton. |
 | **React 19 + TypeScript + Vite** | PWA cliente. Routeur maison (ADR-005), pas de `react-router`. |
@@ -130,7 +192,7 @@ flowchart TB
         subgraph api["Spring Boot 3 — :8080"]
             BFF["Couche BFF<br/>/bff/connexion · /bff/session<br/>garde les jetons côté serveur"]
             SEC["Chaîne de sécurité<br/>TenantFilter · ValidateurAudience<br/>PolitiquePositions"]
-            REST["25 contrôleurs REST<br/>/api/**"]
+            REST["51 contrôleurs REST<br/>/api/**"]
             METIER["Services métier<br/>+ Spring Data JPA"]
         end
 
@@ -168,21 +230,26 @@ rôle non-superutilisateur qui ne peut pas la contourner.
 Zümm/
 ├── backend/                  API Spring Boot (Maven, wrapper embarqué)
 │   └── src/main/
-│       ├── java/…/controller/    25 contrôleurs REST + 2 contrôleurs BFF
-│       ├── java/…/domain/        23 entités JPA + énumérations
+│       ├── java/…/controller/    51 contrôleurs REST + 2 contrôleurs BFF
+│       ├── java/…/domain/        44 entités JPA + énumérations
 │       ├── java/…/service/       services métier
 │       ├── java/…/tenant/        TenantFilter, contexte et résolveur multi-tenant
 │       ├── java/…/securite/      PolitiquePositions, portée des agents
 │       ├── java/…/config/        SecurityConfig, ValidateurAudience, OpenAPI
 │       ├── java/…/web/           DTO, pagination, idempotence, gestion d'erreurs
-│       └── resources/db/migration/  19 migrations Flyway (V1 → V19)
+│       └── resources/db/migration/  31 migrations Flyway (V1 → V31)
 ├── frontend/                 PWA React 19 + TypeScript (Vite)
 │   └── src/
-│       ├── vues/                 écrans métier (ruches, sites, visites, lots, carte…)
+│       ├── vues/                 42 écrans : 23 de console, 10 pages publiques, connexion, compte, erreurs
 │       ├── ui/                   composants transverses (modale, toasts, graphiques SVG)
 │       ├── api/                  openapi.json + types générés + garde de parité
 │       ├── auth/  routage/       session BFF et routeur maison (ADR-005)
-│       ├── offline/              file de rejeu hors connexion
+│       ├── offline/              file de rejeu hors connexion et quarantaine
+│       ├── terrain/  carnet/     emport hors ligne, grille d'inspection paramétrable
+│       ├── elevage/              arbre de lignées des reines (SVG)
+│       ├── environnement/        surfaces de couvert et floraisons observées
+│       ├── capteurs/  voix/      lecture Bluetooth SIG, dictée sur l'appareil
+│       ├── local/                EWMA embarquée, miroir exact du service back
 │       └── i18n/locales/         ressources FR / EN / AR
 ├── ia-service/               microservice Python de détection d'anomalie
 ├── infra/                    docker-compose, Nginx, Keycloak, Prometheus, Grafana
@@ -268,7 +335,7 @@ cd frontend && npm install && npm run dev
 
 ### Base de données
 
-Aucune étape manuelle : **Flyway applique les 19 migrations au démarrage**, crée
+Aucune étape manuelle : **Flyway applique les 31 migrations au démarrage**, crée
 le rôle applicatif, les politiques RLS, l'extension PostGIS et l'hypertable
 TimescaleDB. Pour repartir de zéro :
 
@@ -329,7 +396,7 @@ de visite, carte des ruchers.
 
 ## 9. Documentation de l'API
 
-L'API expose **63 chemins / 99 opérations** sous OpenAPI 3.1. Le contrat est
+L'API expose **140 chemins / 202 opérations** sous OpenAPI 3.1. Le contrat est
 **généré depuis le code** et versionné dans
 [`frontend/src/api/openapi.json`](frontend/src/api/openapi.json) ; la CI échoue
 si le code et le contrat divergent.
@@ -347,6 +414,13 @@ développement, pas une surface de production.
 authentifiée (cookie `HttpOnly`) et **au moins un rôle métier**. Le jeton sous-
 jacent doit porter un claim `tenant_id`, faute de quoi le filtre répond `403`.
 Les routes `/bff/**` sont le point d'entrée public d'identité.
+
+**Deux exceptions, et pas une de plus.** `GET /api/calendrier/{jeton}.ics`
+(abonnement à son propre agenda) et `GET /api/flux/{jeton}` (partage d'un flux de
+télémétrie) répondent sans session. Toutes deux portent un jeton de 256 bits
+stocké en **empreinte SHA-256**, expirent, se révoquent, affichent leur dernier
+usage, et ne rendent **aucune position**. Aucune n'a de limitation de débit : à
+prévoir avant une ouverture large.
 
 ### Routes d'identité
 
@@ -376,6 +450,14 @@ Les routes `/bff/**` sont le point d'entrée public d'identité.
 | `GET` | `/api/audit` | `responsable`, `admin` | filtres | Journal d'audit |
 | `POST` | `/api/invitations` | `responsable`, `admin` | — | Code d'invitation d'exploitation |
 | `GET` | `/api/export/visites` | tout rôle métier | filtres | Export CSV |
+| `POST` | `/api/traitements/lot` | tout rôle métier | ruches + traitement | Une **transaction par ruche** : les refus sont nommés avec leur motif, les autres écritures tiennent |
+| `GET` | `/api/ruchers/{id}/emport` | tout rôle métier | — | Instantané hors ligne d'un rucher, **daté par le serveur**, périmé à 14 jours |
+| `GET` | `/api/reines/{id}/lignee` | tout rôle métier | — | Généalogie ascendante et descendante d'une reine |
+| `GET` | `/api/environnement/sites/{id}/couvert` | tout rôle métier | `millesime` | Surfaces par classe de couvert dans le rayon de butinage, avec la part du cercle réellement décrite |
+| `GET` | `/api/environnement/sites/{id}/rotation` | tout rôle métier | — | Les mêmes surfaces, millésime par millésime |
+| `GET` | `/api/briefing` | tout rôle métier | — | Le point du jour, **sans modèle de langue** : quatre registres lus, chaque ligne citant ce qui la fonde |
+| `GET` | `/api/calendrier/{jeton}.ics` | **aucun** (jeton) | — | Agenda d'un agent, sans position |
+| `GET` | `/api/flux/{jeton}` | **aucun** (jeton) | — | Flux de télémétrie d'**une** ruche, sans position |
 
 `POST`, `PUT` et `DELETE` sur `fermiers`, `fermes`, `sites`, `agents` et `ruches`
 sont réservés à `responsable` et `admin` — la lecture reste ouverte à tout rôle
@@ -440,26 +522,69 @@ base de test diffère.
 **jOOQ écarté.** Le cahier le prévoyait ; il n'a jamais été nécessaire. Les
 requêtes analytiques passent par JPQL et du SQL natif.
 
+**Le hors-ligne est un emport, pas un cache** ([ADR-012](roadmap/operationnel/06_decisions/ADR-012-hors-ligne-selectif.md)).
+Le service worker ne met **aucune** réponse d'API en cache. Un rucher s'emporte
+sur demande, borné, daté par le serveur et périssable ; mesures, météo et
+positions exactes restent dehors. Ajouter `/api` au `runtimeCaching` serait un
+retour en arrière, pas un raccourci.
+
+**L'IA tourne sur l'appareil, ou pas du tout** ([ADR-013](roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md)).
+La dictée ne démarre que si le navigateur déclare transcrire localement. Le
+briefing ne passe par **aucun** modèle de langue : il lit quatre registres et
+cite ce qui le fonde. Une phrase générée serait plus agréable et moins
+vérifiable — et il faudrait envoyer l'historique de l'exploitation dehors.
+
+**On n'achète pas de matériel** ([ADR-014](roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md)).
+Le Bluetooth se limite au profil normalisé SIG, dont les identifiants et les
+unités sont publics. Écrire un décodeur pour la trame propriétaire d'un
+fabricant dont personne n'a l'appareil reviendrait à deviner une structure de
+données : l'apparence du support sans la fiabilité.
+
+**La donnée d'environnement est accueillie, jamais interrogée** ([ADR-015](roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)).
+Interroger en direct un référentiel d'occupation du sol reviendrait à lui envoyer
+la position du rucher — ce que `PolitiquePositions` masque et ce que le mode
+local coupe pour les tuiles. L'exploitation verse sa couche ; l'ingesteur la
+traduit vers une taxonomie **fermée** de dix classes, et une classe inconnue fait
+échouer le versement entier plutôt que de produire des surfaces fausses qui
+totaliseraient quand même 100 %.
+
+**Refuser ce qui ne se vérifie pas.** Trois fonctionnalités attendues ont été
+écartées avec leur motif écrit : l'analyse acoustique de la ruche, le comptage de
+pollen et l'adaptateur de trames propriétaires. Chacune produirait un chiffre que
+l'apiculteur ne peut pas contrôler autrement qu'en ouvrant la ruche. C'est le
+même raisonnement qui interdit la note génétique globale et la corrélation
+santé × flore sur dix ruchers.
+
 Cartographie SOLID et dettes identifiées :
 [`docs/ARCHITECTURE-SOLID.md`](docs/ARCHITECTURE-SOLID.md).
 Invariants de sécurité à ne pas défaire : [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ## 11. Tests
 
-Chiffres relevés dans la sortie des suites le 29/08/2026, pas recopiés :
+Chiffres relevés dans la sortie des suites le 05/09/2026, pas recopiés :
 
 | Suite | Volume | Outillage |
 |---|---|---|
-| Backend — unitaires | **92** tests sur 20 classes, 0 échec, 0 ignoré | JUnit 5, Mockito |
-| Backend — intégration | **133** tests sur 22 classes, 0 échec, **0 ignoré** | Testcontainers sur PostgreSQL/PostGIS/TimescaleDB réel |
-| Backend — couverture | **81,9 %** d'instructions, 82,3 % de lignes, **65,3 %** de branches | JaCoCo, campagnes fusionnées, planchers **bloquants** à 80 % (instructions) et 60 % (branches) |
-| Frontend | **238** tests, 26 fichiers | Vitest, Testing Library, jsdom |
+| Backend — unitaires | **159** tests sur 29 classes, 0 échec, 0 ignoré | JUnit 5, Mockito |
+| Backend — intégration | **242** tests sur 34 classes, 0 échec, **0 ignoré** | Testcontainers sur PostgreSQL/PostGIS/TimescaleDB réel |
+| Backend — couverture | **82,1 %** d'instructions, 83,9 % de lignes, **63,0 %** de branches | JaCoCo, campagnes fusionnées, planchers **bloquants** à 80 % (instructions) et 60 % (branches) |
+| Frontend | **413** tests, 52 fichiers | Vitest, Testing Library, jsdom |
 
 Ce qui est couvert : la chaîne de sécurité (tenant manquant, audience invalide,
 jeton sans rôle), l'isolation RLS entre exploitations, les requêtes spatiales
-PostGIS, l'ingestion idempotente des mesures, la génération PDF, la conformité du
-contrat OpenAPI, et côté front les vues métier, les dialogues, les graphiques et
-le parcours de connexion.
+PostGIS, l'ingestion idempotente des mesures, la génération PDF et XLSX, la
+conformité du contrat OpenAPI, et côté front les vues métier, les dialogues, les
+graphiques et le parcours de connexion.
+
+**Deux tests écrits pour une fonctionnalité en ont trouvé une autre, cassée.**
+Cinq clés étrangères posées entre les migrations `V20` et `V27` écrivaient
+`ON DELETE SET NULL` sans nommer leur colonne : PostgreSQL annulait aussi
+`tenant_id`, et supprimer une ruche portant une dépense échouait en `500`. Et
+`GET /api/mesures/alertes` ne pouvait réussir **que sur une liste vide** depuis
+le SPRINT-06 — la lecture vivait hors transaction et l'association était `LAZY`.
+Aucun test ne l'avait jamais appelée avec une alerte ouverte. Une route couverte
+par un test qui ne la met jamais dans l'état intéressant est une route non
+couverte.
 
 ```bash
 # Backend — unitaires seuls (Docker non requis)
@@ -491,15 +616,30 @@ silencieusement** toute la campagne d'intégration, build vert à l'appui. Le
 
 **Ce qui ne fonctionne pas encore parfaitement**
 
-- **Couverture de branches à 65,3 %**, contre 81,9 % en instructions : les
+- **Couverture de branches à 63,0 %**, contre 82,1 % en instructions : les
   chemins d'erreur restent moins couverts que les chemins nominaux. Le plancher
-  bloquant est posé à 60 % — un cliquet anti-régression, pas une cible.
+  bloquant est posé à 60 % — un cliquet anti-régression, pas une cible. La marge
+  s'est resserrée à mesure que le périmètre grandissait ; elle se regagne en
+  testant les pièces **pures** sans base, jamais en abaissant le plancher.
 - **Mesures non compressées** : conséquence assumée de l'ADR-008. À très grande
   volumétrie, il faudra trancher autrement (partitionnement, archivage froid).
 - **`Ping`** subsiste comme sonde de bout en bout du SPRINT-00. C'est une
   décision documentée dans sa javadoc, pas un oubli.
 - **Détection d'anomalie** : le microservice IA reste un scoring statistique.
-  Le repli EWMA local est plus fruste encore.
+  Le repli EWMA local est plus fruste encore, et il est désormais **porté deux
+  fois** — en Java côté serveur et en TypeScript dans le navigateur, pour la
+  détection embarquée. Les deux implémentations sont tenues par des tests qui
+  fixent les mêmes nombres sur la même série : toucher l'une sans l'autre casse
+  une des deux campagnes.
+- **Aucune limitation de débit** sur les deux routes publiques à jeton. Elles
+  sont bornées, expirables et sans position, mais rien ne freine un appel répété
+  — à traiter avant toute ouverture large.
+- **Le mode local ne coupe qu'un trafic à la fois** : le réglage serveur ne peut
+  rien contre une tuile de carte demandée par le navigateur, et réciproquement.
+  Les deux bascules existent, et l'interface le dit plutôt que de promettre un
+  silence qu'elle ne tiendrait pas.
+- **Le référentiel d'occupation du sol n'est pas fourni** : l'exploitation verse
+  sa couche. C'est le coût assumé de ne rien aller chercher dehors.
 - **Pas de déploiement public** : la pile est prévue pour un mono-hôte Docker.
   L'exécution en production suppose un vrai certificat, un secret BFF régénéré
   et `ZUMM_OIDC_ISSUER_URI` réglé sur l'URL publique de Keycloak.
