@@ -8,10 +8,10 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-J du lot 3** : **92,2 %**
-> d'instructions, **79,7 %** de branches, **92,4 %** de lignes, sur **629** tests
+> **Lots 1, 2 et vagues A-K du lot 3** : **92,3 %**
+> d'instructions, **80,1 %** de branches, **92,5 %** de lignes, sur **642** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
-> départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
+> départ. **Les branches ont passé les 80 %.** Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
 > Source : `backend/target/site/jacoco/jacoco.csv`, produit par `./mvnw -B verify`.
 > Aucun chiffre de ce document n'est recopié d'un autre.
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 J | Plancher |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 K | Plancher |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **92,2 %** | 0,80 → … → **0,92** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **79,7 %** | 0,60 → … → **0,79** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **92,4 %** | *aucun* |
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **92,3 %** | 0,80 → … → **0,92** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **80,1 %** | 0,60 → … → **0,80** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **92,5 %** | *aucun* |
 
-**Les branches ont gagné 16,7 points en douze passes**, après onze sprints où
+**Les branches ont gagné 17,1 points en treize passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -646,10 +646,40 @@ que le SPRINT-20 venait de rendre possible.
 > trois lignes du dépôt qu'un refactor supprimerait en les prenant pour des
 > précautions, et les trois sont désormais tenues par un `inOrder`.
 
-**Reste au lot 3** : six services, ~1 050 instructions et ~156 branches —
+#### Vague K — la floraison notée en deux fois  ·  ✅ livrée le 06/09/2026
+
+13 tests sur `FloraisonService` (71,8 % · **55,6 % de branches** → **100 %**),
+le plus mauvais ratio de branches restant du paquet. Couverture globale :
+**92,3 %** d'instructions, **80,1 %** de branches, 92,5 % de lignes, sur **642**
+tests unitaires. **Les branches franchissent les 80 %** et le plancher passe à
+`0,80`, vingt points au-dessus du `0,60` d'avant le lot 1.
+
+**Deux règles portaient tout l'écart, et la première explique pourquoi ce
+service existe.**
+
+- **Une ressource ne fleurit qu'une fois par an**, et `uq_floraison_annee` le
+  garantit. Le service **complète** l'observation de l'année au lieu d'échouer :
+  l'apiculteur note le début en avril et le pic en mai. Refuser la seconde
+  saisie lui ferait perdre la première ; en créer une seconde heurterait la
+  contrainte. C'est le même choix qu'à la vague D — *deux endroits qui disent la
+  même chose ne doivent pas pouvoir la dire différemment* —, appliqué cette fois
+  à deux saisies de la même chose à deux moments.
+- **Les trois dates forment une suite, pas deux bornes.** Vérifier seulement les
+  extrémités laisserait passer « début 18 avril, pic 2 mai, fin 25 avril » : les
+  trois comparaisons sont exercées séparément, et les dates **égales** passent —
+  une floraison d'un seul jour est une floraison. Le refus sort en **400 qui
+  nomme la date fautive** là où `ck_floraison_ordre` sortirait un 409 : deux
+  dates inversées sont une faute de frappe, pas un conflit d'état.
+
+**Et une distinction que rien ne tenait** : une abondance **absente** reste
+nulle, elle ne devient pas zéro. Zéro veut dire « aucune floraison observée » ;
+l'absence veut dire « pas noté ». Les confondre ferait entrer une observation
+nulle dans une moyenne qui ne la mérite pas — c'est mot pour mot le troisième
+état de la vague I et la moyenne de santé du lot B.
+
+**Reste au lot 3** : six services, ~1 000 instructions et ~148 branches —
 `ElevageService` (séries de greffage), `VisiteService`, `FermeService`,
-`TraitementService`, `MesureCompartimentService`, `NourrissementService`,
-`FloraisonService`.
+`TraitementService`, `MesureCompartimentService`, `NourrissementService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -757,7 +787,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-J)* 🟡 | 2 528 | 299 | **92,2 %** | **79,7 %** |
+| 3 | Services métier *(vagues A-K)* 🟡 | 2 528 | 299 | **92,3 %** | **80,1 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |

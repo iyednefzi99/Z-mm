@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml/badge.svg" alt="Application CI"></a>
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml/badge.svg" alt="PDF build"></a>
-  <img src="https://img.shields.io/badge/backend%20coverage-82.1%25-2E9E3F" alt="Backend coverage 82.1%">
+  <img src="https://img.shields.io/badge/backend%20coverage-92.3%25-2E9E3F" alt="Backend coverage 92.3%">
   <img src="https://img.shields.io/badge/languages-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="Trilingual FR EN AR">
 </p>
 
@@ -172,7 +172,7 @@ design system, and an architecture decision log.
 | **Nginx** | Reverse proxy, TLS termination, security headers and CSP. |
 | **Prometheus + Grafana** | Micrometer metrics exposed through Actuator, operational dashboards. |
 | **Testcontainers** | Integration tests against a **real** PostgreSQL/PostGIS, not an in-memory database. |
-| **JaCoCo** | Merged unit + integration coverage, blocking floors at 80% (instructions) and 60% (branches). |
+| **JaCoCo** | Merged unit + integration coverage, blocking floors at 92% (instructions) and 80% (branches). |
 
 ## 4. Architecture
 
@@ -553,13 +553,13 @@ Security invariants not to undo: [`docs/SECURITE.md`](docs/SECURITE.md).
 
 ## 11. Testing
 
-Figures read from the suites' own output on 2026-09-05, not copied over:
+Figures read from the suites' own output on 2026-09-06, not copied over:
 
 | Suite | Volume | Tooling |
 |---|---|---|
-| Backend — unit | **159** tests across 29 classes, 0 failures, 0 skipped | JUnit 5, Mockito |
+| Backend — unit | **642** tests, 0 failures, 0 skipped | JUnit 5, Mockito |
 | Backend — integration | **242** tests across 34 classes, 0 failures, **0 skipped** | Testcontainers on a real PostgreSQL/PostGIS/TimescaleDB |
-| Backend — coverage | **82.1%** instructions, 83.9% lines, **63.0%** branches | JaCoCo, merged campaigns, **blocking** floors at 80% (instructions) and 60% (branches) |
+| Backend — coverage | **92.3%** instructions, 92.5% lines, **80.1%** branches | JaCoCo, merged campaigns, **blocking** floors at 92% (instructions) and 80% (branches) |
 | Frontend | **413** tests, 52 files | Vitest, Testing Library, jsdom |
 
 What is covered: the security chain (missing tenant, invalid audience, token
@@ -606,9 +606,12 @@ version.
 
 **What does not work perfectly yet**
 
-- **Branch coverage at 63.0%**, against 82.1% for instructions: error paths
-  remain less covered than nominal ones. The blocking floor sits at 60% — an
-  anti-regression ratchet, not a target.
+- **Branch coverage at 80.1%**, against 92.3% for instructions: error paths
+  remain less covered than nominal ones. It stood at 63.0% on 2026-09-05;
+  thirteen passes of targeted tests raised it by seventeen points, and the
+  blocking floor followed from 60% to 80%. It is an anti-regression ratchet,
+  not a target: the margin is won back by testing the **pure** pieces without a
+  database, never by lowering the floor.
 - **Uncompressed measurements**: an accepted consequence of ADR-008. At a much
   larger volume, another trade-off will be needed (partitioning, cold archival).
 - **`Ping`** survives as the end-to-end probe from SPRINT-00. That is a decision

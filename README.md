@@ -9,7 +9,7 @@
 <p align="center">
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/ci.yml/badge.svg" alt="CI applicative"></a>
   <a href="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml"><img src="https://github.com/iyednefzi99/Z-mm/actions/workflows/build-pdfs.yml/badge.svg" alt="Compilation des PDF"></a>
-  <img src="https://img.shields.io/badge/couverture%20backend-82.1%25-2E9E3F" alt="Couverture backend 82,1 %">
+  <img src="https://img.shields.io/badge/couverture%20backend-92.3%25-2E9E3F" alt="Couverture backend 92,3 %">
   <img src="https://img.shields.io/badge/langues-FR%20%C2%B7%20EN%20%C2%B7%20AR-D9A521" alt="Trilingue FR EN AR">
 </p>
 
@@ -174,7 +174,7 @@ décisions d'architecture.
 | **Nginx** | Proxy inverse, terminaison TLS, en-têtes de sécurité et CSP. |
 | **Prometheus + Grafana** | Métriques Micrometer exposées par Actuator, tableaux de bord d'exploitation. |
 | **Testcontainers** | Tests d'intégration sur un PostgreSQL/PostGIS **réel**, pas sur une base en mémoire. |
-| **JaCoCo** | Couverture fusionnée unitaire + intégration, planchers bloquants à 80 % (instructions) et 60 % (branches). |
+| **JaCoCo** | Couverture fusionnée unitaire + intégration, planchers bloquants à 92 % (instructions) et 80 % (branches). |
 
 ## 4. Architecture
 
@@ -561,13 +561,13 @@ Invariants de sécurité à ne pas défaire : [`docs/SECURITE.md`](docs/SECURITE
 
 ## 11. Tests
 
-Chiffres relevés dans la sortie des suites le 05/09/2026, pas recopiés :
+Chiffres relevés dans la sortie des suites le 06/09/2026, pas recopiés :
 
 | Suite | Volume | Outillage |
 |---|---|---|
-| Backend — unitaires | **159** tests sur 29 classes, 0 échec, 0 ignoré | JUnit 5, Mockito |
+| Backend — unitaires | **642** tests, 0 échec, 0 ignoré | JUnit 5, Mockito |
 | Backend — intégration | **242** tests sur 34 classes, 0 échec, **0 ignoré** | Testcontainers sur PostgreSQL/PostGIS/TimescaleDB réel |
-| Backend — couverture | **82,1 %** d'instructions, 83,9 % de lignes, **63,0 %** de branches | JaCoCo, campagnes fusionnées, planchers **bloquants** à 80 % (instructions) et 60 % (branches) |
+| Backend — couverture | **92,3 %** d'instructions, 92,5 % de lignes, **80,1 %** de branches | JaCoCo, campagnes fusionnées, planchers **bloquants** à 92 % (instructions) et 80 % (branches) |
 | Frontend | **413** tests, 52 fichiers | Vitest, Testing Library, jsdom |
 
 Ce qui est couvert : la chaîne de sécurité (tenant manquant, audience invalide,
@@ -616,11 +616,12 @@ silencieusement** toute la campagne d'intégration, build vert à l'appui. Le
 
 **Ce qui ne fonctionne pas encore parfaitement**
 
-- **Couverture de branches à 63,0 %**, contre 82,1 % en instructions : les
-  chemins d'erreur restent moins couverts que les chemins nominaux. Le plancher
-  bloquant est posé à 60 % — un cliquet anti-régression, pas une cible. La marge
-  s'est resserrée à mesure que le périmètre grandissait ; elle se regagne en
-  testant les pièces **pures** sans base, jamais en abaissant le plancher.
+- **Couverture de branches à 80,1 %**, contre 92,3 % en instructions : les
+  chemins d'erreur restent moins couverts que les chemins nominaux. Elle valait
+  63,0 % le 05/09/2026 ; treize passes de tests ciblés l'ont montée de dix-sept
+  points, et le plancher bloquant a suivi de 60 % à 80 %. C'est un cliquet
+  anti-régression, pas une cible : la marge se regagne en testant les pièces
+  **pures** sans base, jamais en abaissant le plancher.
 - **Mesures non compressées** : conséquence assumée de l'ADR-008. À très grande
   volumétrie, il faudra trancher autrement (partitionnement, archivage froid).
 - **`Ping`** subsiste comme sonde de bout en bout du SPRINT-00. C'est une
