@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-I du lot 3** : **92,0 %**
-> d'instructions, **79,2 %** de branches, **92,3 %** de lignes, sur **608** tests
+> **Lots 1, 2 et vagues A-J du lot 3** : **92,2 %**
+> d'instructions, **79,7 %** de branches, **92,4 %** de lignes, sur **629** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 I | Plancher |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 J | Plancher |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **92,0 %** | 0,80 → … → **0,92** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **79,2 %** | 0,60 → … → **0,79** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **92,3 %** | *aucun* |
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **92,2 %** | 0,80 → … → **0,92** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **79,7 %** | 0,60 → … → **0,79** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **92,4 %** | *aucun* |
 
-**Les branches ont gagné 16,2 points en onze passes**, après onze sprints où
+**Les branches ont gagné 16,7 points en douze passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -615,10 +615,41 @@ deux kilos » et « j'ai compté, il en reste huit ». Le refus de descendre sou
 zéro vit au service **avec la quantité disponible** dans le message — c'est elle
 qui permet de corriger sans rouvrir l'écran.
 
-**Reste au lot 3** : cinq services, ~1 100 instructions et ~164 branches —
-`VisiteService`, `FermeService`, `TraitementService`,
-`MesureCompartimentService`, `NourrissementService`, `CarnetService`, plus les
-séries de greffage d'`ElevageService`.
+#### Vague J — la fermeture du référentiel  ·  ✅ livrée le 06/09/2026
+
+21 tests sur `CarnetService` (85,6 % · **62,5 % de branches** → **100 %** ·
+95,8 %). Couverture globale : **92,2 %** d'instructions, **79,7 %** de branches,
+92,4 % de lignes, sur **629** tests unitaires.
+
+**L'écart de branches portait entièrement sur les gardes qui tiennent la
+fermeture du référentiel** — et c'est elle qui donne son sens au module : *on
+active des cases existantes, on n'en invente pas*. Dix exploitations qui
+inventeraient dix libellés pour la même observation détruiraient la statistique
+que le SPRINT-20 venait de rendre possible.
+
+- **Un code inconnu est refusé en 400 qui le nomme.** La clé étrangère le
+  refuserait aussi, mais en 500 — or le référentiel étant fermé, un code inconnu
+  est une **faute de frappe du client**, pas une panne du serveur.
+- **Un troisième `flush()` explicite**, après ceux des vagues G et I : l'ancien
+  gabarit par défaut bascule *avant* que le nouveau ne soit posé, sinon
+  `uq_gabarit_defaut` refuse une transition pourtant légitime. Avec une
+  subtilité que le test capture : se redéclarer soi-même par défaut ne déclenche
+  **pas** la bascule, sans quoi l'exploitation se retrouverait un instant sans
+  gabarit par défaut.
+- **Aucun gabarit par défaut rend `null`**, jamais un gabarit implicite ; et un
+  gabarit par défaut **désactivé** ne s'applique pas — désactiver est le geste
+  par lequel on remet le carnet à plat.
+
+> **Trois `flush()` explicites, trois vagues.** `SiteService` (emplacements),
+> `RucheService` (composition), `CarnetService` (gabarit par défaut) : chaque
+> fois, un index unique partiel et l'ordre par type d'Hibernate. Ce sont les
+> trois lignes du dépôt qu'un refactor supprimerait en les prenant pour des
+> précautions, et les trois sont désormais tenues par un `inOrder`.
+
+**Reste au lot 3** : six services, ~1 050 instructions et ~156 branches —
+`ElevageService` (séries de greffage), `VisiteService`, `FermeService`,
+`TraitementService`, `MesureCompartimentService`, `NourrissementService`,
+`FloraisonService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -726,7 +757,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-I)* 🟡 | 2 528 | 299 | **92,0 %** | **79,2 %** |
+| 3 | Services métier *(vagues A-J)* 🟡 | 2 528 | 299 | **92,2 %** | **79,7 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
