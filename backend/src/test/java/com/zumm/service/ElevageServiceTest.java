@@ -22,6 +22,9 @@ import com.zumm.web.RessourceIntrouvable;
 import com.zumm.web.dto.Genealogie;
 import com.zumm.web.dto.ReineElevage;
 import com.zumm.web.dto.ReineElevageCorps;
+import com.zumm.web.dto.SerieCorps;
+import com.zumm.web.dto.SerieReponse;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,10 +65,13 @@ class ElevageServiceTest {
 
     private ElevageService service;
 
+    private static final LocalDate GREFFAGE = LocalDate.of(2026, 5, 12);
+
     @BeforeEach
     void monter() {
         service = new ElevageService(reines, series, ruches, index);
         lenient().when(reines.save(any())).thenAnswer(i -> i.getArgument(0));
+        lenient().when(series.save(any())).thenAnswer(i -> i.getArgument(0));
         lenient().when(reines.findByMere_IdOrderByIdAsc(any())).thenReturn(List.of());
     }
 
@@ -432,5 +438,150 @@ class ElevageServiceTest {
         when(series.findAllByOrderByDateGreffageDescIdDesc()).thenReturn(List.of(serie));
 
         assertThat(service.listerSeries()).hasSize(1);
+    }
+
+    /**
+     * Séries de greffage.
+     *
+     * <p>Le nom de la série est sa clé d'usage : c'est par lui que l'éleveur la
+     * désigne sur le terrain, sur une étiquette de nucléus comme dans le registre
+     * d'élevage réglementaire. Deux « Souche 42 » rendraient ce registre
+     * inexploitable — d'où le contrôle d'unicité, et d'où le fait qu'il doive
+     * être <strong>relâché sur soi-même</strong> à la modification.
+     */
+    @Nested
+    class Series {
+
+        private SerieCorps corps(String nom, Integer greffees, Integer acceptees,
+                Integer fecondees) {
+            return new SerieCorps(nom, GREFFAGE, null, null, "greffage",
+                    greffees, acceptees, null, fecondees, null);
+        }
+
+        @Test
+        @DisplayName("un nom déjà pris est refusé en 400 qui cite le nom")
+        void nomDejaPris() {
+            when(series.existsByNom("Souche 42")).thenReturn(true);
+
+            // La contrainte d'unicité le refuserait aussi, mais en 500 : un nom
+            // déjà pris est une collision que l'éleveur résout lui-même, à
+            // condition qu'on lui dise lequel.
+            assertThatThrownBy(() -> service.creerSerie(corps("Souche 42", 30, null, null)))
+                    .isInstanceOf(RequeteInvalide.class)
+                    .hasMessageContaining("Souche 42");
+            verify(series, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("garder son PROPRE nom en modification ne déclenche pas le refus")
+        void nomInchangeAutorise() {
+            SerieElevage serie = new SerieElevage("Souche 42", GREFFAGE, 30);
+            Optional<SerieElevage> presente = Optional.of(serie);
+            when(series.findById(1L)).thenReturn(presente);
+
+            // C'est le cas de loin le plus fréquent : on rouvre la série pour
+            // saisir les acceptées, sans toucher au nom. Un contrôle d'unicité
+            // qui ne se relâche pas sur soi-même rend toute série non modifiable.
+            service.mettreAJourSerie(1L, corps("Souche 42", 30, 24, null));
+
+            verify(series, never()).existsByNom(any());
+            assertThat(serie.getNbAcceptees()).isEqualTo(24);
+        }
+
+        @Test
+        @DisplayName("renommer vers un nom pris est refusé, comme à la création")
+        void renommageVersNomPris() {
+            SerieElevage serie = new SerieElevage("Souche 42", GREFFAGE, 30);
+            Optional<SerieElevage> presente = Optional.of(serie);
+            when(series.findById(1L)).thenReturn(presente);
+            when(series.existsByNom("Souche 7")).thenReturn(true);
+
+            assertThatThrownBy(() ->
+                    service.mettreAJourSerie(1L, corps("Souche 7", 30, null, null)))
+                    .isInstanceOf(RequeteInvalide.class)
+                    .hasMessageContaining("Souche 7");
+            assertThat(serie.getNom()).isEqualTo("Souche 42");
+        }
+
+        @Test
+        @DisplayName("les deux taux sont CALCULÉS, jamais stockés")
+        void tauxCalcules() {
+            when(series.existsByNom(any())).thenReturn(false);
+
+            // Les stocker créerait la dette que le dépôt évite déjà pour le taux
+            // de varroa et les indices de colonie : des colonnes qui doivent
+            // rester cohérentes avec leurs voisines à chaque écriture.
+            SerieReponse r = service.creerSerie(corps("Souche 42", 30, 24, 18));
+
+            assertThat(r.tauxAcceptation()).isEqualTo(80);
+            assertThat(r.tauxReussite()).isEqualTo(60);
+        }
+
+        @Test
+        @DisplayName("un comptage non relevé donne null, jamais zéro")
+        void comptageNonReleve() {
+            when(series.existsByNom(any())).thenReturn(false);
+
+            // Zéro dirait « aucune reine acceptée » — un échec total d'élevage.
+            // L'absence dit « pas encore compté », dix jours avant la naissance.
+            SerieReponse r = service.creerSerie(corps("Souche 42", 30, null, null));
+
+            assertThat(r.tauxAcceptation()).isNull();
+            assertThat(r.tauxReussite()).isNull();
+            assertThat(r.nbGreffees()).isEqualTo(30);
+        }
+
+        @Test
+        @DisplayName("une souche hors tenant est refusée en 400 qui la nomme")
+        void soucheInconnue() {
+            when(series.existsByNom(any())).thenReturn(false);
+            when(reines.findById(77L)).thenReturn(Optional.empty());
+            SerieCorps avecSouche = new SerieCorps("Souche 42", GREFFAGE, 77L, null,
+                    "greffage", 30, null, null, null, null);
+
+            assertThatThrownBy(() -> service.creerSerie(avecSouche))
+                    .isInstanceOf(RequeteInvalide.class)
+                    .hasMessageContaining("Reine souche inconnue dans ce tenant : 77");
+        }
+
+        @Test
+        @DisplayName("une ruche éleveuse hors tenant est refusée, une absente est acceptée")
+        void rucheEleveuse() {
+            when(series.existsByNom(any())).thenReturn(false);
+            when(ruches.findById(88L)).thenReturn(Optional.empty());
+            SerieCorps avecRuche = new SerieCorps("Souche 42", GREFFAGE, null, 88L,
+                    "greffage", 30, null, null, null, null);
+
+            assertThatThrownBy(() -> service.creerSerie(avecRuche))
+                    .isInstanceOf(RequeteInvalide.class)
+                    .hasMessageContaining("Ruche inconnue dans ce tenant : 88");
+
+            // Une série greffée sans starter identifié reste une série : exiger
+            // la ruche éleveuse ferait inventer un rattachement.
+            assertThat(service.creerSerie(corps("Souche 43", 30, null, null))
+                    .rucheEleveuseId()).isNull();
+        }
+
+        @Test
+        @DisplayName("une série inconnue est refusée en 404 à la modification aussi")
+        void serieIntrouvableAlaModification() {
+            when(series.findById(999L)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() ->
+                    service.mettreAJourSerie(999L, corps("Souche 42", 30, null, null)))
+                    .isInstanceOf(RessourceIntrouvable.class);
+        }
+
+        @Test
+        @DisplayName("supprimer passe l'entité au dépôt")
+        void suppression() {
+            SerieElevage serie = new SerieElevage("Souche 42", GREFFAGE, 30);
+            Optional<SerieElevage> presente = Optional.of(serie);
+            when(series.findById(1L)).thenReturn(presente);
+
+            service.supprimerSerie(1L);
+
+            verify(series).delete(serie);
+        }
     }
 }

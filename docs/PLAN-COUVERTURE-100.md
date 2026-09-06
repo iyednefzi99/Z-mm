@@ -677,9 +677,72 @@ l'absence veut dire « pas noté ». Les confondre ferait entrer une observation
 nulle dans une moyenne qui ne la mérite pas — c'est mot pour mot le troisième
 état de la vague I et la moyenne de santé du lot B.
 
-**Reste au lot 3** : six services, ~1 000 instructions et ~148 branches —
-`ElevageService` (séries de greffage), `VisiteService`, `FermeService`,
-`TraitementService`, `MesureCompartimentService`, `NourrissementService`.
+#### Vague L — cinq services, quatre à 100 %  ·  ✅ livrée le 06/09/2026
+
+70 tests sur cinq services. Résultat **par classe**, seul chiffre publiable de
+cette vague (voir l'encadré qui suit) :
+
+| Classe | Instructions | Branches |
+|---|--:|--:|
+| `FermeService` | 40,6 % → **100 %** | 100 % → **100 %** |
+| `TraitementService` | 83,2 % → **100 %** | 81,2 % → **100 %** |
+| `NourrissementService` | 79,2 % → **100 %** | 75,0 % → **100 %** |
+| `MesureCompartimentService` | 75,4 % → **100 %** | 80,0 % → **100 %** |
+| `ElevageService` *(séries)* | 87,4 % → **99,2 %** | 81,0 % → **89,7 %** |
+
+> ⚠️ **Le chiffre global n'est pas republié pour cette vague.** Au moment du
+> `verify`, l'arbre de travail contenait aussi du code SPRINT-33 **non
+> committé** (migration `V32`, `ZoneTraiteeService`, `ChargementService`, deux
+> règles, huit DTO) écrit en parallèle par un autre poste. Le dénominateur
+> mesuré n'est donc pas celui du dépôt : 37 576 instructions au lieu de 37 338.
+> Publier « 92,6 % » reviendrait à attribuer à cette vague une mesure que
+> personne ne peut reproduire depuis un `git clone` — exactement le travers
+> contre lequel ce document met en garde au §6. Les chiffres **par classe**,
+> eux, sont insensibles à l'ajout de classes voisines : ce sont ceux du tableau.
+>
+> Le plancher, lui, a bien été vérifié sur cet arbre : `0,92` / `0,80` tiennent,
+> et la campagne est verte à **712 tests unitaires + 242 d'intégration,
+> `Skipped: 0`**. Le global sera remesuré quand le SPRINT-33 sera committé.
+
+**`FermeService` était le plus mauvais chiffre du paquet — 40,6 % — sur une
+classe triviale**, et la cause est instructive : les tests d'intégration créent
+des fermes par la route et vérifient qu'elle répond, mais aucun n'exerçait le
+seul contrôle que porte la classe. Ce contrôle est le rattachement au fermier,
+et il vaut **à la modification comme à la création** : posé une fois puis oublié
+à l'autre, il laisse exactement le trou qu'il prétendait fermer — il suffit de
+créer puis de modifier.
+
+**Trois refus qui n'existent que pour transformer un 500 en 400.** C'est le motif
+constant de la vague, et il ne relève pas du confort : la base porte déjà chacune
+de ces règles, mais elle les porte dans un message de PostgreSQL.
+
+- **Une dose sans son unité** ne se relit pas : « 2 » ne dit ni 2 ml ni
+  2 lanières, et la différence est un facteur mille. Le contrôle est
+  **symétrique** — une unité sans dose est refusée aussi — et *ni l'un ni
+  l'autre* passe, parce qu'une lanière posée n'a pas toujours de dose saisie.
+- **L'accord entre l'aliment et son unité**, que la base ne *peut pas* tenir :
+  son CHECK porte sur chaque colonne séparément, jamais sur leur accord. « 3 kg
+  de sirop » et « 3 litres de candi » sont plausibles au clavier et absurdes au
+  rucher, et un bilan de saison bâti sur des unités mélangées est faux sans
+  jamais paraître l'être. Les **sept** aliments du référentiel sont exercés :
+  en ajouter un huitième sans le classer liquide ou solide le ferait passer avec
+  n'importe quelle unité, silencieusement.
+- **Un nom de série déjà pris**, avec la subtilité qui décide de tout :
+  le contrôle d'unicité doit se **relâcher sur soi-même**. Rouvrir une série
+  pour saisir les acceptées sans toucher au nom est le geste le plus fréquent de
+  l'élevage ; un contrôle qui ne s'exempte pas rend toute série non modifiable.
+
+**Et deux fois la même distinction, à quatre années d'écart dans le schéma** :
+un compartiment jamais pesé figure dans la répartition avec un poids `null`, et
+un comptage de série non relevé donne `null` plutôt que zéro. Zéro dit « hausse
+vide » et « aucune reine acceptée » — deux affirmations fausses, et toutes deux
+dans le sens rassurant. C'est le troisième état de la vague I, la santé moyenne
+du lot B et l'abondance de la vague K : **le dépôt a maintenant six endroits qui
+refusent de confondre l'absence et le néant.**
+
+**Reste au lot 3** : `VisiteService` (66 instructions, 6 branches) et la queue de
+distribution — `SeuilAlerteService`, `AgentService`, `CouvertSolService`,
+`TacheService`, `SuiviReineService`, chacun sous cinquante instructions.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
