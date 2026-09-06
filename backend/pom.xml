@@ -30,16 +30,16 @@
          constatee, arrondie a l'inferieur : c'est un cliquet anti-regression, pas
          une cible. Le relever se fait en meme temps qu'on ajoute des tests ; le
          baisser demande un geste explicite et visible en revue. -->
-    <!-- Mesure du 05/09/2026, apres les vagues A a H du lot 3 du plan de couverture :
-         91,7 % (34 227 / 37 338 instructions), campagnes unitaire et integration
-         fusionnees. Le plancher passe a 0,91 ; il valait 0,80 avant le lot 1.
+    <!-- Mesure du 05/09/2026, apres les vagues A a I du lot 3 du plan de couverture :
+         92,0 % (34 366 / 37 338 instructions), campagnes unitaire et integration
+         fusionnees. Le plancher passe a 0,92 ; il valait 0,80 avant le lot 1.
 
          Il reste POSE SOUS LA MESURE, pour tolerer le bruit d'un test — c'est la
          convention du depot depuis le 26/07/2026 (82,5 % mesures, plancher a
          0,80). Un plancher cale au dixieme pres ferait echouer le build sur une
          variation qui n'apprend rien a personne, et la premiere reponse serait
          de le baisser : exactement ce qu'il sert a empecher. -->
-    <couverture.minimale>0.91</couverture.minimale>
+    <couverture.minimale>0.92</couverture.minimale>
 
     <!-- Second cliquet, sur les BRANCHES. Le plancher d'instructions ne dit rien
          des chemins d'erreur : un `if` dont seule la voie nominale est exercee
@@ -48,8 +48,8 @@
          retomber sans que le build s'en apercoive. Le plancher est pose sous la
          mesure, pour la meme raison que l'autre : figer l'acquis, pas viser.
 
-         Mesure du 05/09/2026, apres les vagues A a H du lot 3 : 79,1 %
-         (1 620 / 2 048 branches). Le plancher passe a 0,79 ; il valait 0,60
+         Mesure du 06/09/2026, apres les vagues A a I du lot 3 : 79,2 %
+         (1 623 / 2 048 branches). Le plancher reste a 0,79 ; il valait 0,60
          avant le lot 1.
 
          Trois relevements en une journee, apres onze sprints sans aucun. La

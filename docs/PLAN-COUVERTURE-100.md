@@ -8,8 +8,8 @@
 > Il manquait donc **6 674 instructions** et **758 branches**. Ce document dit
 > où elles sont, dans quel ordre les fermer, et ce qui ne se fermera jamais.
 >
-> **Lots 1, 2 et vagues A-H du lot 3, livrés le 05/09/2026** : **91,7 %**
-> d'instructions, **79,1 %** de branches, **91,8 %** de lignes, sur **582** tests
+> **Lots 1, 2 et vagues A-I du lot 3** : **92,0 %**
+> d'instructions, **79,2 %** de branches, **92,3 %** de lignes, sur **608** tests
 > unitaires et 242 tests d'intégration — contre 82,1 %, 63,0 % et 83,9 % au
 > départ. Les planchers du `pom.xml` sont relevés d'autant à chaque fois.
 >
@@ -57,13 +57,13 @@ plan d'une intention.
 > pose **sous la mesure** depuis le 26/07/2026 (82,5 % mesurés, plancher à
 > 0,80), et le plan s'aligne dessus.
 
-| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 H | Plancher |
+| | Départ | Lot 1 | Lot 2 | 3 A | 3 B | 3 C | 3 D | 3 E | 3 F → 3 I | Plancher |
 |---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
-| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **91,7 %** | 0,80 → … → **0,91** |
-| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **79,1 %** | 0,60 → … → **0,79** |
-| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **91,8 %** | *aucun* |
+| Instructions | 82,1 % | 84,4 % | 88,1 % | 89,0 % | 89,9 % | 90,4 % | 90,8 % | 91,0 % | 91,3 % → **92,0 %** | 0,80 → … → **0,92** |
+| Branches | 63,0 % | 66,0 % | 70,8 % | 74,7 % | 75,9 % | 77,1 % | 77,8 % | 78,2 % | 78,5 % → **79,2 %** | 0,60 → … → **0,79** |
+| Lignes | 83,9 % | 86,3 % | 88,9 % | 89,6 % | 90,2 % | 90,7 % | 91,0 % | 91,2 % | 91,5 % → **92,3 %** | *aucun* |
 
-**Les branches ont gagné 16,1 points en dix passes**, après onze sprints où
+**Les branches ont gagné 16,2 points en onze passes**, après onze sprints où
 elles n'avaient jamais bougé de plus d'un point. La raison est constante : les
 classes visées sont celles dont les branches sont presque toutes des chemins
 d'**absence** — un tiers injoignable, une donnée manquante, une observation
@@ -585,10 +585,40 @@ Un filtre voisin est couvert au passage : une paire portant un site **hors
 tournée** est ignorée. Sans lui, l'indexation dans la matrice lèverait un
 `NullPointerException` sur une donnée que la base a le droit de rendre.
 
-**Reste au lot 3** : six services, ~1 230 instructions et ~167 branches —
-`RucheService`, `VisiteService`, `FermeService`, `TraitementService`,
-`MesureCompartimentService`, `StockService`, plus les séries de greffage
-d'`ElevageService`.
+#### Vague I — un second ordre d'écritures, et le mouvement plutôt que le total  ·  ✅ livrée le 06/09/2026
+
+26 tests sur `RucheService` (71,4 % → **97,0 %**) et `StockService` (61,4 % →
+**100 %**). Couverture globale : **92,0 %** d'instructions, **79,2 %** de
+branches, 92,3 % de lignes, sur **608** tests unitaires. Plancher d'instructions
+relevé à `0,92`.
+
+**Les règles de composition sont inter-lignes**, donc hors de portée d'une
+contrainte de colonne : « exactement un corps », « au plus cinq hausses ». La
+base n'en tient qu'une moitié (l'index unique partiel sur le corps) ; le service
+tient le reste, et son message doit dire *laquelle* des deux règles est violée —
+un 500 d'index ne le dirait pas.
+
+**Un second ordre d'écritures, jumeau de celui trouvé en vague G** : l'ancienne
+composition est vidée *et poussée en base* avant que la nouvelle ne soit insérée,
+sans quoi l'index unique verrait deux corps pendant le même flush. Deux endroits
+du dépôt dépendent d'un `flush()` explicite, et les deux sont désormais tenus par
+un `inOrder`.
+
+**Et la décision qui donne à `StockService` sa forme :**
+
+> Le **mouvement** plutôt que la valeur absolue. Deux personnes qui prélèvent du
+> candi le même jour ne s'écrasent pas l'une l'autre — alors qu'une saisie « il
+> reste 12 kg » écrase, *sans que personne ne le voie*.
+
+Les deux gestes coexistent parce qu'ils ne disent pas la même chose : « j'ai pris
+deux kilos » et « j'ai compté, il en reste huit ». Le refus de descendre sous
+zéro vit au service **avec la quantité disponible** dans le message — c'est elle
+qui permet de corriger sans rouvrir l'écran.
+
+**Reste au lot 3** : cinq services, ~1 100 instructions et ~164 branches —
+`VisiteService`, `FermeService`, `TraitementService`,
+`MesureCompartimentService`, `NourrissementService`, `CarnetService`, plus les
+séries de greffage d'`ElevageService`.
 
 **Le piège de test de ce lot, trois fois rencontré.** Un `mock()` créé *dans*
 les arguments d'un `when()` laisse le premier stub inachevé
@@ -696,7 +726,7 @@ d'écrire — et devient une affirmation qui a un sens.
 | — | *état mesuré* | — | — | **82,1 %** | **63,0 %** |
 | ~~1~~ | ~~Frontières externes~~ ✅ | 783 | 72 | **84,4 %** | **66,0 %** |
 | ~~2~~ | ~~Producteurs de fichiers~~ ✅ | 1 391 | 106 | **88,1 %** | **70,8 %** |
-| 3 | Services métier *(vagues A-H)* 🟡 | 2 528 | 299 | **91,7 %** | **79,1 %** |
+| 3 | Services métier *(vagues A-I)* 🟡 | 2 528 | 299 | **92,0 %** | **79,2 %** |
 | 4 | Refus des contrôleurs | 553 | 42 | **96,2 %** | **88,3 %** |
 | 5 | Domaine | 639 | 72 | **97,9 %** | **91,8 %** |
 | 6 | Moteur de règles | 304 | 36 | **98,7 %** | **93,6 %** |
