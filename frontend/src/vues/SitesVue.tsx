@@ -10,6 +10,7 @@ import {
   listerTransports,
   planifierTransport,
   realiserTransport,
+  supprimerTransport,
   sites,
   voisinsSite,
 } from '../api/client';
@@ -54,6 +55,7 @@ import {
   Table,
 } from '../ui/composants';
 import { PanneauEnvironnement } from '../environnement/PanneauEnvironnement';
+import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
 
 const ouNull = (valeur: string): string | null => (valeur.trim() === '' ? null : valeur);
@@ -69,6 +71,7 @@ const optionsMois = (t: Traductions): Option[] => [
 
 export function SitesVue(): ReactElement {
   const t = useT();
+  const dialogues = useDialogues();
   const f = useFormats();
   const etat = useRessource<Site, SiteCorps>(sites);
   const ecriture = peutEcrire('sites', useRoles());
@@ -369,6 +372,26 @@ export function SitesVue(): ReactElement {
     }
   };
 
+  /**
+   * Supprime le PLAN, et lui seul.
+   *
+   * <p>Annuler et supprimer ne font pas la même chose : l'annulation garde la
+   * trace qu'un transport avait été prévu, la suppression retire la ligne. Un
+   * transport RÉALISÉ n'est proposé ni à l'une ni à l'autre — il a fait
+   * déménager le rucher, et l'historique d'emplacement en porte la trace.
+   */
+  const supprimerPlan = async (transport: Transport) => {
+    if (!(await dialogues.confirmer(t.terrain.transports.supprimer))) {
+      return;
+    }
+    try {
+      await supprimerTransport(transport.id);
+      await rechargerTransports(transport.siteId);
+    } catch (cause) {
+      setErreur(cause instanceof Error ? cause.message : t.etats.erreur);
+    }
+  };
+
   /** Réaliser un transport fait déménager le rucher : même trace qu'un déménagement direct. */
   const realiser = async (transport: Transport) => {
     try {
@@ -626,7 +649,10 @@ export function SitesVue(): ReactElement {
           {/* L'environnement (SPRINT-32) se lit dans la fiche du LIEU : ce qu'il
               y a autour d'un rucher est une propriété de l'emplacement, pas de
               la colonie — et cela change quand le rucher déménage. */}
-          <PanneauEnvironnement siteId={siteHistorique.id} />
+          <PanneauEnvironnement
+            siteId={siteHistorique.id}
+            ressources={siteHistorique.ressources}
+          />
 
           <fieldset className="z-composition">
             <legend className="z-champ__libelle">{t.terrain.transports.titre}</legend>
@@ -669,6 +695,26 @@ export function SitesVue(): ReactElement {
                         >
                           {t.actions.annuler}
                         </button>
+                      </>
+                    )}
+                    {ecriture && transport.statut !== 'realise' && (
+                      <>
+                        {' '}
+                        <button
+                          type="button"
+                          className="z-lien z-lien--danger"
+                          onClick={() => void supprimerPlan(transport)}
+                        >
+                          {t.terrain.transports.supprimer}
+                        </button>
+                      </>
+                    )}
+                    {transport.statut === 'realise' && (
+                      <>
+                        <br />
+                        <small className="z-info">
+                          {t.terrain.transports.suppressionRealise}
+                        </small>
                       </>
                     )}
                   </li>

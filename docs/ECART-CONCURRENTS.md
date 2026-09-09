@@ -1,14 +1,14 @@
 # Écart fonctionnel — Zümm face à douze outils apicoles du marché
 
-> Analyse du 18/08/2026, **revérifiée contre le code le 04/09/2026** (périmètre
-> SPRINT-27 inclus — voir les dix notes de révision en fin de document, §14 à
-> §23). Le §1 est intégralement couvert depuis la migration `V21` (§17) ; les
-> six lots livrés du plan de couverture ont fermé quarante-six lignes —
-> **A** onze (§18), **B** cinq (§19), **C** huit (§20), **J** six (§21),
-> **F₁** quatre (§22) et **E** douze (§23). Le compte passe les **deux tiers**
-> du document. Les verdicts des §§1 à 13 intègrent le **registre sanitaire**
-> (migration `V19`) et le **terrain** (migration `V20`) ; les §15 et §16 disent
-> ce que ces livraisons ont changé, et surtout ce qu'elles n'ont **pas** réglé.
+> Analyse du 18/08/2026, **revérifiée contre le code le 09/09/2026** (périmètre
+> SPRINT-33 inclus — voir les seize notes de révision en fin de document, §14 à
+> §29). Le §1 est intégralement couvert depuis la migration `V21` (§17) ; les
+> onze lots du plan de couverture l'ont mené de 66 à 137 lignes (§18 à §28), et
+> le lot **K** du SPRINT-33 (§29) a fermé les **trois dernières lignes de
+> travail identifié** : le ground truthing, l'exposition aux zones traitées et
+> la logistique de tournée. Le compte est de **140 sur 153** ; tout le reste est
+> refus argumenté ou hors-périmètre assumé. Les verdicts des §§1 à 13 intègrent
+> le **registre sanitaire** (`V19`), le **terrain** (`V20`) et le **SIG** (`V31`).
 >
 > Douze catalogues concurrents ont été dépouillés
 > fonctionnalité par fonctionnalité, puis confrontés au **code réel du dépôt**
@@ -88,7 +88,7 @@ La brique spatiale de Zümm est en place ; la donnée d'entrée manque.
 | **Comptage / prévision de pollen** | ❌ | HiveSense et APiLOG le géolocalisent par rucher. **Refusé explicitement au SPRINT-32** ([ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)) : un comptage de pollen vient de réseaux d'aérobiologie nationaux, pas d'un capteur de rucher, et l'estimer à partir du couvert produirait un chiffre inventé sur une donnée que l'apiculteur ne peut pas vérifier. C'est le même refus que l'acoustique au SPRINT-31 et le réfractomètre au SPRINT-27 |
 | Croisement santé du rucher × flore environnante (biodiversité) | 🟡 | Les deux moitiés existent et se lisent côte à côte depuis le SPRINT-32 — surfaces par classe autour du rucher, indices de colonie du SPRINT-22, comparaison d'emplacements du SPRINT-23. **Aucun coefficient de corrélation n'est calculé**, et c'est délibéré : sur la dizaine de ruchers d'une exploitation, il serait du bruit présenté comme un résultat. Même refus qu'au SPRINT-23 pour la note globale de comparaison. Le produit à part entière de HiveTracks (*DaaS*, module RSE) reste hors périmètre |
 | Vérification du taux de cultures bio dans le rayon réglementaire | ⛔ | Dépend de CartoBio (Agence Bio) — voir la note ci-dessous |
-| Évaluation de l'exposition aux zones traitées | 🟡 | `distanceCultureM` (SPRINT-32) rend la distance à la parcelle cultivée la plus proche, et les surfaces de cultures dans le rayon. **Ce n'est pas une distance à une zone traitée**, et l'écran l'écrit : aucune couche ouverte ne dit ce qui a été épandu ni quand. Présenter l'une pour l'autre serait une affirmation que rien ne fonde — la ligne reste donc partielle, et le restera tant qu'une source de traitements réels n'existera pas |
+| Évaluation de l'exposition aux zones traitées | ✅ | Table `zone_traitee` (`V32`, index GiST) et `GET /api/environnement/sites/{id}/exposition` : les zones qui recoupent le rayon, leur distance, et le nombre encore **sous délai de rentrée**. L'objection du SPRINT-32 n'a pas été contournée, elle a été prise au mot — aucune couche ouverte ne dit ce qui a été épandu, donc Zümm n'en interroge aucune : il **accueille une déclaration** et en nomme la source (`origine` : voisin, observation, avis officiel, autre). C'est ce qu'un apiculteur peut réellement obtenir, et `distanceCultureM` reste à sa place — une parcelle cultivée n'est pas une parcelle traitée. `RegleZoneTraiteeProche` engendre une tâche par rucher exposé sur une fenêtre de **quatorze jours** : au-delà, la déclaration reste consultable mais ne réveille plus personne. La tâche dit d'aller **regarder les planches d'envol** ; elle n'affirme ni la dose, ni la dérive, ni le vent de ce jour-là |
 
 > **Note de portabilité, à trancher avant tout développement.** Les référentiels
 > qui font la valeur de BeeGIS — RPG, CartoBio, BD Forêt, BD TOPO — sont des
@@ -138,7 +138,7 @@ existantes et indexées.
 | Ordonnances vétérinaires | ✅ | `traitement.ordonnance_veterinaire` et `ordonnance_date` (`V28`) rendent la référence **vérifiable** — elle disait qu'une ordonnance existe, jamais qui l'a signée ni quand —, et le scan s'attache par la **sixième cible** de `Photo`. La base refuse une date sans référence ; l'inverse reste permis, parce qu'une référence notée au rucher se complète le soir. Le fichier lui-même reste hors du dépôt : `photo.url` ne porte qu'une adresse, comme depuis le SPRINT-21 |
 | **Score de santé calculé par colonie** | ✅ | `GET /api/indices` : 100 moins les penalites observees, avec leurs motifs. **`composantes = 0` quand rien n'a pu etre evalue** — une colonie non visitee n'est pas saine, elle est inconnue, et l'ecran affiche « non evalue » plutot qu'une jauge sur du vide |
 | **Score de risque d'essaimage** | ✅ | Meme route. Cellules royales et leur **cause** (60 points pour `essaimage`, 30 sinon), leur nombre, la densite de couvain et un corps plein. Il est distinct de la sante, et c'est le point : une colonie qui va essaimer se porte tres bien — les confondre ferait rater l'essaim |
-| **Recommandations automatiques / tâches générées** | ✅ | `MoteurRegles` (SPRINT-22) et cinq regles : fin de carence a trois jours, controle de ponte a J+7, varroa au-dessus du seuil, reserves au plus bas, visite compromise par la meteo. Chaque tache porte la **cle** de ce qui l'a declenchee (`carence-retrait:42`) et un index unique partiel empeche la regle de la recreer a chaque passage — sans quoi la liste se remplirait de doublons jusqu'a n'etre plus lue |
+| **Recommandations automatiques / tâches générées** | ✅ | `MoteurRegles` (SPRINT-22) et **dix** règles : fin de carence à trois jours, contrôle de ponte à J+7, varroa au-dessus du seuil, réserves au plus bas, visite compromise par la météo, stock bas, maintenance du matériel, archivage saisonnier, et depuis le SPRINT-33 la vérification terrain d'une couche et le voisinage d'une zone traitée. Chaque tâche porte la **clé** de ce qui l'a déclenchée (`carence-retrait:42`) et un index unique partiel empêche la règle de la recréer à chaque passage — sans quoi la liste se remplirait de doublons jusqu'à n'être plus lue. La maille de la clé est un choix par règle : `zone-traitee-proche` porte la date de la dernière déclaration, si bien qu'une nouvelle déclaration rouvre une tâche là où une clé figée resterait muette |
 | Rappels programmés (retrait de traitement, contrôle de ponte à J+7) | ✅ | Les deux exemples cites par le document sont exactement les deux premieres regles ecrites. Le retrait est propose **trois jours avant** la fin de carence : une tache qui arrive le matin ou elle est due n'est pas un rappel, c'est un constat de retard |
 | Modèles / gabarits d'inspection réutilisables, champs activables | ✅ | `gabarit_inspection` et `gabarit_point` (`V28`), édités depuis l'écran de configuration. **Le noyau reste des colonnes** : les onze champs de la `V19` ne migrent pas dans le référentiel — ils sont typés, indexés et lus par le moteur de règles. Le gabarit les ALLUME ou les ÉTEINT, section par section ; masquer n'est pas effacer, et une visite déjà saisie garde ce qu'elle portait |
 | Météo attachée à l'observation | ✅ | Quatre colonnes **figées** sur `visite` (V19) : `meteoTemperatureC`, `meteoHumiditePct`, `meteoVentKmh` et leur **source** (`open-meteo`, `simulation`, `saisie`) — une estimation ne se lit pas comme une mesure. La corrélation météo × production est débloquée ; elle n'est pas encore calculée |
@@ -241,7 +241,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Tableau de bord de synthèse | ✅ | `TableauDeBordController` : calendrier, production, alertes sanitaires, synthèse, prévisions |
 | **Vision à trois niveaux** (ruche → rucher → exploitation) | ✅ | `GET /api/ruchers/synthese` (`SyntheseRucherService`, SPRINT-23) + volet « Par rucher » : santé moyenne, risque d'essaimage **maximal** (et non moyen — une colonie prête à essaimer ne se dilue pas), colonies sous carence, alertes, tâches et production, triés du plus préoccupant au plus calme. La moyenne ne porte que sur les colonies **réellement évaluées**, et un rucher jamais visité rend `null` : « inconnu » n'est pas « en mauvaise santé » |
 | Tournée optimisée du jour | ✅ | `OptimiseurTournee` (plus proche voisin + 2-opt), `GET /api/plannings/tournee` — **APIGO l'annonce, Zümm l'a** |
-| Coordination d'équipes terrain, logistique multi-sites | 🟡 | `GET /api/equipe/charge` (SPRINT-23) ajoute la charge par agent — ruches, **ruchers concernés** (trois ruches sur trois ruchers font trois déplacements), tâches ouvertes, en retard, critiques, visites à sept jours — assortie de la phrase qui dit qu'elle ne sert **pas** à comparer des personnes. Restent la logistique et la chaîne d'approvisionnement, le terrain de HiveOS |
+| Coordination d'équipes terrain, logistique multi-sites | ✅ | Deux moitiés, et la seconde ferme la ligne. `GET /api/equipe/charge` (SPRINT-23) donne la charge par agent — ruches, **ruchers concernés** (trois ruches sur trois ruchers font trois déplacements), tâches ouvertes, en retard, critiques, visites à sept jours —, assortie de la phrase qui dit qu'elle ne sert **pas** à comparer des personnes. `GET /api/plannings/chargement` (`ChargementService`, SPRINT-33) donne l'autre : ce qu'il faut avoir dans le véhicule avant de partir, consolidé pour la tournée et détaillé par étape. **Le manque est nommé, jamais corrigé** — un consommable insuffisant s'affiche comme tel, décider quelle ruche on saute étant une décision d'exploitation et non un arbitrage de logiciel. Le service n'invente rien : il assemble la tournée du SPRINT-23, les tâches échues et le stock ; le seul ajout du lot est la colonne qui relie une tâche à ce qu'elle prélève |
 | Assistant / mentor IA, briefing quotidien | ✅ | `GET /api/briefing` (`BriefingService`, SPRINT-30), en tête du tableau de bord : alertes ouvertes, tâches échues **groupées en une ligne**, carences qui se terminent dans la semaine, colonies non ouvertes depuis trois semaines. **Aucun modèle de langue n'intervient, et l'écran le dit.** Chaque ligne cite ce qui la fonde — un compte, une date, un nom de ruche — et se vérifie d'un clic. Une phrase du genre « votre colonie 12 semble affaiblie » serait plus agréable et moins vérifiable ; le jour où elle serait fausse, personne ne saurait d'où elle vient. Et il faudrait envoyer l'historique de l'exploitation dehors, ce que la ligne §8 ci-dessous vient d'interdire |
 | **Météo prévisionnelle** | ✅ | `OpenMeteoFournisseur` : `current=` + `daily=` dans **un seul appel**, `timezone=auto`, horizon borné à 16 j, `GET /api/meteo?siteId=&jours=`. Repli simulation déterministe hors ligne |
 | Tâches programmées selon la météo | ✅ | `RegleMeteoDefavorable` croise les plannings des cinq prochains jours avec la prevision du site — une seule interrogation par RUCHER, pas par ruche — et propose de replanifier sous 5 mm de pluie, 40 km/h de vent ou 12 °C. Elle ne **deplace rien** : decider a la place d'un agent peut-etre deja en route, sur la foi d'une prevision a cinq jours, serait pire que le probleme. Fournisseur indisponible = pas d'avis, jamais « beau temps » |
@@ -375,26 +375,37 @@ que les renvois « écart n° x » du reste du document restent lisibles. Les é
    subsiste, il n'est plus la seule trace. **Ce qu'il en reste**, et qui change de
    nature : le **score de santé** et le **risque d'essaimage** que ces colonnes
    rendent enfin calculables, et les gabarits d'inspection paramétrables.
-4. **Tâches et rappels engendrés par les événements.** Six catalogues
-   recommandent ou programment ; `TacheService` ne fait qu'enregistrer. Le
-   retrait d'un traitement après son délai de carence est le cas d'école : la
-   règle est mécanique, la valeur immédiate — et depuis le SPRINT-20 la donnée
-   est là, `traitement.date_retrait` étant en base et indexée. Il ne manque plus
-   que la règle.
-5. **Couche d'occupation du sol et calendrier de floraison.** Le seul axe où un
-   concurrent (BeeGIS) joue sur le terrain revendiqué par Zümm — le SIG. PostGIS
-   est déjà là ; il manque la donnée d'entrée et le choix d'un référentiel
-   portable (§2).
-6. **Saisie vocale.** La **fiche imprimable** qui la précédait dans cette ligne
-   est ✅ **livrée au SPRINT-24** (`FicheInspectionPdfService`) — deux ordres de
-   grandeur moins chère, pour le même problème des gants. **Ce qu'il en reste** :
-   la note vocale est enregistrée et rejouable, mais **locale à l'appareil**, le
-   dépôt n'ayant aucun stockage binaire ; et la transcription reste suspendue à
-   la décision D4 du plan de couverture — on ne peut pas promettre « traitement
-   local, aucun trafic sortant » et « assistant IA » tant qu'on n'a pas dit **où**
-   le modèle s'exécute.
-7. **Généalogie des reines.** Trois concurrents en font leur argument central ;
-   c'est une clé étrangère réflexive sur `SuiviReine` et une vue d'arbre.
+4. ~~**Tâches et rappels engendrés par les événements.**~~ ✅ **Livré au
+   SPRINT-22** (lot A) : `MoteurRegles` et le cas d'école cité ici — le retrait
+   d'un traitement — est la première règle écrite, proposée **trois jours avant**
+   la fin de carence. Elles sont **dix** aujourd'hui, les deux dernières datant du
+   SPRINT-33. **Ce qu'il en reste** : rien. Une règle nouvelle est désormais une
+   classe et une clé, pas un chantier.
+5. ~~**Couche d'occupation du sol et calendrier de floraison.**~~ ✅ **Livré aux
+   SPRINT-32 et 33** : `couvert_sol` et `floraison_observee` (`V31`), le
+   versement, les surfaces géodésiques par classe, la rotation d'un millésime à
+   l'autre, la floraison observée confrontée au déclaratif — puis, au lot K, le
+   ground truthing et les zones traitées (`V32`). L'axe où un concurrent jouait
+   sur le terrain revendiqué par Zümm est fermé, **sans connecteur sortant** :
+   [ADR-015](../roadmap/operationnel/06_decisions/ADR-015-occupation-du-sol.md)
+   tranche que la donnée est accueillie, jamais interrogée. **Ce qu'il en reste**
+   : le choix d'un référentiel portable hors de France, qui est une décision
+   produit et non un développement (§2).
+6. ~~**Saisie vocale.**~~ ✅ **Livrée au SPRINT-30** : `voix/dictee.ts` et
+   `BoutonDictee`, trois langues de reconnaissance, l'arabe compris — **personne
+   ne le fait en arabe**. La décision D4 est tranchée par
+   [ADR-013](../roadmap/operationnel/06_decisions/ADR-013-ou-tourne-l-ia.md) :
+   sur l'appareil, ou pas du tout ; là où le navigateur enverrait la voix à un
+   service tiers, l'interface **refuse et l'écrit**. La fiche imprimable qui la
+   précédait dans cette ligne est livrée depuis le SPRINT-24. **Ce qu'il en
+   reste** : Whisper WASM, écarté — quarante mégaoctets contredisent la raison
+   d'être d'une PWA qui monte au rucher.
+7. ~~**Généalogie des reines.**~~ ✅ **Livrée au SPRINT-29** : table `reine` à clé
+   étrangère réflexive (`V29`) et arbre SVG. **La formulation de cette ligne était
+   fausse**, et c'est ce qui la rend utile à relire : la clé n'allait pas sur
+   `SuiviReine`, qui est le JOURNAL d'une ruche — elle aurait relié des
+   *événements*, et « de quelle mère descend cette reine ? » n'aurait eu aucune
+   réponse stable.
 
 **Écarts à faible coût, à prendre en même temps :**
 
@@ -613,7 +624,7 @@ manœuvre, c'est une fonctionnalité manquante, pas une bonne pratique.**
 
 | Contournement conseillé | Qui | Exigence pour Zümm | Verdict | Couche |
 |---|---|---|:--:|---|
-| « Vérifiez sur le terrain au printemps la culture réellement semée » (*ground truthing*) | BeeGIS | Toute donnée environnementale porte son **millésime** et peut être marquée « à confirmer », ce qui engendre une tâche de vérification | ❌ | DB + back + front |
+| « Vérifiez sur le terrain au printemps la culture réellement semée » (*ground truthing*) | BeeGIS | Toute donnée environnementale porte son **millésime** et peut être marquée « à confirmer », ce qui engendre une tâche de vérification | ✅ | `couvert_sol.a_confirmer`, `classe_constatee` et `constate_le` (`V32`), `RegleVerificationCouvert` — une tâche par rucher et **par saison**, le ground truthing étant un geste de printemps. Le constat **n'écrase pas** `classe` : les lectures prennent `COALESCE(classe_constatee, classe)`, et `GET /api/environnement/couvert/fiabilite` compte ce que le terrain a confirmé, démenti, ou pas encore regardé. Écraser aurait détruit ce que le ground truthing établit — que la couche se trompait —, et la fiabilité d'un millésime ne se mesurerait plus |
 | « Servez-vous de l'historique de rotation sur 3 à 5 ans » | BeeGIS | **Comparaison saison contre saison** et **millésime des données environnementales** | ✅ | `GET /api/saisons` (SPRINT-27) : années civiles, rendement par ruche productive, ventilation par produit. Tous les autres agrégats du produit glissent — douze mois qui reculent chaque jour ne permettent pas de dire « 2026 a mieux donné que 2025 ». Et depuis le SPRINT-32, `couvert_sol.millesime` est **obligatoire** : une occupation du sol de 2019 présentée comme l'état du jour n'est pas une approximation, c'est une affirmation fausse. La source et le millésime accompagnent chaque réponse |
 | « Vérifiez la couverture réseau du site **avant** d'installer » | Onibi | Champ **couverture réseau** sur le `Site`, au même titre que l'exposition | ✅ | `site.couverture_reseau` (`V24`), quatre niveaux, index partiel sur ce qui manque. NULLE = inconnue : un défaut à « correcte » ferait partir un apiculteur sans emport sur un rucher en zone blanche |
 | « Vérifiez le niveau de charge des capteurs via le tableau de bord » | BeeLog Digital, Onibi | `TypeIndicateur.ALIMENTATION` + seuil d'alerte | ✅ | `V26`, une valeur d'énumération et un seuil. Inventer une table « état des capteurs » aurait créé un second mécanisme d'alerte à maintenir en parallèle du premier, pour dire la même chose. Un test d'intégration a d'ailleurs montré que `alerte` portait **sa propre** liste d'indicateurs : les deux contraintes disaient la même chose à deux endroits |
@@ -2073,3 +2084,167 @@ pas un refus.
 Onze lots, du **A** au **J**, onze sprints applicatifs — du SPRINT-22 au
 SPRINT-32 — et le compteur passé de **66 à 137 sur 153**. Restent **cinq 🟡**, **trois ❌** et **huit ⛔** — et sur les
 trois ❌, deux sont des refus argumentés, un seul est du travail restant.
+
+---
+
+## 29. Note de révision — 09/09/2026, lot K du SPRINT-33
+
+Le plan de couverture était **clos** au SPRINT-32 : onze lots, du **A** au **J**,
+et un compteur passé de 66 à 137. Ce lot n'en est donc pas le douzième. Il prend
+ce que la note précédente avait nommé en la fermant — sur les seize lignes
+restantes, **une seule était du travail** ; les autres étaient des refus
+argumentés ou du hors-périmètre. À la relecture, elles étaient trois : le *ground
+truthing* du §13, resté ❌, et deux lignes 🟡 dont la moitié manquante était du
+code et non une décision.
+
+Le compteur va de **137 à 140 sur 153**. Restent **trois 🟡**, **deux ❌** et
+**huit ⛔** — et pour la première fois depuis l'ouverture du document,
+**aucune ligne de travail identifié**.
+
+### 1. Ground truthing — le constat s'écrit à côté de la source, jamais dessus
+
+BeeGIS conseille à ses utilisateurs de vérifier au printemps la culture
+réellement semée. Le §13 en avait tiré une exigence en deux temps : toute donnée
+environnementale porte son millésime, et peut être marquée « à confirmer », ce
+qui engendre une tâche. Le millésime était acquis depuis la `V31` ; manquaient le
+**doute** et le **constat**.
+
+La tentation était d'écraser `classe` avec ce qui a été vu. Elle détruirait
+exactement ce que le ground truthing établit — **que la couche se trompait**.
+Écrasée, la parcelle raconte que le référentiel avait raison depuis le début, et
+plus personne ne peut mesurer ce que vaut un millésime. Les deux colonnes
+coexistent donc, comme la floraison déclarée de la `V21` et la floraison observée
+de la `V31` coexistent : la source dit ce qu'elle croit, le terrain dit ce qui
+est, et les lectures prennent le second dès qu'il existe
+(`COALESCE(classe_constatee, classe)`).
+
+De là, `GET /api/environnement/couvert/fiabilite` : combien de parcelles ont été
+vérifiées, combien ont été **démenties**, combien attendent encore. C'est le
+chiffre qui manquait pour répondre honnêtement à « peut-on se fier à cette
+couche ? ». Une couche jamais vérifiée n'est pas une couche juste — c'est une
+couche dont personne ne sait ce qu'elle vaut.
+
+Deux détails de la règle valent d'être notés, parce qu'ils décident de son
+utilité :
+
+- **Une tâche par rucher, pas par parcelle.** « Vérifier la parcelle 17 843 »
+  répété quarante fois rend la liste illisible en une matinée, et une liste qu'on
+  n'ouvre plus ne rappelle rien.
+- **Une proposition par saison.** La clé porte l'année : le ground truthing est un
+  geste de printemps, on regarde ce qui a levé. Une clé fixe ne reproposerait
+  jamais rien l'année suivante ; une clé au mois reproposerait la même tournée
+  douze fois par an.
+
+Le doute, lui, reste **un geste humain** : le déduire fabriquerait une tournée de
+vérification que personne n'a demandée, sur des parcelles que personne ne
+soupçonne.
+
+### 2. Zones traitées — l'objection n'a pas été contournée, elle a été prise au mot
+
+La ligne « évaluation de l'exposition aux zones traitées » était 🟡 avec un motif
+explicite : `distanceCultureM` rend la distance à la parcelle *cultivée* la plus
+proche, et **aucune couche ouverte ne dit ce qui a été épandu ni quand**.
+Présenter l'une pour l'autre aurait été une affirmation que rien ne fonde.
+
+Ce motif tient toujours, et c'est pourquoi la réponse n'est pas une couche mais
+une **déclaration**. `zone_traitee` (`V32`) enregistre ce qu'un apiculteur peut
+réellement obtenir : un voisin qui prévient, un épandage observé, un avis
+officiel. La colonne `origine` **nomme la source** de chaque ligne, parce qu'une
+zone « autre » ne vaut pas un avis de la protection des végétaux et que le
+formulaire ne doit pas les présenter à égalité.
+
+`GET /api/environnement/sites/{id}/exposition` en tire ce qu'on regarde avant de
+partir travailler : les zones qui recoupent le rayon, la plus proche, et le
+nombre encore **sous délai de rentrée**. La règle `RegleZoneTraiteeProche`
+engendre une tâche sur une fenêtre de **quatorze jours** — la durée pendant
+laquelle une mortalité devant la ruche peut encore se rattacher à l'événement.
+Plus court laisserait passer une déclaration faite avec retard, le voisin ne
+prévenant pas toujours le jour même ; plus long remplirait la liste de rappels
+sans geste associé.
+
+Et la tâche dit **d'aller regarder les planches d'envol**. Elle ne dit ni « vos
+colonies sont exposées », ni « déplacez le rucher » : la déclaration ne porte ni
+la dose, ni la dérive, ni le vent de ce jour-là. Affirmer l'exposition serait un
+verdict inventé sur une question que l'apiculteur ne peut trancher qu'en
+regardant ses ruches — le même refus qu'à l'analyse acoustique au SPRINT-31.
+
+### 3. Feuille de chargement — la moitié logistique de la ligne « coordination »
+
+La ligne 🟡 du §7 disait ce qui manquait sans ambiguïté : la charge par agent
+existait depuis le SPRINT-23, « restent la logistique et la chaîne
+d'approvisionnement, le terrain de HiveOS ».
+
+`GET /api/plannings/chargement` répond à la question qu'on se pose sur le pas de
+la porte : **qu'est-ce que je charge dans le véhicule ?** Deux lectures, et il
+faut les deux — consolidée pour charger, par étape pour savoir où déposer.
+
+**Le service n'invente rien, il assemble** : la tournée vient de
+`PlanningService.tournee`, les tâches du registre, le stock de `consommable`. Le
+seul ajout du lot est la colonne qui relie une tâche à ce qu'elle prélève — et
+c'est elle qui manquait, pas un calcul. C'est le signe qu'une ligne 🟡 bien
+formulée coûte peu à fermer : elle avait déjà identifié le verrou.
+
+**Le manque est NOMMÉ, jamais corrigé.** Un consommable insuffisant s'affiche
+comme tel ; répartir automatiquement le stock disponible reviendrait à décider
+quelle ruche on saute, ce qui est une décision d'exploitation. Même refus que la
+note globale de comparaison d'emplacements au SPRINT-23, à un autre étage.
+
+### 4. Un quatrième constat, et il ne venait pas du plan : livré n'est pas atteignable
+
+En-tête de ce document : *« Chaque ligne « couvert » cite le fichier qui le
+prouve. »* Un audit du chemin complet — contrat OpenAPI → client TypeScript →
+écran — a montré que la citation prouvait parfois moins qu'annoncé.
+
+Le contrat porte **148 chemins et 211 opérations**. Toutes étaient joignables
+depuis `api/client.ts` sauf une. Mais **vingt-cinq fonctions du client n'étaient
+appelées par aucun écran** : la route existait, le type existait, la traduction
+existait souvent — et rien, dans l'interface, n'y menait. Parmi elles, des
+fonctions que ce document comptait déjà comme ✅ : les calculateurs de sirop et de
+valorisation (§6), la conversion d'unités, les indices de colonie (§3), les
+corrélations météo (§7), les statistiques du carnet (§3), la recherche de ruchers
+proches d'un point (§1), l'historique de pesée par étage (§5), le versement d'une
+couche et la saisie d'une floraison observée (§2).
+
+Le verdict de ces lignes ne change pas — le code existait, et c'est ce que le
+tableau affirme. Mais **la preuve était incomplète** : un service qu'aucun écran
+n'atteint est livré pour un intégrateur, pas pour un apiculteur. Les
+vingt-cinq sont branchées, plus la série brute des mesures qui n'avait même pas
+de fonction client. Deux opérations restent volontairement hors de la PWA :
+`/api/calendrier/{jeton}.ics` et `/api/flux/{jeton}` sont lues par un client de
+calendrier et par un tiers — l'interface en **affiche l'URL**, elle ne les appelle
+pas.
+
+La leçon est à ranger à côté de celle du §10 sur les notifications : elle décrit
+un invariant à protéger, pas un incident. **Une route sans écran ne se voit dans
+aucun test** — ni le contrat, ni `parite.ts`, ni JaCoCo ne la signalent, puisque
+tous trois vérifient que le code est juste, aucun que le code est atteint.
+
+Et le défaut a un étage de plus, que ce même audit a d'abord manqué :
+`photos/PanneauPhotos.tsx` — les photos attachées à un objet du parc, six cibles
+depuis le SPRINT-28 — **n'est monté dans aucune fiche**. Ses trois fonctions de
+client (`listerPhotosDe`, `attacherPhoto`, `detacherPhoto`) ont bien un appelant,
+qui est ce composant ; le composant, lui, n'en a pas. Chercher les fonctions sans
+appelant ne suffit donc pas : il faut remonter jusqu'à une route. La ligne du §1
+reste ✅ — les photos de visite sont atteignables depuis `VisitesVue`, et le
+`CHECK` qui impose exactement une cible est en base — mais **les cinq autres
+cibles n'ont pas d'écran**. Où monter le panneau est une décision de fiche et de
+rôle, pas une fermeture mécanique : elle est nommée ici plutôt que tranchée à la
+sauvette.
+
+### Ce qui reste, et pourquoi il reste
+
+| | Ligne | Pourquoi |
+|---|---|---|
+| 🟡 | Intégrations nommées de capteurs (§5) | [ADR-014](../roadmap/operationnel/06_decisions/ADR-014-capteurs-du-commerce.md) : personne n'a vérifié une trame BroodMinder ici. C'est un partenariat, pas un développement |
+| 🟡 | Croisement santé × flore (§2) | Les deux moitiés se lisent côte à côte ; sur la dizaine de ruchers d'une exploitation, un coefficient serait du bruit présenté comme un résultat |
+| 🟡 | Réinitialisation de mot de passe (§7) | Le chemin est ouvert côté produit ; ce qui manque est un **serveur d'envoi**, que l'exploitant configure |
+| ❌ | Comptage de pollen (§2) | Réseaux d'aérobiologie nationaux, pas un capteur de rucher — refusé au SPRINT-32 |
+| ❌ | Analyse vidéo / acoustique (§5) | Refusée au SPRINT-31 : il faudrait un stockage binaire que le dépôt n'a pas, et un verdict que l'apiculteur ne pourrait vérifier qu'en ouvrant la ruche |
+
+Aucune de ces cinq lignes n'attend du temps de développement : trois attendent
+une décision ou une dépendance d'exploitation, deux ont été refusées avec leur
+motif. Les **huit ⛔** du §9 sont inchangées.
+
+Ce que le document devient à partir d'ici est donc différent de ce qu'il a été
+pendant onze lots : il ne liste plus un reste à faire, il **documente un
+périmètre** — y compris ses bords, qui sont la partie la plus utile à montrer.

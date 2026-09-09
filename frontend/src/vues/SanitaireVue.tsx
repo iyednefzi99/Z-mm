@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import {
   agents,
+  calculerSirop,
   enregistrerComptageVarroa,
   enregistrerNourrissement,
   enregistrerTraitement,
@@ -8,6 +9,7 @@ import {
   listerComptagesVarroa,
   listerNourrissements,
   listerTraitements,
+  nourrirEnLot,
   recupererProduitsTraitement,
   ruches,
   supprimerComptageVarroa,
@@ -433,6 +435,43 @@ export function SanitaireVue(): ReactElement {
     }
   };
 
+  /**
+   * Le meme nourrissement sur tout le rucher (SPRINT-33).
+   *
+   * <p>Le pendant exact de {@code traiterLeRucher}, et pour la meme raison : a
+   * l'automne on ne nourrit pas une colonie, on nourrit un rucher. Le rapport
+   * est affiche tel quel — un lot reussit rarement en entier.
+   */
+  const nourrirLeRucher = async () => {
+    const site = rucheChoisie()?.siteId;
+    if (site === undefined || agentId === '' || dateApport === '' || quantite === '') {
+      setErreur(t.etats.champsRequis);
+      return;
+    }
+    setErreur(null);
+    try {
+      setRapport(
+        await nourrirEnLot({
+          cible: { rucheIds: null, siteId: site },
+          nourrissement: {
+            rucheId: Number(rucheId),
+            agentId: Number(agentId),
+            visiteId: null,
+            dateApport,
+            typeAliment: aliment,
+            quantite: Number(quantite),
+            quantiteUnite,
+            motif: motif === '' ? null : (motif as MotifNourrissement),
+            note: texte(noteNourrissement),
+          },
+        }),
+      );
+      apresMutation();
+    } catch (cause) {
+      signaler(cause);
+    }
+  };
+
   const ajouterComptage = async () => {
     if (rucheId === '' || agentId === '' || dateComptage === '' || varroasComptes === '') {
       setErreur(t.etats.champsRequis);
@@ -726,8 +765,22 @@ export function SanitaireVue(): ReactElement {
                       {s.ajouterNourrissement}
                     </Bouton>
                   </div>
+                  {/* Secondaire, comme le lot de traitement : nourrir quarante
+                      colonies d'un coup est le geste utile de l'automne, il ne
+                      doit pas être celui qu'on déclenche par réflexe. */}
+                  <div className="z-champ z-champ--aligne-bas">
+                    <Bouton
+                      variante="secondaire"
+                      onClick={() => void nourrirLeRucher()}
+                      disabled={rucheChoisie() === undefined}
+                    >
+                      {t.actions.nourrirLeRucher}
+                    </Bouton>
+                  </div>
                 </div>
               </fieldset>
+
+              <CalculateurSirop />
 
               {nourrissements.length > 0 ? (
                 <Table
@@ -814,5 +867,66 @@ export function SanitaireVue(): ReactElement {
         </>
       )}
     </section>
+  );
+}
+
+/**
+ * Sucre et eau pour un volume de sirop (SPRINT-33).
+ *
+ * <p>Le calcul reste AU SERVEUR alors qu'il tiendrait en deux multiplications
+ * ici. La raison n'est pas la difficulte : c'est que la meme regle sert deja les
+ * nourrissements enregistres, et qu'une seconde implementation cote client
+ * derive au premier ajustement de proportion. Un aller-retour reseau contre une
+ * regle unique : le change est bon.
+ *
+ * <p>L'usage rendu par le serveur — stimulation ou hivernage — reutilise les
+ * libelles des motifs de nourrissement : ce sont les memes mots, ils n'ont pas a
+ * etre traduits deux fois.
+ */
+function CalculateurSirop(): ReactElement {
+  const t = useT();
+  const f = useFormats();
+  const c = t.calculateurs.sirop;
+  const [proportion, setProportion] = useState<'1:1' | '2:1'>('1:1');
+  const [litres, setLitres] = useState('10');
+  const [resultat, setResultat] = useState<{
+    sucreKg: number;
+    eauL: number;
+    usage: string;
+  } | null>(null);
+
+  async function calculer(): Promise<void> {
+    setResultat(await calculerSirop(proportion, Number(litres)));
+  }
+
+  const libelleUsage = (usage: string): string =>
+    usage === 'hivernage' ? t.sanitaire.motifs.hivernage : t.sanitaire.motifs.stimulation;
+
+  return (
+    <fieldset className="z-composition">
+      <legend className="z-champ__libelle">{c.titre}</legend>
+      <p className="z-info">{c.aide}</p>
+      <div className="z-form__grille">
+        <ChampSelect
+          libelle={c.proportion}
+          valeur={proportion}
+          options={[
+            { valeur: '1:1', libelle: '1:1' },
+            { valeur: '2:1', libelle: '2:1' },
+          ]}
+          onChange={(valeur) => setProportion(valeur === '2:1' ? '2:1' : '1:1')}
+        />
+        <ChampNombre libelle={c.litres} valeur={litres} onChange={setLitres} min={0} />
+        <div className="z-champ z-champ--aligne-bas">
+          <Bouton onClick={() => void calculer()}>{t.actions.calculer}</Bouton>
+        </div>
+      </div>
+      {resultat !== null && (
+        <p className="z-info">
+          {c.sucre} : {f.nombre(resultat.sucreKg)} kg · {c.eau} : {f.nombre(resultat.eauL)} L ·{' '}
+          {c.usage} : {libelleUsage(resultat.usage)}
+        </p>
+      )}
+    </fieldset>
   );
 }

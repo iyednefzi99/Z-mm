@@ -14,6 +14,20 @@ import type { Site } from '../api/types';
  * d'intégration `CartographieTourneeIT`.
  */
 vi.mock('../api/client', () => ({
+  supprimerTransport: vi.fn(),
+  chargerParcelles: vi.fn(() => Promise.resolve([])),
+  chargerFiabilite: vi.fn(() => Promise.resolve(null)),
+  chargerExposition: vi.fn(() => Promise.resolve({ declarations: 0, zones: [] })),
+  chargerZonesTraitees: vi.fn(() => Promise.resolve([])),
+  chargerMillesimes: vi.fn(() => Promise.resolve([])),
+  constaterParcelle: vi.fn(),
+  marquerParcelle: vi.fn(),
+  declarerZoneTraitee: vi.fn(),
+  supprimerZoneTraitee: vi.fn(),
+  enregistrerFloraison: vi.fn(),
+  supprimerFloraison: vi.fn(),
+  purgerCouvert: vi.fn(),
+  verserCouvert: vi.fn(),
   chargerCouvert: vi.fn(() =>
     Promise.resolve({ siteId: 1, siteNom: 'S', rayonKm: 3, millesime: null, source: null,
       surfaceCercleHa: 2827, couverte: null, distanceCultureM: null, surfaces: [] })),

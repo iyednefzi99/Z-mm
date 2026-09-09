@@ -20,6 +20,12 @@ public record TacheReponse(
         String origine,
         /** Code de la regle qui l'a proposee, pour l'expliquer a l'ecran. */
         String regleCode,
+        /** Ce que la tache consomme (SPRINT-33), ou {@code null}. */
+        Long consommableId,
+        String consommableLibelle,
+        String consommableUnite,
+        /** Combien, dans l'unite du consommable, ou {@code null} si non chiffre. */
+        java.math.BigDecimal quantitePrevue,
         Instant creeLe,
         Instant majLe) {
 
@@ -37,6 +43,10 @@ public record TacheReponse(
                 t.getCategorie(),
                 t.getOrigine(),
                 t.getRegleCode(),
+                t.getConsommable() == null ? null : t.getConsommable().getId(),
+                t.getConsommable() == null ? null : t.getConsommable().getLibelle(),
+                t.getConsommable() == null ? null : t.getConsommable().getUnite(),
+                t.getQuantitePrevue(),
                 t.getCreeLe(),
                 t.getMajLe());
     }

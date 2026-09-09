@@ -2,11 +2,14 @@ import { useEffect, useState, type ReactElement } from 'react';
 import {
   ErreurApi,
   calculerRefractometre,
+  calculerValorisation,
+  convertirUnite,
   recolterEnLot,
   recoltes,
   ruches,
   tracerLot,
 } from '../api/client';
+import { UNITES_MASSE, UNITES_TEMPERATURE } from '../api/types';
 import type {
   RapportLot,
   Recolte,
@@ -265,6 +268,8 @@ export function RecoltesVue(): ReactElement {
               <p className="z-info">{t.refractometre.aide}</p>
               <p className="z-info">{t.recolte.humiditeMielSeul}</p>
             </fieldset>
+            <Valorisation />
+            <ConversionUnites />
             <ChampZone libelle={t.recolte.note} valeur={note} onChange={setNote} />
             {carence !== null && (
               <div className="z-erreur" role="alert">
@@ -360,5 +365,119 @@ export function RecoltesVue(): ReactElement {
         </Modale>
       )}
     </CorpsSection>
+  );
+}
+
+/**
+ * Valorisation d'une production (SPRINT-33).
+ *
+ * <p><strong>Une valorisation, jamais un chiffre d'affaires.</strong> Le prix au
+ * kilo vient de {@code ConfigZumm.ini} : c'est un ordre de grandeur parametrable,
+ * pas le prix auquel ce miel a ete vendu. Zumm ne connait pas les prix de vente,
+ * et afficher « ce lot vaut 840 € » ferait passer un parametre pour une recette.
+ */
+function Valorisation(): ReactElement {
+  const t = useT();
+  const f = useFormats();
+  const c = t.calculateurs.valorisation;
+  const [kilos, setKilos] = useState('');
+  const [prix, setPrix] = useState('');
+  const [resultat, setResultat] = useState<{
+    prixKgEur: number;
+    totalEur: number;
+    pots500g: number;
+  } | null>(null);
+
+  async function calculer(): Promise<void> {
+    if (kilos === '') {
+      return;
+    }
+    setResultat(
+      await calculerValorisation(Number(kilos), prix === '' ? undefined : Number(prix)),
+    );
+  }
+
+  return (
+    <fieldset className="z-composition">
+      <legend className="z-champ__libelle">{c.titre}</legend>
+      <p className="z-info">{c.aide}</p>
+      <div className="z-form__grille">
+        <ChampNombre libelle={c.kilos} valeur={kilos} onChange={setKilos} min={0} />
+        <ChampNombre libelle={c.prix} valeur={prix} onChange={setPrix} min={0} />
+        <div className="z-champ z-champ--aligne-bas">
+          <Bouton variante="secondaire" onClick={() => void calculer()}>
+            {t.actions.calculer}
+          </Bouton>
+        </div>
+      </div>
+      {resultat !== null && (
+        <p className="z-info" role="status">
+          {c.total} : {f.nombre(resultat.totalEur)} € ({f.nombre(resultat.prixKgEur)} €/kg) ·{' '}
+          {c.pots} : {resultat.pots500g}
+        </p>
+      )}
+    </fieldset>
+  );
+}
+
+/**
+ * Conversion d'unites (US-019).
+ *
+ * <p>Masses et temperatures, et <strong>les deux familles ne se croisent
+ * pas</strong> : le serveur refuse des grammes vers des degres au lieu de rendre
+ * un nombre approximatif. L'erreur est donc affichee telle qu'il la formule —
+ * la reformuler ici en inventerait une seconde version.
+ */
+function ConversionUnites(): ReactElement {
+  const t = useT();
+  const f = useFormats();
+  const c = t.calculateurs.conversion;
+  const [valeur, setValeur] = useState('1');
+  const [de, setDe] = useState('kg');
+  const [vers, setVers] = useState('g');
+  const [resultat, setResultat] = useState<number | null>(null);
+  const [erreur, setErreur] = useState<string | null>(null);
+
+  const unites = [...UNITES_MASSE, ...UNITES_TEMPERATURE].map((u) => ({
+    valeur: u,
+    libelle: c.unites[u],
+  }));
+
+  async function convertir(): Promise<void> {
+    setErreur(null);
+    try {
+      const conversion = await convertirUnite(Number(valeur), de, vers);
+      setResultat(conversion.resultat);
+    } catch (cause) {
+      setResultat(null);
+      setErreur(cause instanceof ErreurApi ? cause.detail : c.aide);
+    }
+  }
+
+  return (
+    <fieldset className="z-composition">
+      <legend className="z-champ__libelle">{c.titre}</legend>
+      <p className="z-info">{c.aide}</p>
+      <div className="z-form__grille">
+        <ChampNombre libelle={c.valeur} valeur={valeur} onChange={setValeur} />
+        <ChampSelect libelle={c.de} valeur={de} options={unites} onChange={setDe} />
+        <ChampSelect libelle={c.vers} valeur={vers} options={unites} onChange={setVers} />
+        <div className="z-champ z-champ--aligne-bas">
+          <Bouton variante="secondaire" onClick={() => void convertir()}>
+            {t.actions.calculer}
+          </Bouton>
+        </div>
+      </div>
+      {resultat !== null && (
+        <p className="z-info" role="status">
+          {c.resultat} : {f.nombre(resultat, 4)} {c.unites[vers as keyof typeof c.unites]}
+        </p>
+      )}
+      {erreur !== null && (
+        <p className="z-erreur" role="alert">
+          {erreur}
+        </p>
+      )}
+    </fieldset>
   );
 }

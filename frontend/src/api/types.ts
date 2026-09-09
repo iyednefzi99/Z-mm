@@ -2557,6 +2557,20 @@ export type ClasseCouvert =
   | 'sol_nu'
   | 'autre';
 
+/** Les dix classes, dans l'ordre d'un formulaire de constat. */
+export const CLASSES_COUVERT: readonly ClasseCouvert[] = [
+  'culture',
+  'prairie',
+  'foret',
+  'lande',
+  'verger',
+  'vigne',
+  'eau',
+  'urbain',
+  'sol_nu',
+  'autre',
+];
+
 export interface SurfaceCouvert {
   classe: ClasseCouvert;
   surfaceHa: number;
@@ -2627,4 +2641,178 @@ export interface FloraisonCorps {
   dateFin: string | null;
   abondance: number | null;
   note: string | null;
+}
+
+/**
+ * Conversion d'une valeur d'une unité vers une autre (US-019).
+ *
+ * <p>Le serveur rend l'énoncé complet — la valeur de départ, les deux unités et
+ * le résultat — et non le seul nombre : une conversion affichée sans ses unités
+ * est un chiffre dont on ne sait plus d'où il vient, et c'est exactement ce que
+ * la conversion était censée éviter.
+ *
+ * <p>Les familles ne se mélangent pas : convertir des grammes en degrés est
+ * refusé en 400 côté serveur, jamais approximé.
+ */
+export interface Conversion {
+  valeur: number;
+  de: string;
+  vers: string;
+  resultat: number;
+}
+
+/** Unités que le serveur sait convertir (`ConversionUnites`). Deux familles. */
+export const UNITES_MASSE = ['mg', 'g', 'kg', 't', 'lb'] as const;
+export const UNITES_TEMPERATURE = ['c', 'f', 'k'] as const;
+
+// ─── Verification terrain et zones traitees (SPRINT-33, lot K) ──────────────
+
+/**
+ * Une parcelle de la couche, et l'etat de sa verification terrain.
+ *
+ * <p><strong>Les deux classes coexistent, et c'est le point.</strong> `classe`
+ * est ce que la source affirme, `classeConstatee` ce que le terrain a montre.
+ * Ecraser la premiere par la seconde ferait raconter a la parcelle que la source
+ * avait raison depuis le debut, et la fiabilite d'un millesime ne se mesurerait
+ * plus. Meme construction que la floraison declaree et la floraison observee.
+ *
+ * <p>Des que `classeConstatee` existe, c'est LUI que les surfaces comptent.
+ */
+export interface ParcelleCouvert {
+  id: number;
+  classe: ClasseCouvert;
+  classeConstatee: ClasseCouvert | null;
+  source: string;
+  millesime: number;
+  /** Doute pose a la main, jamais deduit. */
+  aConfirmer: boolean;
+  constateLe: string | null;
+  constatNote: string | null;
+  surfaceHa: number;
+}
+
+export interface ConstatCouvertCorps {
+  classeConstatee: ClasseCouvert;
+  constateLe: string;
+  note: string | null;
+}
+
+/**
+ * Ce que le terrain a appris sur un millesime.
+ *
+ * <p>Trois nombres, aucun pourcentage : un « taux d'exactitude de 100 % »
+ * calcule sur deux visites serait lu comme un verdict sur la couche entiere.
+ */
+export interface FiabiliteCouvert {
+  millesime: number;
+  parcelles: number;
+  verifiees: number;
+  /** Parcelles dont le constat CONTREDIT la source. */
+  dementies: number;
+  enAttente: number;
+}
+
+/** D'ou vient une declaration de traitement. */
+export type OrigineZoneTraitee = 'voisin_declare' | 'observe' | 'avis_officiel' | 'autre';
+
+/**
+ * Les quatre origines, de la plus engageante a la moins.
+ *
+ * <p>L'ordre n'est pas cosmetique : il met en tete ce qui a une source nommee.
+ * Une zone « autre » ne vaut pas un avis officiel, et le formulaire ne doit pas
+ * laisser croire le contraire en les presentant a egalite alphabetique.
+ */
+export const ORIGINES_ZONE_TRAITEE: readonly OrigineZoneTraitee[] = [
+  'avis_officiel',
+  'voisin_declare',
+  'observe',
+  'autre',
+];
+
+/**
+ * Une zone traitee DECLAREE.
+ *
+ * <p>Aucune identite de tiers : ni nom, ni adresse, ni contact. Une zone traitee
+ * est un polygone, une date, et une substance quand on la connait.
+ */
+export interface ZoneTraitee {
+  id: number;
+  dateTraitement: string;
+  substance: string | null;
+  origine: OrigineZoneTraitee;
+  /** `null` n'est PAS zero : zero se lirait « on peut y aller ». */
+  delaiRentreeH: number | null;
+  note: string | null;
+  surfaceHa: number;
+}
+
+export interface ZoneTraiteeCorps {
+  geometrie: unknown;
+  dateTraitement: string;
+  substance: string | null;
+  origine: OrigineZoneTraitee;
+  delaiRentreeH: number | null;
+  note: string | null;
+}
+
+/**
+ * Exposition d'un rucher aux zones DECLAREES.
+ *
+ * <p><strong>Le silence n'est pas une garantie.</strong> `declarations` a zero et
+ * `derniereDeclaration` a `null` disent « rien ne m'a ete declare », jamais
+ * « rien n'a ete epandu » — et l'ecran porte la phrase qui l'empeche.
+ */
+export interface ExpositionRucher {
+  siteId: number;
+  siteNom: string;
+  rayonKm: number;
+  declarations: number;
+  derniereDeclaration: string | null;
+  distanceMinM: number | null;
+  /** Zones dont le delai de rentree n'est pas ecoule aujourd'hui. */
+  sousDelaiRentree: number;
+  zones: ZoneTraitee[];
+}
+
+/**
+ * Le besoin d'un consommable sur une tournee, et ce que le stock en dit.
+ *
+ * <p>`requis` reste `null` quand aucune tache n'a chiffre sa consommation :
+ * « 0 kg de candi » ferait partir sans. Et un besoin non chiffre ne declare
+ * jamais un manque — on ne peut pas manquer d'une quantite qu'on n'a pas
+ * exprimee.
+ */
+export interface BesoinConsommable {
+  consommableId: number;
+  libelle: string;
+  unite: string;
+  requis: number | null;
+  enStock: number;
+  suffisant: boolean;
+}
+
+export interface EtapeChargement {
+  ordre: number;
+  siteId: number;
+  siteNom: string;
+  nombreVisites: number;
+  taches: string[];
+  besoins: BesoinConsommable[];
+}
+
+/**
+ * Ce qu'il faut charger dans le vehicule avant de partir.
+ *
+ * <p>Deux lectures, et il faut les deux : par etape pour savoir quoi deposer ou,
+ * consolidee pour savoir quoi charger. Le manque est NOMME, pas corrige —
+ * decider quelle ruche sauter est une decision d'exploitation.
+ */
+export interface FeuilleChargement {
+  agentId: number;
+  agentNom: string;
+  date: string;
+  nombreSites: number;
+  etapes: EtapeChargement[];
+  besoins: BesoinConsommable[];
+  manquants: number;
 }

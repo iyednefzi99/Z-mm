@@ -1,9 +1,11 @@
 package com.zumm.service;
 
 import com.zumm.domain.Agent;
+import com.zumm.domain.Consommable;
 import com.zumm.domain.Ruche;
 import com.zumm.domain.Tache;
 import com.zumm.repository.AgentRepository;
+import com.zumm.repository.ConsommableRepository;
 import com.zumm.repository.RucheRepository;
 import com.zumm.repository.TacheRepository;
 import com.zumm.web.RequeteInvalide;
@@ -25,13 +27,15 @@ public class TacheService {
     private final TacheRepository taches;
     private final RucheRepository ruches;
     private final AgentRepository agents;
+    private final ConsommableRepository consommables;
     private final NotificationAlerteService notifications;
 
     public TacheService(TacheRepository taches, RucheRepository ruches, AgentRepository agents,
-            NotificationAlerteService notifications) {
+            ConsommableRepository consommables, NotificationAlerteService notifications) {
         this.taches = taches;
         this.ruches = ruches;
         this.agents = agents;
+        this.consommables = consommables;
         this.notifications = notifications;
     }
 
@@ -93,6 +97,18 @@ public class TacheService {
             tache.setPriorite(corps.priorite());
         }
         tache.setCategorie(corps.categorie());
+        // Ce que la tache consomme (SPRINT-33), pour la feuille de chargement.
+        // La quantite SUIT le consommable : la garder alors que celui-ci vient
+        // d'etre retire laisserait un nombre sans unite ni objet, que la base
+        // refuse (ck_tache_quantite) et que rien ne saurait afficher.
+        Consommable consommable = consommableEventuel(corps.consommableId());
+        tache.setConsommable(consommable);
+        tache.setQuantitePrevue(consommable == null ? null : corps.quantitePrevue());
+    }
+
+    private Consommable consommableEventuel(Long id) {
+        return id == null ? null : consommables.findById(id).orElseThrow(() ->
+                new RequeteInvalide("Consommable inconnu dans ce tenant : " + id));
     }
 
     private Tache entite(Long id) {

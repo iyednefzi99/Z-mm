@@ -23,6 +23,8 @@ import type { Partage, PoidsCompartiment, Ruche } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  serieCompartiment: vi.fn(),
+  chargerSerieBrute: vi.fn(),
   ruches: { lister: vi.fn() },
   sites: { lister: vi.fn() },
   chargerAlertesOuvertes: vi.fn(),

@@ -15,6 +15,8 @@ import type { Meteo } from '../api/types';
  * liste vide, jamais `null`, et l'écran doit traduire ce cas.
  */
 vi.mock('../api/client', () => ({
+  serieCompartiment: vi.fn(),
+  chargerSerieBrute: vi.fn(),
   chargerAlertesOuvertes: vi.fn(),
   chargerMeteo: vi.fn(),
   chargerSerieJournaliere: vi.fn(),

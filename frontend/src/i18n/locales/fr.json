@@ -240,7 +240,12 @@
     "forcer": "Forcer et enregistrer",
     "traiterLeRucher": "Traiter tout le rucher",
     "comparer": "Comparer",
-    "recolterLeRucher": "Récolter tout le rucher"
+    "recolterLeRucher": "Récolter tout le rucher",
+    "nourrirLeRucher": "Nourrir tout le rucher",
+    "calculer": "Calculer",
+    "chercher": "Chercher",
+    "attacher": "Attacher",
+    "detacher": "Détacher"
   },
   "etats": {
     "chargement": "Chargement…",
@@ -618,7 +623,9 @@
     "roiPourcent": "ROI",
     "visitesParRaison": "Visites par motif",
     "ruchers": "Par rucher",
-    "equipe": "Équipe"
+    "equipe": "Équipe",
+    "indices": "Indices",
+    "correlations": "Météo × production"
   },
   "graphique": {
     "tableauEquivalent": "Voir les données sous forme de tableau",
@@ -694,7 +701,12 @@
     "niveaux": {
       "attention": "Attention",
       "critique": "Critique"
-    }
+    },
+    "serieBrute": "Points bruts",
+    "serieBruteAide": "Les mesures telles qu'elles sont arrivées, sans agrégation journalière. C'est la vue qui montre un capteur qui bavarde, ou un capteur qui s'est tu.",
+    "aucunPoint": "Aucune mesure sur la période.",
+    "instant": "Horodatage",
+    "serieBruteBornee": "Les {nombre} points les plus récents, du plus récent au plus ancien."
   },
   "reine": {
     "ruche": "Ruche",
@@ -1450,7 +1462,10 @@
         "orpheline": "Orpheline",
         "reine_mere": "Reine de la mère",
         "autre": "Autre"
-      }
+      },
+      "portee": "Afficher",
+      "issues": "Divisions faites depuis cette ruche",
+      "filiation": "Filiation complète (les deux sens)"
     },
     "captures": {
       "titre": "Captures d’essaim",
@@ -1478,7 +1493,9 @@
         "prevu": "Prévu",
         "realise": "Réalisé",
         "annule": "Annulé"
-      }
+      },
+      "supprimer": "Supprimer le plan",
+      "suppressionRealise": "Un transport réalisé ne se supprime pas : il a fait déménager le rucher, et l’historique d’emplacement en porte la trace."
     },
     "abonnements": {
       "titre": "Abonnements à mon agenda",
@@ -1512,7 +1529,9 @@
       "pathologie_confirmee": "Pathologie confirmée",
       "varroa_a_traiter": "Varroa au-dessus du seuil de traitement",
       "varroa_a_surveiller": "Varroa à surveiller"
-    }
+    },
+    "aucun": "Aucune ruche n’a d’observation exploitable : aucun indice n’est calculé.",
+    "motifsTitre": "Motifs retenus"
   },
   "carence": {
     "bloquee": "Cette ruche est sous carence : le miel ne peut pas partir en récolte.",
@@ -1534,7 +1553,11 @@
       "lien_marque_positif": "Lien marqué, positif",
       "lien_marque_negatif": "Lien marqué, négatif"
     },
-    "avertissement": "Une corrélation n’est pas une cause : deux mois chauds qui coïncident avec une miellée d’acacia ne prouvent pas que la chaleur produit le miel."
+    "avertissement": "Une corrélation n’est pas une cause : deux mois chauds qui coïncident avec une miellée d’acacia ne prouvent pas que la chaleur produit le miel.",
+    "indicateur": "Indicateur",
+    "coefficient": "Coefficient",
+    "lecture": "Lecture",
+    "aucune": "Aucune corrélation calculable : il faut des visites dont la météo a été figée et des récoltes sur la même période."
   },
   "prioriteTerrain": {
     "basse": "Basse",
@@ -1660,7 +1683,10 @@
     "hausse": "Hausse",
     "poids": "Poids (kg)",
     "peser": "Enregistrer la pesée",
-    "jamaisPese": "jamais pesé"
+    "jamaisPese": "jamais pesé",
+    "serie": "Historique de l’étage",
+    "aucuneSerie": "Aucune pesée sur la fenêtre.",
+    "fenetre": "Quatre-vingt-dix derniers jours"
   },
   "partage": {
     "titre": "Partager un flux",
@@ -2056,6 +2082,138 @@
       "urbain": "Urbain",
       "sol_nu": "Sol nu",
       "autre": "Autre"
+    },
+    "millesimes": "Millésimes versés",
+    "aucunMillesime": "Aucun millésime versé.",
+    "purger": "Purger le millésime",
+    "purgeConfirmation": "Purger le millésime {annee} ? Les surfaces calculées disparaîtront jusqu’au prochain versement.",
+    "purge": "{nombre} polygone(s) supprimé(s).",
+    "fichier": "Fichier GeoJSON",
+    "sourceLibelle": "Source de la couche",
+    "fichierInvalide": "Fichier illisible : une FeatureCollection GeoJSON est attendue.",
+    "nouvelleFloraison": "Noter une floraison",
+    "floraisonComplete": "Une ressource ne fleurit qu’une fois par an : une seconde saisie complète l’observation de l’année, elle n’en ouvre pas une deuxième.",
+    "abondances": {
+      "0": "Nulle",
+      "1": "Faible",
+      "2": "Bonne",
+      "3": "Exceptionnelle"
+    },
+    "parcelles": "Parcelles à vérifier",
+    "parcellesAide": "Le terrain tranche ce que la couche suppose. Le constat ne remplace pas la source : les deux restent côte à côte, et c'est ce qui permet de mesurer ce que vaut un millésime.",
+    "aucuneParcelle": "Aucune parcelle en attente de vérification.",
+    "classeSource": "Selon la couche",
+    "classeConstatee": "Vu sur place",
+    "marquer": "À confirmer",
+    "demarquer": "Ne plus demander",
+    "constater": "Noter ce qui a été vu",
+    "constateLe": "Vérifié le",
+    "noteConstat": "Note",
+    "surfaceParcelle": "Surface",
+    "fiabilite": "Ce que le terrain dit du millésime",
+    "fiabiliteAide": "Une couche jamais vérifiée n'est pas une couche juste : c'est une couche dont personne ne sait ce qu'elle vaut.",
+    "parcellesTotal": "Parcelles",
+    "verifiees": "Vérifiées",
+    "dementies": "Démenties",
+    "enAttente": "En attente",
+    "zones": "Zones traitées déclarées",
+    "zonesAide": "Ces zones sont DÉCLARÉES — par un voisin, par une observation, par un avis officiel — et valent ce que vaut leur source. Zümm n'en vérifie aucune : il les rapporte, avec leur origine.",
+    "aucuneZone": "Aucune zone traitée déclarée.",
+    "declarerZone": "Déclarer une zone traitée",
+    "dateTraitement": "Date du traitement",
+    "substance": "Substance",
+    "origine": "Origine de l'information",
+    "origines": {
+      "voisin_declare": "Déclarée par un voisin",
+      "observe": "Observée",
+      "avis_officiel": "Avis officiel",
+      "autre": "Autre"
+    },
+    "delaiRentree": "Délai de rentrée (h)",
+    "supprimerZone": "Supprimer la zone",
+    "zoneGeometrie": "Emprise (GeoJSON)",
+    "exposition": "Exposition de ce rucher",
+    "expositionAide": "Ce qui a été déclaré autour de ce rucher, dans le rayon de butinage. Zümm ne l'a pas mesuré et ne le devine pas : il le rapporte, avec sa source.",
+    "aucuneExposition": "Aucune zone traitée déclarée dans le rayon.",
+    "declarations": "Zones dans le rayon",
+    "derniereDeclaration": "Dernière déclaration",
+    "distanceMin": "Zone la plus proche",
+    "sousDelaiRentree": "Encore sous délai de rentrée",
+    "afficher": "Afficher",
+    "toutes": "Toutes les parcelles"
+  },
+  "calculateurs": {
+    "titre": "Calculateurs",
+    "sirop": {
+      "titre": "Sirop",
+      "proportion": "Proportion",
+      "litres": "Volume (L)",
+      "sucre": "Sucre",
+      "eau": "Eau",
+      "usage": "Usage",
+      "aide": "Le sirop 1:1 stimule la ponte au printemps, le 2:1 constitue les réserves d’hivernage. Le calcul reste au serveur : c’est la même règle que celle appliquée aux nourrissements enregistrés."
+    },
+    "valorisation": {
+      "titre": "Valorisation d’une production",
+      "kilos": "Quantité à valoriser (kg)",
+      "prix": "Prix au kilo",
+      "total": "Valorisation",
+      "pots": "Équivalent pots de 500 g",
+      "aide": "Une valorisation au prix paramétré dans ConfigZumm.ini, jamais un chiffre d’affaires : Zümm ne connaît pas vos prix de vente."
+    },
+    "conversion": {
+      "titre": "Conversion d’unités",
+      "valeur": "Valeur",
+      "de": "De",
+      "vers": "Vers",
+      "resultat": "Résultat",
+      "aide": "Masses et températures, et les deux familles ne se croisent pas : convertir des grammes en degrés est refusé, jamais approximé.",
+      "unites": {
+        "mg": "milligramme (mg)",
+        "g": "gramme (g)",
+        "kg": "kilogramme (kg)",
+        "t": "tonne (t)",
+        "lb": "livre (lb)",
+        "c": "degré Celsius (°C)",
+        "f": "degré Fahrenheit (°F)",
+        "k": "kelvin (K)"
+      }
     }
+  },
+  "photos": {
+    "titre": "Photos",
+    "url": "Adresse de la photo",
+    "legende": "Légende",
+    "aucune": "Aucune photo attachée.",
+    "ouvrir": "Ouvrir",
+    "aide": "Zümm n’héberge aucun fichier : la photo reste là où elle est publiée, et seule son adresse est enregistrée. Détacher ne supprime donc pas le fichier d’origine."
+  },
+  "proches": {
+    "titre": "Ruchers autour d’un point",
+    "rayon": "Rayon (km)",
+    "aucun": "Aucun rucher dans ce rayon.",
+    "resultat": "{nombre} rucher(s) à moins de {rayon} km",
+    "aide": "Le point est saisi ici ; la position de l’appareil n’est jamais demandée. Un rucher est déjà une position sensible — en croiser une seconde n’apporterait rien que ces deux champs ne donnent déjà."
+  },
+  "chargement": {
+    "titre": "Feuille de chargement",
+    "aide": "Ce qu'il faut avoir dans le véhicule avant de partir : consolidé pour la tournée, détaillé par étape. Le manque est NOMMÉ, jamais corrigé — décider quelle ruche on saute est une décision d'exploitation.",
+    "date": "Date",
+    "agent": "Agent",
+    "depart": "Site de départ",
+    "etapes": "Étapes",
+    "ordre": "Ordre",
+    "site": "Site",
+    "visites": "Visites",
+    "taches": "Tâches",
+    "besoins": "À charger",
+    "consommable": "Consommable",
+    "requis": "Requis",
+    "stock": "En stock",
+    "manquant": "Manquant",
+    "manquants": "{nombre} consommable(s) en manque",
+    "aucunManquant": "Le stock couvre la tournée.",
+    "aucuneEtape": "Aucune étape : rien n'est planifié ce jour-là.",
+    "charger": "Établir la feuille"
   }
 }

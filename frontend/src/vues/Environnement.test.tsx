@@ -1,7 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LangueProvider } from '../i18n/langue';
-import type { CouvertRucher, FloraisonObservee } from '../api/types';
+import { DialoguesProvider } from '../ui/dialogues';
+import { ToastsProvider } from '../ui/toasts';
+import type { CouvertRucher, FloraisonObservee, Site } from '../api/types';
 import { PanneauEnvironnement } from '../environnement/PanneauEnvironnement';
 
 /**
@@ -17,6 +19,22 @@ vi.mock('../api/client', () => ({
   chargerCouvert: vi.fn(),
   chargerRotation: vi.fn(),
   chargerFloraisons: vi.fn(),
+  // SPRINT-33 : le panneau atteint désormais la vérification terrain, les zones
+  // traitées et le versement de couche. Un nom absent de ce mock vaudrait
+  // `undefined` à l'appel, et le panneau tomberait au montage.
+  chargerParcelles: vi.fn(),
+  chargerFiabilite: vi.fn(),
+  chargerExposition: vi.fn(),
+  chargerZonesTraitees: vi.fn(),
+  chargerMillesimes: vi.fn(),
+  constaterParcelle: vi.fn(),
+  marquerParcelle: vi.fn(),
+  declarerZoneTraitee: vi.fn(),
+  supprimerZoneTraitee: vi.fn(),
+  enregistrerFloraison: vi.fn(),
+  supprimerFloraison: vi.fn(),
+  purgerCouvert: vi.fn(),
+  verserCouvert: vi.fn(),
 }));
 
 const client = await import('../api/client');
@@ -51,10 +69,58 @@ const FLORAISON: FloraisonObservee = {
   note: null,
 };
 
+/** Le site n'est chargé que pour ses ressources déclarées : le reste est du décor. */
+const SITE: Site = {
+  id: 1,
+  nom: 'Rucher des tilleuls',
+  fermeId: 1,
+  fermeNom: 'Ferme du nord',
+  latitude: 36.8,
+  longitude: 10.18,
+  altitude: null,
+  rayonButinageKm: 3,
+  dateMiseEnOeuvre: '2026-01-10',
+  dateDemenagement: null,
+  dateCloture: null,
+  adresseRue: null,
+  codePostal: null,
+  ville: null,
+  pays: null,
+  typeSite: 'sedentaire',
+  exposition: null,
+  priorite: 'normale',
+  couvertureReseau: null,
+  ressources: [
+    { id: 3, ressource: 'colza', distanceM: 800, moisDebut: 4, moisFin: 5, note: null },
+  ],
+  creeLe: '2026-01-10T08:00:00Z',
+  majLe: '2026-01-10T08:00:00Z',
+};
+
 beforeEach(() => {
   vi.mocked(client.chargerCouvert).mockResolvedValue(COUVERT);
   vi.mocked(client.chargerRotation).mockResolvedValue([]);
   vi.mocked(client.chargerFloraisons).mockResolvedValue([]);
+  vi.mocked(client.chargerParcelles).mockResolvedValue([]);
+  vi.mocked(client.chargerFiabilite).mockResolvedValue({
+    millesime: 2026,
+    parcelles: 0,
+    verifiees: 0,
+    dementies: 0,
+    enAttente: 0,
+  });
+  vi.mocked(client.chargerExposition).mockResolvedValue({
+    siteId: 1,
+    siteNom: 'Rucher des tilleuls',
+    rayonKm: 3,
+    declarations: 0,
+    derniereDeclaration: null,
+    distanceMinM: null,
+    sousDelaiRentree: 0,
+    zones: [],
+  });
+  vi.mocked(client.chargerZonesTraitees).mockResolvedValue([]);
+  vi.mocked(client.chargerMillesimes).mockResolvedValue([]);
 });
 
 afterEach(() => vi.clearAllMocks());
@@ -62,7 +128,11 @@ afterEach(() => vi.clearAllMocks());
 const monter = () =>
   render(
     <LangueProvider>
-      <PanneauEnvironnement siteId={1} />
+      <ToastsProvider>
+        <DialoguesProvider>
+          <PanneauEnvironnement siteId={1} ressources={SITE.ressources} />
+        </DialoguesProvider>
+      </ToastsProvider>
     </LangueProvider>,
   );
 

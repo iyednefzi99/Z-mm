@@ -1,10 +1,10 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import { gabarits, recupererPoints } from '../api/client';
-import type { Gabarit, PointReferentiel } from '../api/types';
+import { gabarits, recupererPoints, recupererStatistiquesPoints } from '../api/client';
+import type { Gabarit, PointReferentiel, StatistiquePoint } from '../api/types';
 import { messageErreur } from '../hooks';
 import { gabarit as modele } from '../i18n/console';
 import { useT } from '../i18n/langue';
-import { Bouton, ChampTexte, ChampZone } from '../ui/composants';
+import { Bouton, ChampDate, ChampTexte, ChampZone } from '../ui/composants';
 import { useDialogues } from '../ui/dialogues';
 import { libellePoint, parCategorie } from './points';
 
@@ -253,6 +253,8 @@ export function EditeurCarnet({ ecriture }: { ecriture: boolean }): ReactElement
           </div>
         </form>
       )}
+
+      <StatistiquesPoints />
     </section>
   );
 }
@@ -276,5 +278,82 @@ function Interrupteur({
       />
       <span className="z-champ__libelle">{libelle}</span>
     </label>
+  );
+}
+
+/**
+ * Ce que les cases ont réellement donné (SPRINT-33).
+ *
+ * <p>C'est le retour d'expérience qui manquait à l'éditeur : décider quels points
+ * garder au gabarit sans savoir lesquels sont effectivement remplis revient à
+ * composer à l'aveugle. Un point jamais regardé en trois mois n'a pas sa place
+ * dans une grille de terrain.
+ *
+ * <p><strong>Le dénominateur est le nombre de fois où le point a été REGARDÉ</strong>,
+ * jamais le nombre de visites : une visite éclair qui n'a rien coché ne doit pas
+ * faire chuter le taux d'un point que personne n'a examiné ce jour-là. C'est la
+ * raison d'être de la case à trois états, et elle se retrouve jusqu'ici.
+ */
+function StatistiquesPoints(): ReactElement {
+  const t = useT();
+  const [depuis, setDepuis] = useState('');
+  const [jusqu, setJusqu] = useState('');
+  const [lignes, setLignes] = useState<StatistiquePoint[] | null>(null);
+
+  async function calculer(): Promise<void> {
+    if (depuis === '' || jusqu === '') {
+      return;
+    }
+    setLignes(await recupererStatistiquesPoints(depuis, jusqu));
+  }
+
+  return (
+    <section className="z-encart">
+      <h2 className="z-encart__titre">{t.carnet.statistiques}</h2>
+      <p className="z-info">{t.carnet.statistiquesAide}</p>
+      <div className="z-form__grille">
+        <ChampDate libelle={t.carnet.periode} valeur={depuis} onChange={setDepuis} />
+        <ChampDate libelle={t.carnet.periode} valeur={jusqu} onChange={setJusqu} />
+        <div className="z-champ z-champ--aligne-bas">
+          <Bouton
+            variante="secondaire"
+            disabled={depuis === '' || jusqu === ''}
+            onClick={() => void calculer()}
+          >
+            {t.actions.calculer}
+          </Bouton>
+        </div>
+      </div>
+
+      {lignes !== null &&
+        (lignes.length === 0 ? (
+          <p className="z-info">{t.carnet.aucuneStatistique}</p>
+        ) : (
+          <div className="z-table-enveloppe">
+            <table className="z-table">
+              <thead>
+                <tr>
+                  <th>{t.champs.libelle}</th>
+                  <th>{t.carnet.categorie}</th>
+                  <th>{t.carnet.releves}</th>
+                  <th>{t.carnet.presents}</th>
+                  <th>{t.carnet.moyenne}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lignes.map((ligne) => (
+                  <tr key={ligne.code}>
+                    <td>{ligne.libelle}</td>
+                    <td>{t.carnet.categories[ligne.categorie]}</td>
+                    <td className="z-nombre">{ligne.releves}</td>
+                    <td className="z-nombre">{ligne.presents}</td>
+                    <td className="z-nombre">{ligne.moyenneEchelle ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+    </section>
   );
 }
