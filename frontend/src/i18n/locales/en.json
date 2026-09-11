@@ -625,7 +625,8 @@
     "ruchers": "By apiary",
     "equipe": "Team",
     "indices": "Indices",
-    "correlations": "Weather × production"
+    "correlations": "Weather × production",
+    "correlationsFlore": "Land cover × health"
   },
   "graphique": {
     "tableauEquivalent": "View the data as a table",
@@ -1555,9 +1556,13 @@
     },
     "avertissement": "A correlation is not a cause: two warm months coinciding with an acacia flow do not prove that heat makes honey.",
     "indicateur": "Indicator",
+    "classe": "Land cover",
     "coefficient": "Coefficient",
     "lecture": "Reading",
-    "aucune": "No correlation can be computed: it needs inspections whose weather was frozen and harvests over the same period."
+    "aucune": "No correlation can be computed: it needs inspections whose weather was frozen and harvests over the same period.",
+    "echantillonRuchers": "{nombre} site(s)",
+    "avertissementFlore": "Ten land-cover classes are tested on the same sample of sites: over about a dozen points, one of them will cross 0.5 by chance alone, and no coefficient here is corrected for that.",
+    "aucuneFlore": "No correlation can be computed: no land-cover layer has been uploaded, or no site in the operation has an assessed colony."
   },
   "prioriteTerrain": {
     "basse": "Low",

@@ -1912,6 +1912,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/correlations/flore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["flore"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/conversions": {
         parameters: {
             query?: never;
@@ -4209,6 +4225,13 @@ export interface components {
         };
         CorrelationMeteo: {
             indicateur?: string;
+            coefficient?: number;
+            /** Format: int32 */
+            echantillon?: number;
+            interpretation?: string;
+        };
+        CorrelationFlore: {
+            classe?: string;
             coefficient?: number;
             /** Format: int32 */
             echantillon?: number;
@@ -8495,6 +8518,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CorrelationMeteo"][];
+                };
+            };
+        };
+    };
+    flore: {
+        parameters: {
+            query?: {
+                millesime?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CorrelationFlore"][];
                 };
             };
         };

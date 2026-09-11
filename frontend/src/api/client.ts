@@ -52,6 +52,7 @@ import type {
   Consommable,
   ConsommableCorps,
   Conversion,
+  CorrelationFlore,
   CorrelationMeteo,
   DemenagementCorps,
   ExpositionRucher,
@@ -865,6 +866,17 @@ export const listerIndices = (rucheId?: number) =>
 
 /** Correlations meteo / production sur les douze derniers mois (SPRINT-22). */
 export const correlationsMeteo = () => requete<CorrelationMeteo[]>('/api/correlations/meteo');
+
+/**
+ * Correlation couvert du sol / sante des colonies, par classe (SPRINT-33).
+ *
+ * <p>Sans millesime, le plus recent verse : comparer la sante d'aujourd'hui a
+ * l'occupation du sol de 2019 croiserait deux etats qui n'ont jamais coexiste.
+ */
+export const correlationsFlore = (millesime?: number) =>
+  requete<CorrelationFlore[]>(
+    `/api/correlations/flore${millesime === undefined ? '' : `?millesime=${millesime}`}`,
+  );
 
 /**
  * Execute le moteur de regles et rend les taches CREEES (SPRINT-22).

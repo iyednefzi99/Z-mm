@@ -625,7 +625,8 @@
     "ruchers": "Par rucher",
     "equipe": "Équipe",
     "indices": "Indices",
-    "correlations": "Météo × production"
+    "correlations": "Météo × production",
+    "correlationsFlore": "Flore × santé"
   },
   "graphique": {
     "tableauEquivalent": "Voir les données sous forme de tableau",
@@ -1555,9 +1556,13 @@
     },
     "avertissement": "Une corrélation n’est pas une cause : deux mois chauds qui coïncident avec une miellée d’acacia ne prouvent pas que la chaleur produit le miel.",
     "indicateur": "Indicateur",
+    "classe": "Couvert",
     "coefficient": "Coefficient",
     "lecture": "Lecture",
-    "aucune": "Aucune corrélation calculable : il faut des visites dont la météo a été figée et des récoltes sur la même période."
+    "aucune": "Aucune corrélation calculable : il faut des visites dont la météo a été figée et des récoltes sur la même période.",
+    "echantillonRuchers": "{nombre} rucher(s)",
+    "avertissementFlore": "Dix classes de couvert sont testées sur le même échantillon de ruchers : sur une dizaine de points, l’une d’elles franchira 0,5 par le seul hasard, sans qu’aucun coefficient ici n’en soit corrigé.",
+    "aucuneFlore": "Aucune corrélation calculable : aucune couche de couvert n’a été versée, ou aucun rucher de l’exploitation n’a de colonie évaluée."
   },
   "prioriteTerrain": {
     "basse": "Basse",

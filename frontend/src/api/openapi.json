@@ -5256,6 +5256,36 @@
         }
       }
     },
+    "/api/correlations/flore" : {
+      "get" : {
+        "tags" : [ "correlation-controller" ],
+        "operationId" : "flore",
+        "parameters" : [ {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CorrelationFlore"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/conversions" : {
       "get" : {
         "tags" : [ "conversion-controller" ],
@@ -10728,6 +10758,24 @@
         "type" : "object",
         "properties" : {
           "indicateur" : {
+            "type" : "string"
+          },
+          "coefficient" : {
+            "type" : "number"
+          },
+          "echantillon" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "interpretation" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CorrelationFlore" : {
+        "type" : "object",
+        "properties" : {
+          "classe" : {
             "type" : "string"
           },
           "coefficient" : {

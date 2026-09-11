@@ -701,3 +701,135 @@ surtout **US-039 (diagrammes UML) et US-040 (rapport, poster, présentation)** :
 21 points du SPRINT-08 que la charte académique interdit de générer, et qui
 restent à produire. La régénération des PNG de classes et du MLD exige Graphviz
 (`dot`), absent du poste.
+
+---
+
+## 2026-09-11 — Reprise sur `sprint33-lotk-terrain-verifie` : corrélation flore
+
+**Interruption assumée, comme au 2026-07-27.** Ce journal saute du SPRINT-04 au
+SPRINT-20 puis directement ici : le dépôt est allé jusqu'au SPRINT-33 (lot K,
+commit `8471663`) sans qu'aucune séance n'ait été journalisée entre-temps. Même
+règle que la reprise précédente — pas de reconstitution a posteriori. L'état
+détaillé sprint par sprint reste dans `roadmap/operationnel/02_sprints/` et
+`docs/ECART-CONCURRENTS.md`, qui lui a continué d'être tenu à jour.
+
+### Contexte trouvé en début de séance
+
+La branche portait déjà, non commité, un travail backend complet et non
+surfacé côté front : `CorrelationFloreService`, `CorrelationFlore` (DTO),
+`Coefficient` (Pearson extrait de `CorrelationMeteoService` pour être partagé),
+`CouvertSolRepository.partsParSite`, et l'endpoint `GET /api/correlations/flore`
+— destiné à fermer la dernière ligne 🟡 du §2 de `ECART-CONCURRENTS.md`
+(« Croisement santé du rucher × flore environnante »). Un second chantier
+sans rapport, également non commité : Mailpit ajouté à `docker-compose.dev.yml`
+et SMTP câblé sur `realm-zumm.json`, pour activer réinitialisation de mot de
+passe et notifications d'alerte (US-041) en développement.
+
+### Livré cette séance
+
+Le volet front de la corrélation flore, sur le modèle exact de l'onglet
+« Météo × production » déjà en place dans `TableauxVue.tsx` :
+
+- Nouvel onglet **Flore × santé** : tableau classe de couvert / coefficient /
+  lecture / échantillon (en RUCHERS, pas en colonies — texte dédié
+  `correlation.echantillonRuchers`, pour ne pas laisser croire à un compte de
+  colonies). Réutilise `t.environnement.classes` pour les libellés de classe et
+  `t.correlation.lectures` pour les verdicts : les deux services partagent
+  maintenant les mêmes codes d'interprétation via `Coefficient`.
+- Deux avertissements dans l'ordre où ils s'appliquent : corrélation ≠ cause
+  (générique, déjà présent pour la météo), puis comparaisons multiples sur dix
+  classes testées sur le même échantillon (propre à celle-ci, nouveau texte
+  `correlation.avertissementFlore`).
+- `api/types.ts`, `api/client.ts`, `api/parite.ts` étendus en miroir de
+  `CorrelationMeteo`. Clés i18n ajoutées identiques en fr/en/ar
+  (`langue.test.tsx` vert).
+
+### Bloqué faute de Docker
+
+**Docker indisponible sur ce poste pendant toute la séance** (`docker info`
+échoue). Deux conséquences, les deux attendues et non contournées :
+
+- `./mvnw -B verify -Dit.test=ContratOpenApiIT` n'a pas pu tourner : le contrat
+  `frontend/src/api/openapi.json` ne connaît donc pas encore `CorrelationFlore`,
+  et `api/parite.ts` (qui le référence par convention, comme pour tout type
+  ajouté au client) fait échouer `npm run typecheck` — seule erreur de
+  compilation restante, à l'endroit exact prévu par la procédure du présent
+  fichier. Pas de contournement à la main : ce fichier est un artefact
+  généré et vérifié en CI, pas un point de départ.
+- Le parcours mot de passe oublié (chantier Mailpit) n'a pas pu être rejoué sur
+  la pile complète.
+
+**Ce qui A été vérifié sans Docker** : `./mvnw -B test` (unitaire seul, pas de
+Testcontainers) passe en entier — le refactor `Coefficient` n'a rien cassé
+ailleurs. Côté front, ESLint propre et `langue.test.tsx` vert.
+
+### Prochaine action
+
+Dès Docker disponible, dans l'ordre imposé par ce fichier :
+
+```bash
+cd backend  && ./mvnw -B verify -Dit.test=ContratOpenApiIT
+cd frontend && npm run api:contrat && npm run typecheck && npm run lint && npm test && npm run build
+```
+
+Puis `./mvnw -B verify` complet (pour prouver `partsParSite`, requête PostGIS
+native non couverte par un test unitaire), le parcours mot de passe oublié via
+Mailpit sur la pile dev, la mise à jour de `ECART-CONCURRENTS.md:89` (🟡 → ✅
+une fois tout vérifié — pas avant), puis deux commits séparés (corrélation
+flore / Mailpit).
+
+### Reste ouvert
+
+Inchangé pour le reste : voir l'entrée du 2026-07-27 ci-dessus et
+`REVUE-CONSOLIDEE.md` § 5.
+
+---
+
+## 2026-09-11 (suite) — Docker de retour : corrélation flore fermée et vérifiée
+
+Docker Desktop relancé en cours de séance. Les trois actions bloquées plus haut
+ont pu être menées, dans l'ordre imposé par ce fichier :
+
+- `./mvnw -B verify -Dit.test=ContratOpenApiIT` : contrat régénéré,
+  `CorrelationFlore` y apparaît.
+- `npm run api:contrat && npm run typecheck && npm run lint && npm test
+  && npm run build` : tous verts. `npm test` signale un **échec préexistant et
+  sans rapport** — une exception non gérée dans `CapteursVue.tsx:110`
+  (`choisirEtage`), levée pendant `Telemetrie.test.tsx`, sur du code du lot K
+  (`8471663`) que cette séance n'a pas touché. Fait `exit 1` sur `vitest`
+  malgré 413/413 tests nommément verts. **Non corrigé** — hors périmètre de
+  cette séance, à traiter séparément.
+
+**Écart comblé avant de conclure** : `CouvertSolRepository.partsParSite`, la
+requête PostGIS groupée qui nourrit la corrélation flore, n'était prouvée par
+aucun test contre une vraie base — seulement simulée dans
+`CorrelationFloreServiceTest`. Ajouté `EnvironnementSigIT.correlationFloreParClasseDeCouvert`
+: deux ruchers éloignés (donc sans chevauchement de cercle de butinage), classes
+de couvert distinctes, santés distinctes (`etatSante` bon/mauvais), et
+vérification que `GET /api/correlations/flore` rend un échantillon de 2 par
+classe avec une lecture nue (`echantillon_insuffisant` ou `variance_nulle`) —
+loin du seuil de douze. Sans ce test, une erreur de cast PostGIS
+(`::geometry`/`::geography`) ou de jointure dans la requête groupée serait
+restée invisible jusqu'à la production.
+
+### Vérifié
+
+| Vérification | Résultat |
+|---|---|
+| `./mvnw -B verify` (complet) | ✅ **778 unitaires + 258 d'intégration**, `Skipped: 0`, planchers JaCoCo tenus, `BUILD SUCCESS` 6:20 |
+| `npm run typecheck && lint && build` | ✅ |
+| `npm test` | ⚠️ 413/413 tests verts, mais `exit 1` sur une exception non gérée préexistante (`CapteursVue.tsx`, sans rapport avec cette séance) |
+
+`docs/ECART-CONCURRENTS.md:89` (croisement santé × flore) passé de 🟡 à ✅.
+
+### Reste ouvert
+
+- Le parcours mot de passe oublié (chantier Mailpit, toujours non commité) n'a
+  **pas** été rejoué sur la pile dev complète — resté hors du fil de cette
+  séance, qui s'est concentrée sur la corrélation flore.
+- L'exception non gérée de `CapteursVue.tsx:110` / `Telemetrie.test.tsx` fait
+  échouer `npm test` (exit 1) malgré des tests nommément tous verts — à
+  diagnostiquer et corriger séparément.
+- Pas de commit fait cette séance (non demandé). Deux lots distincts prêts à
+  committer séparément : corrélation flore (backend + front + `EnvironnementSigIT`
+  + doc) et Mailpit/SMTP (infra, non touché aujourd'hui).

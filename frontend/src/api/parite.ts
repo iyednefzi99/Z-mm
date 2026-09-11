@@ -61,6 +61,7 @@ import type {
   ChargeAgent,
   IndiceColonie,
   CorrelationMeteo,
+  CorrelationFlore,
   Transport,
   Abonnement,
   CaptureEssaim,
@@ -259,6 +260,13 @@ export type _Abonnement = Conforme<Abonnement, TolerantAuNull<Schemas['Abonnemen
 export type _IndiceColonie = Conforme<IndiceColonie, TolerantAuNull<Schemas['IndiceColonie']>>;
 export type _CorrelationMeteo =
   Conforme<CorrelationMeteo, TolerantAuNull<Schemas['CorrelationMeteo']>>;
+
+/*
+ * Correlation flore (SPRINT-33). Meme risque que CorrelationMeteo ci-dessus,
+ * pour la meme raison : `coefficient` est NULLABLE par construction.
+ */
+export type _CorrelationFlore =
+  Conforme<CorrelationFlore, TolerantAuNull<Schemas['CorrelationFlore']>>;
 
 /*
  * Actes de lot et agregats (SPRINT-23, lot B).

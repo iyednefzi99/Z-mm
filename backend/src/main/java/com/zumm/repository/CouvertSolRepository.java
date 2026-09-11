@@ -2,6 +2,7 @@ package com.zumm.repository;
 
 import com.zumm.web.dto.ParcelleCouvert;
 import com.zumm.web.dto.SurfaceCouvert;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import javax.sql.DataSource;
@@ -87,6 +88,61 @@ public class CouvertSolRepository {
                 (rs, ligne) -> new SurfaceCouvert(rs.getString("classe"),
                         rs.getBigDecimal("surface_ha"), null),
                 rayonMetres, siteId, millesime);
+    }
+
+    /**
+     * Surfaces par classe, pour <strong>tous</strong> les ruchers ouverts, en une
+     * requete (SPRINT-33).
+     *
+     * <p>Le pendant groupe de {@link #surfacesAutour}, et il existe pour une
+     * seule raison : la correlation flore ↔ sante lit le couvert de chaque
+     * rucher de l'exploitation. Appeler la version unitaire dans une boucle
+     * ferait une intersection PostGIS par rucher — cinquante requetes spatiales
+     * pour un ecran de tableau de bord. C'est le meme arbitrage que
+     * {@code SyntheseRucherService} au SPRINT-23 : un nombre de requetes qui ne
+     * depend pas du nombre de ruchers.
+     *
+     * <p>Le rayon est celui du SITE quand il est renseigne, celui de
+     * {@code ConfigZumm.ini} sinon — exactement comme la lecture unitaire, sans
+     * quoi deux ecrans donneraient deux surfaces pour le meme rucher.
+     *
+     * <p>Les ruchers CLOTURES sont exclus : leur environnement ne dit plus rien
+     * de colonies qui n'y sont plus.
+     */
+    public List<PartSite> partsParSite(int millesime, int rayonDefautKm) {
+        return jdbc.query("""
+                WITH cercle AS (
+                    SELECT id AS site_id,
+                           COALESCE(rayon_butinage_km, ?) AS rayon_km,
+                           ST_Buffer(geog, COALESCE(rayon_butinage_km, ?) * 1000) AS zone
+                    FROM site
+                    WHERE tenant_id = current_setting('app.current_tenant', true)
+                      AND date_cloture IS NULL
+                )
+                SELECT cercle.site_id,
+                       cercle.rayon_km,
+                       COALESCE(c.classe_constatee, c.classe) AS classe,
+                       ROUND((SUM(ST_Area(ST_Intersection(
+                           c.geom::geometry, cercle.zone::geometry)::geography))
+                           / 10000.0)::numeric, 2) AS surface_ha
+                FROM couvert_sol c, cercle
+                WHERE c.tenant_id = current_setting('app.current_tenant', true)
+                  AND c.millesime = ?
+                  AND ST_Intersects(c.geom, cercle.zone)
+                GROUP BY cercle.site_id, cercle.rayon_km,
+                         COALESCE(c.classe_constatee, c.classe)
+                """,
+                (rs, ligne) -> new PartSite(
+                        rs.getLong("site_id"),
+                        rs.getBigDecimal("rayon_km"),
+                        rs.getString("classe"),
+                        rs.getBigDecimal("surface_ha")),
+                rayonDefautKm, rayonDefautKm, millesime);
+    }
+
+    /** Une surface de couvert, rattachee a son rucher et au rayon qui l'a bornee. */
+    public record PartSite(Long siteId, BigDecimal rayonKm, String classe,
+            BigDecimal surfaceHa) {
     }
 
     /**

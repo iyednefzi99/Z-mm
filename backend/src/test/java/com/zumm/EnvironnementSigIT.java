@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,12 @@ import org.testcontainers.utility.DockerImageName;
  *   <li>un versement <strong>remplace</strong> son millésime : verser deux fois
  *       sans purger doublerait toutes les surfaces ;
  *   <li>la floraison observée se <strong>complète</strong> au fil des semaines,
- *       et se confronte au déclaratif de la `V21`.
+ *       et se confronte au déclaratif de la `V21` ;
+ *   <li>{@code partsParSite} (SPRINT-33) — la requête PostGIS groupée qui
+ *       nourrit la corrélation flore — rend des parts cohérentes pour
+ *       <strong>plusieurs</strong> ruchers en un aller-retour, ce qu'aucun test
+ *       unitaire ne peut prouver : {@code CorrelationFloreServiceTest} la
+ *       simule.
  * </ol>
  */
 @SpringBootTest(properties = {
@@ -316,6 +322,45 @@ class EnvironnementSigIT {
                 .andExpect(status().isBadRequest());
     }
 
+    // ─── Correlation flore (SPRINT-33) ──────────────────────────────────────
+
+    @Test
+    @DisplayName("partsParSite croise le couvert de plusieurs ruchers en une requete PostGIS")
+    void correlationFloreParClasseDeCouvert() throws Exception {
+        String t = "sp33-correlation-flore";
+        long fermeId = ferme(t);
+        long agentId = agent(t);
+
+        // Deux ruchers eloignes, chacun dans une classe de couvert distincte :
+        // aucun chevauchement des cercles de butinage, donc aucune contamination
+        // d'un rucher par le couvert de l'autre.
+        long siteA = site(t, fermeId, 44.5, 1.5);
+        visite(t, ruche(t, fermeId, siteA), agentId, "bon");
+
+        long siteB = site(t, fermeId, 46.0, 3.0);
+        visite(t, ruche(t, fermeId, siteB), agentId, "mauvais");
+
+        verser(t, "RPG 2026", 2026,
+                carre("culture", 44.5, 1.5, 0.005),
+                carre("foret", 46.0, 3.0, 0.005));
+
+        // Deux ruchers seulement, loin des douze du seuil : la lecture doit donc
+        // rester NUE (Coefficient#ECHANTILLON_MINIMAL) plutot que d'affirmer un
+        // lien. C'est ce que ni le test unitaire (repository simule) ni un
+        // appel isole a `surfacesAutour` ne peuvent prouver : que la requete
+        // GROUPEE rend des parts coherentes pour plusieurs ruchers a la fois.
+        mockMvc.perform(get("/api/correlations/flore").with(tenant(t))
+                        .param("millesime", "2026"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[*].classe")
+                        .value(org.hamcrest.Matchers.containsInAnyOrder("culture", "foret")))
+                .andExpect(jsonPath("$[*].echantillon").value(org.hamcrest.Matchers.everyItem(
+                        org.hamcrest.Matchers.equalTo(2))))
+                .andExpect(jsonPath("$[*].interpretation").value(org.hamcrest.Matchers.everyItem(
+                        org.hamcrest.Matchers.isOneOf("echantillon_insuffisant", "variance_nulle"))));
+    }
+
     // ─── Fixtures ────────────────────────────────────────────────────────────
 
     private long ferme(String t) throws Exception {
@@ -345,6 +390,25 @@ class EnvironnementSigIT {
         return creer(t, "/api/sites", ("""
                 {"nom":"S","fermeId":%d,"latitude":%s,"longitude":%s,
                  "dateMiseEnOeuvre":"2026-04-01"}""").formatted(fermeId, lat, lon));
+    }
+
+    private long agent(String t) throws Exception {
+        return creer(t, "/api/agents", "{\"nom\":\"Agent Test\",\"role\":\"apiculteur\",\"email\":null}");
+    }
+
+    private long ruche(String t, long fermeId, long siteId) throws Exception {
+        return creer(t, "/api/ruches", ("""
+                {"modele":"M","siteId":%d,"fermeId":%d,
+                 "compartiments":[{"type":"corps","nbCadres":10}]}""")
+                .formatted(siteId, fermeId));
+    }
+
+    /** Une visite fraiche, seule condition pour qu'une colonie soit EVALUEE. */
+    private void visite(String t, long rucheId, long agentId, String etatSante) throws Exception {
+        creer(t, "/api/visites", ("""
+                {"rucheId":%d,"agentId":%d,"dateVisite":"%s","raison":"controle",
+                 "constatations":"Controle de routine.","etatSante":"%s"}""")
+                .formatted(rucheId, agentId, LocalDate.now(), etatSante));
     }
 
     private long creer(String t, String url, String corps) throws Exception {

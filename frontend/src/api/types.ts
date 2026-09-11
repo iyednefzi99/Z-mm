@@ -800,6 +800,20 @@ export interface CorrelationMeteo {
 }
 
 /**
+ * Corrélation entre une classe de couvert et la santé des colonies (SPRINT-33).
+ *
+ * <p>`echantillon` compte des RUCHERS, pas des colonies : c'est le rucher qui
+ * porte un environnement.
+ */
+export interface CorrelationFlore {
+  classe: ClasseCouvert;
+  /** `null` quand le coefficient n'existe pas : série constante ou échantillon trop court. */
+  coefficient: number | null;
+  echantillon: number;
+  interpretation: string;
+}
+
+/**
  * Code d'invitation à rejoindre l'exploitation (US-058, ADR-009).
  *
  * <p>`epuise` est calculé par le serveur et non ici : « périmé » dépend de
