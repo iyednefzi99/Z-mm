@@ -190,8 +190,22 @@
       "enabled": true,
       "serviceAccountClientId": "zumm-bff",
       "clientRoles": {
-        "realm-management": ["manage-users"]
+        "realm-management": [
+          "manage-users"
+        ]
       }
     }
-  ]
+  ],
+  "resetPasswordAllowed": true,
+  "smtpServer": {
+    "host": "${env.ZUMM_SMTP_HOST:}",
+    "port": "${env.ZUMM_SMTP_PORT:587}",
+    "from": "${env.ZUMM_SMTP_FROM:}",
+    "fromDisplayName": "Zumm",
+    "ssl": "false",
+    "starttls": "${env.ZUMM_SMTP_STARTTLS:true}",
+    "auth": "${env.ZUMM_SMTP_AUTH:true}",
+    "user": "${env.ZUMM_SMTP_USER:}",
+    "password": "${env.ZUMM_SMTP_PASSWORD:}"
+  }
 }

@@ -16,6 +16,27 @@
 # ═══════════════════════════════════════════════════════════
 
 services:
+
+  # ── Boite aux lettres de developpement (SPRINT-33) ──────────────────────
+  #
+  # Mailpit capte TOUT le courrier sortant de la pile et ne le relaie nulle
+  # part : aucun message ne peut partir vers une vraie adresse depuis un poste
+  # de developpement. C'est ce qui permet de derouler « mot de passe oublie »
+  # de bout en bout — et de voir les notifications d'alerte de l'US-041, qui
+  # etaient jusqu'ici desactivees faute de serveur d'envoi.
+  #
+  # Interface : http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.21
+    container_name: zumm-mailpit
+    environment:
+      MP_MAX_MESSAGES: "500"
+      MP_SMTP_AUTH_ACCEPT_ANY: "true"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "true"
+    ports:
+      - "8025:8025"
+    networks:
+      - zumm-network
   keycloak:
     volumes:
       - ./keycloak/realm-zumm.dev.json:/opt/keycloak/data/import/realm-zumm.json:ro
@@ -29,6 +50,9 @@ services:
       # Les appels de service continuent de viser l'hote interne, que l'URL
       # publique figee ci-dessus ne permet pas de joindre depuis le reseau compose.
       KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    depends_on:
+      mailpit:
+        condition: service_started
 
   backend:
     # NOMME l'image du back-end de développement. Le `build:` du compose de base
@@ -57,3 +81,14 @@ services:
       # momentanement indisponible ». Hors surcharge, le compose de base laisse
       # l'issuer valoir deja l'URL interne et cette variable est inutile.
       ZUMM_OIDC_INTERNE: http://keycloak:8080/realms/zumm
+      # Parcours « mot de passe oublie » du fournisseur d'identite. Publiee par
+      # `/api/info`, elle fait apparaitre le lien dans `RecuperationVue`. L'URL
+      # est celle que voit le NAVIGATEUR, pas l'hote interne.
+      ZUMM_AUTH_REINITIALISATION_URL: >-
+        http://localhost:8081/realms/zumm/login-actions/reset-credentials?client_id=zumm-frontend
+      # Notifications d'alerte (US-041) : elles etaient desactivees par defaut
+      # parce que la pile ne dependait d'aucun SMTP. Elle en a un maintenant.
+      ZUMM_NOTIF_EMAIL_ENABLED: "true"
+      ZUMM_NOTIF_EMAIL_FROM: alertes@zumm.test
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: "1025"
