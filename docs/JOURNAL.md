@@ -917,3 +917,60 @@ dont un mock ou une attente était incomplet.
 
 Le parcours mot de passe oublié via Mailpit, toujours non vérifié (voir
 ci-dessus) — rien d'autre de nouveau.
+
+---
+
+## 2026-09-12 (suite) — Parcours mot de passe oublié vérifié, et un vrai piège trouvé
+
+Docker débloqué après plusieurs tentatives espacées (le pull de
+`eclipse-temurin:17-jre-jammy` puis de `maven:3.9-eclipse-temurin-17`
+restait bloqué net sur les mêmes blobs à chaque essai immédiat, mais passait
+au premier essai après quelques minutes d'attente — un souci de CDN Docker
+Hub transitoire, apparemment résolu de lui-même). `docker compose ... up -d
+--build` a fini par tourner en entier : les neuf services (postgres,
+keycloak, backend, frontend, nginx, mailpit, ia-service, grafana,
+prometheus) tous `healthy`. `infra/seed-demo.sh` rejoué sans erreur.
+
+**Le parcours a d'abord échoué, et pas pour une raison prévue.**
+`PUT .../execute-actions-email` sur `apiculteur-test` renvoyait
+`500 : No sender address configured in the realm settings for emails` —
+alors que `realm-zumm.dev.json` porte bien `smtpServer` et
+`resetPasswordAllowed: true` depuis `19ee7a0`. Interrogé via l'API admin, le
+realm **réellement actif** rendait `"smtpServer":{}` et
+`"resetPasswordAllowed":false`.
+
+**Piège trouvé** : Keycloak n'importe `realm-zumm(.dev).json` qu'à la
+CRÉATION du realm en base — jamais aux démarrages suivants. Le volume
+`postgres` de cette pile datait d'avant ce sprint (conteneurs vus « Exited 6
+days ago » en tout début de séance) : `up -d --build` a reconstruit et
+redémarré les conteneurs, mais Keycloak a retrouvé son ancien realm intact
+dans la base persistée, sans jamais relire le fichier modifié. Aucune erreur
+au démarrage ne le signale — le symptôme n'apparaît qu'au moment d'envoyer un
+e-mail, plusieurs étapes plus loin. Documenté dans
+`infra/keycloak/README.md`, avec le geste qui répare :
+`docker compose ... down -v` puis `up -d --build` (comme pour Flyway, ça
+rejoue tout depuis zéro).
+
+Le realm de CETTE session a été corrigé en direct par l'API admin
+(`PUT /admin/realms/zumm`, mêmes valeurs que le fichier) plutôt que par un
+`down -v` complet, pour ne pas perdre les données de démo déjà chargées et
+aller plus vite à la vérification — un geste de séance, pas une trace dans
+le dépôt.
+
+**Vérifié pour de vrai, ensuite** : `execute-actions-email` → `204` →
+Mailpit reçoit un message de `no-reply@zumm.test` à
+`apiculteur-test@example.invalid`, sujet « Mettre à jour votre compte »,
+contenu en français correct. Le lien qu'il contient
+(`.../login-actions/action-token?key=...`) répond `200` et ouvre bien la
+page Keycloak « Suivez les instructions suivantes » — pas une page
+d'erreur. La boucle e-mail est prouvée de bout en bout ; le changement de
+mot de passe lui-même (dernier clic dans le formulaire Keycloak) n'a pas été
+poussé plus loin, ça relève du thème Keycloak standard, pas de code du
+dépôt.
+
+### Reste ouvert
+
+Rien de nouveau côté Mailpit/mot de passe oublié — chantier soldé. La
+fuite de test `CapteursVue`/`HorsLigne` (entrées précédentes) est réglée
+elle aussi. Le point ouvert restant est celui d'avant ce sprint :
+`REVUE-CONSOLIDEE.md` § 5.
