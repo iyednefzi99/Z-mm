@@ -1,14 +1,17 @@
 # Écart fonctionnel — Zümm face à douze outils apicoles du marché
 
-> Analyse du 18/08/2026, **revérifiée contre le code le 09/09/2026** (périmètre
-> SPRINT-33 inclus — voir les seize notes de révision en fin de document, §14 à
-> §29). Le §1 est intégralement couvert depuis la migration `V21` (§17) ; les
-> onze lots du plan de couverture l'ont mené de 66 à 137 lignes (§18 à §28), et
-> le lot **K** du SPRINT-33 (§29) a fermé les **trois dernières lignes de
-> travail identifié** : le ground truthing, l'exposition aux zones traitées et
-> la logistique de tournée. Le compte est de **140 sur 153** ; tout le reste est
-> refus argumenté ou hors-périmètre assumé. Les verdicts des §§1 à 13 intègrent
-> le **registre sanitaire** (`V19`), le **terrain** (`V20`) et le **SIG** (`V31`).
+> Analyse du 18/08/2026, **revérifiée contre le code le 12/09/2026** (périmètre
+> SPRINT-33 inclus — voir les dix-sept notes de révision en fin de document,
+> §14 à §30). Le §1 est intégralement couvert depuis la migration `V21` (§17) ;
+> les onze lots du plan de couverture l'ont mené de 66 à 137 lignes (§18 à
+> §28), le lot **K** du SPRINT-33 (§29) a fermé les **trois dernières lignes de
+> travail identifié** — le ground truthing, l'exposition aux zones traitées et
+> la logistique de tournée —, et deux des trois 🟡 que cette note laissait
+> ouverts pour décision ou dépendance d'exploitation sont désormais fermés à
+> leur tour (§30) : le croisement flore et la réinitialisation de mot de passe.
+> Le compte est de **142 sur 153** ; tout le reste est refus argumenté ou
+> hors-périmètre assumé. Les verdicts des §§1 à 13 intègrent le **registre
+> sanitaire** (`V19`), le **terrain** (`V20`) et le **SIG** (`V31`).
 >
 > Douze catalogues concurrents ont été dépouillés
 > fonctionnalité par fonctionnalité, puis confrontés au **code réel du dépôt**
@@ -233,7 +236,7 @@ et où Onibi est hors de portée, parce qu'il vend du matériel.
 | Multi-utilisateurs et rôles | ✅ | `Agent` + `RoleAgent` (apiculteur/superviseur/responsable/admin), `InvitationController`, RBAC Keycloak (`SecurityConfig.matriceRbac`). **Plus fin** que les rôles d'ApiManager et sans plafond d'accès, là où BeeKeepPal limite à trois |
 | Lisibilité des droits pour l'utilisateur | ✅ | SPRINT-19 : la navigation masque les écrans fermés au rôle (`routage/routes.ts`, `ROLES_ONGLET`), `InterditVue` explique le refus au lieu d'un 403 nu, et `PermissionsVue` publie la matrice complète — *voici les serrures, voici qui a les clés*. **Aucun des douze ne montre ses règles d'accès à ses utilisateurs** |
 | Compte en libre-service (création, consultation) | ✅ | `ConnexionVue` (connexion **et** inscription depuis l'application), `CompteVue` : utilisateur, exploitation et rôles lus dans la session serveur, aucun jeton en mémoire du navigateur (ADR-006) |
-| **Réinitialisation de mot de passe en libre-service** | 🟡 | Le chemin est **ouvert côté produit** (SPRINT-25) : `/api/info` publie l'URL du parcours du fournisseur d'identité, et `RecuperationVue` affiche le lien dès qu'elle est renseignée — sinon elle continue d'aiguiller vers le responsable. Ce qui manque n'est plus du code : c'est un **serveur d'envoi**, que l'exploitant configure (`infra/keycloak/README.md`). Le lien reste caché tant qu'il n'y en a pas, parce qu'un formulaire dont le courriel ne part jamais est pire que pas de lien |
+| **Réinitialisation de mot de passe en libre-service** | ✅ | **Fermé au SPRINT-33.** Le chemin était déjà ouvert côté produit (SPRINT-25) : `/api/info` publie l'URL du parcours du fournisseur d'identité, et `RecuperationVue` affiche le lien dès qu'elle est renseignée. Le **serveur d'envoi** qui manquait est désormais fourni — Mailpit en développement (`infra/docker-compose.dev.yml`), un `smtpServer` paramétrable par variables d'environnement en production (`realm-zumm.json`). Vérifié en conditions réelles et non seulement câblé : `execute-actions-email` déclenche un envoi réel, capté par Mailpit, avec un lien qui ouvre une vraie page Keycloak. Piège trouvé et documenté au passage (`infra/keycloak/README.md`) : Keycloak n'importe le realm qu'à sa création en base, jamais aux démarrages suivants — un volume Postgres antérieur au sprint continue de tourner sans SMTP même après reconstruction des images |
 | Cloisonnement des données entre exploitations | ✅ | Multi-tenant + RLS PostgreSQL, `TenantFilter`, `tenant_id` obligatoire dans le JWT. **Aucun des douze ne le documente** |
 | Piste d'audit | ✅ | `AuditEntree`, `AuditAspect`, `AuditController`, `AuditVue.tsx` |
 | Tâches avec échéance | ✅ | `Tache` + `GET /api/taches/rappels` |
@@ -2248,3 +2251,48 @@ motif. Les **huit ⛔** du §9 sont inchangées.
 Ce que le document devient à partir d'ici est donc différent de ce qu'il a été
 pendant onze lots : il ne liste plus un reste à faire, il **documente un
 périmètre** — y compris ses bords, qui sont la partie la plus utile à montrer.
+
+---
+
+## 30. Note de révision — 12/09/2026, deux des trois 🟡 laissés par le lot K
+
+Le §29 listait trois lignes 🟡 restantes, dont il disait explicitement
+qu'aucune « n'attend du temps de développement : trois attendent une décision
+ou une dépendance d'exploitation ». Deux d'entre elles viennent de recevoir
+cette décision. Le compteur va de **140 à 142 sur 153**. Ne reste 🟡 que
+l'intégration nommée de capteurs du commerce (§5, ADR-014) — un partenariat,
+toujours pas un développement.
+
+**Croisement santé × flore (§2).** Le refus tenait en une phrase depuis le
+SPRINT-32 : « sur la dizaine de ruchers d'une exploitation, une corrélation
+serait du bruit présenté comme un résultat ». L'objection portait sur
+l'interprétation, pas sur le calcul — et c'est exactement ce que `Coefficient`
+sait déjà refuser pour la corrélation météo depuis le SPRINT-22. Extrait dans
+sa propre classe pour être partagé entre les deux corrélations, il porte le
+même seuil d'échantillon et la même règle : en dessous de douze RUCHERS (pas
+colonies — apparier chaque colonie aurait fait entrer le même couvert
+plusieurs fois dans le calcul), le coefficient sort nu. `CouvertSolRepository.partsParSite`
+croise le couvert de tous les ruchers en une seule requête PostGIS plutôt
+qu'une par rucher, prouvée contre une vraie base par `EnvironnementSigIT`
+(la version simulée du service ne pouvait pas garantir que la requête groupée
+elle-même était juste). Onglet dédié dans `TableauxVue.tsx`, avec
+l'avertissement propre à cette corrélation : dix classes testées sur le même
+échantillon, sans correction de comparaison multiple.
+
+**Réinitialisation de mot de passe (§7).** Le code produit n'a pas changé
+depuis le SPRINT-25 ; ce qui manquait était bien, comme annoncé, un serveur
+d'envoi, pas un développement. Mailpit comble ce manque en développement, un
+`smtpServer` paramétrable en production. La vérification a buté sur un défaut
+qui n'était dans aucun fichier committé : Keycloak n'importe
+`realm-zumm(.dev).json` qu'à la création du realm en base, jamais aux
+démarrages suivants, et un volume Postgres antérieur au sprint continuait de
+tourner sur l'ancien realm — sans `smtpServer`, sans `resetPasswordAllowed` —
+après une reconstruction complète des images, sans qu'aucune erreur ne le
+signale au démarrage. Documenté dans `infra/keycloak/README.md`, avec le geste
+qui répare. Vérifié pour de vrai une fois le realm à jour : un envoi déclenché
+arrive dans Mailpit, adressé correctement, et le lien qu'il contient ouvre une
+vraie page Keycloak plutôt qu'une erreur.
+
+Trace complète de la séquence — Docker débloqué après plusieurs tentatives,
+diagnostic du realm, vérification — dans `docs/JOURNAL.md`, entrées du
+12/09/2026.
