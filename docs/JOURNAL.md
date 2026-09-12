@@ -1038,3 +1038,80 @@ régression. Chaîne frontend complète également verte.
 les autres — notamment le flux OIDC jamais joué en CI avec un vrai Keycloak,
 et `style-src 'unsafe-inline'`. Rien commité ni poussé cette partie de
 séance : à faire au prochain geste explicite.
+
+---
+
+## 2026-09-12 (suite) — Le flux OIDC joue pour de vrai en CI (SPRINT-34)
+
+Dernier point ouvert de `REVUE-CONSOLIDEE.md` §5 datant du SPRINT-11 : « 19
+tests, mais tous avec un Keycloak simulé — précisément l'angle mort qui avait
+laissé passer l'absence de rafraîchissement [de jeton] ». Aucun test du dépôt
+n'avait jamais fait émettre un jeton par un vrai royaume ni vérifié sa
+signature contre de vraies clés publiques — `BffSessionIT` et `RbacIT`
+fabriquent tous deux leur jeton via `oidcLogin()`/`jwt()`.
+
+**Le choix de chemin.** Zumm offre deux flux OIDC (ADR-009) : la redirection
+classique Authorization Code + PKCE (`oauth2Login()`, client
+`zumm-frontend`) et l'échange direct mené par le BFF (`POST /bff/connexion`,
+client `zumm-bff`). Le premier est vestige — la PWA ne l'emprunte plus depuis
+l'ADR-009. Nouveau test `AuthentificationOidcReelleIT` : le SECOND flux,
+celui réellement utilisé, contre un Keycloak Testcontainers (image brute
+`quay.io/keycloak/keycloak:26.0`, pas de module Testcontainers tiers) avec le
+realm de dev (`infra/keycloak/realm-zumm.dev.json`, copié via
+`MountableFile` plutôt que dupliqué sous `src/test/resources`) — mêmes
+comptes `apiculteur-test`/`admin-test`, même secret `zumm-bff` que la pile de
+développement, aucune surcharge nécessaire.
+
+**Deux pièges réels trouvés en écrivant le test, invisibles à tout test
+mocké :**
+
+1. **`CsrfFilter` ne pose jamais le cookie XSRF-TOKEN sur une lecture.**
+   Vérifié en décompilant le bytecode de `CsrfFilter.doFilterInternal`
+   (Spring Security 6.5.11) : le jeton différé n'est résolu
+   (`DeferredCsrfToken#get()`, seul moment où `CookieCsrfTokenRepository`
+   écrit le cookie) que si la méthode EXIGE la protection CSRF — jamais sur
+   un GET, qui retourne avant. Un navigateur neuf ne peut donc pas obtenir de
+   cookie par une lecture préalable ; seule une première MUTATION, même
+   rejetée faute de jeton, le dépose sur SA PROPRE réponse. Le premier essai
+   de connexion d'un navigateur neuf échoue donc une fois par construction —
+   401 et non 403, parce qu'un refus CSRF sur une requête ANONYME est routé
+   par `ExceptionTranslationFilter` vers l'`AuthenticationEntryPoint`, pas
+   vers `GestionnaireRefusAcces` (SPRINT-34, lot du matin), qui ne voit que
+   les refus d'un appelant déjà identifié. Le test rejoue ce double essai
+   plutôt que de le contourner.
+2. **Le cookie de session `Secure` sans condition** (`application.yml`,
+   argumenté en commentaire : un cookie non marqué avait forcé un
+   `redirect_uri` en `http://`) **exige un client qui parle vraiment TLS.**
+   `forward-headers-strategy: framework` fait croire au SERVEUR que la
+   requête est sécurisée via `X-Forwarded-Proto` (ce que fait nginx en pile
+   réelle), mais ça ne change rien côté CLIENT : `java.net.CookieManager`
+   respecte l'attribut `Secure` à la lettre — contrairement aux navigateurs,
+   qui font une exception pour `localhost` — et ne renvoie donc JAMAIS un
+   cookie `Secure` reçu sur une connexion `http://`, quel que soit l'en-tête
+   envoyé. Poser `X-Forwarded-Proto` a même aggravé les choses : le cookie
+   CSRF hérite aussi de `isSecure()` et devient à son tour irrécupérable.
+   Plutôt que d'affaiblir `secure: true` (ce que `CLAUDE.md` interdit sans
+   reprendre l'argument), le serveur de test sert un vrai certificat
+   auto-signé jetable, généré à la volée par `keytool` (outil du JDK, aucune
+   dépendance ajoutée) ; le client HTTP ne fait confiance qu'à CE certificat
+   précis, jamais à un `TrustManager` qui accepte tout.
+
+**Ce que le test prouve, une fois ces deux pièges compris :** connexion
+réelle (Keycloak émet un jeton, `JwtDecoder` en valide signature, émetteur
+ET audience pour de vrai, `/bff/session` reflète le vrai rôle et le vrai
+`tenant_id`) ; mot de passe faux refusé sans session ; RBAC sur un rôle
+Keycloak RÉEL (refusé à l'apiculteur, permis à l'admin sur `POST
+/api/fermiers`) — la toute première fois que `realm_access.roles` d'un jeton
+réellement émis traverse `ConvertisseurDeRoles` de bout en bout.
+
+**CI : aucun changement de workflow nécessaire.** `.github/workflows/ci.yml`
+lance déjà `./mvnw -B verify`, qui ramasse toute classe `*IT` — Keycloak sera
+simplement tiré de `quay.io` au premier run, comme n'importe quelle autre
+image non pré-construite. `./mvnw verify` complet rejoué en local : 782 tests
+unitaires + 262 `*IT` (259 + 3), `Skipped: 0`, planchers JaCoCo tenus.
+
+`REVUE-CONSOLIDEE.md` §5 mis à jour : la ligne OIDC est soldée, ainsi que
+« aucune alerte sur anomalie d'accès » (chantier du matin, jamais reporté
+dans ce tableau). Restent `style-src 'unsafe-inline'`, le chiffrement GPS
+(arbitrage ADR) et les points d'infra/exploitant. Rien commité ni poussé
+cette partie de séance.
