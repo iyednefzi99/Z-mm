@@ -69,24 +69,28 @@ const monter = () =>
   );
 
 describe('écran hors ligne — ruchers emportés', () => {
-  it('affiche la date du prélèvement, jamais le seul nom du rucher', () => {
+  it('affiche la date du prélèvement, jamais le seul nom du rucher', async () => {
     ranger(instantane(7, 'Rucher du causse', ilYA(1)));
 
     monter();
 
-    expect(screen.getByText('Rucher du causse')).toBeInTheDocument();
+    // findBy plutôt que getBy : le montage déclenche aussi agents.lister()
+    // (autre effet de l'écran), et attendre son règlement évite l'avertissement
+    // React « update not wrapped in act » — un update non attendu ici, c'est
+    // une course qui peut déraper sous charge.
+    expect(await screen.findByText('Rucher du causse')).toBeInTheDocument();
     // C'est tout l'objet de l'ADR-012 : la date accompagne la donnée partout où
     // elle sert, pas seulement là où l'emport a été déclenché.
     expect(screen.getByText(/prélevé le/)).toBeInTheDocument();
     expect(screen.getByText(/2 ruche\(s\)/)).toBeInTheDocument();
   });
 
-  it('signale un emport trop ancien au lieu de le présenter comme les autres', () => {
+  it('signale un emport trop ancien au lieu de le présenter comme les autres', async () => {
     ranger(instantane(7, 'Rucher oublié', ilYA(30)));
 
     monter();
 
-    expect(screen.getByText(/trop ancien pour être consulté/)).toBeInTheDocument();
+    expect(await screen.findByText(/trop ancien pour être consulté/)).toBeInTheDocument();
   });
 
   it('purge un rucher emporté', async () => {
@@ -134,9 +138,9 @@ describe('écran hors ligne — saisies refusées', () => {
     expect(refus()).toEqual([]);
   });
 
-  it('dit qu’il n’y a rien à arbitrer quand tout est passé', () => {
+  it('dit qu’il n’y a rien à arbitrer quand tout est passé', async () => {
     monter();
-    expect(screen.getByText('Aucune saisie refusée.')).toBeInTheDocument();
+    expect(await screen.findByText('Aucune saisie refusée.')).toBeInTheDocument();
   });
 });
 
@@ -155,10 +159,10 @@ describe('écran hors ligne — réglages du terrain', () => {
     expect(document.documentElement.classList.contains('z-economie')).toBe(true);
   });
 
-  it('explique l’ajout manuel quand le navigateur ne propose pas l’installation', () => {
+  it('explique l’ajout manuel quand le navigateur ne propose pas l’installation', async () => {
     // Safari n'émet jamais `beforeinstallprompt` : sans cette phrase, la moitié
     // du parc verrait un écran qui ne propose rien.
     monter();
-    expect(screen.getByText(/menu de partage/)).toBeInTheDocument();
+    expect(await screen.findByText(/menu de partage/)).toBeInTheDocument();
   });
 });
