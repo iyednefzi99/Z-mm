@@ -57,6 +57,7 @@ import {
 import { PanneauEnvironnement } from '../environnement/PanneauEnvironnement';
 import { useDialogues } from '../ui/dialogues';
 import { CorpsSection } from './CorpsSection';
+import { PanneauPhotos } from '../photos/PanneauPhotos';
 
 const ouNull = (valeur: string): string | null => (valeur.trim() === '' ? null : valeur);
 
@@ -1032,6 +1033,11 @@ export function SitesVue(): ReactElement {
               <ChampDate libelle={t.champs.dateDemenagement} valeur={demenagement} onChange={setDemenagement} />
               <ChampDate libelle={t.champs.dateCloture} valeur={cloture} onChange={setCloture} />
             </div>
+
+            {/* Pas de cible avant le premier enregistrement : un site en
+                cours de creation n'a pas encore d'id a porter. */}
+            {edition && <PanneauPhotos cible="SITE" cibleId={edition.id} ecriture={ecriture} />}
+
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">
               <Bouton variante="fantome" onClick={() => setOuvert(false)}>

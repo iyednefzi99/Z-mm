@@ -53,11 +53,13 @@ import {
   ChampZone,
   Colonne,
   EtatVide,
+  Modale,
   Option,
   Pastille,
   Table,
   type TonPastille,
 } from '../ui/composants';
+import { PanneauPhotos } from '../photos/PanneauPhotos';
 
 /** Les trois registres de l'écran. Un seul est monté à la fois. */
 type Volet = 'traitements' | 'nourrissements' | 'varroa';
@@ -113,6 +115,7 @@ export function SanitaireVue(): ReactElement {
   const [nourrissements, setNourrissements] = useState<Nourrissement[]>([]);
   const [comptages, setComptages] = useState<ComptageVarroa[]>([]);
   const [erreur, setErreur] = useState<string | null>(null);
+  const [photosDe, setPhotosDe] = useState<Traitement | null>(null);
   // Rapport de la derniere operation de lot, affiche tel quel : les refus
   // motives sont ce qui permet de reprendre trois ruches au lieu de quarante.
   const [rapport, setRapport] = useState<RapportLot | null>(null);
@@ -212,6 +215,14 @@ export function SanitaireVue(): ReactElement {
         ),
     },
     { entete: s.agent, rendu: (x) => x.agentNom },
+    {
+      entete: t.photos.titre,
+      rendu: (x) => (
+        <button type="button" className="z-lien" onClick={() => setPhotosDe(x)}>
+          {t.photos.titre}
+        </button>
+      ),
+    },
   ];
 
   const colonnesNourrissement: Colonne<Nourrissement>[] = [
@@ -865,6 +876,12 @@ export function SanitaireVue(): ReactElement {
           )}
           </div>
         </>
+      )}
+
+      {photosDe && (
+        <Modale titre={t.photos.titre} onFermer={() => setPhotosDe(null)}>
+          <PanneauPhotos cible="TRAITEMENT" cibleId={photosDe.id} />
+        </Modale>
       )}
     </section>
   );

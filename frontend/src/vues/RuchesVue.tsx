@@ -28,6 +28,7 @@ import { useRessource, useRoles } from '../hooks';
 import { peutEcrire } from '../routage/routes';
 import { Bouton, ChampNombre, ChampSelect, ChampTexte, Colonne, Modale, Option, Table } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
+import { PanneauPhotos } from '../photos/PanneauPhotos';
 
 const MAX_HAUSSES = 5;
 
@@ -362,6 +363,10 @@ export function RuchesVue(): ReactElement {
                 + {t.actions.ajouterHausse}
               </Bouton>
             </fieldset>
+
+            {/* Pas de cible avant le premier enregistrement : une ruche en
+                cours de creation n'a pas encore d'id a porter. */}
+            {edition && <PanneauPhotos cible="RUCHE" cibleId={edition.id} ecriture={ecriture} />}
 
             {erreur && <p className="z-form__erreur">{erreur}</p>}
             <div className="z-form__actions">

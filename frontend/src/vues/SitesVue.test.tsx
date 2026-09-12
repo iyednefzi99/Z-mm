@@ -50,6 +50,9 @@ vi.mock('../api/client', () => ({
   annulerTransport: vi.fn(),
   comparerSites: vi.fn(),
   emporterRucher: vi.fn(),
+  listerPhotosDe: vi.fn(() => Promise.resolve([])),
+  attacherPhoto: vi.fn(),
+  detacherPhoto: vi.fn(),
   ErreurApi: class ErreurApi extends Error {},
 }));
 
@@ -59,6 +62,7 @@ const {
   emplacementsSite,
   emporterRucher,
   fermes,
+  listerPhotosDe,
   listerTransports,
   sites,
   voisinsSite,
@@ -109,6 +113,7 @@ describe('vue Sites', () => {
     vi.mocked(emplacementsSite).mockResolvedValue([]);
     vi.mocked(agents.lister).mockResolvedValue([]);
     vi.mocked(listerTransports).mockResolvedValue([]);
+    vi.mocked(listerPhotosDe).mockResolvedValue([]);
     // Le referentiel ne s'ecrit qu'avec `responsable` ou `admin` : sans session,
     // les commandes d'ecriture ne sont plus rendues du tout (SPRINT-19).
     definir({ utilisateur: 'lea', roles: ['responsable'], exploitation: 'demo' });
@@ -186,6 +191,15 @@ describe('vue Sites', () => {
     expect(await screen.findByLabelText(/Nom/)).toHaveValue('Rucher du Lot');
     expect(screen.getByLabelText(/Latitude/)).toHaveValue(44.447);
   });
+
+  it('ouvre le panneau photos du site modifié avec la cible SITE', async () => {
+    monter();
+    await screen.findByText('Rucher du Lot');
+    await userEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+
+    await screen.findByText('Photos');
+    expect(listerPhotosDe).toHaveBeenCalledWith('SITE', RUCHER.id);
+  });
 });
 
 describe('vue Sites — terrain (SPRINT-21)', () => {
@@ -208,6 +222,7 @@ describe('vue Sites — terrain (SPRINT-21)', () => {
     vi.mocked(voisinsSite).mockResolvedValue([]);
     vi.mocked(emplacementsSite).mockResolvedValue([]);
     vi.mocked(agents.lister).mockResolvedValue([]);
+    vi.mocked(listerPhotosDe).mockResolvedValue([]);
     vi.mocked(listerTransports).mockResolvedValue([]);
     definir({ utilisateur: 'lea', roles: ['responsable'], exploitation: 'demo' });
   });
@@ -227,7 +242,9 @@ describe('vue Sites — terrain (SPRINT-21)', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Modifier' }));
 
-    expect(await screen.findByLabelText(/Adresse/)).toHaveValue('12 chemin des Vignes');
+    // Ancre : le panneau photos (SPRINT-34) porte aussi un champ « Adresse de
+    // la photo », qu'un motif non ancré confondrait avec celui-ci.
+    expect(await screen.findByLabelText(/^Adresse$/)).toHaveValue('12 chemin des Vignes');
     expect(screen.getByLabelText(/Commune/)).toHaveValue('Figeac');
     // « Tilleul » figure deux fois dans le formulaire — une fois comme ressource
     // DÉCLARÉE, une fois comme option offerte à l'ajout. C'est la première qu'on

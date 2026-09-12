@@ -35,6 +35,7 @@ import {
   Table,
 } from '../ui/composants';
 import { CorpsSection } from './CorpsSection';
+import { PanneauPhotos } from '../photos/PanneauPhotos';
 
 /** Récoltes, numéro de lot et QR de traçabilité (US-033). */
 export function RecoltesVue(): ReactElement {
@@ -70,6 +71,7 @@ export function RecoltesVue(): ReactElement {
   // en a trente-sept.
   const [rapport, setRapport] = useState<RapportLot | null>(null);
   const [trace, setTrace] = useState<Trace | null>(null);
+  const [photosDe, setPhotosDe] = useState<Recolte | null>(null);
 
   const colonnes: Colonne<Recolte>[] = [
     { entete: t.recolte.date, rendu: (r) => f.date(r.dateRecolte) },
@@ -81,6 +83,14 @@ export function RecoltesVue(): ReactElement {
       rendu: (r) => (
         <button type="button" className="z-lien" onClick={() => { setTrace(null); setQr(r); void tracerLot(r.lot).then(setTrace).catch(() => setTrace(null)); }}>
           {t.recolte.qr}
+        </button>
+      ),
+    },
+    {
+      entete: t.photos.titre,
+      rendu: (r) => (
+        <button type="button" className="z-lien" onClick={() => setPhotosDe(r)}>
+          {t.photos.titre}
         </button>
       ),
     },
@@ -362,6 +372,12 @@ export function RecoltesVue(): ReactElement {
               </p>
             )}
           </div>
+        </Modale>
+      )}
+
+      {photosDe && (
+        <Modale titre={t.photos.titre} onFermer={() => setPhotosDe(null)}>
+          <PanneauPhotos cible="RECOLTE" cibleId={photosDe.id} />
         </Modale>
       )}
     </CorpsSection>

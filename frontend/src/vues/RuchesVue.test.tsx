@@ -27,10 +27,13 @@ vi.mock('../api/client', () => ({
   sites: { lister: vi.fn() },
   fermes: { lister: vi.fn() },
   agents: { lister: vi.fn() },
+  listerPhotosDe: vi.fn(),
+  attacherPhoto: vi.fn(),
+  detacherPhoto: vi.fn(),
   ErreurApi: class ErreurApi extends Error {},
 }));
 
-const { agents, fermes, ruches, sites } = await import('../api/client');
+const { agents, fermes, ruches, sites, listerPhotosDe } = await import('../api/client');
 
 const RUCHE: Ruche = {
   id: 1,
@@ -76,6 +79,7 @@ describe('référentiel de la ruche', () => {
       { id: 4, nom: 'Ferme des tilleuls' } as never,
     ]);
     vi.mocked(agents.lister).mockResolvedValue([]);
+    vi.mocked(listerPhotosDe).mockResolvedValue([]);
   });
 
   afterEach(() => reinitialiserSession());
@@ -140,5 +144,14 @@ describe('référentiel de la ruche', () => {
       1,
       expect.objectContaining({ etat: 'active', causeCloture: null }),
     );
+  });
+
+  it('ouvre le panneau photos de la ruche modifiée avec la cible RUCHE', async () => {
+    monter();
+    await screen.findByText('Dadant 10');
+    await userEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+
+    await screen.findByText('Photos');
+    expect(listerPhotosDe).toHaveBeenCalledWith('RUCHE', RUCHE.id);
   });
 });

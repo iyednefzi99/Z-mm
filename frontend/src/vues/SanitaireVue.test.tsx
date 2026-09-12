@@ -37,6 +37,7 @@ vi.mock('../api/client', () => ({
   supprimerTraitement: vi.fn(),
   supprimerNourrissement: vi.fn(),
   supprimerComptageVarroa: vi.fn(),
+  listerPhotosDe: vi.fn(),
   // Meme forme que la vraie : `messageErreur` lit `detail`, et un doublon
   // simplifie ferait passer un test qui n'affiche en realite aucun message.
   ErreurApi: class ErreurApi extends Error {
@@ -56,6 +57,7 @@ const {
   listerCarencesEnCours,
   listerComptagesVarroa,
   listerNourrissements,
+  listerPhotosDe,
   listerTraitements,
   ruches,
 } = await import('../api/client');
@@ -127,6 +129,7 @@ describe('registre sanitaire', () => {
     vi.mocked(listerTraitements).mockResolvedValue([]);
     vi.mocked(listerNourrissements).mockResolvedValue([]);
     vi.mocked(listerComptagesVarroa).mockResolvedValue([]);
+    vi.mocked(listerPhotosDe).mockResolvedValue([]);
   });
 
   it('annonce les ruches sous carence avant tout choix de ruche', async () => {
@@ -202,5 +205,15 @@ describe('registre sanitaire', () => {
     // Le formulaire garde ce qui a été tapé : l'utilisateur corrige l'unité, il
     // ne recommence pas la saisie.
     expect(screen.getByLabelText('Produit')).toHaveValue('Apivar');
+  });
+
+  it('ouvre le panneau photos du traitement listé avec la cible TRAITEMENT', async () => {
+    vi.mocked(listerTraitements).mockResolvedValue([SOUS_CARENCE]);
+    monter();
+    await choisirRucheEtVolet('Traitements');
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Photos' }));
+
+    expect(listerPhotosDe).toHaveBeenCalledWith('TRAITEMENT', SOUS_CARENCE.id);
   });
 });
