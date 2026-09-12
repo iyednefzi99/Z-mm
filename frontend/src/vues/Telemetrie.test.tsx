@@ -23,6 +23,8 @@ import type { Partage, PoidsCompartiment, Ruche } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  serieCompartiment: vi.fn(),
+  chargerSerieBrute: vi.fn(),
   ruches: { lister: vi.fn() },
   sites: { lister: vi.fn() },
   chargerAlertesOuvertes: vi.fn(),
@@ -66,6 +68,10 @@ beforeEach(() => {
   vi.mocked(client.sites.lister).mockResolvedValue([]);
   vi.mocked(client.chargerAlertesOuvertes).mockResolvedValue([]);
   vi.mocked(client.listerPartages).mockResolvedValue([]);
+  // Choisir un étage appelle serieCompartiment (CapteursVue.tsx) : sans valeur
+  // par défaut ici, le mock nu rend `undefined` et `.then(...)` explose des
+  // qu'un test sélectionne un étage.
+  vi.mocked(client.serieCompartiment).mockResolvedValue([]);
   definir({ utilisateur: 'lea', roles: ['responsable'], exploitation: 'demo' });
 });
 

@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * <p><strong>Ce service refuse de conclure a la place de l'apiculteur.</strong>
  * Il rend un coefficient ET la taille de l'echantillon, et il n'interprete rien
- * en dessous de {@value #ECHANTILLON_MINIMAL} paires : sur cinq visites, un
+ * en dessous de {@value Coefficient#ECHANTILLON_MINIMAL} paires : sur cinq visites, un
  * coefficient de 0,8 ne dit rien du tout — c'est du bruit avec une decimale. Une
  * correlation n'est pas davantage une causalite : deux mois chauds qui coincident
  * avec une miellee d'acacia ne prouvent pas que la chaleur produit le miel.
@@ -36,9 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class CorrelationMeteoService {
-
-    /** En dessous, aucune interpretation n'est rendue : le coefficient reste nu. */
-    static final int ECHANTILLON_MINIMAL = 12;
 
     /**
      * Fenetre entre la visite et la recolte qu'on lui rattache.
@@ -106,66 +103,9 @@ public class CorrelationMeteoService {
                 retenues.add(new double[] {x, paire.kilos()});
             }
         }
-        int n = retenues.size();
-        if (n < 2) {
-            return new CorrelationMeteo(indicateur, null, n, "echantillon_insuffisant");
-        }
-        Double r = pearson(retenues);
-        if (r == null) {
-            // Variance nulle : toutes les visites au meme degre. Le coefficient
-            // n'existe pas, et rendre 0 laisserait croire a une absence de lien.
-            return new CorrelationMeteo(indicateur, null, n, "variance_nulle");
-        }
-        return new CorrelationMeteo(indicateur,
-                BigDecimal.valueOf(Math.round(r * 100) / 100.0), n, interpreter(r, n));
-    }
-
-    /**
-     * Coefficient de Pearson, ou {@code null} si l'une des deux series est
-     * constante — le denominateur serait nul, et la formule n'a alors pas de
-     * sens.
-     */
-    private Double pearson(List<double[]> points) {
-        int n = points.size();
-        double sx = 0;
-        double sy = 0;
-        for (double[] p : points) {
-            sx += p[0];
-            sy += p[1];
-        }
-        double mx = sx / n;
-        double my = sy / n;
-        double num = 0;
-        double dx = 0;
-        double dy = 0;
-        for (double[] p : points) {
-            double ex = p[0] - mx;
-            double ey = p[1] - my;
-            num += ex * ey;
-            dx += ex * ex;
-            dy += ey * ey;
-        }
-        double den = Math.sqrt(dx * dy);
-        return den == 0 ? null : num / den;
-    }
-
-    /**
-     * Traduit le coefficient, ou refuse de le traduire.
-     *
-     * <p>Le seuil d'echantillon vient AVANT la force du lien : sur huit paires,
-     * « lien fort » serait une affirmation gratuite, et c'est precisement celle
-     * qu'un tableau de bord fait retenir.
-     */
-    private String interpreter(double r, int n) {
-        if (n < ECHANTILLON_MINIMAL) {
-            return "echantillon_insuffisant";
-        }
-        double force = Math.abs(r);
-        if (force < 0.3) {
-            return "lien_faible";
-        }
-        String sens = r > 0 ? "positif" : "negatif";
-        return (force < 0.6 ? "lien_modere_" : "lien_marque_") + sens;
+        Coefficient.Lecture lecture = Coefficient.de(retenues);
+        return new CorrelationMeteo(indicateur, lecture.coefficient(), retenues.size(),
+                lecture.code());
     }
 
     private static Double valeur(BigDecimal valeur) {

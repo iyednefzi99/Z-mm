@@ -788,6 +788,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/zones-traitees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["zonesTraitees"];
+        put?: never;
+        post: operations["declarer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/environnement/floraisons": {
         parameters: {
             query?: never;
@@ -815,6 +831,38 @@ export interface paths {
         put?: never;
         post: operations["verser"];
         delete: operations["purger"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/couvert/parcelles/{id}/constat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["constater"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/couvert/parcelles/{id}/a-confirmer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["marquer"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1416,6 +1464,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/plannings/chargement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["chargement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plannings/agenda.ics": {
         parameters: {
             query?: never;
@@ -1640,6 +1704,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/sites/{siteId}/exposition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["exposition"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/environnement/sites/{siteId}/couvert": {
         parameters: {
             query?: never;
@@ -1656,6 +1736,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/couvert/parcelles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["parcelles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/environnement/couvert/millesimes": {
         parameters: {
             query?: never;
@@ -1664,6 +1760,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["millesimes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/environnement/couvert/fiabilite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fiabilite"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1792,6 +1904,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["meteo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/correlations/flore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["flore"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2168,6 +2296,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/environnement/zones-traitees/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["supprimerZone"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/environnement/floraisons/{id}": {
         parameters: {
             query?: never;
@@ -2392,6 +2536,9 @@ export interface components {
             faite?: boolean;
             priorite?: string;
             categorie?: string;
+            /** Format: int64 */
+            consommableId?: number;
+            quantitePrevue?: number;
         };
         TacheReponse: {
             /** Format: int64 */
@@ -2410,6 +2557,11 @@ export interface components {
             categorie?: string;
             origine?: string;
             regleCode?: string;
+            /** Format: int64 */
+            consommableId?: number;
+            consommableLibelle?: string;
+            consommableUnite?: string;
+            quantitePrevue?: number;
             /** Format: date-time */
             creeLe?: string;
             /** Format: date-time */
@@ -3375,6 +3527,29 @@ export interface components {
             creePar?: string;
             epuise?: boolean;
         };
+        JsonNode: Record<string, never>;
+        ZoneTraiteeCorps: {
+            geometrie: components["schemas"]["JsonNode"];
+            /** Format: date */
+            dateTraitement: string;
+            substance?: string;
+            origine: string;
+            /** Format: int32 */
+            delaiRentreeH?: number;
+            note?: string;
+        };
+        ZoneTraiteeReponse: {
+            /** Format: int64 */
+            id?: number;
+            /** Format: date */
+            dateTraitement?: string;
+            substance?: string;
+            origine?: string;
+            /** Format: int32 */
+            delaiRentreeH?: number;
+            note?: string;
+            surfaceHa?: number;
+        };
         FloraisonCorps: {
             /** Format: int64 */
             ressourceId: number;
@@ -3414,7 +3589,12 @@ export interface components {
             ecartJours?: number;
             note?: string;
         };
-        JsonNode: Record<string, never>;
+        ConstatCouvertCorps: {
+            classeConstatee: string;
+            /** Format: date */
+            constateLe: string;
+            note?: string;
+        };
         DivisionCorps: {
             /** Format: int64 */
             rucheMereId: number;
@@ -3779,6 +3959,39 @@ export interface components {
             distanceTotaleMetres?: number;
             etapes?: components["schemas"]["EtapeTournee"][];
         };
+        BesoinConsommable: {
+            /** Format: int64 */
+            consommableId?: number;
+            libelle?: string;
+            unite?: string;
+            requis?: number;
+            enStock?: number;
+            suffisant?: boolean;
+        };
+        EtapeChargement: {
+            /** Format: int32 */
+            ordre?: number;
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            /** Format: int32 */
+            nombreVisites?: number;
+            taches?: string[];
+            besoins?: components["schemas"]["BesoinConsommable"][];
+        };
+        FeuilleChargement: {
+            /** Format: int64 */
+            agentId?: number;
+            agentNom?: string;
+            /** Format: date */
+            date?: string;
+            /** Format: int32 */
+            nombreSites?: number;
+            etapes?: components["schemas"]["EtapeChargement"][];
+            besoins?: components["schemas"]["BesoinConsommable"][];
+            /** Format: int32 */
+            manquants?: number;
+        };
         MeteoReponse: {
             /** Format: int64 */
             siteId?: number;
@@ -3891,6 +4104,47 @@ export interface components {
             surfaceHa?: number;
             part?: number;
         };
+        ExpositionRucher: {
+            /** Format: int64 */
+            siteId?: number;
+            siteNom?: string;
+            rayonKm?: number;
+            /** Format: int32 */
+            declarations?: number;
+            /** Format: date */
+            derniereDeclaration?: string;
+            /** Format: double */
+            distanceMinM?: number;
+            /** Format: int32 */
+            sousDelaiRentree?: number;
+            zones?: components["schemas"]["ZoneTraiteeReponse"][];
+        };
+        ParcelleCouvert: {
+            /** Format: int64 */
+            id?: number;
+            classe?: string;
+            classeConstatee?: string;
+            source?: string;
+            /** Format: int32 */
+            millesime?: number;
+            aConfirmer?: boolean;
+            /** Format: date */
+            constateLe?: string;
+            constatNote?: string;
+            surfaceHa?: number;
+        };
+        FiabiliteCouvert: {
+            /** Format: int32 */
+            millesime?: number;
+            /** Format: int32 */
+            parcelles?: number;
+            /** Format: int32 */
+            verifiees?: number;
+            /** Format: int32 */
+            dementies?: number;
+            /** Format: int32 */
+            enAttente?: number;
+        };
         Critere: {
             code?: string;
             valeur?: number;
@@ -3976,6 +4230,13 @@ export interface components {
             echantillon?: number;
             interpretation?: string;
         };
+        CorrelationFlore: {
+            classe?: string;
+            coefficient?: number;
+            /** Format: int32 */
+            echantillon?: number;
+            interpretation?: string;
+        };
         Resultat: {
             /** Format: double */
             valeur?: number;
@@ -4011,6 +4272,10 @@ export interface components {
             taillePageParDefaut?: number;
             prixMielKgEur?: number;
             coutVisiteEur?: number;
+            /** Format: int32 */
+            seuilRefusAnomalie?: number;
+            /** Format: int32 */
+            fenetreRefusAnomalieMinutes?: number;
         };
         StatistiquePoint: {
             code?: string;
@@ -6365,6 +6630,50 @@ export interface operations {
             };
         };
     };
+    zonesTraitees: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ZoneTraiteeReponse"][];
+                };
+            };
+        };
+    };
+    declarer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ZoneTraiteeCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ZoneTraiteeReponse"];
+                };
+            };
+        };
+    };
     floraisons: {
         parameters: {
             query?: {
@@ -6461,6 +6770,52 @@ export interface operations {
                         [key: string]: number;
                     };
                 };
+            };
+        };
+    };
+    constater: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConstatCouvertCorps"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    marquer: {
+        parameters: {
+            query?: {
+                valeur?: boolean;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -7548,6 +7903,30 @@ export interface operations {
             };
         };
     };
+    chargement: {
+        parameters: {
+            query: {
+                agentId: number;
+                date: string;
+                departSiteId?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeuilleChargement"];
+                };
+            };
+        };
+    };
     agenda: {
         parameters: {
             query?: {
@@ -7855,6 +8234,28 @@ export interface operations {
             };
         };
     };
+    exposition: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siteId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExpositionRucher"];
+                };
+            };
+        };
+    };
     autour: {
         parameters: {
             query?: {
@@ -7879,6 +8280,29 @@ export interface operations {
             };
         };
     };
+    parcelles: {
+        parameters: {
+            query?: {
+                siteId?: number;
+                enAttente?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ParcelleCouvert"][];
+                };
+            };
+        };
+    };
     millesimes: {
         parameters: {
             query?: never;
@@ -7895,6 +8319,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": number[];
+                };
+            };
+        };
+    };
+    fiabilite: {
+        parameters: {
+            query: {
+                millesime: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FiabiliteCouvert"];
                 };
             };
         };
@@ -8076,6 +8522,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CorrelationMeteo"][];
+                };
+            };
+        };
+    };
+    flore: {
+        parameters: {
+            query?: {
+                millesime?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CorrelationFlore"][];
                 };
             };
         };
@@ -8554,6 +9022,26 @@ export interface operations {
         };
     };
     revoquer_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    supprimerZone: {
         parameters: {
             query?: never;
             header?: never;

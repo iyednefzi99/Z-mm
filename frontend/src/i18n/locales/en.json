@@ -95,6 +95,20 @@
         "texte": "French, English and Arabic, right-to-left writing included."
       }
     },
+    "temoignages": {
+      "titre": "Testimonials from the pilot holdings",
+      "soustitre": "The product is in pilot phase: these examples will be replaced by real testimonials once they exist.",
+      "badge": "Coming soon",
+      "apiculteur": {
+        "texte": "The first testimonial from a beekeeper user will appear here."
+      },
+      "agent": {
+        "texte": "The first testimonial from a field agent will appear here."
+      },
+      "responsable": {
+        "texte": "The first testimonial from a holding manager will appear here."
+      }
+    },
     "final": {
       "titre": "Ready to open the hive?",
       "texte": "Creating an account requires a holding code. You do not have one? Ask the manager of your holding."
@@ -123,7 +137,9 @@
     "actions": {
       "creation": "Creation",
       "modification": "Modification",
-      "suppression": "Deletion"
+      "suppression": "Deletion",
+      "forcage": "Override",
+      "refus": "Denied"
     }
   },
   "langue": "Language",
@@ -240,7 +256,12 @@
     "forcer": "Override and save",
     "traiterLeRucher": "Treat the whole apiary",
     "comparer": "Compare",
-    "recolterLeRucher": "Harvest the whole apiary"
+    "recolterLeRucher": "Harvest the whole apiary",
+    "nourrirLeRucher": "Feed the whole apiary",
+    "calculer": "Compute",
+    "chercher": "Search",
+    "attacher": "Attach",
+    "detacher": "Detach"
   },
   "etats": {
     "chargement": "Loading…",
@@ -618,7 +639,10 @@
     "roiPourcent": "ROI",
     "visitesParRaison": "Visits by reason",
     "ruchers": "By apiary",
-    "equipe": "Team"
+    "equipe": "Team",
+    "indices": "Indices",
+    "correlations": "Weather × production",
+    "correlationsFlore": "Land cover × health"
   },
   "graphique": {
     "tableauEquivalent": "View the data as a table",
@@ -694,7 +718,12 @@
     "niveaux": {
       "attention": "Warning",
       "critique": "Critical"
-    }
+    },
+    "serieBrute": "Raw points",
+    "serieBruteAide": "Measurements as they arrived, with no daily aggregation. This is the view that shows a chatty sensor — or one that went silent.",
+    "aucunPoint": "No measurement over the period.",
+    "instant": "Timestamp",
+    "serieBruteBornee": "The {nombre} most recent points, newest first."
   },
   "reine": {
     "ruche": "Hive",
@@ -1450,7 +1479,10 @@
         "orpheline": "Queenless",
         "reine_mere": "Parent queen",
         "autre": "Other"
-      }
+      },
+      "portee": "Show",
+      "issues": "Splits made from this hive",
+      "filiation": "Full lineage (both directions)"
     },
     "captures": {
       "titre": "Swarm captures",
@@ -1478,7 +1510,9 @@
         "prevu": "Planned",
         "realise": "Done",
         "annule": "Cancelled"
-      }
+      },
+      "supprimer": "Delete the plan",
+      "suppressionRealise": "A completed move cannot be deleted: it relocated the apiary, and the location history records it."
     },
     "abonnements": {
       "titre": "Subscriptions to my calendar",
@@ -1512,7 +1546,9 @@
       "pathologie_confirmee": "Confirmed disease",
       "varroa_a_traiter": "Varroa above treatment threshold",
       "varroa_a_surveiller": "Varroa to watch"
-    }
+    },
+    "aucun": "No hive has a usable observation: no index is computed.",
+    "motifsTitre": "Reasons found"
   },
   "carence": {
     "bloquee": "This hive is within a withdrawal period: its honey cannot be harvested.",
@@ -1534,7 +1570,15 @@
       "lien_marque_positif": "Marked link, positive",
       "lien_marque_negatif": "Marked link, negative"
     },
-    "avertissement": "A correlation is not a cause: two warm months coinciding with an acacia flow do not prove that heat makes honey."
+    "avertissement": "A correlation is not a cause: two warm months coinciding with an acacia flow do not prove that heat makes honey.",
+    "indicateur": "Indicator",
+    "classe": "Land cover",
+    "coefficient": "Coefficient",
+    "lecture": "Reading",
+    "aucune": "No correlation can be computed: it needs inspections whose weather was frozen and harvests over the same period.",
+    "echantillonRuchers": "{nombre} site(s)",
+    "avertissementFlore": "Ten land-cover classes are tested on the same sample of sites: over about a dozen points, one of them will cross 0.5 by chance alone, and no coefficient here is corrected for that.",
+    "aucuneFlore": "No correlation can be computed: no land-cover layer has been uploaded, or no site in the operation has an assessed colony."
   },
   "prioriteTerrain": {
     "basse": "Low",
@@ -1660,7 +1704,10 @@
     "hausse": "Super",
     "poids": "Weight (kg)",
     "peser": "Save weighing",
-    "jamaisPese": "never weighed"
+    "jamaisPese": "never weighed",
+    "serie": "Box history",
+    "aucuneSerie": "No weighing over the window.",
+    "fenetre": "Last ninety days"
   },
   "partage": {
     "titre": "Share a feed",
@@ -2056,6 +2103,138 @@
       "urbain": "Built-up",
       "sol_nu": "Bare ground",
       "autre": "Other"
+    },
+    "millesimes": "Loaded vintages",
+    "aucunMillesime": "No vintage loaded.",
+    "purger": "Purge the vintage",
+    "purgeConfirmation": "Purge vintage {annee}? Computed areas will disappear until the next load.",
+    "purge": "{nombre} polygon(s) removed.",
+    "fichier": "GeoJSON file",
+    "sourceLibelle": "Layer source",
+    "fichierInvalide": "Unreadable file: a GeoJSON FeatureCollection is expected.",
+    "nouvelleFloraison": "Record a bloom",
+    "floraisonComplete": "A resource blooms once a year: a second entry completes that year’s observation, it does not open a second one.",
+    "abondances": {
+      "0": "None",
+      "1": "Low",
+      "2": "Good",
+      "3": "Exceptional"
+    },
+    "parcelles": "Parcels to verify",
+    "parcellesAide": "The field settles what the layer assumes. The ground check does not replace the source: both are kept side by side, and that is what makes a vintage's worth measurable.",
+    "aucuneParcelle": "No parcel awaiting verification.",
+    "classeSource": "Per the layer",
+    "classeConstatee": "Seen on site",
+    "marquer": "Flag for confirmation",
+    "demarquer": "Stop asking",
+    "constater": "Record what was seen",
+    "constateLe": "Verified on",
+    "noteConstat": "Note",
+    "surfaceParcelle": "Area",
+    "fiabilite": "What the field says about the vintage",
+    "fiabiliteAide": "A layer never checked is not a correct layer: it is a layer whose worth nobody knows.",
+    "parcellesTotal": "Parcels",
+    "verifiees": "Verified",
+    "dementies": "Contradicted",
+    "enAttente": "Pending",
+    "zones": "Declared treated zones",
+    "zonesAide": "These zones are DECLARED — by a neighbour, by an observation, by an official notice — and are worth what their source is worth. Zümm verifies none of them: it reports them, with their origin.",
+    "aucuneZone": "No treated zone declared.",
+    "declarerZone": "Declare a treated zone",
+    "dateTraitement": "Treatment date",
+    "substance": "Substance",
+    "origine": "Source of the information",
+    "origines": {
+      "voisin_declare": "Declared by a neighbour",
+      "observe": "Observed",
+      "avis_officiel": "Official notice",
+      "autre": "Other"
+    },
+    "delaiRentree": "Re-entry interval (h)",
+    "supprimerZone": "Delete the zone",
+    "zoneGeometrie": "Footprint (GeoJSON)",
+    "exposition": "This apiary's exposure",
+    "expositionAide": "What has been declared around this apiary, within the foraging radius. Zümm did not measure it and does not guess it: it reports it, with its source.",
+    "aucuneExposition": "No treated zone declared within the radius.",
+    "declarations": "Zones within the radius",
+    "derniereDeclaration": "Latest declaration",
+    "distanceMin": "Nearest zone",
+    "sousDelaiRentree": "Still within re-entry interval",
+    "afficher": "Show",
+    "toutes": "All parcels"
+  },
+  "calculateurs": {
+    "titre": "Calculators",
+    "sirop": {
+      "titre": "Syrup",
+      "proportion": "Ratio",
+      "litres": "Volume (L)",
+      "sucre": "Sugar",
+      "eau": "Water",
+      "usage": "Use",
+      "aide": "1:1 syrup stimulates laying in spring, 2:1 builds winter stores. The computation stays on the server: it is the very rule applied to recorded feedings."
+    },
+    "valorisation": {
+      "titre": "Production value",
+      "kilos": "Quantity to value (kg)",
+      "prix": "Price per kilo",
+      "total": "Value",
+      "pots": "Equivalent 500 g jars",
+      "aide": "A valuation at the price set in ConfigZumm.ini, never a turnover: Zümm does not know your selling prices."
+    },
+    "conversion": {
+      "titre": "Unit conversion",
+      "valeur": "Value",
+      "de": "From",
+      "vers": "To",
+      "resultat": "Result",
+      "aide": "Masses and temperatures, and the two families never cross: converting grams into degrees is refused, never approximated.",
+      "unites": {
+        "mg": "milligram (mg)",
+        "g": "gram (g)",
+        "kg": "kilogram (kg)",
+        "t": "tonne (t)",
+        "lb": "pound (lb)",
+        "c": "degree Celsius (°C)",
+        "f": "degree Fahrenheit (°F)",
+        "k": "kelvin (K)"
+      }
     }
+  },
+  "photos": {
+    "titre": "Photos",
+    "url": "Photo address",
+    "legende": "Caption",
+    "aucune": "No photo attached.",
+    "ouvrir": "Open",
+    "aide": "Zümm hosts no file: the photo stays where it is published, and only its address is stored. Detaching therefore does not delete the original file."
+  },
+  "proches": {
+    "titre": "Apiaries around a point",
+    "rayon": "Radius (km)",
+    "aucun": "No apiary within this radius.",
+    "resultat": "{nombre} apiary/apiaries within {rayon} km",
+    "aide": "The point is typed here; the device position is never requested. An apiary is already a sensitive location — crossing it with a second one would add nothing these two fields do not already give."
+  },
+  "chargement": {
+    "titre": "Loading sheet",
+    "aide": "What must be in the vehicle before leaving: consolidated for the round, broken down by stop. The shortfall is NAMED, never fixed — deciding which hive to skip is an operational call.",
+    "date": "Date",
+    "agent": "Agent",
+    "depart": "Departure site",
+    "etapes": "Stops",
+    "ordre": "Order",
+    "site": "Site",
+    "visites": "Visits",
+    "taches": "Tasks",
+    "besoins": "To load",
+    "consommable": "Consumable",
+    "requis": "Required",
+    "stock": "In stock",
+    "manquant": "Short",
+    "manquants": "{nombre} consumable(s) short",
+    "aucunManquant": "Stock covers the round.",
+    "aucuneEtape": "No stop: nothing is planned that day.",
+    "charger": "Build the sheet"
   }
 }

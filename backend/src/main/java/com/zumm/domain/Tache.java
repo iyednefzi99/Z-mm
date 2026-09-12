@@ -47,6 +47,29 @@ public class Tache extends EntiteTenant {
     @JoinColumn(name = "materiel_id")
     private Materiel materiel;
 
+    /**
+     * Ce que la tache consomme (SPRINT-33, lot K).
+     *
+     * <p>La feuille de chargement n'existe que par cette colonne : la tournee
+     * etait calculee depuis le SPRINT-10 et le stock avait ses seuils depuis le
+     * SPRINT-27, mais rien ne disait ce que « nourrir la 12 » allait prelever.
+     * Une table « besoin de chargement » aurait duplique ce que la tache dit
+     * deja, et aurait pu en diverger.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "consommable_id")
+    private Consommable consommable;
+
+    /**
+     * Combien, dans l'unite du consommable.
+     *
+     * <p>Nullable, et le rester importe : « prendre du candi » sans savoir encore
+     * combien est une consigne utile, et l'exiger ferait renoncer a la saisie. La
+     * feuille de chargement distingue alors « besoin non chiffre » de « zero ».
+     */
+    @Column(name = "quantite_prevue", precision = 10, scale = 2)
+    private java.math.BigDecimal quantitePrevue;
+
     @Column(name = "echeance")
     private LocalDate echeance;
 
@@ -177,6 +200,22 @@ public class Tache extends EntiteTenant {
 
     public void setMateriel(Materiel materiel) {
         this.materiel = materiel;
+    }
+
+    public Consommable getConsommable() {
+        return consommable;
+    }
+
+    public void setConsommable(Consommable consommable) {
+        this.consommable = consommable;
+    }
+
+    public java.math.BigDecimal getQuantitePrevue() {
+        return quantitePrevue;
+    }
+
+    public void setQuantitePrevue(java.math.BigDecimal quantitePrevue) {
+        this.quantitePrevue = quantitePrevue;
     }
 
     public LocalDate getEcheance() {

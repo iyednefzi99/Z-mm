@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactElement } from 'react';
 import {
   chargerAlertesOuvertes,
   chargerMeteo,
+  chargerSerieBrute,
   chargerSerieJournaliere,
   detecterAnomalie,
   getZummHoneyActualQuantity,
@@ -10,6 +11,7 @@ import {
   ouvrirPartage,
   peserCompartiment,
   repartitionCompartiments,
+  serieCompartiment,
   revoquerPartage,
   ruches,
   sites,
@@ -19,6 +21,7 @@ import type {
   Anomalie,
   Meteo,
   Partage,
+  MesureReponse,
   PoidsCompartiment,
   PointJournalier,
   QuantiteMiel,
@@ -67,6 +70,14 @@ export function CapteursVue(): ReactElement {
   const [etages, setEtages] = useState<PoidsCompartiment[] | null>(null);
   const [etageChoisi, setEtageChoisi] = useState('');
   const [poidsEtage, setPoidsEtage] = useState('');
+  // Historique d'un etage : la ou `etages` donne la derniere pesee, celle-ci
+  // donne la suite. C'est ce qui distingue une hausse qui se remplit d'une
+  // hausse qu'on a pesee une fois et oubliee.
+  const [serieEtage, setSerieEtage] = useState<PoidsCompartiment[] | null>(null);
+  // Points BRUTS : le diagnostic du capteur, pas la courbe. Charges a la
+  // demande — la serie complete d'une balance qui emet toutes les minutes n'a
+  // rien a faire dans un ecran qu'on ouvre pour autre chose.
+  const [brute, setBrute] = useState<MesureReponse[] | null>(null);
   // Partage d'un flux hors de l'exploitation (SPRINT-26).
   const [partageRuche, setPartageRuche] = useState('');
   const [partages, setPartages] = useState<Partage[]>([]);
@@ -81,10 +92,31 @@ export function CapteursVue(): ReactElement {
   const optUnite: Option[] = UNITES.map((u) => ({ valeur: u, libelle: u }));
   const optRucheMiel: Option[] = [{ valeur: '', libelle: t.capteur.total }, ...optRuches];
 
+  /** Fenêtre de l'historique d'un étage : quatre-vingt-dix jours, comme le dit le libellé. */
+  const FENETRE_JOURS = 90;
+
+  const choisirEtage = (compartimentId: string) => {
+    setEtageChoisi(compartimentId);
+    setSerieEtage(null);
+    if (compartimentId === '') {
+      return;
+    }
+    const fin = new Date();
+    const debut = new Date(fin.getTime() - FENETRE_JOURS * 24 * 3600 * 1000);
+    void serieCompartiment(
+      Number(compartimentId),
+      debut.toISOString().slice(0, 10),
+      fin.toISOString().slice(0, 10),
+    )
+      .then(setSerieEtage)
+      .catch(() => setSerieEtage([]));
+  };
+
   const chargerEtages = (ruche: string) => {
     setEtageRuche(ruche);
     setEtageChoisi('');
     setEtages(null);
+    setSerieEtage(null);
     if (ruche === '') {
       return;
     }
@@ -219,6 +251,20 @@ export function CapteursVue(): ReactElement {
     setErreur(null);
     try {
       setMiel(await getZummHoneyActualQuantity(mielRuche === '' ? null : Number(mielRuche), unite));
+    } catch (cause) {
+      setErreur(messageErreur(cause, t.etats.serviceIndisponible));
+    }
+  };
+
+  /** Nombre de points bruts rendus : au-delà, la table cesse d'être lisible et devient lente. */
+  const POINTS_BRUTS_MAX = 100;
+
+  const afficherBrute = async () => {
+    if (anomRuche === '') return;
+    setErreur(null);
+    try {
+      const points = await chargerSerieBrute(Number(anomRuche), anomType);
+      setBrute(points.slice(-POINTS_BRUTS_MAX).reverse());
     } catch (cause) {
       setErreur(messageErreur(cause, t.etats.serviceIndisponible));
     }
@@ -420,7 +466,7 @@ export function CapteursVue(): ReactElement {
                 libelle: `${t.etage[e.type]} · ${e.nbCadres} ${t.champs.cadres}`,
               })),
             ]}
-            onChange={setEtageChoisi}
+            onChange={choisirEtage}
           />
           <ChampNombre libelle={t.etage.poids} valeur={poidsEtage} onChange={setPoidsEtage} />
           <div className="z-champ z-champ--aligne-bas">
@@ -453,6 +499,37 @@ export function CapteursVue(): ReactElement {
           </ul>
         )}
         {etages !== null && etages.length === 0 && <p className="z-info">{t.etats.vide}</p>}
+
+        {serieEtage !== null && (
+          <>
+            <h4 className="z-champ__libelle">{t.etage.serie}</h4>
+            <p className="z-info">{t.etage.fenetre}</p>
+            {serieEtage.length === 0 ? (
+              <p className="z-info">{t.etage.aucuneSerie}</p>
+            ) : (
+              <div className="z-table-enveloppe">
+                <table className="z-table">
+                  <thead>
+                    <tr>
+                      <th>{t.capteur.instant}</th>
+                      <th>{t.etage.poids}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {serieEtage.map((point) => (
+                      <tr key={point.instant ?? String(point.compartimentId)}>
+                        <td>{f.dateHeure(point.instant)}</td>
+                        <td className="z-nombre">
+                          {point.valeur === null ? '—' : `${f.nombre(point.valeur, 1)} kg`}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        )}
       </fieldset>
 
       <fieldset className="z-composition">
@@ -539,6 +616,18 @@ export function CapteursVue(): ReactElement {
               {t.anomalie.detecter}
             </Bouton>
           </div>
+          {/* Deux lectures de la MÊME série, et il faut les deux : la courbe
+              agrégée dit ce que la colonie fait, les points bruts disent ce que
+              le capteur fait. */}
+          <div className="z-champ z-champ--aligne-bas">
+            <Bouton
+              variante="fantome"
+              disabled={anomRuche === ''}
+              onClick={() => void afficherBrute()}
+            >
+              {t.capteur.serieBrute}
+            </Bouton>
+          </div>
         </div>
         {anomalie && seriesCourbe.length > 0 && (
           <Courbe
@@ -593,6 +682,40 @@ export function CapteursVue(): ReactElement {
               </ul>
             )}
           </div>
+        )}
+
+        {brute !== null && (
+          <>
+            <h4 className="z-champ__libelle">{t.capteur.serieBrute}</h4>
+            <p className="z-info">{t.capteur.serieBruteAide}</p>
+            {brute.length === 0 ? (
+              <p className="z-info">{t.capteur.aucunPoint}</p>
+            ) : (
+              <>
+                <p className="z-info">
+                  {gabarit(t.capteur.serieBruteBornee, { nombre: String(brute.length) })}
+                </p>
+                <div className="z-table-enveloppe">
+                  <table className="z-table">
+                    <thead>
+                      <tr>
+                        <th>{t.capteur.instant}</th>
+                        <th>{t.capteur.valeur}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {brute.map((point) => (
+                        <tr key={point.instant}>
+                          <td>{f.dateHeure(point.instant)}</td>
+                          <td className="z-nombre">{point.valeur}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </>
         )}
       </fieldset>
     </section>

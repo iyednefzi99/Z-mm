@@ -701,3 +701,417 @@ surtout **US-039 (diagrammes UML) et US-040 (rapport, poster, présentation)** :
 21 points du SPRINT-08 que la charte académique interdit de générer, et qui
 restent à produire. La régénération des PNG de classes et du MLD exige Graphviz
 (`dot`), absent du poste.
+
+---
+
+## 2026-09-11 — Reprise sur `sprint33-lotk-terrain-verifie` : corrélation flore
+
+**Interruption assumée, comme au 2026-07-27.** Ce journal saute du SPRINT-04 au
+SPRINT-20 puis directement ici : le dépôt est allé jusqu'au SPRINT-33 (lot K,
+commit `8471663`) sans qu'aucune séance n'ait été journalisée entre-temps. Même
+règle que la reprise précédente — pas de reconstitution a posteriori. L'état
+détaillé sprint par sprint reste dans `roadmap/operationnel/02_sprints/` et
+`docs/ECART-CONCURRENTS.md`, qui lui a continué d'être tenu à jour.
+
+### Contexte trouvé en début de séance
+
+La branche portait déjà, non commité, un travail backend complet et non
+surfacé côté front : `CorrelationFloreService`, `CorrelationFlore` (DTO),
+`Coefficient` (Pearson extrait de `CorrelationMeteoService` pour être partagé),
+`CouvertSolRepository.partsParSite`, et l'endpoint `GET /api/correlations/flore`
+— destiné à fermer la dernière ligne 🟡 du §2 de `ECART-CONCURRENTS.md`
+(« Croisement santé du rucher × flore environnante »). Un second chantier
+sans rapport, également non commité : Mailpit ajouté à `docker-compose.dev.yml`
+et SMTP câblé sur `realm-zumm.json`, pour activer réinitialisation de mot de
+passe et notifications d'alerte (US-041) en développement.
+
+### Livré cette séance
+
+Le volet front de la corrélation flore, sur le modèle exact de l'onglet
+« Météo × production » déjà en place dans `TableauxVue.tsx` :
+
+- Nouvel onglet **Flore × santé** : tableau classe de couvert / coefficient /
+  lecture / échantillon (en RUCHERS, pas en colonies — texte dédié
+  `correlation.echantillonRuchers`, pour ne pas laisser croire à un compte de
+  colonies). Réutilise `t.environnement.classes` pour les libellés de classe et
+  `t.correlation.lectures` pour les verdicts : les deux services partagent
+  maintenant les mêmes codes d'interprétation via `Coefficient`.
+- Deux avertissements dans l'ordre où ils s'appliquent : corrélation ≠ cause
+  (générique, déjà présent pour la météo), puis comparaisons multiples sur dix
+  classes testées sur le même échantillon (propre à celle-ci, nouveau texte
+  `correlation.avertissementFlore`).
+- `api/types.ts`, `api/client.ts`, `api/parite.ts` étendus en miroir de
+  `CorrelationMeteo`. Clés i18n ajoutées identiques en fr/en/ar
+  (`langue.test.tsx` vert).
+
+### Bloqué faute de Docker
+
+**Docker indisponible sur ce poste pendant toute la séance** (`docker info`
+échoue). Deux conséquences, les deux attendues et non contournées :
+
+- `./mvnw -B verify -Dit.test=ContratOpenApiIT` n'a pas pu tourner : le contrat
+  `frontend/src/api/openapi.json` ne connaît donc pas encore `CorrelationFlore`,
+  et `api/parite.ts` (qui le référence par convention, comme pour tout type
+  ajouté au client) fait échouer `npm run typecheck` — seule erreur de
+  compilation restante, à l'endroit exact prévu par la procédure du présent
+  fichier. Pas de contournement à la main : ce fichier est un artefact
+  généré et vérifié en CI, pas un point de départ.
+- Le parcours mot de passe oublié (chantier Mailpit) n'a pas pu être rejoué sur
+  la pile complète.
+
+**Ce qui A été vérifié sans Docker** : `./mvnw -B test` (unitaire seul, pas de
+Testcontainers) passe en entier — le refactor `Coefficient` n'a rien cassé
+ailleurs. Côté front, ESLint propre et `langue.test.tsx` vert.
+
+### Prochaine action
+
+Dès Docker disponible, dans l'ordre imposé par ce fichier :
+
+```bash
+cd backend  && ./mvnw -B verify -Dit.test=ContratOpenApiIT
+cd frontend && npm run api:contrat && npm run typecheck && npm run lint && npm test && npm run build
+```
+
+Puis `./mvnw -B verify` complet (pour prouver `partsParSite`, requête PostGIS
+native non couverte par un test unitaire), le parcours mot de passe oublié via
+Mailpit sur la pile dev, la mise à jour de `ECART-CONCURRENTS.md:89` (🟡 → ✅
+une fois tout vérifié — pas avant), puis deux commits séparés (corrélation
+flore / Mailpit).
+
+### Reste ouvert
+
+Inchangé pour le reste : voir l'entrée du 2026-07-27 ci-dessus et
+`REVUE-CONSOLIDEE.md` § 5.
+
+---
+
+## 2026-09-11 (suite) — Docker de retour : corrélation flore fermée et vérifiée
+
+Docker Desktop relancé en cours de séance. Les trois actions bloquées plus haut
+ont pu être menées, dans l'ordre imposé par ce fichier :
+
+- `./mvnw -B verify -Dit.test=ContratOpenApiIT` : contrat régénéré,
+  `CorrelationFlore` y apparaît.
+- `npm run api:contrat && npm run typecheck && npm run lint && npm test
+  && npm run build` : tous verts. `npm test` signale un **échec préexistant et
+  sans rapport** — une exception non gérée dans `CapteursVue.tsx:110`
+  (`choisirEtage`), levée pendant `Telemetrie.test.tsx`, sur du code du lot K
+  (`8471663`) que cette séance n'a pas touché. Fait `exit 1` sur `vitest`
+  malgré 413/413 tests nommément verts. **Non corrigé** — hors périmètre de
+  cette séance, à traiter séparément.
+
+**Écart comblé avant de conclure** : `CouvertSolRepository.partsParSite`, la
+requête PostGIS groupée qui nourrit la corrélation flore, n'était prouvée par
+aucun test contre une vraie base — seulement simulée dans
+`CorrelationFloreServiceTest`. Ajouté `EnvironnementSigIT.correlationFloreParClasseDeCouvert`
+: deux ruchers éloignés (donc sans chevauchement de cercle de butinage), classes
+de couvert distinctes, santés distinctes (`etatSante` bon/mauvais), et
+vérification que `GET /api/correlations/flore` rend un échantillon de 2 par
+classe avec une lecture nue (`echantillon_insuffisant` ou `variance_nulle`) —
+loin du seuil de douze. Sans ce test, une erreur de cast PostGIS
+(`::geometry`/`::geography`) ou de jointure dans la requête groupée serait
+restée invisible jusqu'à la production.
+
+### Vérifié
+
+| Vérification | Résultat |
+|---|---|
+| `./mvnw -B verify` (complet) | ✅ **778 unitaires + 258 d'intégration**, `Skipped: 0`, planchers JaCoCo tenus, `BUILD SUCCESS` 6:20 |
+| `npm run typecheck && lint && build` | ✅ |
+| `npm test` | ⚠️ 413/413 tests verts, mais `exit 1` sur une exception non gérée préexistante (`CapteursVue.tsx`, sans rapport avec cette séance) |
+
+`docs/ECART-CONCURRENTS.md:89` (croisement santé × flore) passé de 🟡 à ✅.
+
+### Reste ouvert
+
+- Le parcours mot de passe oublié (chantier Mailpit, toujours non commité) n'a
+  **pas** été rejoué sur la pile dev complète — resté hors du fil de cette
+  séance, qui s'est concentrée sur la corrélation flore.
+- L'exception non gérée de `CapteursVue.tsx:110` / `Telemetrie.test.tsx` fait
+  échouer `npm test` (exit 1) malgré des tests nommément tous verts — à
+  diagnostiquer et corriger séparément.
+- Pas de commit fait cette séance (non demandé). Deux lots distincts prêts à
+  committer séparément : corrélation flore (backend + front + `EnvironnementSigIT`
+  + doc) et Mailpit/SMTP (infra, non touché aujourd'hui).
+
+---
+
+## 2026-09-12 — Corrélation flore committée ; parcours mot de passe oublié non vérifié (réseau)
+
+Les deux lots annoncés la veille ont été committés séparément, chacun sur son
+propre message, sans trailer d'attribution : `daaf9e5` (corrélation flore,
+19 fichiers) et `19ee7a0` (Mailpit/SMTP, 2 fichiers). Rien poussé.
+
+**Tentative de vérifier le parcours mot de passe oublié sur la pile dev,
+abandonnée pour un motif réseau, pas applicatif.** `docker compose --env-file
+.env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up -d
+--build` a été lancé trois fois : à chaque fois, le pull de
+`eclipse-temurin:17-jre-jammy` (image d'exécution du backend,
+`infra/backend.Dockerfile`) restait bloqué net sur les deux mêmes couches
+(`f55090376df5`, 47,5 Mo, et une autre), à 0-1 Mo, sans qu'aucune progression
+ne reprenne même après plusieurs minutes d'attente. Ce n'était pas une lenteur
+générale : dans le même intervalle, l'image `axllent/mailpit:v1.21` (après une
+seule relance) et `nginxinc/nginx-unprivileged:alpine` se sont téléchargées
+sans accroc, et `hello-world` est passé instantanément. Le blocage est donc
+spécifique à ce blob-là — un nœud CDN Docker Hub mal en point pour cette
+empreinte de contenu est l'explication la plus probable, pas un souci de
+config ni de bande passante du poste.
+
+Trois tentatives de `docker pull` isolé n'ont pas débloqué la couche
+(contrairement à Mailpit, débloqué du premier coup par la même tactique).
+Plutôt que de m'acharner dans une boucle de relances, la question a été posée
+à l'utilisateur : reporté à plus tard, sans redémarrer Docker Desktop ni
+insister davantage cette séance.
+
+**Conséquence** : le câblage Mailpit/Keycloak commité la veille (`19ee7a0`,
+smtpServer déjà pointé sur `mailpit:1025` dans `realm-zumm.dev.json`, backend
+avec `SPRING_MAIL_HOST=mailpit`) reste correct sur le papier mais **toujours
+pas rejoué en conditions réelles**. Aucun conteneur Zümm n'a été démarré ou
+modifié par ces tentatives — l'échec s'est produit avant la création de tout
+conteneur applicatif, l'état de la pile est inchangé.
+
+### Reste ouvert
+
+- Le parcours mot de passe oublié via Mailpit sur la pile dev, toujours non
+  vérifié — à reprendre quand le réseau le permettra
+  (`docker compose --env-file .env -f infra/docker-compose.yml
+  -f infra/docker-compose.dev.yml up -d --build`, puis
+  `bash infra/seed-demo.sh`, puis déclencher la réinitialisation pour
+  `apiculteur-test@example.invalid` et lire `http://localhost:8025`).
+- L'exception non gérée de `CapteursVue.tsx:110` / `Telemetrie.test.tsx`
+  (entrée du 2026-09-11), toujours non diagnostiquée.
+
+---
+
+## 2026-09-12 (suite) — Les deux défauts de test soldés, séparément
+
+Les deux points laissés ouverts ci-dessus ont chacun trouvé leur cause, et
+**aucun des deux n'était un défaut du code applicatif** — seulement des tests
+dont un mock ou une attente était incomplet.
+
+- **`Telemetrie.test.tsx`** (`d3f91d6`) : `client.serieCompartiment` était
+  mocké en `vi.fn()` nu, sans valeur de résolution par défaut. Choisir un
+  étage dans le volet « Poids par étage » appelle cette fonction
+  (`CapteursVue.tsx:106`), et le mock rendait `undefined` au lieu d'une
+  promesse — `.then()` explosait en erreur non gérée, faisant sortir
+  `npm test` en échec malgré 413/413 tests nommément verts. Le vrai
+  `serieCompartiment` renvoie toujours une promesse. Ajouté
+  `mockResolvedValue([])` au `beforeEach`.
+- **Fragilité générale de la suite, demandée en revue** (`461ada7`) : la durée
+  des runs corrélait exactement avec les échecs aléatoires observés plus tôt
+  (90-100 s avec des échecs différents à chaque fois pendant que Docker
+  construisait la pile dev en tâche de fond ; 13-17 s et 413/413 sans cette
+  charge, sur cinq runs consécutifs). **Cause principale : contention CPU**,
+  pas un bug — les délais par défaut de `waitFor`/`findBy` (1 s) peuvent
+  légitimement expirer sous charge. Un vrai défaut trouvé au passage :
+  `HorsLigneVue.tsx` lance un `useEffect` inconditionnel
+  (`agents.lister().then(setOptAgents)`) à chaque montage, et quatre tests de
+  `HorsLigne.test.tsx` montaient l'écran de façon synchrone puis lisaient le
+  DOM avant que cette promesse (mockée, résolue) ne se règle — avertissement
+  React « update not wrapped in act(...) » à chaque run, même vert. Corrigé
+  en passant ces quatre tests en `async` avec un premier
+  `await screen.findByText(...)`. Vérifié : 0 avertissement `act()` restant
+  dans toute la suite (12 avant, tous dans ce fichier).
+
+### Reste ouvert
+
+Le parcours mot de passe oublié via Mailpit, toujours non vérifié (voir
+ci-dessus) — rien d'autre de nouveau.
+
+---
+
+## 2026-09-12 (suite) — Parcours mot de passe oublié vérifié, et un vrai piège trouvé
+
+Docker débloqué après plusieurs tentatives espacées (le pull de
+`eclipse-temurin:17-jre-jammy` puis de `maven:3.9-eclipse-temurin-17`
+restait bloqué net sur les mêmes blobs à chaque essai immédiat, mais passait
+au premier essai après quelques minutes d'attente — un souci de CDN Docker
+Hub transitoire, apparemment résolu de lui-même). `docker compose ... up -d
+--build` a fini par tourner en entier : les neuf services (postgres,
+keycloak, backend, frontend, nginx, mailpit, ia-service, grafana,
+prometheus) tous `healthy`. `infra/seed-demo.sh` rejoué sans erreur.
+
+**Le parcours a d'abord échoué, et pas pour une raison prévue.**
+`PUT .../execute-actions-email` sur `apiculteur-test` renvoyait
+`500 : No sender address configured in the realm settings for emails` —
+alors que `realm-zumm.dev.json` porte bien `smtpServer` et
+`resetPasswordAllowed: true` depuis `19ee7a0`. Interrogé via l'API admin, le
+realm **réellement actif** rendait `"smtpServer":{}` et
+`"resetPasswordAllowed":false`.
+
+**Piège trouvé** : Keycloak n'importe `realm-zumm(.dev).json` qu'à la
+CRÉATION du realm en base — jamais aux démarrages suivants. Le volume
+`postgres` de cette pile datait d'avant ce sprint (conteneurs vus « Exited 6
+days ago » en tout début de séance) : `up -d --build` a reconstruit et
+redémarré les conteneurs, mais Keycloak a retrouvé son ancien realm intact
+dans la base persistée, sans jamais relire le fichier modifié. Aucune erreur
+au démarrage ne le signale — le symptôme n'apparaît qu'au moment d'envoyer un
+e-mail, plusieurs étapes plus loin. Documenté dans
+`infra/keycloak/README.md`, avec le geste qui répare :
+`docker compose ... down -v` puis `up -d --build` (comme pour Flyway, ça
+rejoue tout depuis zéro).
+
+Le realm de CETTE session a été corrigé en direct par l'API admin
+(`PUT /admin/realms/zumm`, mêmes valeurs que le fichier) plutôt que par un
+`down -v` complet, pour ne pas perdre les données de démo déjà chargées et
+aller plus vite à la vérification — un geste de séance, pas une trace dans
+le dépôt.
+
+**Vérifié pour de vrai, ensuite** : `execute-actions-email` → `204` →
+Mailpit reçoit un message de `no-reply@zumm.test` à
+`apiculteur-test@example.invalid`, sujet « Mettre à jour votre compte »,
+contenu en français correct. Le lien qu'il contient
+(`.../login-actions/action-token?key=...`) répond `200` et ouvre bien la
+page Keycloak « Suivez les instructions suivantes » — pas une page
+d'erreur. La boucle e-mail est prouvée de bout en bout ; le changement de
+mot de passe lui-même (dernier clic dans le formulaire Keycloak) n'a pas été
+poussé plus loin, ça relève du thème Keycloak standard, pas de code du
+dépôt.
+
+### Reste ouvert
+
+Rien de nouveau côté Mailpit/mot de passe oublié — chantier soldé. La
+fuite de test `CapteursVue`/`HorsLigne` (entrées précédentes) est réglée
+elle aussi. Le point ouvert restant est celui d'avant ce sprint :
+`REVUE-CONSOLIDEE.md` § 5.
+
+---
+
+## 2026-09-12 (suite) — Panneau photos branché partout, puis alerte sur anomalie d'accès (SPRINT-34)
+
+Deux chantiers distincts, chacun committé et poussé séparément.
+
+**Panneau photos.** `PanneauPhotos` existait depuis le SPRINT-21 (six cibles
+depuis le SPRINT-28) mais restait absent de cinq écrans : Reines, Récoltes,
+Sanitaire (volet Traitements), Ruches, Sites. Simple branchement — aucune
+donnée nouvelle, aucune migration. Chaîne complète vérifiée avant commit
+(`typecheck`, `lint`, 418 tests, `build`). Commit `fe295c4`, poussé sur
+`sprint33-lotk-terrain-verifie`, PR ouverte côté utilisateur (`gh` non
+authentifié sur ce poste — abandonné après deux tentatives de connexion sans
+succès, l'utilisateur a ouvert la PR lui-même).
+
+**Alerte sur anomalie d'accès.** `REVUE-CONSOLIDEE.md` § 5 le pointait depuis
+le SPRINT-09 : « le journal d'audit enregistre, personne ne le lit en
+continu ». Périmètre retenu après discussion avec l'utilisateur : refus RBAC
+(403) répétés d'un même acteur sur une fenêtre glissante — seul signal qui ne
+demande pas de base comportementale. Explicitement écarté cette séance :
+- les échecs de mot de passe — Keycloak les voit, pas notre backend, le flux
+  OIDC/PKCE ne les expose jamais à l'API ;
+- l'horaire/le volume inhabituel — demanderait une moyenne historique par
+  agent, pas construite.
+
+Ce qui a été livré :
+- `AuditEntree.REFUS` — un 403 devient une ligne d'audit, ce qui n'existait
+  pas du tout avant (`GestionnaireRefusAcces`, un `AccessDeniedHandler` qui
+  délègue la réponse HTTP à celui de Spring par défaut et ne fait qu'ajouter
+  la journalisation avant) ;
+- `DetecteurAnomalieAcces` (package `securite/`) : compte les refus par
+  acteur sur la fenêtre configurée (`[securite]` de `ConfigZumm.ini`, 5 refus
+  / 15 min par défaut) et, au-delà, engendre une tâche CRITIQUE puis notifie
+  par e-mail tous les responsables/admin de l'exploitation
+  (`NotificationAlerteService.notifierAnomalieAcces`, un message par
+  destinataire) ;
+- **délibérément en dehors de `MoteurRegles`/`RegleTache`** : ce moteur est
+  volontairement non planifié (déclenché à la main), ce qui convient à des
+  règles métier qu'un responsable exécute à son rythme — l'inverse de ce
+  qu'une anomalie de sécurité demande. Le détecteur réutilise son
+  vocabulaire (tâche `origine=regle`, `cle_declencheur` anti-doublon horaire)
+  sans passer par lui ;
+- `V33` (widening du CHECK `ck_audit_action` + index `ix_audit_anomalie`) ;
+- `AgentRepository.findByRoleIn` (destinataires de l'alerte) ;
+- deux trous préexistants comblés au passage, découverts en instrumentant le
+  même endroit : le type frontend `ActionAudit` n'incluait pas `forcage`
+  (SPRINT-22) — une action déjà en base depuis un an s'affichait donc en
+  blanc dans `AuditVue` faute de clé i18n. Corrigé pour `forcage` et `refus`
+  ensemble, dans les trois locales.
+
+Vérifié : `DetecteurAnomalieAccesTest` (4 cas, mocks) et surtout
+`AnomalieAccesIT` — 5 vrais 403 envoyés à un `MockMvc` sous Testcontainers,
+vérifiés en base sous la vraie RLS : 5 lignes `refus` journalisées, une tâche
+critique `regleCode=anomalie-acces` engendrée. `./mvnw verify` complet :
+782 tests unitaires + 259 `*IT`, `Skipped: 0`, planchers JaCoCo tenus, aucune
+régression. Chaîne frontend complète également verte.
+
+### Reste ouvert
+
+`REVUE-CONSOLIDEE.md` § 5 est réduit d'un point (l'alerte d'accès) ; restent
+les autres — notamment le flux OIDC jamais joué en CI avec un vrai Keycloak,
+et `style-src 'unsafe-inline'`. Rien commité ni poussé cette partie de
+séance : à faire au prochain geste explicite.
+
+---
+
+## 2026-09-12 (suite) — Le flux OIDC joue pour de vrai en CI (SPRINT-34)
+
+Dernier point ouvert de `REVUE-CONSOLIDEE.md` §5 datant du SPRINT-11 : « 19
+tests, mais tous avec un Keycloak simulé — précisément l'angle mort qui avait
+laissé passer l'absence de rafraîchissement [de jeton] ». Aucun test du dépôt
+n'avait jamais fait émettre un jeton par un vrai royaume ni vérifié sa
+signature contre de vraies clés publiques — `BffSessionIT` et `RbacIT`
+fabriquent tous deux leur jeton via `oidcLogin()`/`jwt()`.
+
+**Le choix de chemin.** Zumm offre deux flux OIDC (ADR-009) : la redirection
+classique Authorization Code + PKCE (`oauth2Login()`, client
+`zumm-frontend`) et l'échange direct mené par le BFF (`POST /bff/connexion`,
+client `zumm-bff`). Le premier est vestige — la PWA ne l'emprunte plus depuis
+l'ADR-009. Nouveau test `AuthentificationOidcReelleIT` : le SECOND flux,
+celui réellement utilisé, contre un Keycloak Testcontainers (image brute
+`quay.io/keycloak/keycloak:26.0`, pas de module Testcontainers tiers) avec le
+realm de dev (`infra/keycloak/realm-zumm.dev.json`, copié via
+`MountableFile` plutôt que dupliqué sous `src/test/resources`) — mêmes
+comptes `apiculteur-test`/`admin-test`, même secret `zumm-bff` que la pile de
+développement, aucune surcharge nécessaire.
+
+**Deux pièges réels trouvés en écrivant le test, invisibles à tout test
+mocké :**
+
+1. **`CsrfFilter` ne pose jamais le cookie XSRF-TOKEN sur une lecture.**
+   Vérifié en décompilant le bytecode de `CsrfFilter.doFilterInternal`
+   (Spring Security 6.5.11) : le jeton différé n'est résolu
+   (`DeferredCsrfToken#get()`, seul moment où `CookieCsrfTokenRepository`
+   écrit le cookie) que si la méthode EXIGE la protection CSRF — jamais sur
+   un GET, qui retourne avant. Un navigateur neuf ne peut donc pas obtenir de
+   cookie par une lecture préalable ; seule une première MUTATION, même
+   rejetée faute de jeton, le dépose sur SA PROPRE réponse. Le premier essai
+   de connexion d'un navigateur neuf échoue donc une fois par construction —
+   401 et non 403, parce qu'un refus CSRF sur une requête ANONYME est routé
+   par `ExceptionTranslationFilter` vers l'`AuthenticationEntryPoint`, pas
+   vers `GestionnaireRefusAcces` (SPRINT-34, lot du matin), qui ne voit que
+   les refus d'un appelant déjà identifié. Le test rejoue ce double essai
+   plutôt que de le contourner.
+2. **Le cookie de session `Secure` sans condition** (`application.yml`,
+   argumenté en commentaire : un cookie non marqué avait forcé un
+   `redirect_uri` en `http://`) **exige un client qui parle vraiment TLS.**
+   `forward-headers-strategy: framework` fait croire au SERVEUR que la
+   requête est sécurisée via `X-Forwarded-Proto` (ce que fait nginx en pile
+   réelle), mais ça ne change rien côté CLIENT : `java.net.CookieManager`
+   respecte l'attribut `Secure` à la lettre — contrairement aux navigateurs,
+   qui font une exception pour `localhost` — et ne renvoie donc JAMAIS un
+   cookie `Secure` reçu sur une connexion `http://`, quel que soit l'en-tête
+   envoyé. Poser `X-Forwarded-Proto` a même aggravé les choses : le cookie
+   CSRF hérite aussi de `isSecure()` et devient à son tour irrécupérable.
+   Plutôt que d'affaiblir `secure: true` (ce que `CLAUDE.md` interdit sans
+   reprendre l'argument), le serveur de test sert un vrai certificat
+   auto-signé jetable, généré à la volée par `keytool` (outil du JDK, aucune
+   dépendance ajoutée) ; le client HTTP ne fait confiance qu'à CE certificat
+   précis, jamais à un `TrustManager` qui accepte tout.
+
+**Ce que le test prouve, une fois ces deux pièges compris :** connexion
+réelle (Keycloak émet un jeton, `JwtDecoder` en valide signature, émetteur
+ET audience pour de vrai, `/bff/session` reflète le vrai rôle et le vrai
+`tenant_id`) ; mot de passe faux refusé sans session ; RBAC sur un rôle
+Keycloak RÉEL (refusé à l'apiculteur, permis à l'admin sur `POST
+/api/fermiers`) — la toute première fois que `realm_access.roles` d'un jeton
+réellement émis traverse `ConvertisseurDeRoles` de bout en bout.
+
+**CI : aucun changement de workflow nécessaire.** `.github/workflows/ci.yml`
+lance déjà `./mvnw -B verify`, qui ramasse toute classe `*IT` — Keycloak sera
+simplement tiré de `quay.io` au premier run, comme n'importe quelle autre
+image non pré-construite. `./mvnw verify` complet rejoué en local : 782 tests
+unitaires + 262 `*IT` (259 + 3), `Skipped: 0`, planchers JaCoCo tenus.
+
+`REVUE-CONSOLIDEE.md` §5 mis à jour : la ligne OIDC est soldée, ainsi que
+« aucune alerte sur anomalie d'accès » (chantier du matin, jamais reporté
+dans ce tableau). Restent `style-src 'unsafe-inline'`, le chiffrement GPS
+(arbitrage ADR) et les points d'infra/exploitant. Rien commité ni poussé
+cette partie de séance.

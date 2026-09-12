@@ -17,10 +17,12 @@ import {
   ChampTexte,
   ChampZone,
   Colonne,
+  Modale,
   Option,
   Table,
 } from '../ui/composants';
 import { PanneauElevage } from '../elevage/PanneauElevage';
+import { PanneauPhotos } from '../photos/PanneauPhotos';
 
 /**
  * Élevage et suivi des reines.
@@ -44,6 +46,7 @@ export function ReinesVue(): ReactElement {
   const [race, setRace] = useState('');
   const [note, setNote] = useState('');
   const [erreur, setErreur] = useState<string | null>(null);
+  const [photosDe, setPhotosDe] = useState<Reine | null>(null);
 
   const vide: Option = { valeur: '', libelle: t.champs.aucun };
   const optStatut: Option[] = STATUTS_REINE.map((s) => ({ valeur: s, libelle: t.reine.statuts[s] }));
@@ -55,6 +58,14 @@ export function ReinesVue(): ReactElement {
     { entete: t.reine.couleur, rendu: (r) => (r.couleurMarquage ? t.reine.couleurs[r.couleurMarquage] : '—') },
     { entete: t.reine.annee, rendu: (r) => (r.anneeNaissance != null ? String(r.anneeNaissance) : '—') },
     { entete: t.reine.race, rendu: (r) => r.race ?? '—' },
+    {
+      entete: t.photos.titre,
+      rendu: (r) => (
+        <button type="button" className="z-lien" onClick={() => setPhotosDe(r)}>
+          {t.photos.titre}
+        </button>
+      ),
+    },
   ];
 
   useEffect(() => {
@@ -147,6 +158,12 @@ export function ReinesVue(): ReactElement {
             <p className="z-info">{t.etats.vide}</p>
           )}
         </>
+      )}
+
+      {photosDe && (
+        <Modale titre={t.photos.titre} onFermer={() => setPhotosDe(null)}>
+          <PanneauPhotos cible="REINE" cibleId={photosDe.id} />
+        </Modale>
       )}
     </section>
   );

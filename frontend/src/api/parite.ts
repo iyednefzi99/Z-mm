@@ -28,7 +28,12 @@ import type { components } from './contrat';
 import type {
   Briefing,
   CouvertRucher,
+  ExpositionRucher,
+  FeuilleChargement,
+  FiabiliteCouvert,
   FloraisonObservee,
+  ParcelleCouvert,
+  ZoneTraitee,
   DossierConformite,
   Genealogie,
   IndexGenetique,
@@ -56,6 +61,7 @@ import type {
   ChargeAgent,
   IndiceColonie,
   CorrelationMeteo,
+  CorrelationFlore,
   Transport,
   Abonnement,
   CaptureEssaim,
@@ -256,6 +262,13 @@ export type _CorrelationMeteo =
   Conforme<CorrelationMeteo, TolerantAuNull<Schemas['CorrelationMeteo']>>;
 
 /*
+ * Correlation flore (SPRINT-33). Meme risque que CorrelationMeteo ci-dessus,
+ * pour la meme raison : `coefficient` est NULLABLE par construction.
+ */
+export type _CorrelationFlore =
+  Conforme<CorrelationFlore, TolerantAuNull<Schemas['CorrelationFlore']>>;
+
+/*
  * Actes de lot et agregats (SPRINT-23, lot B).
  *
  * <p>Quatre types dont la derive serait particulierement couteuse a
@@ -403,3 +416,31 @@ export type _Briefing = Conforme<Briefing, TolerantAuNull<Schemas['Briefing']>>;
 export type _CouvertRucher = Conforme<CouvertRucher, TolerantAuNull<Schemas['CouvertRucher']>>;
 export type _FloraisonObservee =
   Conforme<FloraisonObservee, TolerantAuNull<Schemas['FloraisonReponse']>>;
+
+/*
+ * Verification terrain, zones traitees et chargement (SPRINT-33, lot K).
+ *
+ * <p>Quatre types, et quatre champs dont la derive serait invisible a l'usage —
+ * chacun etant precisement ce qui empeche l'ecran de promettre plus qu'il ne
+ * tient.
+ *
+ * <p>`ParcelleCouvert.classeConstatee` doit rester DISTINCT de `classe` : les
+ * fondre ferait raconter a la parcelle que la source avait raison depuis le
+ * debut, et la fiabilite d'un millesime ne se mesurerait plus.
+ * `ExpositionRucher.derniereDeclaration` est ce qui distingue « rien ne m'a ete
+ * declare » de « rien n'a ete epandu » ; le perdre transformerait une couche
+ * declarative en garantie d'absence. `FiabiliteCouvert.dementies` est la seule
+ * chose que le ground truthing etablisse vraiment. Et
+ * `BesoinConsommable.requis`, qui doit pouvoir valoir `null` : « 0 kg de candi »
+ * ferait partir sans.
+ */
+export type _ParcelleCouvert =
+  Conforme<ParcelleCouvert, TolerantAuNull<Schemas['ParcelleCouvert']>>;
+export type _FiabiliteCouvert =
+  Conforme<FiabiliteCouvert, TolerantAuNull<Schemas['FiabiliteCouvert']>>;
+export type _ZoneTraitee =
+  Conforme<ZoneTraitee, TolerantAuNull<Schemas['ZoneTraiteeReponse']>>;
+export type _ExpositionRucher =
+  Conforme<ExpositionRucher, TolerantAuNull<Schemas['ExpositionRucher']>>;
+export type _FeuilleChargement =
+  Conforme<FeuilleChargement, TolerantAuNull<Schemas['FeuilleChargement']>>;

@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState, type ReactElement } from 'react';
 import {
   chargeEquipe,
+  correlationsFlore,
+  correlationsMeteo,
   chargerAlertesSanitaires,
   chargerCalendrier,
   chargerPrevisions,
   chargerProduction,
   chargerSynthese,
+  listerIndices,
   syntheseRuchers,
   telechargerExport,
 } from '../api/client';
@@ -13,7 +16,10 @@ import type {
   AlerteSanitaire,
   CalendrierCellule,
   ChargeAgent,
+  CorrelationFlore,
+  CorrelationMeteo,
   EtatSante,
+  IndiceColonie,
   LigneProduction,
   NiveauAlerte,
   PrevisionRecolte,
@@ -28,7 +34,17 @@ import { Barres, Tuile } from '../ui/graphiques';
 import { BriefingPanneau } from './BriefingPanneau';
 import { useLangue } from '../i18n/langue';
 
-type Sous = 'calendrier' | 'production' | 'previsions' | 'alertes' | 'synthese' | 'ruchers' | 'equipe';
+type Sous =
+  | 'calendrier'
+  | 'production'
+  | 'previsions'
+  | 'alertes'
+  | 'synthese'
+  | 'ruchers'
+  | 'equipe'
+  | 'indices'
+  | 'correlations'
+  | 'correlationsFlore';
 
 /** Gravité d'un niveau d'alerte, et santé de la dernière visite, en tons de pastille. */
 const TON_NIVEAU: Record<NiveauAlerte, TonPastille> = {
@@ -65,6 +81,11 @@ export function TableauxVue(): ReactElement {
   const [debut, setDebut] = useState(defaut.debut);
   const [fin, setFin] = useState(defaut.fin);
   const [calendrier, setCalendrier] = useState<CalendrierCellule[]>([]);
+  // Indices et corrélations : deux lectures CALCULÉES, jamais stockées — elles
+  // se rechargent à chaque ouverture de l'onglet plutôt que de vivre en cache.
+  const [indices, setIndices] = useState<IndiceColonie[]>([]);
+  const [correlations, setCorrelations] = useState<CorrelationMeteo[]>([]);
+  const [correlationsSol, setCorrelationsSol] = useState<CorrelationFlore[]>([]);
   const [production, setProduction] = useState<LigneProduction[]>([]);
   const [previsions, setPrevisions] = useState<PrevisionRecolte[]>([]);
   const [alertes, setAlertes] = useState<AlerteSanitaire[]>([]);
@@ -98,6 +119,15 @@ export function TableauxVue(): ReactElement {
     } else if (sous === 'alertes') {
       setErreur(null);
       void chargerAlertesSanitaires().then(setAlertes).catch((c) => setErreur(messageErreur(c, indisponible)));
+    } else if (sous === 'indices') {
+      setErreur(null);
+      void listerIndices().then(setIndices).catch((c) => setErreur(messageErreur(c, indisponible)));
+    } else if (sous === 'correlations') {
+      setErreur(null);
+      void correlationsMeteo().then(setCorrelations).catch((c) => setErreur(messageErreur(c, indisponible)));
+    } else if (sous === 'correlationsFlore') {
+      setErreur(null);
+      void correlationsFlore().then(setCorrelationsSol).catch((c) => setErreur(messageErreur(c, indisponible)));
     } else {
       setErreur(null);
       void chargerSynthese().then(setSynthese).catch((c) => setErreur(messageErreur(c, indisponible)));
@@ -105,7 +135,7 @@ export function TableauxVue(): ReactElement {
   }, [sous, chargerCal, indisponible]);
 
   const sousOnglets: Sous[] = ['calendrier', 'production', 'previsions', 'alertes',
-    'synthese', 'ruchers', 'equipe'];
+    'synthese', 'ruchers', 'equipe', 'indices', 'correlations', 'correlationsFlore'];
 
   return (
     <section className="z-section">
@@ -434,6 +464,155 @@ export function TableauxVue(): ReactElement {
                       <td>{a.tachesEnRetard === 0 ? '—' : a.tachesEnRetard}</td>
                       <td>{a.tachesCritiques === 0 ? '—' : a.tachesCritiques}</td>
                       <td>{a.visites7Jours}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {sous === 'indices' && (
+        <>
+          <p className="z-info">{t.indice.aide}</p>
+          {indices.length === 0 ? (
+            <p className="z-info">{t.indice.aucun}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{t.tableau.ruche}</th>
+                    <th>{t.indice.sante}</th>
+                    <th>{t.indice.essaimage}</th>
+                    <th>{t.indice.motifsTitre}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {indices.map((indice) => (
+                    <tr key={indice.rucheId}>
+                      <td>{indice.rucheModele}</td>
+                      {/* Sans observation prise en compte, aucune jauge : une
+                          note sur du vide ferait passer l'ignorance pour un
+                          diagnostic. */}
+                      <td>{indice.composantes === 0 ? t.indice.nonEvalue : indice.sante}</td>
+                      <td>
+                        {indice.composantes === 0
+                          ? t.indice.nonEvalue
+                          : indice.risqueEssaimage}
+                      </td>
+                      <td>
+                        {indice.motifs.length === 0
+                          ? '—'
+                          : indice.motifs
+                              .map((motif) => t.indice.motifs[motif as keyof typeof t.indice.motifs])
+                              .join(' · ')}
+                        <br />
+                        <small>
+                          {gabarit(t.indice.composantes, {
+                            nombre: String(indice.composantes),
+                          })}
+                        </small>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {sous === 'correlations' && (
+        <>
+          {/* L'avertissement précède le tableau, et non l'inverse : lu après les
+              coefficients, il arriverait trop tard. */}
+          <p className="z-info">{t.correlation.avertissement}</p>
+          {correlations.length === 0 ? (
+            <p className="z-info">{t.correlation.aucune}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{t.correlation.indicateur}</th>
+                    <th>{t.correlation.coefficient}</th>
+                    <th>{t.correlation.lecture}</th>
+                    <th>{t.tableau.nbMesures}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {correlations.map((correlation) => (
+                    <tr key={correlation.indicateur}>
+                      <td>{t.correlation[correlation.indicateur]}</td>
+                      <td className="z-nombre">
+                        {correlation.coefficient === null
+                          ? '—'
+                          : f.nombre(correlation.coefficient, 2)}
+                      </td>
+                      <td>
+                        {
+                          t.correlation.lectures[
+                            correlation.interpretation as keyof typeof t.correlation.lectures
+                          ]
+                        }
+                      </td>
+                      <td className="z-nombre">
+                        {gabarit(t.correlation.echantillon, {
+                          nombre: String(correlation.echantillon),
+                        })}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+
+      {sous === 'correlationsFlore' && (
+        <>
+          {/* Deux avertissements, dans l'ordre ou ils s'appliquent : la cause
+              d'abord (vaut pour toute correlation), la portee ensuite (propre
+              a celle-ci — dix classes testees sur le meme echantillon). */}
+          <p className="z-info">{t.correlation.avertissement}</p>
+          <p className="z-info">{t.correlation.avertissementFlore}</p>
+          {correlationsSol.length === 0 ? (
+            <p className="z-info">{t.correlation.aucuneFlore}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{t.correlation.classe}</th>
+                    <th>{t.correlation.coefficient}</th>
+                    <th>{t.correlation.lecture}</th>
+                    <th>{t.tableau.nbMesures}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {correlationsSol.map((correlation) => (
+                    <tr key={correlation.classe}>
+                      <td>{t.environnement.classes[correlation.classe]}</td>
+                      <td className="z-nombre">
+                        {correlation.coefficient === null
+                          ? '—'
+                          : f.nombre(correlation.coefficient, 2)}
+                      </td>
+                      <td>
+                        {
+                          t.correlation.lectures[
+                            correlation.interpretation as keyof typeof t.correlation.lectures
+                          ]
+                        }
+                      </td>
+                      <td className="z-nombre">
+                        {gabarit(t.correlation.echantillonRuchers, {
+                          nombre: String(correlation.echantillon),
+                        })}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

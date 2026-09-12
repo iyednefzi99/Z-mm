@@ -1,9 +1,11 @@
 package com.zumm.controller;
 
 import com.zumm.service.AgendaIcsService;
+import com.zumm.service.ChargementService;
 import com.zumm.service.PlanningService;
 import com.zumm.web.Pagination;
 import com.zumm.web.dto.DecisionCorps;
+import com.zumm.web.dto.FeuilleChargement;
 import com.zumm.web.dto.PlanningCorps;
 import com.zumm.web.dto.PlanningReponse;
 import com.zumm.web.dto.TourneeReponse;
@@ -32,12 +34,14 @@ public class PlanningController {
 
     private final PlanningService service;
     private final AgendaIcsService agendaIcs;
+    private final ChargementService chargements;
     private final Pagination pagination;
 
     public PlanningController(PlanningService service, AgendaIcsService agendaIcs,
-            Pagination pagination) {
+            ChargementService chargements, Pagination pagination) {
         this.service = service;
         this.agendaIcs = agendaIcs;
+        this.chargements = chargements;
         this.pagination = pagination;
     }
 
@@ -73,6 +77,24 @@ public class PlanningController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam(required = false) Long departSiteId) {
         return service.tournee(agentId, date, departSiteId);
+    }
+
+    /**
+     * Feuille de chargement de la tournee (SPRINT-33, lot K).
+     *
+     * <p>Exemple : {@code GET /api/plannings/chargement?agentId=3&date=2026-04-12}.
+     *
+     * <p>Ce qu'il faut mettre dans le vehicule avant de partir, dans l'ordre des
+     * etapes, plus le total par consommable et ce que le stock n'en couvre pas.
+     * Elle NOMME le manque sans le corriger : decider quelle ruche sauter est une
+     * decision d'exploitation, elle ne se prend pas dans un calcul.
+     */
+    @GetMapping("/chargement")
+    public FeuilleChargement chargement(
+            @RequestParam Long agentId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) Long departSiteId) {
+        return chargements.pour(agentId, date, departSiteId);
     }
 
     /**

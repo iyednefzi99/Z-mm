@@ -18,6 +18,11 @@ import java.time.LocalDate;
  *                  une tache urgente
  * @param categorie controle | traitement | nourrissement | recolte | materiel |
  *                  elevage | administratif | autre
+ * @param consommableId  ce que la tache consomme (SPRINT-33), pour la feuille de
+ *                  chargement. Optionnel : toutes les taches ne prelevent rien
+ * @param quantitePrevue combien, dans l'unite du consommable. Optionnelle meme
+ *                  quand le consommable est designe : « prendre du candi » sans
+ *                  savoir encore combien reste une consigne utile
  */
 public record TacheCorps(
         @NotBlank @Size(max = 200) String libelle,
@@ -27,5 +32,7 @@ public record TacheCorps(
         boolean faite,
         @Pattern(regexp = "basse|normale|haute|critique") String priorite,
         @Pattern(regexp = "controle|traitement|nourrissement|recolte|materiel"
-                + "|elevage|administratif|autre") String categorie) {
+                + "|elevage|administratif|autre") String categorie,
+        Long consommableId,
+        @jakarta.validation.constraints.Positive java.math.BigDecimal quantitePrevue) {
 }

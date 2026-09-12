@@ -2803,6 +2803,53 @@
         }
       }
     },
+    "/api/environnement/zones-traitees" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "zonesTraitees",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ZoneTraiteeReponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "declarer",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ZoneTraiteeCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ZoneTraiteeReponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/environnement/floraisons" : {
       "get" : {
         "tags" : [ "environnement-controller" ],
@@ -2931,6 +2978,64 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/environnement/couvert/parcelles/{id}/constat" : {
+      "post" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "constater",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ConstatCouvertCorps"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/api/environnement/couvert/parcelles/{id}/a-confirmer" : {
+      "post" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "marquer",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "valeur",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : true
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
           }
         }
       }
@@ -4292,6 +4397,49 @@
         }
       }
     },
+    "/api/plannings/chargement" : {
+      "get" : {
+        "tags" : [ "planning-controller" ],
+        "operationId" : "chargement",
+        "parameters" : [ {
+          "name" : "agentId",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "date",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "departSiteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FeuilleChargement"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/plannings/agenda.ics" : {
       "get" : {
         "tags" : [ "planning-controller" ],
@@ -4695,6 +4843,33 @@
         }
       }
     },
+    "/api/environnement/sites/{siteId}/exposition" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "exposition",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExpositionRucher"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/environnement/sites/{siteId}/couvert" : {
       "get" : {
         "tags" : [ "environnement-controller" ],
@@ -4730,6 +4905,44 @@
         }
       }
     },
+    "/api/environnement/couvert/parcelles" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "parcelles",
+        "parameters" : [ {
+          "name" : "siteId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "enAttente",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean",
+            "default" : true
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ParcelleCouvert"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/environnement/couvert/millesimes" : {
       "get" : {
         "tags" : [ "environnement-controller" ],
@@ -4745,6 +4958,33 @@
                     "type" : "integer",
                     "format" : "int32"
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/environnement/couvert/fiabilite" : {
+      "get" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "fiabilite",
+        "parameters" : [ {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/FiabiliteCouvert"
                 }
               }
             }
@@ -5008,6 +5248,36 @@
                   "type" : "array",
                   "items" : {
                     "$ref" : "#/components/schemas/CorrelationMeteo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/correlations/flore" : {
+      "get" : {
+        "tags" : [ "correlation-controller" ],
+        "operationId" : "flore",
+        "parameters" : [ {
+          "name" : "millesime",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CorrelationFlore"
                   }
                 }
               }
@@ -5635,6 +5905,26 @@
         }
       }
     },
+    "/api/environnement/zones-traitees/{id}" : {
+      "delete" : {
+        "tags" : [ "environnement-controller" ],
+        "operationId" : "supprimerZone",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/environnement/floraisons/{id}" : {
       "delete" : {
         "tags" : [ "environnement-controller" ],
@@ -6109,6 +6399,13 @@
           "categorie" : {
             "type" : "string",
             "pattern" : "controle|traitement|nourrissement|recolte|materiel|elevage|administratif|autre"
+          },
+          "consommableId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantitePrevue" : {
+            "type" : "number"
           }
         },
         "required" : [ "libelle" ]
@@ -6155,6 +6452,19 @@
           },
           "regleCode" : {
             "type" : "string"
+          },
+          "consommableId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "consommableLibelle" : {
+            "type" : "string"
+          },
+          "consommableUnite" : {
+            "type" : "string"
+          },
+          "quantitePrevue" : {
+            "type" : "number"
           },
           "creeLe" : {
             "type" : "string",
@@ -8672,6 +8982,69 @@
           }
         }
       },
+      "JsonNode" : {
+        "type" : "object"
+      },
+      "ZoneTraiteeCorps" : {
+        "type" : "object",
+        "properties" : {
+          "geometrie" : {
+            "$ref" : "#/components/schemas/JsonNode"
+          },
+          "dateTraitement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "substance" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "origine" : {
+            "type" : "string",
+            "pattern" : "voisin_declare|observe|avis_officiel|autre"
+          },
+          "delaiRentreeH" : {
+            "type" : "integer",
+            "format" : "int32",
+            "maximum" : 720,
+            "minimum" : 0
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "dateTraitement", "geometrie", "origine" ]
+      },
+      "ZoneTraiteeReponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "dateTraitement" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "substance" : {
+            "type" : "string"
+          },
+          "origine" : {
+            "type" : "string"
+          },
+          "delaiRentreeH" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "surfaceHa" : {
+            "type" : "number"
+          }
+        }
+      },
       "FloraisonCorps" : {
         "type" : "object",
         "properties" : {
@@ -8760,8 +9133,22 @@
           }
         }
       },
-      "JsonNode" : {
-        "type" : "object"
+      "ConstatCouvertCorps" : {
+        "type" : "object",
+        "properties" : {
+          "classeConstatee" : {
+            "type" : "string",
+            "pattern" : "culture|prairie|foret|lande|verger|vigne|eau|urbain|sol_nu|autre"
+          },
+          "constateLe" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "classeConstatee", "constateLe" ]
       },
       "DivisionCorps" : {
         "type" : "object",
@@ -9685,6 +10072,98 @@
           }
         }
       },
+      "BesoinConsommable" : {
+        "type" : "object",
+        "properties" : {
+          "consommableId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "libelle" : {
+            "type" : "string"
+          },
+          "unite" : {
+            "type" : "string"
+          },
+          "requis" : {
+            "type" : "number"
+          },
+          "enStock" : {
+            "type" : "number"
+          },
+          "suffisant" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "EtapeChargement" : {
+        "type" : "object",
+        "properties" : {
+          "ordre" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "nombreVisites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "taches" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "besoins" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BesoinConsommable"
+            }
+          }
+        }
+      },
+      "FeuilleChargement" : {
+        "type" : "object",
+        "properties" : {
+          "agentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "agentNom" : {
+            "type" : "string"
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "nombreSites" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "etapes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/EtapeChargement"
+            }
+          },
+          "besoins" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BesoinConsommable"
+            }
+          },
+          "manquants" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "MeteoReponse" : {
         "type" : "object",
         "properties" : {
@@ -9970,6 +10449,103 @@
           }
         }
       },
+      "ExpositionRucher" : {
+        "type" : "object",
+        "properties" : {
+          "siteId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "siteNom" : {
+            "type" : "string"
+          },
+          "rayonKm" : {
+            "type" : "number"
+          },
+          "declarations" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "derniereDeclaration" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "distanceMinM" : {
+            "type" : "number",
+            "format" : "double"
+          },
+          "sousDelaiRentree" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "zones" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ZoneTraiteeReponse"
+            }
+          }
+        }
+      },
+      "ParcelleCouvert" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "classe" : {
+            "type" : "string"
+          },
+          "classeConstatee" : {
+            "type" : "string"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "aConfirmer" : {
+            "type" : "boolean"
+          },
+          "constateLe" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "constatNote" : {
+            "type" : "string"
+          },
+          "surfaceHa" : {
+            "type" : "number"
+          }
+        }
+      },
+      "FiabiliteCouvert" : {
+        "type" : "object",
+        "properties" : {
+          "millesime" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "parcelles" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "verifiees" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "dementies" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "enAttente" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
       "Critere" : {
         "type" : "object",
         "properties" : {
@@ -10196,6 +10772,24 @@
           }
         }
       },
+      "CorrelationFlore" : {
+        "type" : "object",
+        "properties" : {
+          "classe" : {
+            "type" : "string"
+          },
+          "coefficient" : {
+            "type" : "number"
+          },
+          "echantillon" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "interpretation" : {
+            "type" : "string"
+          }
+        }
+      },
       "Resultat" : {
         "type" : "object",
         "properties" : {
@@ -10276,6 +10870,14 @@
           },
           "coutVisiteEur" : {
             "type" : "number"
+          },
+          "seuilRefusAnomalie" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "fenetreRefusAnomalieMinutes" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },

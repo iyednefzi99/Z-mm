@@ -25,6 +25,8 @@ import type { Recolte, Tache } from '../api/types';
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  calculerValorisation: vi.fn(),
+  convertirUnite: vi.fn(),
   taches: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   recoltes: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   ruches: { lister: vi.fn() },
@@ -185,7 +187,7 @@ describe('récolte — carence opposable (SPRINT-22)', () => {
     // La date est `requis` : sans elle, jsdom applique la validation HTML et le
     // formulaire ne se soumet pas — le test echouerait sans rien apprendre.
     await userEvent.type(screen.getByLabelText(/Date/), '2026-07-15');
-    await userEvent.type(screen.getByLabelText(/Quantité/), '18.5');
+    await userEvent.type(screen.getByLabelText('Quantité (kg)'), '18.5');
   };
 
   it('transforme un refus 409 en décision, pas en erreur de saisie', async () => {

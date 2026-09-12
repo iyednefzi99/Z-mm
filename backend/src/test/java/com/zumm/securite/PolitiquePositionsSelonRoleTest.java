@@ -57,7 +57,8 @@ class PolitiquePositionsSelonRoleTest {
                 defauts.inclinaisonMaxDegres(), defauts.chuteVolKg(),
                 defauts.rayonButinageKm(),
                 defauts.delaiAlerteJours(), decimales,
-                defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur());
+                defauts.taillePageParDefaut(), defauts.prixMielKgEur(), defauts.coutVisiteEur(),
+                defauts.seuilRefusAnomalie(), defauts.fenetreRefusAnomalieMinutes());
         when(configuration.seuils()).thenReturn(seuils);
     }
 

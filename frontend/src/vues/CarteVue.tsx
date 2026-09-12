@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useMemo, useState, type ReactElement } from 'react';
-import { grappesSites, ruches, sites } from '../api/client';
+import { grappesSites, ruches, sites, sitesProches } from '../api/client';
 import type { GrappeSites, Ruche, Site } from '../api/types';
 import { gabarit } from '../i18n/console';
 import { useT } from '../i18n/langue';
-import { ChampSelect } from '../ui/composants';
+import { Bouton, ChampNombre, ChampSelect } from '../ui/composants';
 
 /** Rayon de regroupement proposé, en kilomètres (US-045). */
 const RAYONS_REGROUPEMENT = [5, 10, 15, 30];
@@ -156,6 +156,8 @@ export function CarteVue(): ReactElement {
         />
       )}
       <p className="z-info">{vueGrappes ? t.carte.legendeGrappes : t.carte.legende}</p>
+
+      <RuchersProches />
       {fondReel ? (
         <Suspense fallback={<p className="z-info">{t.etats.chargement}</p>}>
           <CarteFond
@@ -229,6 +231,91 @@ export function CarteVue(): ReactElement {
         </svg>
       </div>
       )}
+    </section>
+  );
+}
+
+/**
+ * Ruchers autour d'un point (US-030).
+ *
+ * <p><strong>Le point est SAISI, jamais capté.</strong> Rien n'appelle la
+ * géolocalisation du navigateur ici, et ce n'est pas un oubli : la position d'un
+ * rucher est déjà une donnée sensible — le vol de ruches est le premier sinistre
+ * du métier —, et croiser celle de l'appareil n'apporterait rien que ces deux
+ * champs ne donnent déjà.
+ *
+ * <p>Les positions rendues restent filtrées par le serveur selon le rôle
+ * (`PolitiquePositions`) : cet écran ne contourne rien, il interroge.
+ */
+function RuchersProches(): ReactElement {
+  const t = useT();
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [rayonKm, setRayonKm] = useState('5');
+  const [trouves, setTrouves] = useState<Site[] | null>(null);
+
+  async function chercher(): Promise<void> {
+    if (latitude === '' || longitude === '') {
+      return;
+    }
+    setTrouves(
+      await sitesProches(Number(latitude), Number(longitude), Number(rayonKm) * 1000),
+    );
+  }
+
+  return (
+    <section className="z-encart">
+      <h2 className="z-encart__titre">{t.proches.titre}</h2>
+      <p className="z-info">{t.proches.aide}</p>
+      <div className="z-form__grille">
+        <ChampNombre
+          libelle={t.champs.latitude}
+          valeur={latitude}
+          onChange={setLatitude}
+          pas="0.00001"
+        />
+        <ChampNombre
+          libelle={t.champs.longitude}
+          valeur={longitude}
+          onChange={setLongitude}
+          pas="0.00001"
+        />
+        <ChampNombre
+          libelle={t.proches.rayon}
+          valeur={rayonKm}
+          onChange={setRayonKm}
+          min={1}
+        />
+        <div className="z-champ z-champ--aligne-bas">
+          <Bouton
+            variante="secondaire"
+            disabled={latitude === '' || longitude === ''}
+            onClick={() => void chercher()}
+          >
+            {t.actions.chercher}
+          </Bouton>
+        </div>
+      </div>
+      {trouves !== null &&
+        (trouves.length === 0 ? (
+          <p className="z-info">{t.proches.aucun}</p>
+        ) : (
+          <>
+            <p className="z-info">
+              {gabarit(t.proches.resultat, {
+                nombre: String(trouves.length),
+                rayon: rayonKm,
+              })}
+            </p>
+            <ul className="z-liste-simple">
+              {trouves.map((site) => (
+                <li key={site.id}>
+                  <strong>{site.nom}</strong> · {site.fermeNom}
+                </li>
+              ))}
+            </ul>
+          </>
+        ))}
     </section>
   );
 }

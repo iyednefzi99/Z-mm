@@ -8,7 +8,10 @@ import com.zumm.repository.CouvertSolRepository;
 import com.zumm.repository.SiteRepository;
 import com.zumm.web.RequeteInvalide;
 import com.zumm.web.RessourceIntrouvable;
+import com.zumm.web.dto.ConstatCouvertCorps;
 import com.zumm.web.dto.CouvertRucher;
+import com.zumm.web.dto.FiabiliteCouvert;
+import com.zumm.web.dto.ParcelleCouvert;
 import com.zumm.web.dto.SurfaceCouvert;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -177,6 +180,99 @@ public class CouvertSolService {
     @Transactional(readOnly = true)
     public List<Integer> millesimes() {
         return couverts.millesimes();
+    }
+
+    // ─── Verification terrain (SPRINT-33, lot K) ────────────────────────────
+
+    /**
+     * Parcelles de la couche, ou celles d'un rucher.
+     *
+     * <p>{@code enAttente} restreint a ce que le terrain doit trancher. Sans
+     * cette borne, l'ecran afficherait la couche entiere — des milliers de
+     * polygones dont personne ne doute.
+     */
+    @Transactional(readOnly = true)
+    public List<ParcelleCouvert> parcelles(Long siteId, boolean enAttente) {
+        double rayonMetres = 0;
+        if (siteId != null) {
+            Site site = sites.findById(siteId)
+                    .orElseThrow(() -> RessourceIntrouvable.de("Site", siteId));
+            BigDecimal rayonKm = site.getRayonButinageKm() != null
+                    ? site.getRayonButinageKm()
+                    : BigDecimal.valueOf(configuration.seuils().rayonButinageKm());
+            rayonMetres = rayonKm.doubleValue() * 1000;
+        }
+        return couverts.parcelles(siteId, rayonMetres, enAttente);
+    }
+
+    /**
+     * Pose ou leve le doute sur une parcelle.
+     *
+     * <p>C'est un geste HUMAIN, et il le reste. Deduire le doute — « toute
+     * culture d'un millesime de plus de deux ans » — fabriquerait une tournee de
+     * verification que personne n'a demandee, sur des parcelles que personne ne
+     * soupconne.
+     */
+    @Transactional
+    public void marquer(Long id, boolean aConfirmer) {
+        if (couverts.marquerAConfirmer(id, aConfirmer) == 0) {
+            throw RessourceIntrouvable.de("Parcelle", id);
+        }
+    }
+
+    /**
+     * Enregistre ce que le terrain a montre.
+     *
+     * <p><strong>La classe de la source n'est jamais ecrasee.</strong> C'est la
+     * decision de ce lot, et elle porte tout le ground truthing : ecrasee, la
+     * parcelle raconterait que la couche avait raison depuis le debut, et
+     * personne ne pourrait plus dire de quel millesime se defier. Le constat
+     * s'ecrit a cote et prend la main sur les lectures — meme construction que
+     * la floraison declaree de la `V21` et la floraison observee de la `V31`.
+     *
+     * <p>Le constat ne peut pas etre ANTERIEUR au millesime : constater en 2024
+     * ce qu'une couche decrit pour 2026 ne verifie rien.
+     */
+    @Transactional
+    public void constater(Long id, ConstatCouvertCorps corps) {
+        if (corps.constateLe().isAfter(java.time.LocalDate.now())) {
+            throw new RequeteInvalide(
+                    "Un constat porte sur une visite deja faite, pas sur une visite prevue.");
+        }
+        ParcelleCouvert parcelle = couverts.parcelles(null, 0, false).stream()
+                .filter(p -> p.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> RessourceIntrouvable.de("Parcelle", id));
+        if (corps.constateLe().getYear() < parcelle.millesime()) {
+            throw new RequeteInvalide(
+                    "Constat de " + corps.constateLe().getYear() + " sur une couche de "
+                            + parcelle.millesime() + " : il ne verifie rien.");
+        }
+        couverts.enregistrerConstat(id, corps.classeConstatee(), corps.constateLe(),
+                corps.note());
+    }
+
+    /**
+     * Fiabilite mesuree d'un millesime.
+     *
+     * <p>La seule statistique que le ground truthing produise vraiment : non pas
+     * « la couche est bonne », mais « sur les parcelles verifiees, elle s'est
+     * trompee tant de fois ». Rendue en TROIS nombres et non en pourcentage
+     * unique — un taux de 100 % sur deux parcelles verifiees ne dit rien, et
+     * l'afficher seul le laisserait croire.
+     */
+    @Transactional(readOnly = true)
+    public FiabiliteCouvert fiabilite(int millesime) {
+        List<ParcelleCouvert> toutes = couverts.parcelles(null, 0, false).stream()
+                .filter(p -> p.millesime() == millesime)
+                .toList();
+        long verifiees = toutes.stream().filter(p -> p.classeConstatee() != null).count();
+        long dementies = toutes.stream().filter(ParcelleCouvert::dement).count();
+        long enAttente = toutes.stream()
+                .filter(p -> p.aConfirmer() && p.classeConstatee() == null)
+                .count();
+        return new FiabiliteCouvert(millesime, toutes.size(), (int) verifiees,
+                (int) dementies, (int) enAttente);
     }
 
     @Transactional

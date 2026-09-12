@@ -29,6 +29,9 @@ import type { ChargeAgent, ComparaisonSite, Ruche, Site, SyntheseRucher } from '
  * </ol>
  */
 vi.mock('../api/client', () => ({
+  calculerValorisation: vi.fn(),
+  convertirUnite: vi.fn(),
+  calculerRefractometre: vi.fn(),
   chargerBriefing: vi.fn(() => Promise.resolve({ genereLe: '2026-09-05', lignes: [] })),
   recoltes: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
   sites: { lister: vi.fn(), creer: vi.fn(), mettreAJour: vi.fn(), supprimer: vi.fn() },
@@ -58,6 +61,7 @@ vi.mock('../api/client', () => ({
   productionParRuche: vi.fn(),
   visitesParRaison: vi.fn(),
   exporterCsv: vi.fn(),
+  listerPhotosDe: vi.fn(),
   ErreurApi: class ErreurApi extends Error {
     constructor(
       readonly statut: number,
@@ -175,6 +179,39 @@ describe('récolte de rucher entier (SPRINT-23)', () => {
     expect(await screen.findByText('2 sur 3 enregistrées.')).toBeInTheDocument();
     // Le motif est ce qui permet de reprendre trois ruches au lieu de quarante.
     expect(screen.getByText(/Ruche sous carence/)).toBeInTheDocument();
+  });
+});
+
+describe('panneau photos de la récolte (SPRINT-34, lot L)', () => {
+  it('ouvre le panneau photos de la récolte listée avec la cible RECOLTE', async () => {
+    vi.mocked(client.recoltes.lister).mockResolvedValue([
+      {
+        id: 9,
+        rucheId: 5,
+        rucheModele: 'Dadant',
+        dateRecolte: '2026-08-20',
+        quantiteKg: 12.5,
+        typeMiel: null,
+        typeProduit: 'miel',
+        unite: 'kg',
+        humiditePct: null,
+        lot: 'L-2026-0009',
+        note: null,
+        carenceForcee: false,
+        motifForcage: null,
+        qrPayload: 'zumm:recolte:9',
+        creeLe: '2026-08-20T08:00:00Z',
+        majLe: '2026-08-20T08:00:00Z',
+      },
+    ]);
+    vi.mocked(client.listerPhotosDe).mockResolvedValue([]);
+
+    monter(<RecoltesVue />);
+
+    await screen.findByText('L-2026-0009');
+    await userEvent.click(screen.getByRole('button', { name: 'Photos' }));
+
+    expect(client.listerPhotosDe).toHaveBeenCalledWith('RECOLTE', 9);
   });
 });
 

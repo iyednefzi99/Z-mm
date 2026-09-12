@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState, type ReactElement } from 'react';
 import {
   agents,
   approuverPlanning,
+  chargerFeuilleChargement,
   plannings,
   refuserPlanning,
   creerAbonnement,
@@ -15,6 +16,7 @@ import type {
   Abonnement,
   Agent,
   EtapeTournee,
+  FeuilleChargement,
   Planning,
   PlanningCorps,
   RaisonVisite,
@@ -345,6 +347,8 @@ export function PlanningsVue(): ReactElement {
             )}
           </>
         )}
+
+        <FeuilleDeChargement agentId={agentTournee} date={dateTournee} />
       </section>
 
       <section className="z-encart">
@@ -496,5 +500,137 @@ export function PlanningsVue(): ReactElement {
         </Modale>
       )}
     </CorpsSection>
+  );
+}
+
+/**
+ * Feuille de chargement d'une tournee (SPRINT-33).
+ *
+ * <p>Elle repond a la question qu'on se pose sur le pas de la porte : qu'est-ce
+ * que je charge dans le vehicule ? Deux lectures, et il faut les deux —
+ * consolidee pour charger, par etape pour savoir ou deposer.
+ *
+ * <p><strong>Le manque est NOMME, jamais corrige.</strong> Un consommable
+ * insuffisant s'affiche comme tel ; decider quelle ruche on saute est une
+ * decision d'exploitation, et un ecran qui repartirait automatiquement le stock
+ * disponible prendrait cette decision a la place de l'apiculteur.
+ */
+function FeuilleDeChargement({
+  agentId,
+  date,
+}: {
+  agentId: string;
+  date: string;
+}): ReactElement | null {
+  const t = useT();
+  const f = useFormats();
+  const c = t.chargement;
+  const [feuille, setFeuille] = useState<FeuilleChargement | null>(null);
+
+  async function etablir(): Promise<void> {
+    if (agentId === '' || date === '') {
+      return;
+    }
+    setFeuille(await chargerFeuilleChargement(Number(agentId), date));
+  }
+
+  const besoin = (b: { libelle: string; requis: number | null; unite: string }) =>
+    `${b.libelle} : ${b.requis === null ? '—' : f.nombre(b.requis)} ${b.unite}`;
+
+  return (
+    <>
+      <h3 className="z-champ__libelle">{c.titre}</h3>
+      <p className="z-info">{c.aide}</p>
+      <Bouton
+        variante="fantome"
+        disabled={agentId === '' || date === ''}
+        onClick={() => void etablir()}
+      >
+        {c.charger}
+      </Bouton>
+
+      {feuille !== null && (
+        <>
+          <p className="z-info">
+            {c.agent} : {feuille.agentNom} · {c.date} : {f.date(feuille.date)} · {c.site} :{' '}
+            {feuille.nombreSites}
+          </p>
+
+          {feuille.besoins.length === 0 ? (
+            <p className="z-info">{c.aucuneEtape}</p>
+          ) : (
+            <div className="z-table-enveloppe">
+              <table className="z-table">
+                <thead>
+                  <tr>
+                    <th>{c.consommable}</th>
+                    <th>{c.requis}</th>
+                    <th>{c.stock}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {feuille.besoins.map((b) => (
+                    <tr key={b.consommableId}>
+                      <td>{b.libelle}</td>
+                      <td className="z-nombre">
+                        {b.requis === null ? '—' : `${f.nombre(b.requis)} ${b.unite}`}
+                      </td>
+                      <td className="z-nombre">
+                        {b.suffisant ? (
+                          `${f.nombre(b.enStock)} ${b.unite}`
+                        ) : (
+                          <Pastille ton="danger">
+                            {`${c.manquant} · ${f.nombre(b.enStock)} ${b.unite}`}
+                          </Pastille>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {feuille.manquants > 0 && (
+            <p className="z-erreur" role="alert">
+              {gabarit(c.manquants, { nombre: String(feuille.manquants) })}
+            </p>
+          )}
+          {feuille.manquants === 0 && feuille.besoins.length > 0 && (
+            <p className="z-info">{c.aucunManquant}</p>
+          )}
+
+          {feuille.etapes.length > 0 && (
+            <>
+              <h4 className="z-champ__libelle">{c.etapes}</h4>
+              <ul className="z-liste-simple">
+                {feuille.etapes.map((etape) => (
+                  <li key={etape.siteId}>
+                    <strong>
+                      {etape.ordre}. {etape.siteNom}
+                    </strong>{' '}
+                    — {c.visites} : {etape.nombreVisites}
+                    {etape.taches.length > 0 && (
+                      <>
+                        {' · '}
+                        {c.taches} : {etape.taches.join(', ')}
+                      </>
+                    )}
+                    {etape.besoins.length > 0 && (
+                      <>
+                        <br />
+                        <small>
+                          {c.besoins} : {etape.besoins.map(besoin).join(' · ')}
+                        </small>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      )}
+    </>
   );
 }

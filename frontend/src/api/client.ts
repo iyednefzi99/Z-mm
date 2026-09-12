@@ -48,10 +48,19 @@ import type {
   CouvertRucher,
   ComptageVarroa,
   ComptageVarroaCorps,
+  ConstatCouvertCorps,
   Consommable,
   ConsommableCorps,
+  Conversion,
+  CorrelationFlore,
   CorrelationMeteo,
   DemenagementCorps,
+  ExpositionRucher,
+  FeuilleChargement,
+  FiabiliteCouvert,
+  ParcelleCouvert,
+  ZoneTraitee,
+  ZoneTraiteeCorps,
   Depense,
   DepenseCorps,
   DossierConformite,
@@ -392,6 +401,18 @@ export const chargerAlertesOuvertes = () => requete<AlerteMesure[]>('/api/mesure
 export const chargerSerieJournaliere = (rucheId: number, type: TypeIndicateur) =>
   requete<PointJournalier[]>(`/api/mesures/journalier?rucheId=${rucheId}&type=${type}`);
 
+/**
+ * Série BRUTE d'un indicateur : les mesures telles qu'elles sont arrivées.
+ *
+ * <p>Ce n'est pas la même chose que la série journalière, et c'est pour cela que
+ * le serveur expose les deux : l'agrégée sert la courbe, la brute sert le
+ * diagnostic du capteur. Un boîtier qui émet toutes les trente secondes et un
+ * boîtier muet depuis deux jours rendent le MÊME point journalier — seule la
+ * série brute les distingue.
+ */
+export const chargerSerieBrute = (rucheId: number, type: TypeIndicateur) =>
+  requete<MesureReponse[]>(`/api/mesures?rucheId=${rucheId}&type=${type}`);
+
 /** US-026 : service tierce getZummHoneyActualQuantity. */
 export const getZummHoneyActualQuantity = (rucheId: number | null, unite: string) =>
   requete<QuantiteMiel>(
@@ -604,6 +625,20 @@ export const grappesSites = (distanceMetres = 15000, minimumSites = 2) =>
 /** Sites les plus proches d'un site donne, distance a l'appui (US-046). */
 export const voisinsSite = (siteId: number, limite = 3) =>
   requete<VoisinSite[]>(`/api/sites/${siteId}/voisins?limite=${limite}`);
+
+/**
+ * Sites du tenant a moins de `rayonMetres` d'un point (US-019).
+ *
+ * <p>Le point est DONNE par l'appelant : le navigateur n'est jamais interroge
+ * sur sa position. Un rucher est deja une position sensible (`PolitiquePositions`),
+ * en croiser une seconde — celle de l'utilisateur — n'apporterait rien que la
+ * saisie de deux coordonnees ne donne deja.
+ */
+export const sitesProches = (latitude: number, longitude: number, rayonMetres = 5000) =>
+  requete<Site[]>(
+    `/api/sites/proches?latitude=${latitude}&longitude=${longitude}`
+      + `&rayonMetres=${rayonMetres}`,
+  );
 
 /** Ordre de tournee propose a un agent pour une journee (US-047). */
 export const tourneeAgent = (agentId: number, date: string, departSiteId?: number) => {
@@ -833,6 +868,17 @@ export const listerIndices = (rucheId?: number) =>
 export const correlationsMeteo = () => requete<CorrelationMeteo[]>('/api/correlations/meteo');
 
 /**
+ * Correlation couvert du sol / sante des colonies, par classe (SPRINT-33).
+ *
+ * <p>Sans millesime, le plus recent verse : comparer la sante d'aujourd'hui a
+ * l'occupation du sol de 2019 croiserait deux etats qui n'ont jamais coexiste.
+ */
+export const correlationsFlore = (millesime?: number) =>
+  requete<CorrelationFlore[]>(
+    `/api/correlations/flore${millesime === undefined ? '' : `?millesime=${millesime}`}`,
+  );
+
+/**
  * Execute le moteur de regles et rend les taches CREEES (SPRINT-22).
  *
  * <p>Idempotent : deux appels dans la journee ne produisent rien la seconde
@@ -950,6 +996,20 @@ export const peserCompartiment = (corps: MesureCompartimentCorps) =>
 export const repartitionCompartiments = (rucheId: number) =>
   requete<PoidsCompartiment[]>(`/api/compartiments/repartition?rucheId=${rucheId}`);
 
+/**
+ * Pesees successives d'UN compartiment sur une fenetre.
+ *
+ * <p>Les deux bornes sont exigees par le serveur, et c'est la meme raison qu'aux
+ * statistiques du carnet : sans elles, chaque ouverture d'ecran balaierait toute
+ * l'histoire de l'exploitation. Elles voyagent en `Instant` ISO — la pesee d'une
+ * hausse a une heure, pas seulement un jour.
+ */
+export const serieCompartiment = (id: number, debut: string, fin: string) =>
+  requete<PoidsCompartiment[]>(
+    `/api/compartiments/${id}/serie?debut=${encodeURIComponent(debut)}`
+      + `&fin=${encodeURIComponent(fin)}`,
+  );
+
 /** Ouvre un partage. L'URL n'est rendue qu'ici, et une seule fois. */
 export const ouvrirPartage = (corps: PartageCorps) =>
   requete<Partage>('/api/partages', { method: 'POST', ...corpsJson(corps) });
@@ -1055,6 +1115,24 @@ export const calculerValorisation = (kilos: number, prixKgEur?: number) =>
   requete<{ kilos: number; prixKgEur: number; totalEur: number; pots500g: number }>(
     `/api/calculateurs/valorisation?kilos=${kilos}`
       + (prixKgEur === undefined ? '' : `&prixKgEur=${prixKgEur}`),
+  );
+
+/**
+ * Convertit une valeur d'une unité vers une autre (US-019).
+ *
+ * <p>Le calcul est **côté serveur** alors qu'il tiendrait en trois lignes ici, et
+ * c'est délibéré : les facteurs sont ceux que le reste de l'application applique
+ * déjà à ses mesures. Les recopier dans le navigateur créerait une seconde table
+ * de conversion, et le jour où l'une des deux change, rien ne dirait laquelle
+ * fait foi.
+ *
+ * <p>Deux familles seulement — masse et température — et elles ne se croisent
+ * pas : convertir des grammes en degrés est refusé en 400, jamais approximé.
+ */
+export const convertirUnite = (valeur: number, de: string, vers: string) =>
+  requete<Conversion>(
+    `/api/conversions?valeur=${valeur}&de=${encodeURIComponent(de)}`
+      + `&vers=${encodeURIComponent(vers)}`,
   );
 
 // ─── Le carnet paramétrable (SPRINT-28, lot I) ──────────────────────────────
@@ -1205,3 +1283,99 @@ export const enregistrerFloraison = (corps: FloraisonCorps) =>
     method: 'POST',
     ...corpsJson(corps),
   });
+
+/**
+ * Retire une observation de floraison.
+ *
+ * <p>Le pendant nécessaire d'un enregistrement qui **complète** : puisque la
+ * seconde saisie de l'année enrichit la première au lieu d'en créer une seconde,
+ * une date entrée de travers ne se corrige pas en ressaisissant — elle se retire
+ * et se refait.
+ */
+export const supprimerFloraison = (id: number) =>
+  requete<void>(`/api/environnement/floraisons/${id}`, { method: 'DELETE' });
+
+// ─── Verification terrain et zones traitees (SPRINT-33, lot K) ──────────────
+
+/**
+ * Parcelles de la couche, ou celles d'un rucher.
+ *
+ * <p>`enAttente` a `true` — le defaut — ne rend que ce que le terrain doit
+ * trancher. Sans cette borne, l'ecran chargerait la couche entiere, soit des
+ * milliers de polygones dont personne ne doute.
+ */
+export const chargerParcelles = (siteId?: number, enAttente = true) =>
+  requete<ParcelleCouvert[]>(
+    `/api/environnement/couvert/parcelles?enAttente=${enAttente}`
+      + (siteId === undefined ? '' : `&siteId=${siteId}`),
+  );
+
+/**
+ * Pose ou leve le doute sur une parcelle.
+ *
+ * <p>Un geste humain, et il le reste : deduire le doute fabriquerait une tournee
+ * de verification que personne n'a demandee.
+ */
+export const marquerParcelle = (id: number, valeur = true) =>
+  requete<void>(
+    `/api/environnement/couvert/parcelles/${id}/a-confirmer?valeur=${valeur}`,
+    { method: 'POST' },
+  );
+
+/**
+ * Enregistre ce que le terrain a montre — le *ground truthing*.
+ *
+ * <p>La classe de la SOURCE n'est jamais ecrasee : le constat s'ecrit a cote, et
+ * les surfaces le prennent des qu'il existe.
+ */
+export const constaterParcelle = (id: number, corps: ConstatCouvertCorps) =>
+  requete<void>(`/api/environnement/couvert/parcelles/${id}/constat`, {
+    method: 'POST',
+    ...corpsJson(corps),
+  });
+
+/** Ce que le terrain a appris sur un millesime : trois nombres, aucun taux. */
+export const chargerFiabilite = (millesime: number) =>
+  requete<FiabiliteCouvert>(
+    `/api/environnement/couvert/fiabilite?millesime=${millesime}`,
+  );
+
+/** Zones traitees declarees par l'exploitation. */
+export const chargerZonesTraitees = () =>
+  requete<ZoneTraitee[]>('/api/environnement/zones-traitees');
+
+/** Declare une zone traitee. Aucune identite de tiers n'est demandee. */
+export const declarerZoneTraitee = (corps: ZoneTraiteeCorps) =>
+  requete<ZoneTraitee>('/api/environnement/zones-traitees', {
+    method: 'POST',
+    ...corpsJson(corps),
+  });
+
+export const supprimerZoneTraitee = (id: number) =>
+  requete<void>(`/api/environnement/zones-traitees/${id}`, { method: 'DELETE' });
+
+/**
+ * Exposition d'un rucher aux zones DECLAREES.
+ *
+ * <p>La reponse porte le nombre de declarations et la date de la plus recente :
+ * « aucune zone a proximite » se lit « rien ne m'a ete declare », jamais « rien
+ * n'a ete epandu ».
+ */
+export const chargerExposition = (siteId: number) =>
+  requete<ExpositionRucher>(`/api/environnement/sites/${siteId}/exposition`);
+
+/**
+ * Feuille de chargement de la tournee d'un agent.
+ *
+ * <p>Ce qu'il faut mettre dans le vehicule avant de partir, dans l'ordre des
+ * etapes, plus le total par consommable et ce que le stock n'en couvre pas.
+ */
+export const chargerFeuilleChargement = (
+  agentId: number,
+  date: string,
+  departSiteId?: number,
+) =>
+  requete<FeuilleChargement>(
+    `/api/plannings/chargement?agentId=${agentId}&date=${date}`
+      + (departSiteId === undefined ? '' : `&departSiteId=${departSiteId}`),
+  );

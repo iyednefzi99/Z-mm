@@ -4,6 +4,7 @@ import com.zumm.domain.Agent;
 import com.zumm.domain.Alerte;
 import com.zumm.domain.Ruche;
 import com.zumm.domain.Tache;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -90,6 +91,59 @@ public class NotificationAlerteService {
             // Une notification perdue ne doit jamais faire echouer la creation de
             // la tache : c'est la tache qui compte, le courriel n'est qu'un rappel.
             log.warn("Notification de tache critique impossible : {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Notifie une anomalie d'accès — un acteur qui accumule des refus RBAC
+     * (SPRINT-34, {@code DetecteurAnomalieAcces}).
+     *
+     * <p>Distincte de {@link #notifierTacheCritique(Tache)} : celle-ci notifie UN
+     * agent ASSIGNÉ, alors qu'une anomalie d'accès ne concerne personne en
+     * particulier — elle doit atteindre QUI PEUT AGIR, c'est-à-dire tous les
+     * responsables et l'administrateur de l'exploitation. Toujours un message par
+     * destinataire ({@code setTo} d'une seule adresse), même règle que plus haut.
+     *
+     * @param acteur          nom lisible de l'acteur qui accumule des refus
+     * @param nombreRefus     nombre de refus comptés sur la fenêtre
+     * @param fenetreMinutes  largeur de la fenêtre, en minutes
+     * @param destinataires   responsables et administrateurs de l'exploitation
+     */
+    public void notifierAnomalieAcces(String acteur, int nombreRefus, int fenetreMinutes,
+            List<Agent> destinataires) {
+        if (!active) {
+            return;
+        }
+        JavaMailSender expediteurMail = expediteurs.getIfAvailable();
+        if (expediteurMail == null) {
+            return;
+        }
+        String sujet = "[Zumm] Anomalie d'acces : " + acteur;
+        String texte = """
+                Le compte « %s » a essuye %d refus d'acces en moins de %d minutes.
+
+                Ce peut etre un role mal attribue, ou une tentative d'acces a des
+                routes hors de son role. Verifiez le journal d'audit de la console.
+                """.formatted(acteur, nombreRefus, fenetreMinutes);
+        for (Agent destinataire : destinataires) {
+            if (!destinataireJoignable(destinataire)) {
+                continue;
+            }
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(expediteur);
+            message.setTo(destinataire.getEmail());
+            message.setSubject(sujet);
+            message.setText(texte);
+            try {
+                expediteurMail.send(message);
+                log.info("Notification d'anomalie d'acces envoyee a {} (acteur {}).",
+                        destinataire.getEmail(), acteur);
+            } catch (MailException e) {
+                // Jamais fatal : la tache critique est deja enregistree, le
+                // courriel n'est qu'un rappel de plus.
+                log.warn("Notification d'anomalie d'acces impossible pour {} : {}",
+                        destinataire.getEmail(), e.getMessage());
+            }
         }
     }
 

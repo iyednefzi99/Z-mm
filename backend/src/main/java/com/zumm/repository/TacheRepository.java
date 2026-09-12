@@ -9,7 +9,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * (@TenantId + RLS) : aucun filtre {@code tenant_id} n'est a ecrire ici.
  */
 public interface TacheRepository extends JpaRepository<Tache, Long> {
-    /** Taches non faites dont l'echeance tombe au plus tard le {@code jour} donne (rappels). */
+    /**
+     * Taches non faites dont l'echeance tombe au plus tard le {@code jour} donne (rappels).
+     *
+     * <p>Le graphe descend jusqu'au SITE de la ruche et au consommable, parce que
+     * la feuille de chargement (SPRINT-33) groupe par rucher et somme par
+     * consommable : sans lui, une tournee de quinze taches declencherait
+     * quarante-cinq requetes de plus, une par association lue.
+     */
+    @EntityGraph(attributePaths = {"ruche", "ruche.site", "agent", "consommable"})
     List<Tache> findByFaiteFalseAndEcheanceLessThanEqualOrderByEcheanceAsc(LocalDate jour);
     /**
      * Listage complet, associations chargees en une seule requete (SPRINT-14).
@@ -21,7 +29,7 @@ public interface TacheRepository extends JpaRepository<Tache, Long> {
      * seul suffit.
      */
     @Override
-    @EntityGraph(attributePaths = {"ruche", "agent"})
+    @EntityGraph(attributePaths = {"ruche", "agent", "consommable"})
     List<Tache> findAll();
 
 

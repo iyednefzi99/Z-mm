@@ -1,6 +1,9 @@
 package com.zumm.repository;
 
+import com.zumm.web.dto.ParcelleCouvert;
 import com.zumm.web.dto.SurfaceCouvert;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -71,7 +74,7 @@ public class CouvertSolRepository {
                     WHERE id = ?
                       AND tenant_id = current_setting('app.current_tenant', true)
                 )
-                SELECT c.classe,
+                SELECT COALESCE(c.classe_constatee, c.classe) AS classe,
                        ROUND((SUM(ST_Area(ST_Intersection(c.geom::geometry,
                                                           cercle.zone::geometry)::geography))
                               / 10000.0)::numeric, 2) AS surface_ha
@@ -79,12 +82,67 @@ public class CouvertSolRepository {
                 WHERE c.tenant_id = current_setting('app.current_tenant', true)
                   AND c.millesime = ?
                   AND ST_Intersects(c.geom, cercle.zone)
-                GROUP BY c.classe
+                GROUP BY COALESCE(c.classe_constatee, c.classe)
                 ORDER BY surface_ha DESC
                 """,
                 (rs, ligne) -> new SurfaceCouvert(rs.getString("classe"),
                         rs.getBigDecimal("surface_ha"), null),
                 rayonMetres, siteId, millesime);
+    }
+
+    /**
+     * Surfaces par classe, pour <strong>tous</strong> les ruchers ouverts, en une
+     * requete (SPRINT-33).
+     *
+     * <p>Le pendant groupe de {@link #surfacesAutour}, et il existe pour une
+     * seule raison : la correlation flore ↔ sante lit le couvert de chaque
+     * rucher de l'exploitation. Appeler la version unitaire dans une boucle
+     * ferait une intersection PostGIS par rucher — cinquante requetes spatiales
+     * pour un ecran de tableau de bord. C'est le meme arbitrage que
+     * {@code SyntheseRucherService} au SPRINT-23 : un nombre de requetes qui ne
+     * depend pas du nombre de ruchers.
+     *
+     * <p>Le rayon est celui du SITE quand il est renseigne, celui de
+     * {@code ConfigZumm.ini} sinon — exactement comme la lecture unitaire, sans
+     * quoi deux ecrans donneraient deux surfaces pour le meme rucher.
+     *
+     * <p>Les ruchers CLOTURES sont exclus : leur environnement ne dit plus rien
+     * de colonies qui n'y sont plus.
+     */
+    public List<PartSite> partsParSite(int millesime, int rayonDefautKm) {
+        return jdbc.query("""
+                WITH cercle AS (
+                    SELECT id AS site_id,
+                           COALESCE(rayon_butinage_km, ?) AS rayon_km,
+                           ST_Buffer(geog, COALESCE(rayon_butinage_km, ?) * 1000) AS zone
+                    FROM site
+                    WHERE tenant_id = current_setting('app.current_tenant', true)
+                      AND date_cloture IS NULL
+                )
+                SELECT cercle.site_id,
+                       cercle.rayon_km,
+                       COALESCE(c.classe_constatee, c.classe) AS classe,
+                       ROUND((SUM(ST_Area(ST_Intersection(
+                           c.geom::geometry, cercle.zone::geometry)::geography))
+                           / 10000.0)::numeric, 2) AS surface_ha
+                FROM couvert_sol c, cercle
+                WHERE c.tenant_id = current_setting('app.current_tenant', true)
+                  AND c.millesime = ?
+                  AND ST_Intersects(c.geom, cercle.zone)
+                GROUP BY cercle.site_id, cercle.rayon_km,
+                         COALESCE(c.classe_constatee, c.classe)
+                """,
+                (rs, ligne) -> new PartSite(
+                        rs.getLong("site_id"),
+                        rs.getBigDecimal("rayon_km"),
+                        rs.getString("classe"),
+                        rs.getBigDecimal("surface_ha")),
+                rayonDefautKm, rayonDefautKm, millesime);
+    }
+
+    /** Une surface de couvert, rattachee a son rucher et au rayon qui l'a bornee. */
+    public record PartSite(Long siteId, BigDecimal rayonKm, String classe,
+            BigDecimal surfaceHa) {
     }
 
     /**
@@ -94,7 +152,8 @@ public class CouvertSolRepository {
      * faut dire ce qu'elle mesure vraiment : la distance a une CULTURE, pas a
      * une zone traitee. Aucune couche ouverte ne dit ce qui a ete epandu ni
      * quand. Presenter l'une pour l'autre serait une affirmation que rien ne
-     * fonde.
+     * fonde — c'est {@link ZoneTraiteeRepository} (SPRINT-33) qui repond a la
+     * seconde question, sur des declarations et non sur une couche.
      */
     public Double distanceCultureLaPlusProche(long siteId, int millesime) {
         List<Double> distances = jdbc.query("""
@@ -104,12 +163,148 @@ public class CouvertSolRepository {
                   AND s.tenant_id = current_setting('app.current_tenant', true)
                   AND c.tenant_id = current_setting('app.current_tenant', true)
                   AND c.millesime = ?
-                  AND c.classe IN ('culture', 'verger', 'vigne')
+                  AND COALESCE(c.classe_constatee, c.classe)
+                      IN ('culture', 'verger', 'vigne')
                 """, (rs, ligne) -> {
                     double valeur = rs.getDouble("distance");
                     return rs.wasNull() ? null : valeur;
                 }, siteId, millesime);
         return distances.isEmpty() ? null : distances.get(0);
+    }
+
+    // ─── Verification terrain (SPRINT-33, lot K) ────────────────────────────
+
+    /**
+     * Marque une parcelle « a confirmer », ou leve le doute.
+     *
+     * <p>Le doute se POSE, il ne se deduit pas. Une regle qui marquerait d'office
+     * « toute culture de plus de deux ans » fabriquerait une charge de travail
+     * que personne n'a demandee, sur des parcelles que personne ne soupconne.
+     *
+     * @return le nombre de lignes touchees — zero si la parcelle n'existe pas
+     *         dans l'exploitation, ce que le service traduit en 404
+     */
+    public int marquerAConfirmer(long id, boolean aConfirmer) {
+        return jdbc.update("""
+                UPDATE couvert_sol SET a_confirmer = ?
+                WHERE id = ?
+                  AND tenant_id = current_setting('app.current_tenant', true)
+                """, aConfirmer, id);
+    }
+
+    /**
+     * Enregistre ce que le terrain a montre.
+     *
+     * <p><strong>{@code classe} n'est jamais touchee.</strong> L'ecraser
+     * detruirait exactement ce que le ground truthing etablit — que la couche se
+     * trompait —, et la fiabilite d'un millesime ne se mesurerait plus. Le
+     * constat s'ecrit a cote, et les lectures le prennent des qu'il existe.
+     *
+     * <p>Le doute retombe du meme geste : une parcelle constatee n'est plus a
+     * confirmer, sans quoi la regle la reproposerait indefiniment.
+     */
+    public int enregistrerConstat(long id, String classeConstatee, LocalDate constateLe,
+            String note) {
+        return jdbc.update("""
+                UPDATE couvert_sol
+                   SET classe_constatee = ?, constate_le = ?, constat_note = ?,
+                       a_confirmer = false
+                WHERE id = ?
+                  AND tenant_id = current_setting('app.current_tenant', true)
+                """, classeConstatee, constateLe, note, id);
+    }
+
+    /**
+     * Parcelles en attente de verification autour d'un rucher, ou toutes.
+     *
+     * <p>Sans {@code siteId}, la couche entiere : c'est la vue de l'exploitant
+     * qui prepare sa saison. Avec, ce qu'il faut regarder en arrivant sur CE
+     * rucher — bornees au rayon de butinage, sans quoi la liste porterait sur un
+     * departement.
+     */
+    public List<ParcelleCouvert> parcelles(Long siteId, double rayonMetres, boolean enAttente) {
+        String filtreAttente = enAttente
+                ? " AND c.a_confirmer AND c.classe_constatee IS NULL" : "";
+        if (siteId == null) {
+            return jdbc.query("""
+                    SELECT c.id, c.classe, c.classe_constatee, c.source, c.millesime,
+                           c.a_confirmer, c.constate_le, c.constat_note,
+                           ROUND((ST_Area(c.geom) / 10000.0)::numeric, 2) AS surface_ha
+                    FROM couvert_sol c
+                    WHERE c.tenant_id = current_setting('app.current_tenant', true)
+                    """ + filtreAttente + """
+                     ORDER BY c.a_confirmer DESC, c.millesime DESC, c.id
+                    """, PARCELLE);
+        }
+        return jdbc.query("""
+                WITH cercle AS (
+                    SELECT ST_Buffer(geog, ?) AS zone
+                    FROM site
+                    WHERE id = ?
+                      AND tenant_id = current_setting('app.current_tenant', true)
+                )
+                SELECT c.id, c.classe, c.classe_constatee, c.source, c.millesime,
+                       c.a_confirmer, c.constate_le, c.constat_note,
+                       ROUND((ST_Area(ST_Intersection(c.geom::geometry,
+                                                      cercle.zone::geometry)::geography)
+                              / 10000.0)::numeric, 2) AS surface_ha
+                FROM couvert_sol c, cercle
+                WHERE c.tenant_id = current_setting('app.current_tenant', true)
+                  AND ST_Intersects(c.geom, cercle.zone)
+                """ + filtreAttente + """
+                 ORDER BY c.a_confirmer DESC, c.millesime DESC, c.id
+                """, PARCELLE, rayonMetres, siteId);
+    }
+
+    private static final org.springframework.jdbc.core.RowMapper<ParcelleCouvert> PARCELLE =
+            (rs, ligne) -> new ParcelleCouvert(
+                    rs.getLong("id"),
+                    rs.getString("classe"),
+                    rs.getString("classe_constatee"),
+                    rs.getString("source"),
+                    rs.getInt("millesime"),
+                    rs.getBoolean("a_confirmer"),
+                    rs.getObject("constate_le", LocalDate.class),
+                    rs.getString("constat_note"),
+                    rs.getBigDecimal("surface_ha"));
+
+    /**
+     * Ruchers ayant au moins une parcelle a confirmer dans leur rayon.
+     *
+     * <p>Rend une ligne par rucher — et c'est ce qui rend la regle de
+     * verification tenable. Une tache par PARCELLE produirait quarante entrees
+     * pour un rucher de plaine, et une liste de quarante lignes identiques n'est
+     * plus lue. Le rayon est celui du rucher (V31), avec le defaut de
+     * configuration en repli.
+     */
+    public List<RucherAVerifier> ruchersAVerifier(int rayonDefautKm) {
+        return jdbc.query("""
+                SELECT s.id, s.nom, COUNT(c.id) AS parcelles
+                FROM site s
+                JOIN couvert_sol c
+                  ON c.tenant_id = s.tenant_id
+                 AND c.a_confirmer
+                 AND c.classe_constatee IS NULL
+                 AND ST_Intersects(c.geom,
+                        ST_Buffer(s.geog, COALESCE(s.rayon_butinage_km, ?) * 1000))
+                WHERE s.tenant_id = current_setting('app.current_tenant', true)
+                  AND s.geog IS NOT NULL
+                GROUP BY s.id, s.nom
+                ORDER BY s.id
+                """,
+                (rs, ligne) -> new RucherAVerifier(
+                        rs.getLong("id"), rs.getString("nom"), rs.getInt("parcelles")),
+                rayonDefautKm);
+    }
+
+    /**
+     * Un rucher et le nombre de parcelles que le terrain doit trancher.
+     *
+     * <p>Enregistrement local au depot : il ne sort jamais par l'API, seule la
+     * regle de verification le lit. En faire un DTO du contrat obligerait a le
+     * documenter dans OpenAPI pour un usage interne.
+     */
+    public record RucherAVerifier(Long siteId, String siteNom, int parcelles) {
     }
 
     /** Millesimes presents dans la couche, du plus recent au plus ancien. */

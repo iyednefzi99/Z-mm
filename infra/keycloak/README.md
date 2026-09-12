@@ -42,27 +42,27 @@ sont des secrets de développement, sans valeur : ce fichier n'est jamais import
 en production, où les comptes sont créés par l'administrateur ou par le code
 d'invitation d'exploitation.
 
-## Mot de passe oublié — ce qu'il faut activer, et pourquoi ce n'est pas fait ici
+## Mot de passe oublié
 
-`resetPasswordAllowed` est **absent** des deux realms, et c'est délibéré. Activé
-sans serveur d'envoi, Keycloak affiche un lien « Mot de passe oublié ? » qui mène
-à un formulaire qui accepte l'adresse et n'envoie rien : l'utilisateur attend un
-courriel qui n'arrivera jamais. C'est le pire des trois états possibles — pire
-que l'absence du lien, qui au moins ne ment pas. `RecuperationVue` porte le même
-raisonnement côté application.
+Activé depuis le SPRINT-33 : `resetPasswordAllowed: true` sur les deux realms,
+et un `smtpServer` sur chacun — pointé en dur sur `mailpit:1025` dans
+`realm-zumm.dev.json` (la pile de dev fournit Mailpit, voir
+`infra/docker-compose.dev.yml`), paramétrable par variables d'environnement
+(`ZUMM_SMTP_*`) dans `realm-zumm.json`, à servir par un vrai serveur d'envoi en
+production. `ZUMM_AUTH_REINITIALISATION_URL` (backend) publie le lien côté
+`/api/info`, lu par `RecuperationVue`. Avant ce sprint, les deux étaient
+délibérément absents : activé sans serveur d'envoi, Keycloak affiche un lien qui
+mène à un formulaire qui n'envoie rien — pire que l'absence du lien, qui au
+moins ne ment pas.
 
-Pour ouvrir le libre-service (SPRINT-25, lot J), **deux choses, dans cet ordre** :
-
-1. **Configurer un serveur d'envoi** dans le realm — administration Keycloak,
-   *Realm settings → Email* — ou en ajoutant un bloc `smtpServer` au fichier
-   importé. Les identifiants SMTP sont des secrets : ils ne se committent pas,
-   ils passent par des variables d'environnement ou par la console.
-2. **Activer** *Realm settings → Login → Forgot password*, puis renseigner
-   `ZUMM_AUTH_REINITIALISATION_URL` côté back-end — typiquement
-   `https://<keycloak>/realms/zumm/login-actions/reset-credentials?client_id=zumm-bff`.
-   Tant que cette variable est vide, l'application continue d'aiguiller vers le
-   responsable d'exploitation, ce qui reste le seul chemin qui fonctionne.
-
-Le renseignement de la variable est ce qui fait apparaître le lien dans la page
-de récupération : l'application ne devine pas la configuration du fournisseur
-d'identité, elle en relaie ce que l'exploitant lui déclare.
+**Piège : un volume Postgres existant ne réimporte pas le realm.** Keycloak
+n'importe `realm-zumm(.dev).json` qu'à la CRÉATION du realm en base, jamais aux
+démarrages suivants. Une pile démarrée avant ce sprint (ou tout volume
+`postgres` antérieur) continue de tourner sur l'ancien realm — sans
+`smtpServer`, sans `resetPasswordAllowed` — même après avoir tiré ce commit et
+reconstruit les images. Aucun message d'erreur ne le signale : l'e-mail échoue
+en silence côté Keycloak (`No sender address configured`), et rien côté
+application ne le voit. Pour repartir sur le realm à jour :
+`docker compose --env-file .env -f infra/docker-compose.yml
+-f infra/docker-compose.dev.yml down -v`, puis relancer `up -d --build` (Flyway
+et l'import Keycloak rejouent tous les deux depuis zéro).

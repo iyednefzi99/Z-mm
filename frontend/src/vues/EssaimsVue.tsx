@@ -4,6 +4,7 @@ import {
   creerCapture,
   creerDivision,
   filiationRuche,
+  listerDivisions,
   listerCaptures,
   listerCapturesEnAttente,
   logerCapture,
@@ -89,6 +90,11 @@ export function EssaimsVue(): ReactElement {
   // Divisions
   const [rucheMere, setRucheMere] = useState('');
   const [divisions, setDivisions] = useState<Division[]>([]);
+  // Deux lectures de la filiation, et elles ne disent pas la meme chose : les
+  // divisions FAITES depuis cette ruche, ou la filiation dans les deux sens.
+  // Melanger « issue de » et « a donne » dans un seul tableau rendait la lecture
+  // ambigue des qu'une ruche etait a la fois mere et fille.
+  const [porteeDivision, setPorteeDivision] = useState<'issues' | 'filiation'>('filiation');
   const [rucheFille, setRucheFille] = useState('');
   const [agentDivision, setAgentDivision] = useState('');
   const [dateDivision, setDateDivision] = useState('');
@@ -133,8 +139,12 @@ export function EssaimsVue(): ReactElement {
       setDivisions([]);
       return;
     }
-    filiationRuche(Number(rucheMere)).then(setDivisions).catch(signaler);
-  }, [rucheMere, signaler]);
+    const chargement =
+      porteeDivision === 'issues'
+        ? listerDivisions(Number(rucheMere))
+        : filiationRuche(Number(rucheMere));
+    chargement.then(setDivisions).catch(signaler);
+  }, [rucheMere, porteeDivision, signaler]);
 
   useEffect(() => rechargerDivisions(), [rechargerDivisions]);
 
@@ -374,6 +384,15 @@ export function EssaimsVue(): ReactElement {
               valeur={rucheMere}
               options={optionsAvecVide(optRuches)}
               onChange={setRucheMere}
+            />
+            <ChampSelect
+              libelle={e.divisions.portee}
+              valeur={porteeDivision}
+              options={[
+                { valeur: 'filiation', libelle: e.divisions.filiation },
+                { valeur: 'issues', libelle: e.divisions.issues },
+              ]}
+              onChange={(v) => setPorteeDivision(v === 'issues' ? 'issues' : 'filiation')}
             />
 
             {rucheMere === '' ? (

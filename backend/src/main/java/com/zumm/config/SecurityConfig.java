@@ -1,5 +1,6 @@
 package com.zumm.config;
 
+import com.zumm.securite.DetecteurAnomalieAcces;
 import com.zumm.securite.FiltrePortee;
 import com.zumm.securite.ResolveurPortee;
 import com.zumm.tenant.TenantFilter;
@@ -99,6 +100,7 @@ public class SecurityConfig {
     SecurityFilterChain chaineJetonPorteur(HttpSecurity http,
             MagasinIdempotence magasinIdempotence,
             ResolveurPortee resolveurPortee,
+            DetecteurAnomalieAcces detecteurAnomalieAcces,
             @Value("${zumm.openapi.public:true}") boolean contratPublic) throws Exception {
         http
                 .securityMatcher(PORTEUR_DE_JETON)
@@ -109,7 +111,12 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requetes -> matriceRbac(requetes, contratPublic))
                 .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())));
+                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(convertisseurDeJeton())))
+                // Un refus RBAC ici est celui d'une machine (passerelle, integration
+                // tierce) : plus rare qu'un navigateur, mais tout aussi digne d'etre
+                // journalise — un jeton machine mal scope est un incident, pas moins.
+                .exceptionHandling(exceptions -> exceptions
+                        .accessDeniedHandler(new GestionnaireRefusAcces(detecteurAnomalieAcces)));
 
         appliquerCommun(http, magasinIdempotence, resolveurPortee);
         return http.build();
@@ -124,6 +131,7 @@ public class SecurityConfig {
     SecurityFilterChain chaineNavigateur(HttpSecurity http,
             MagasinIdempotence magasinIdempotence,
             ResolveurPortee resolveurPortee,
+            DetecteurAnomalieAcces detecteurAnomalieAcces,
             @Value("${zumm.openapi.public:true}") boolean contratPublic,
             @Value("${ZUMM_OIDC_ISSUER_URI:}") String emetteur,
             @Value("${zumm.bff.apres-deconnexion:/}") String apresDeconnexion) throws Exception {
@@ -173,7 +181,10 @@ public class SecurityConfig {
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new HttpStatusEntryPoint(org.springframework.http.HttpStatus.UNAUTHORIZED),
-                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**")));
+                                new org.springframework.security.web.util.matcher.AntPathRequestMatcher("/api/**"))
+                        // Journalise le refus (SPRINT-34) avant de repondre 403 — voir
+                        // GestionnaireRefusAcces.
+                        .accessDeniedHandler(new GestionnaireRefusAcces(detecteurAnomalieAcces)));
 
         appliquerCommun(http, magasinIdempotence, resolveurPortee);
         return http.build();
