@@ -833,3 +833,87 @@ restée invisible jusqu'à la production.
 - Pas de commit fait cette séance (non demandé). Deux lots distincts prêts à
   committer séparément : corrélation flore (backend + front + `EnvironnementSigIT`
   + doc) et Mailpit/SMTP (infra, non touché aujourd'hui).
+
+---
+
+## 2026-09-12 — Corrélation flore committée ; parcours mot de passe oublié non vérifié (réseau)
+
+Les deux lots annoncés la veille ont été committés séparément, chacun sur son
+propre message, sans trailer d'attribution : `daaf9e5` (corrélation flore,
+19 fichiers) et `19ee7a0` (Mailpit/SMTP, 2 fichiers). Rien poussé.
+
+**Tentative de vérifier le parcours mot de passe oublié sur la pile dev,
+abandonnée pour un motif réseau, pas applicatif.** `docker compose --env-file
+.env -f infra/docker-compose.yml -f infra/docker-compose.dev.yml up -d
+--build` a été lancé trois fois : à chaque fois, le pull de
+`eclipse-temurin:17-jre-jammy` (image d'exécution du backend,
+`infra/backend.Dockerfile`) restait bloqué net sur les deux mêmes couches
+(`f55090376df5`, 47,5 Mo, et une autre), à 0-1 Mo, sans qu'aucune progression
+ne reprenne même après plusieurs minutes d'attente. Ce n'était pas une lenteur
+générale : dans le même intervalle, l'image `axllent/mailpit:v1.21` (après une
+seule relance) et `nginxinc/nginx-unprivileged:alpine` se sont téléchargées
+sans accroc, et `hello-world` est passé instantanément. Le blocage est donc
+spécifique à ce blob-là — un nœud CDN Docker Hub mal en point pour cette
+empreinte de contenu est l'explication la plus probable, pas un souci de
+config ni de bande passante du poste.
+
+Trois tentatives de `docker pull` isolé n'ont pas débloqué la couche
+(contrairement à Mailpit, débloqué du premier coup par la même tactique).
+Plutôt que de m'acharner dans une boucle de relances, la question a été posée
+à l'utilisateur : reporté à plus tard, sans redémarrer Docker Desktop ni
+insister davantage cette séance.
+
+**Conséquence** : le câblage Mailpit/Keycloak commité la veille (`19ee7a0`,
+smtpServer déjà pointé sur `mailpit:1025` dans `realm-zumm.dev.json`, backend
+avec `SPRING_MAIL_HOST=mailpit`) reste correct sur le papier mais **toujours
+pas rejoué en conditions réelles**. Aucun conteneur Zümm n'a été démarré ou
+modifié par ces tentatives — l'échec s'est produit avant la création de tout
+conteneur applicatif, l'état de la pile est inchangé.
+
+### Reste ouvert
+
+- Le parcours mot de passe oublié via Mailpit sur la pile dev, toujours non
+  vérifié — à reprendre quand le réseau le permettra
+  (`docker compose --env-file .env -f infra/docker-compose.yml
+  -f infra/docker-compose.dev.yml up -d --build`, puis
+  `bash infra/seed-demo.sh`, puis déclencher la réinitialisation pour
+  `apiculteur-test@example.invalid` et lire `http://localhost:8025`).
+- L'exception non gérée de `CapteursVue.tsx:110` / `Telemetrie.test.tsx`
+  (entrée du 2026-09-11), toujours non diagnostiquée.
+
+---
+
+## 2026-09-12 (suite) — Les deux défauts de test soldés, séparément
+
+Les deux points laissés ouverts ci-dessus ont chacun trouvé leur cause, et
+**aucun des deux n'était un défaut du code applicatif** — seulement des tests
+dont un mock ou une attente était incomplet.
+
+- **`Telemetrie.test.tsx`** (`d3f91d6`) : `client.serieCompartiment` était
+  mocké en `vi.fn()` nu, sans valeur de résolution par défaut. Choisir un
+  étage dans le volet « Poids par étage » appelle cette fonction
+  (`CapteursVue.tsx:106`), et le mock rendait `undefined` au lieu d'une
+  promesse — `.then()` explosait en erreur non gérée, faisant sortir
+  `npm test` en échec malgré 413/413 tests nommément verts. Le vrai
+  `serieCompartiment` renvoie toujours une promesse. Ajouté
+  `mockResolvedValue([])` au `beforeEach`.
+- **Fragilité générale de la suite, demandée en revue** (`461ada7`) : la durée
+  des runs corrélait exactement avec les échecs aléatoires observés plus tôt
+  (90-100 s avec des échecs différents à chaque fois pendant que Docker
+  construisait la pile dev en tâche de fond ; 13-17 s et 413/413 sans cette
+  charge, sur cinq runs consécutifs). **Cause principale : contention CPU**,
+  pas un bug — les délais par défaut de `waitFor`/`findBy` (1 s) peuvent
+  légitimement expirer sous charge. Un vrai défaut trouvé au passage :
+  `HorsLigneVue.tsx` lance un `useEffect` inconditionnel
+  (`agents.lister().then(setOptAgents)`) à chaque montage, et quatre tests de
+  `HorsLigne.test.tsx` montaient l'écran de façon synchrone puis lisaient le
+  DOM avant que cette promesse (mockée, résolue) ne se règle — avertissement
+  React « update not wrapped in act(...) » à chaque run, même vert. Corrigé
+  en passant ces quatre tests en `async` avec un premier
+  `await screen.findByText(...)`. Vérifié : 0 avertissement `act()` restant
+  dans toute la suite (12 avant, tous dans ce fichier).
+
+### Reste ouvert
+
+Le parcours mot de passe oublié via Mailpit, toujours non vérifié (voir
+ci-dessus) — rien d'autre de nouveau.
