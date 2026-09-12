@@ -95,6 +95,20 @@
         "texte": "Français, anglais et arabe, écriture de droite à gauche comprise."
       }
     },
+    "temoignages": {
+      "titre": "Témoignages des exploitations pilotes",
+      "soustitre": "Le produit est en phase pilote : ces exemples seront remplacés par de vrais témoignages dès qu’ils existeront.",
+      "badge": "Bientôt",
+      "apiculteur": {
+        "texte": "Le premier témoignage d’un apiculteur utilisateur paraîtra ici."
+      },
+      "agent": {
+        "texte": "Le premier témoignage d’un agent de terrain paraîtra ici."
+      },
+      "responsable": {
+        "texte": "Le premier témoignage d’un responsable d’exploitation paraîtra ici."
+      }
+    },
     "final": {
       "titre": "Prêt à ouvrir la ruche ?",
       "texte": "La création de compte demande un code d’exploitation. Vous n’en avez pas ? Demandez-le au responsable de votre exploitation."

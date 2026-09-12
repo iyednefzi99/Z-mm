@@ -95,6 +95,20 @@
         "texte": "French, English and Arabic, right-to-left writing included."
       }
     },
+    "temoignages": {
+      "titre": "Testimonials from the pilot holdings",
+      "soustitre": "The product is in pilot phase: these examples will be replaced by real testimonials once they exist.",
+      "badge": "Coming soon",
+      "apiculteur": {
+        "texte": "The first testimonial from a beekeeper user will appear here."
+      },
+      "agent": {
+        "texte": "The first testimonial from a field agent will appear here."
+      },
+      "responsable": {
+        "texte": "The first testimonial from a holding manager will appear here."
+      }
+    },
     "final": {
       "titre": "Ready to open the hive?",
       "texte": "Creating an account requires a holding code. You do not have one? Ask the manager of your holding."

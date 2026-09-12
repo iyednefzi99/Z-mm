@@ -189,9 +189,60 @@ export function AccueilVue({
         </section>
       </div>
 
-      {/* Seconde bande : comment on entre, et ce qui est tenu une fois entré. */}
+      {/* Seconde bande : pourquoi vous faire confiance, puis comment on entre.
+            La preuve technique (Confiance) précède la preuve sociale
+            (Témoignages) : la première est vérifiable dès aujourd'hui, la
+            seconde ne l'est pas encore, et l'ordre le dit sans un mot. Les
+            étapes et l'appel final viennent après — une fois la confiance
+            posée, reste à montrer que commencer est simple. */}
       <div className="z-bande z-bande--fond">
         <BordDechire teinte="surface" />
+
+        <section className="z-accueil__section" aria-labelledby="accueil-confiance">
+          <h2 className="z-accueil__titre" id="accueil-confiance">
+            {a.confiance.titre}
+          </h2>
+          <p className="z-accueil__soustitre">{a.confiance.soustitre}</p>
+          <ul className="z-accueil__garanties">
+            {GARANTIES.map((cle) => (
+              <li key={cle} className="z-accueil__garantie">
+                <h3 className="z-accueil__carte-titre">{a.confiance[cle].titre}</h3>
+                <p className="z-accueil__carte-texte">{a.confiance[cle].texte}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Preuve sociale. Aucune exploitation cliente n'a encore été
+              interrogée : afficher une citation attribuée à un nom inventé
+              mentirait exactement comme le ferait un chiffre inventé dans
+              l'aperçu du héros. La section existe donc déjà, avec le rôle qui
+              parlera (les mêmes trois profils que plus haut), mais chaque
+              carte porte l'étiquette « à venir » au lieu d'une citation. */}
+        <section className="z-accueil__section" aria-labelledby="accueil-temoignages">
+          <h2 className="z-accueil__titre" id="accueil-temoignages">
+            {a.temoignages.titre}
+          </h2>
+          <p className="z-accueil__soustitre">{a.temoignages.soustitre}</p>
+          {/* Pas de <h3> ici : « Agent de terrain » etc. sont déjà des titres
+                de section dans « Pour qui », un cran plus haut. Les répéter
+                comme titre ici doublerait l'esquisse de la page pour qui
+                navigue au clavier par en-têtes, sans rien ajouter — le rôle
+                reste lisible en légende de carte. */}
+          <ul className="z-accueil__grille z-accueil__grille--trois">
+            {PROFILS.map(({ cle, icone }) => (
+              <li key={cle} className="z-accueil__carte">
+                <span className="z-alveole" aria-hidden="true">
+                  <Icone nom={icone} />
+                </span>
+                <p className="z-accueil__carte-titre">{a.profils[cle].titre}</p>
+                <p className="z-accueil__carte-texte">
+                  <strong>{a.temoignages.badge}</strong> — {a.temoignages[cle].texte}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section className="z-accueil__section" aria-labelledby="accueil-etapes">
           <h2 className="z-accueil__titre" id="accueil-etapes">
@@ -209,21 +260,6 @@ export function AccueilVue({
               </li>
             ))}
           </ol>
-        </section>
-
-        <section className="z-accueil__section" aria-labelledby="accueil-confiance">
-          <h2 className="z-accueil__titre" id="accueil-confiance">
-            {a.confiance.titre}
-          </h2>
-          <p className="z-accueil__soustitre">{a.confiance.soustitre}</p>
-          <ul className="z-accueil__garanties">
-            {GARANTIES.map((cle) => (
-              <li key={cle} className="z-accueil__garantie">
-                <h3 className="z-accueil__carte-titre">{a.confiance[cle].titre}</h3>
-                <p className="z-accueil__carte-texte">{a.confiance[cle].texte}</p>
-              </li>
-            ))}
-          </ul>
         </section>
 
         <section className="z-accueil__final" aria-labelledby="accueil-final">
