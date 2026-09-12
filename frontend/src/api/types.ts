@@ -881,7 +881,7 @@ export interface PrevisionRecolte {
 }
 
 /** Entrée du journal d'audit (US-043, SPRINT-09). */
-export type ActionAudit = 'creation' | 'modification' | 'suppression';
+export type ActionAudit = 'creation' | 'modification' | 'suppression' | 'forcage' | 'refus';
 
 export interface AuditEntree {
   id: number;

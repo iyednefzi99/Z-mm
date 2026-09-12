@@ -36,6 +36,17 @@ public class AuditEntree {
      */
     public static final String FORCAGE = "forcage";
 
+    /**
+     * Refus RBAC — 403 (SPRINT-34).
+     *
+     * <p>Jusqu'ici, un refus d'acces ne laissait aucune trace : le journal ne
+     * connaissait que le travail reussi. Un compte qui essuie plusieurs refus
+     * en peu de temps est le signal qu'un controle cherche precisement — un
+     * jeton vole qui tente des routes hors de son role, ou un role mal
+     * attribue qu'on decouvre en boucle. Voir {@link com.zumm.securite.DetecteurAnomalieAcces}.
+     */
+    public static final String REFUS = "refus";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

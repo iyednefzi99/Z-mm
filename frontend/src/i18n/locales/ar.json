@@ -137,7 +137,9 @@
     "actions": {
       "creation": "إنشاء",
       "modification": "تعديل",
-      "suppression": "حذف"
+      "suppression": "حذف",
+      "forcage": "تجاوز",
+      "refus": "رفض"
     }
   },
   "langue": "اللغة",

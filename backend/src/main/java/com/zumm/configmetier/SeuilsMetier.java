@@ -19,6 +19,10 @@ package com.zumm.configmetier;
  * @param taillePageParDefaut  nombre d'elements par page des listes (US-052)
  * @param prixMielKgEur        valorisation du kg de miel produit, pour le ROI (US-015)
  * @param coutVisiteEur        cout d'une intervention, pour le ROI (US-015)
+ * @param seuilRefusAnomalie   nombre de refus (403) d'un meme acteur qui declenche
+ *                             une alerte d'anomalie d'acces (SPRINT-34)
+ * @param fenetreRefusAnomalieMinutes fenetre glissante, en minutes, sur laquelle
+ *                             ce nombre de refus est compte
  */
 public record SeuilsMetier(
         String langueParDefaut,
@@ -63,7 +67,9 @@ public record SeuilsMetier(
         int arrondiDegresPublic,
         int taillePageParDefaut,
         java.math.BigDecimal prixMielKgEur,
-        java.math.BigDecimal coutVisiteEur) {
+        java.math.BigDecimal coutVisiteEur,
+        int seuilRefusAnomalie,
+        int fenetreRefusAnomalieMinutes) {
 
     /** Valeurs de repli, alignees sur le gabarit versionne. */
     public static SeuilsMetier defauts() {
@@ -82,6 +88,8 @@ public record SeuilsMetier(
                 2,
                 25,
                 java.math.BigDecimal.valueOf(12),
-                java.math.BigDecimal.valueOf(25));
+                java.math.BigDecimal.valueOf(25),
+                5,
+                15);
     }
 }

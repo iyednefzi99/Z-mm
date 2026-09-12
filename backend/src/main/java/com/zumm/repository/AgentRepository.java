@@ -1,6 +1,7 @@
 package com.zumm.repository;
 
 import com.zumm.domain.Agent;
+import com.zumm.domain.RoleAgent;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -31,4 +32,11 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
      * palette en annuaire.
      */
     List<Agent> findByNomContainingIgnoreCaseOrderByNomAsc(String motif, Pageable pagination);
+
+    /**
+     * Agents portant l'un de ces rôles (SPRINT-34). Sert à trouver les
+     * destinataires d'une alerte de pilotage — anomalie d'accès, notamment —
+     * sans supposer qu'un seul agent est responsable.
+     */
+    List<Agent> findByRoleIn(List<RoleAgent> roles);
 }

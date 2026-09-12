@@ -10870,6 +10870,14 @@
           },
           "coutVisiteEur" : {
             "type" : "number"
+          },
+          "seuilRefusAnomalie" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "fenetreRefusAnomalieMinutes" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },

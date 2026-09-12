@@ -4272,6 +4272,10 @@ export interface components {
             taillePageParDefaut?: number;
             prixMielKgEur?: number;
             coutVisiteEur?: number;
+            /** Format: int32 */
+            seuilRefusAnomalie?: number;
+            /** Format: int32 */
+            fenetreRefusAnomalieMinutes?: number;
         };
         StatistiquePoint: {
             code?: string;

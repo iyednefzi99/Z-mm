@@ -974,3 +974,67 @@ Rien de nouveau côté Mailpit/mot de passe oublié — chantier soldé. La
 fuite de test `CapteursVue`/`HorsLigne` (entrées précédentes) est réglée
 elle aussi. Le point ouvert restant est celui d'avant ce sprint :
 `REVUE-CONSOLIDEE.md` § 5.
+
+---
+
+## 2026-09-12 (suite) — Panneau photos branché partout, puis alerte sur anomalie d'accès (SPRINT-34)
+
+Deux chantiers distincts, chacun committé et poussé séparément.
+
+**Panneau photos.** `PanneauPhotos` existait depuis le SPRINT-21 (six cibles
+depuis le SPRINT-28) mais restait absent de cinq écrans : Reines, Récoltes,
+Sanitaire (volet Traitements), Ruches, Sites. Simple branchement — aucune
+donnée nouvelle, aucune migration. Chaîne complète vérifiée avant commit
+(`typecheck`, `lint`, 418 tests, `build`). Commit `fe295c4`, poussé sur
+`sprint33-lotk-terrain-verifie`, PR ouverte côté utilisateur (`gh` non
+authentifié sur ce poste — abandonné après deux tentatives de connexion sans
+succès, l'utilisateur a ouvert la PR lui-même).
+
+**Alerte sur anomalie d'accès.** `REVUE-CONSOLIDEE.md` § 5 le pointait depuis
+le SPRINT-09 : « le journal d'audit enregistre, personne ne le lit en
+continu ». Périmètre retenu après discussion avec l'utilisateur : refus RBAC
+(403) répétés d'un même acteur sur une fenêtre glissante — seul signal qui ne
+demande pas de base comportementale. Explicitement écarté cette séance :
+- les échecs de mot de passe — Keycloak les voit, pas notre backend, le flux
+  OIDC/PKCE ne les expose jamais à l'API ;
+- l'horaire/le volume inhabituel — demanderait une moyenne historique par
+  agent, pas construite.
+
+Ce qui a été livré :
+- `AuditEntree.REFUS` — un 403 devient une ligne d'audit, ce qui n'existait
+  pas du tout avant (`GestionnaireRefusAcces`, un `AccessDeniedHandler` qui
+  délègue la réponse HTTP à celui de Spring par défaut et ne fait qu'ajouter
+  la journalisation avant) ;
+- `DetecteurAnomalieAcces` (package `securite/`) : compte les refus par
+  acteur sur la fenêtre configurée (`[securite]` de `ConfigZumm.ini`, 5 refus
+  / 15 min par défaut) et, au-delà, engendre une tâche CRITIQUE puis notifie
+  par e-mail tous les responsables/admin de l'exploitation
+  (`NotificationAlerteService.notifierAnomalieAcces`, un message par
+  destinataire) ;
+- **délibérément en dehors de `MoteurRegles`/`RegleTache`** : ce moteur est
+  volontairement non planifié (déclenché à la main), ce qui convient à des
+  règles métier qu'un responsable exécute à son rythme — l'inverse de ce
+  qu'une anomalie de sécurité demande. Le détecteur réutilise son
+  vocabulaire (tâche `origine=regle`, `cle_declencheur` anti-doublon horaire)
+  sans passer par lui ;
+- `V33` (widening du CHECK `ck_audit_action` + index `ix_audit_anomalie`) ;
+- `AgentRepository.findByRoleIn` (destinataires de l'alerte) ;
+- deux trous préexistants comblés au passage, découverts en instrumentant le
+  même endroit : le type frontend `ActionAudit` n'incluait pas `forcage`
+  (SPRINT-22) — une action déjà en base depuis un an s'affichait donc en
+  blanc dans `AuditVue` faute de clé i18n. Corrigé pour `forcage` et `refus`
+  ensemble, dans les trois locales.
+
+Vérifié : `DetecteurAnomalieAccesTest` (4 cas, mocks) et surtout
+`AnomalieAccesIT` — 5 vrais 403 envoyés à un `MockMvc` sous Testcontainers,
+vérifiés en base sous la vraie RLS : 5 lignes `refus` journalisées, une tâche
+critique `regleCode=anomalie-acces` engendrée. `./mvnw verify` complet :
+782 tests unitaires + 259 `*IT`, `Skipped: 0`, planchers JaCoCo tenus, aucune
+régression. Chaîne frontend complète également verte.
+
+### Reste ouvert
+
+`REVUE-CONSOLIDEE.md` § 5 est réduit d'un point (l'alerte d'accès) ; restent
+les autres — notamment le flux OIDC jamais joué en CI avec un vrai Keycloak,
+et `style-src 'unsafe-inline'`. Rien commité ni poussé cette partie de
+séance : à faire au prochain geste explicite.

@@ -137,7 +137,9 @@
     "actions": {
       "creation": "Creation",
       "modification": "Modification",
-      "suppression": "Deletion"
+      "suppression": "Deletion",
+      "forcage": "Override",
+      "refus": "Denied"
     }
   },
   "langue": "Language",
