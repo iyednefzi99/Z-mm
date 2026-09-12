@@ -2561,10 +2561,12 @@ a:focus-visible,
    Elle vit HORS de la coquille de la console — pas de rail, pas de barre de
    recherche, rien qui suppose une session.
 
-   Deux règles tenues ici : le dégradé signature n'occupe qu'UNE surface (la
-   carte d'aperçu du héros), conformément à DESIGN.md § 2.1 — partout ailleurs
-   il reste un accent ; et toutes les distances sont logiques, pour que l'arabe
-   soit un miroir réel et non une exception traitée à part. */
+   Deux règles tenues ici : le dégradé signature n'occupe qu'UNE surface (le
+   fond du héros, DESIGN.md § 2.1 l'autorise explicitement pour un héros),
+   conformément à DESIGN.md § 2.1 — partout ailleurs il reste un accent, d'où
+   la carte d'aperçu en verre plutôt qu'en aplat ; et toutes les distances sont
+   logiques, pour que l'arabe soit un miroir réel et non une exception traitée
+   à part. */
 
 .z-accueil {
   min-block-size: 100dvh;
@@ -2729,32 +2731,128 @@ a:focus-visible,
   gap: 0.75rem;
 }
 
-/* Le héros. Une seule colonne sous 900 px : sur un téléphone, la carte d'aperçu
-   passe sous le texte plutôt que de le comprimer. */
+/* Le héros. Fond illustré plein cadre — aube sur le rucher — plutôt qu'une
+   simple lueur : c'est la surface d'emphase où DESIGN.md § 2.1 autorise le
+   dégradé signature. Construit en CSS et SVG, sans photographie (aucune
+   fournie). Trois couches : `.z-accueil__hero` porte le ciel, le sol et la
+   ligne de ruches en plein cadre ; `.z-accueil__hero-cadre` recentre le
+   contenu (texte, carte) à la largeur de lecture habituelle par-dessus. */
 .z-accueil__hero {
+  position: relative;
+  overflow: hidden;
+  --z-hero-sol-hauteur: clamp(64px, 12vw, 112px);
+  background: linear-gradient(
+    180deg,
+    var(--z-honey-300) 0%,
+    var(--z-honey-500) 32%,
+    var(--z-honey-600) 58%,
+    var(--z-slate-900) 100%
+  );
+}
+
+.z-accueil__hero-sol {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  block-size: var(--z-hero-sol-hauteur);
+  background: var(--z-slate-900);
+}
+
+/* Ligne d'horizon décorative : cinq silhouettes réparties sur toute la
+   largeur plutôt que casées derrière le texte — un décalage à coordonnées
+   fixes se serait mal comporté dès que la traduction change la largeur du
+   bloc de texte (l'arabe RTL en particulier). */
+.z-accueil__hero-ruchers {
+  position: absolute;
+  inset-block-end: var(--z-hero-sol-hauteur);
+  inset-inline: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding-inline: 5%;
+  opacity: 0.9;
+}
+
+.z-accueil__hero-ruchers svg {
+  fill: color-mix(in srgb, var(--z-slate-900) 82%, black);
+}
+
+.z-accueil__hero-cadre {
+  position: relative;
   display: grid;
   gap: clamp(1.5rem, 4vw, 3rem);
   align-items: center;
-  padding: clamp(2.5rem, 7vw, 5rem) clamp(1rem, 4vw, 3rem);
+  padding-inline: clamp(1rem, 4vw, 3rem);
+  padding-block-start: clamp(2.5rem, 7vw, 5rem);
+  /* Réservé pour la ligne de ruches + le sol, positionnés en absolu par
+     rapport à `.z-accueil__hero` : sans cette marge, la carte d'aperçu (en
+     une colonne sous 900 px, elle passe SOUS le texte et grandit) finit par
+     recouvrir la scène — vu en capture, pas en théorie. */
+  padding-block-end: calc(clamp(2.5rem, 7vw, 5rem) + var(--z-hero-sol-hauteur) + 9rem);
   max-inline-size: 76rem;
   margin-inline: auto;
   inline-size: 100%;
-  /* Le grain PAR-DESSUS le halo de miel : la lueur vient de la page, la fibre
-     est le papier sur lequel elle est imprimée. L'ordre inverse donnerait un
-     halo posé sur le grain, c'est-à-dire du vernis. */
-  background-image:
-    var(--z-grain),
-    radial-gradient(
-      70% 60% at 50% -10%,
-      color-mix(in srgb, var(--z-honey-500) 14%, transparent),
-      transparent
-    );
+  /* Le grain PAR-DESSUS la scène : la fibre est le papier sur lequel elle est
+     imprimée. L'ordre inverse donnerait une scène posée sur le grain,
+     c'est-à-dire du vernis. */
+  background-image: var(--z-grain);
 }
 
 @media (min-width: 900px) {
-  .z-accueil__hero {
+  .z-accueil__hero-cadre {
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
+}
+
+/* Voile sous le texte : sans lui, la lisibilité de l'accroche dépendrait de
+   l'endroit où le dégradé se trouve être clair ou sombre à cet instant.
+   Calé à la largeur de lecture (46rem), pas au canevas entier : il doit
+   suivre le texte, pas le fond. */
+.z-accueil__hero-voile {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  inline-size: min(100%, 46rem);
+  /* Opacité poussée volontairement haut : `--z-on-slate`/`--z-on-slate-muted`
+     sont mesurés à 8,5:1 / 4,9:1 sur un ardoise PLEIN (`--z-slate-800`) —
+     un voile trop transparent laisserait le ciel d'aube dessous manger ce
+     contraste. */
+  background: linear-gradient(
+    100deg,
+    rgba(30, 58, 52, 0.68) 0%,
+    rgba(30, 58, 52, 0.42) 55%,
+    transparent 85%
+  );
+  pointer-events: none;
+}
+
+.z-accueil__hero-lueur {
+  position: absolute;
+  inset-block-start: -18%;
+  inset-inline-end: -8%;
+  inline-size: 46%;
+  aspect-ratio: 1;
+  border-radius: var(--z-radius-pill);
+  background: radial-gradient(circle, rgba(255, 251, 235, 0.8) 0%, rgba(243, 216, 137, 0.32) 45%, transparent 72%);
+  pointer-events: none;
+}
+
+.z-accueil__hero-vol {
+  position: absolute;
+  inset-block-start: 6%;
+  inset-inline-end: 8%;
+  inline-size: 18rem;
+  block-size: 12rem;
+  pointer-events: none;
+}
+
+.z-accueil__hero-vol span {
+  position: absolute;
+  inline-size: 6px;
+  block-size: 6px;
+  border-radius: 50%;
+  background: #fff6dd;
+  box-shadow: 0 0 8px 2px rgba(255, 246, 221, 0.65);
 }
 
 /* Le heros entrait d'un seul bloc. Un fondu unique sur une zone de cette taille
@@ -2783,6 +2881,19 @@ a:focus-visible,
   animation-delay: 160ms;
 }
 
+/* Le bloc de texte flotte sur le voile sombre du héros, pas sur la page : il
+   rebranche `--z-text`/`--z-text-muted` sur la paire déjà prévue pour une
+   encre claire sur fond sombre (`.z-accueil__pied` fait la même chose sur
+   l'ardoise), et `--z-surface`/`--z-line` pour que les puces de preuves et le
+   bouton secondaire (qui les lisent déjà) suivent sans rien savoir du fond. */
+.z-accueil__hero-texte {
+  position: relative;
+  --z-text: var(--z-on-slate);
+  --z-text-muted: var(--z-on-slate-muted);
+  --z-surface: color-mix(in srgb, var(--z-on-slate) 14%, transparent);
+  --z-line: color-mix(in srgb, var(--z-on-slate) 32%, transparent);
+}
+
 .z-accueil__accroche {
   margin: 0;
   font-size: clamp(2rem, 5vw, 3rem);
@@ -2809,9 +2920,9 @@ a:focus-visible,
 
 /* Bandeau de preuves. Des puces sobres, PAS des boutons : elles n'ouvrent rien,
    et leur donner l'allure d'un contrôle promettrait une action qui n'existe pas.
-   Pas de couleur pleine non plus — le héros n'a qu'un seul aplat de marque, la
-   carte d'aperçu, et lui en opposer un second ferait deux points d'attraction
-   là où il en faut un. */
+   Pas de couleur pleine non plus — le héros n'a qu'un seul aplat, son fond
+   illustré, et lui en opposer un second ferait deux points d'attraction là où
+   il en faut un. */
 .z-accueil__preuves {
   margin: 1.25rem 0 0;
   padding: 0;
@@ -2845,21 +2956,24 @@ a:focus-visible,
   flex: none;
 }
 
-/* Carte d'aperçu : la seule surface de la page qui porte le dégradé signature.
+/* Carte d'aperçu : verre dépoli, pas un aplat de couleur — le fond du héros
+   porte déjà le dégradé signature (DESIGN.md § 2.1 le réserve aux surfaces
+   d'emphase, héros compris), et lui en opposer un second en ferait deux.
    Elle NOMME ce que l'application suit, sans afficher aucune valeur — un
    visiteur n'a pas de données, et en inventer pour décorer serait mentir sur le
    produit. */
-/* Encre SOMBRE sur le dégradé, et non l'encre claire du volet de connexion :
-   celui-ci pose son texte sur la fin verte du dégradé, alors que cette carte
-   couvre les deux extrémités. Du #fdfcf7 sur le miel plafonne à 2,2:1 — sous
-   l'AA exigé par DESIGN.md § 2.4. `--z-on-honey` est le jeton prévu pour ce
-   cas : il tient 7,4:1 côté miel et 5,0:1 côté vert. */
+/* Encre SOMBRE conservée (`--z-on-honey`) : la carte flotte côté miel du ciel
+   d'aube, la zone claire du dégradé — c'est là qu'une encre sombre reste la
+   plus lisible, verre ou pas. */
 .z-accueil__apercu {
   position: relative;
   overflow: hidden;
   padding: 1.75rem;
   border-radius: var(--z-radius-lg);
-  background: var(--z-gradient-signature);
+  background: color-mix(in srgb, var(--z-on-slate) 42%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid color-mix(in srgb, var(--z-on-slate) 55%, transparent);
   color: var(--z-on-honey);
   box-shadow: var(--z-shadow-3);
 }

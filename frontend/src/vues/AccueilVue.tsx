@@ -35,6 +35,38 @@ const ETAPES = ['un', 'deux', 'trois'] as const;
 const GARANTIES = ['cloisonnement', 'positions', 'session', 'langues'] as const;
 
 /**
+ * Silhouette de ruche décorative pour la ligne d'horizon du héros — un dôme
+ * de skep, pas une photo : aucune n'a été fournie, et en générer une aurait
+ * laissé la trace que ce dépôt interdit.
+ *
+ * <p>Reprend la forme du pictogramme `ruche` de `ui/icones.tsx` (un arc en
+ * dôme, deux liserés horizontaux), rempli plutôt que tracé au trait : un
+ * empilement d'ellipses tenté d'abord se lisait comme un sapin, pas une
+ * ruche — le dôme, lui, ne s'y confond pas.
+ */
+function RucheSilhouette({ taille }: { taille: number }): ReactElement {
+  return (
+    <svg width={taille} height={taille * (100 / 120)} viewBox="0 0 120 100">
+      <path d="M10 92 A50 50 0 0 1 110 92 Z" />
+      <path d="M14.2 72h91.6" stroke="rgba(255, 255, 255, 0.16)" strokeWidth="2" />
+      <path d="M30 52h60" stroke="rgba(255, 255, 255, 0.16)" strokeWidth="2" />
+    </svg>
+  );
+}
+
+/** Tailles de la ligne de ruches, à l'échelle : ni un alignement au cordeau, ni un hasard à chaque rendu. */
+const TAILLES_RUCHERS = [72, 104, 80, 112, 76] as const;
+
+/** Vol d'abeilles décoratif au-dessus de la carte d'aperçu — positions fixes, pour un rendu identique côté serveur et client. */
+const VOL_ABEILLES = [
+  { gauche: '4%', haut: '18%', taille: 6, opacite: 0.55 },
+  { gauche: '28%', haut: '4%', taille: 8, opacite: 0.75 },
+  { gauche: '52%', haut: '30%', taille: 5, opacite: 0.45 },
+  { gauche: '70%', haut: '10%', taille: 7, opacite: 0.65 },
+  { gauche: '90%', haut: '22%', taille: 6, opacite: 0.55 },
+] as const;
+
+/**
  * Les signaux de confiance repris DANS le héros, au-dessus de la ligne de
  * flottaison.
  *
@@ -98,52 +130,77 @@ export function AccueilVue({
   return (
     <CoquillePublique session={session} onNaviguer={onNaviguer}>
       <section className="z-accueil__hero">
-        <div className="z-accueil__hero-texte">
-          <h1 className="z-accueil__accroche">{a.accroche}</h1>
-          <p className="z-accueil__intro">{a.intro}</p>
-          <div className="z-accueil__cta">
-            {session ? (
-              <Bouton variante="primaire" onClick={versConsole}>
-                {a.ouvrirConsole}
-              </Bouton>
-            ) : (
-              <>
-                <Bouton variante="primaire" onClick={versConnexion}>
-                  {a.creerCompte}
-                </Bouton>
-                {/* Deuxième appel : « en savoir plus » avant « entrer ». Un
-                    visiteur qui découvre le produit n'est pas prêt à se
-                    connecter, et lui proposer deux fois la même porte ne
-                    l'avance pas. */}
-                <Bouton variante="secondaire" onClick={versFonctionnalites}>
-                  {a.decouvrir}
-                </Bouton>
-              </>
-            )}
-          </div>
-
-          <ul className="z-accueil__preuves">
-            {PREUVES.map((cle) => (
-              <li key={cle}>{a.confiance[cle].titre}</li>
-            ))}
-          </ul>
+        {/* Scène plein cadre — aube sur le rucher — construite en CSS et SVG,
+            sans photographie : aucune n'a été fournie. Purement décorative :
+            le titre et l'intro, plus bas, portent seuls le sens. */}
+        <div className="z-accueil__hero-sol" aria-hidden="true" />
+        <div className="z-accueil__hero-ruchers" aria-hidden="true">
+          {TAILLES_RUCHERS.map((taille, i) => (
+            <RucheSilhouette key={i} taille={taille} />
+          ))}
         </div>
 
-        {/* Aperçu illustratif. Il nomme ce que l'application suit, sans
-              afficher la moindre valeur : une vitrine qui montre des chiffres
-              inventés ment sur le produit, et un visiteur non connecté n'a de
-              toute façon aucune donnée à voir. */}
-        <aside className="z-accueil__apercu" aria-label={a.apercu.titre}>
-          <div className="z-accueil__halo" aria-hidden="true" />
-          <p className="z-accueil__apercu-titre">{a.apercu.titre}</p>
-          <ul className="z-accueil__apercu-liste">
-            {APERCU.map(({ cle, icone }) => (
-              <li key={cle}>
-                <Icone nom={icone} /> {a.apercu[cle]}
-              </li>
+        <div className="z-accueil__hero-cadre">
+          <div className="z-accueil__hero-voile" aria-hidden="true" />
+          <div className="z-accueil__hero-lueur" aria-hidden="true" />
+          <div className="z-accueil__hero-vol" aria-hidden="true">
+            {VOL_ABEILLES.map((p) => (
+              <span
+                key={`${p.gauche}-${p.haut}`}
+                style={{ left: p.gauche, top: p.haut, width: p.taille, height: p.taille, opacity: p.opacite }}
+              />
             ))}
-          </ul>
-        </aside>
+          </div>
+
+          <div className="z-accueil__hero-texte">
+            <h1 className="z-accueil__accroche">{a.accroche}</h1>
+            <p className="z-accueil__intro">{a.intro}</p>
+            <div className="z-accueil__cta">
+              {session ? (
+                <Bouton variante="primaire" onClick={versConsole}>
+                  {a.ouvrirConsole}
+                </Bouton>
+              ) : (
+                <>
+                  <Bouton variante="primaire" onClick={versConnexion}>
+                    {a.creerCompte}
+                  </Bouton>
+                  {/* Deuxième appel : « en savoir plus » avant « entrer ». Un
+                      visiteur qui découvre le produit n'est pas prêt à se
+                      connecter, et lui proposer deux fois la même porte ne
+                      l'avance pas. */}
+                  <Bouton variante="secondaire" onClick={versFonctionnalites}>
+                    {a.decouvrir}
+                  </Bouton>
+                </>
+              )}
+            </div>
+
+            <ul className="z-accueil__preuves">
+              {PREUVES.map((cle) => (
+                <li key={cle}>{a.confiance[cle].titre}</li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Aperçu illustratif. Il nomme ce que l'application suit, sans
+                afficher la moindre valeur : une vitrine qui montre des chiffres
+                inventés ment sur le produit, et un visiteur non connecté n'a de
+                toute façon aucune donnée à voir. Carte en verre : le fond du
+                héros porte déjà le dégradé signature, et un second aplat de
+                couleur ferait deux points d'attraction là où il en faut un. */}
+          <aside className="z-accueil__apercu" aria-label={a.apercu.titre}>
+            <div className="z-accueil__halo" aria-hidden="true" />
+            <p className="z-accueil__apercu-titre">{a.apercu.titre}</p>
+            <ul className="z-accueil__apercu-liste">
+              {APERCU.map(({ cle, icone }) => (
+                <li key={cle}>
+                  <Icone nom={icone} /> {a.apercu[cle]}
+                </li>
+              ))}
+            </ul>
+          </aside>
+        </div>
       </section>
 
       {/* Première bande : ce que fait le produit, et pour qui. */}
